@@ -1,0 +1,27 @@
+{
+    "name": "haxibiao/category",
+    "type": "library",
+    "require": {
+        "php": ">=7.0"
+    },
+    "autoload": {
+        "files": [
+            "src/helpers.php"
+        ],
+        "psr-4": {
+            "Haxibiao\\Category\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Haxibiao\\Category\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Haxibiao\\Category\\CategoryServiceProvider"
+            ]
+        }
+    }
+}
