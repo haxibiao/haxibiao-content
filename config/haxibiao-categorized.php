@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types = 1);
 
 return [
 
@@ -8,7 +8,7 @@ return [
     |--------------------------------------------------------------------------
     | Eloquent Models
     |--------------------------------------------------------------------------
-    */
+     */
 
     'models' => [
 
@@ -16,9 +16,9 @@ return [
         |--------------------------------------------------------------------------
         | Package's Category Model
         |--------------------------------------------------------------------------
-        */
+         */
 
-        'category' =>  Haxibiao\Category\Models\Category::class,
+        'category' => haxibiao\content\Category::class,
 
     ],
 

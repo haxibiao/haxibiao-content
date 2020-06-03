@@ -1,11 +1,11 @@
 <?php
 
-namespace Haxibiao\Category\Models;
+namespace haxibiao\content;
 
-use Haxibiao\Category\Traits\BaseModel;
-use Haxibiao\Category\Traits\CategoryAttrs;
-use Haxibiao\Category\Traits\CategoryRepo;
-use Haxibiao\Category\Traits\CategoryResolvers;
+use haxibiao\content\Traits\BaseModel;
+use haxibiao\content\Traits\CategoryAttrs;
+use haxibiao\content\Traits\CategoryRepo;
+use haxibiao\content\Traits\CategoryResolvers;
 use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
@@ -31,7 +31,6 @@ class Category extends Model
         'is_for_app',
         'logo_app',
     ];
-
 
     public function user()
     {

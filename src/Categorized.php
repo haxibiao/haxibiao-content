@@ -1,12 +1,10 @@
 <?php
 
-
-namespace Haxibiao\Category\Models;
-
+namespace haxibiao\content;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Categorized  extends Model
+class Categorized extends Model
 {
     protected $table = 'categorizeds';
 

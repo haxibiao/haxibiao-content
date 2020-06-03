@@ -1,14 +1,14 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types = 1);
 
-use Haxibiao\Category\Controllers\CategoryController;
-use Illuminate\Support\Facades\Route;
+use haxibiao\content\Controllers\CategoryController;
 use Illuminate\Contracts\Routing\Registrar as RouteRegisterContract;
+use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'category'], function (RouteRegisterContract $route) {
     //管理专题
-    Route::get('/list', CategoryController::class.'@list');
+    Route::get('/list', CategoryController::class . '@list');
 });
 
 Route::resource('/category', CategoryController::class);

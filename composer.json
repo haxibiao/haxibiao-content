@@ -1,27 +1,24 @@
 {
-    "name": "haxibiao/category",
-    "type": "library",
-    "require": {
-        "php": ">=7.0"
-    },
-    "autoload": {
-        "files": [
-            "src/helpers.php"
-        ],
-        "psr-4": {
-            "Haxibiao\\Category\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Haxibiao\\Category\\Tests\\": "tests/"
-        }
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Haxibiao\\Category\\CategoryServiceProvider"
-            ]
-        }
+  "name": "haxibiao/content",
+  "type": "library",
+  "require": {
+    "php": ">=7.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "haxibiao\\content\\": "src/"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "haxibiao\\content\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "haxibiao\\content\\ContentServiceProvider"
+      ]
+    }
+  }
 }

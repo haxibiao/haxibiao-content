@@ -1,0 +1,10 @@
+<?php
+
+namespace App;
+
+use haxibiao\content\Category as BaseCategory;
+
+class Category extends BaseCategory
+{
+
+}

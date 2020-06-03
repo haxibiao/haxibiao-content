@@ -1,11 +1,11 @@
 <?php
 
-namespace Haxibiao\Category\Controllers;
+namespace haxibiao\content\Controllers;
 
 use App\Article;
 use App\User;
-use Haxibiao\Category\Models\Category;
-use Haxibiao\Category\Requests\CategoryRequest;
+use haxibiao\content\Category;
+use haxibiao\content\Requests\CategoryRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;

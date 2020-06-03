@@ -1,8 +1,8 @@
 <?php
 
-namespace Haxibiao\Category\Traits;
+namespace haxibiao\content\Traits;
 
-use Haxibiao\Category\Models\Category;
+use haxibiao\content\Category;
 
 trait HasCategory
 {

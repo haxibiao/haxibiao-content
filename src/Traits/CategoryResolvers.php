@@ -1,9 +1,9 @@
 <?php
 
-namespace Haxibiao\Category\Traits;
+namespace haxibiao\content\Traits;
 
 use GraphQL\Type\Definition\ResolveInfo;
-use Haxibiao\Category\Models\Category;
+use haxibiao\content\Category;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 trait CategoryResolvers

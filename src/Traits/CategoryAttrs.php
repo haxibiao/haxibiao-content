@@ -1,9 +1,9 @@
 <?php
 
-namespace Haxibiao\Category\Traits;
+namespace haxibiao\content\Traits;
 
+use haxibiao\content\Category;
 use Illuminate\Support\Facades\Auth;
-use Haxibiao\Category\Models\Category;
 
 trait CategoryAttrs
 {

@@ -1,47 +1,44 @@
 <?php
 
-
-namespace Haxibiao\Category\Traits;
-
+namespace haxibiao\content\Traits;
 
 use Illuminate\Support\Facades\Auth;
 
 trait BaseModel
 {
     //time
-    function getTimeAgoAttribute()
+    public function getTimeAgoAttribute()
     {
         return diffForHumansCN($this->created_at);
     }
 
-    function timeAgo()
+    public function timeAgo()
     {
         return diffForHumansCN($this->created_at);
     }
 
-    function createdAt()
+    public function createdAt()
     {
         return diffForHumansCN($this->created_at);
     }
 
-    function updatedAt()
+    public function updatedAt()
     {
         return diffForHumansCN($this->updated_at);
     }
 
-    function editedAt()
+    public function editedAt()
     {
         return diffForHumansCN($this->edited_at);
     }
 
-
     //self
-    function isSelf()
+    public function isSelf()
     {
         return Auth::check() && Auth::id() == $this->user_id;
     }
 
-    function isOfUser($user)
+    public function isOfUser($user)
     {
         return $user && $user->id == $this->user_id;
     }
@@ -83,7 +80,7 @@ trait BaseModel
         //需要获取列名
         $real_columns = array_diff($columns, (array) $value);
 
-        $tableName = $this->getTable();
+        $tableName      = $this->getTable();
         $format_colomns = array_map(function ($name) use ($tableName) {
             return $tableName . '.' . $name;
         }, $real_columns);

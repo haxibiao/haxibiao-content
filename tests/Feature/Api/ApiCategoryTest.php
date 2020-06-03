@@ -1,11 +1,10 @@
 <?php
 
-namespace Haxibiao\Category\Tests\Feature\Api;
+namespace haxibiao\content\Tests\Feature\Api;
 
 use Tests\TestCase;
 
 class ApiChatTest extends TestCase
 {
-
 
 }

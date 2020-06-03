@@ -1,8 +1,8 @@
 <?php
 
-namespace Haxibiao\Category\Traits;
+namespace haxibiao\content\Traits;
 
-use Haxibiao\Category\Models\Category;
+use haxibiao\content\Category;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
@@ -11,7 +11,7 @@ trait Categorizable
 
     public function category()
     {
-        return $this->belongsTo(Category::class,'category_id');
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function allCategories()
@@ -30,7 +30,7 @@ trait Categorizable
     {
         return $this->morphToMany(Category::class, 'categorized')
             ->withPivot(['id', 'submit'])
-            ->withTimestamps();;
+            ->withTimestamps();
     }
 
     public function categorize($categories)
@@ -55,13 +55,13 @@ trait Categorizable
     }
 
 //    public function getCountCategoriesAttribute()
-//    {
-//        if ($this->relationLoaded('categories')) {
-//            return $this->categories->count();
-//        }
-//
-//        return $this->categories()->count();
-//    }
+    //    {
+    //        if ($this->relationLoaded('categories')) {
+    //            return $this->categories->count();
+    //        }
+    //
+    //        return $this->categories()->count();
+    //    }
 
     public function hasCategory($categories)
     {

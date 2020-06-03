@@ -1,12 +1,11 @@
 <?php
 
-namespace Haxibiao\Category;
+namespace haxibiao\content;
 
-use Haxibiao\Category\Console\CategoryReFactoringCommand;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
-class CategoryServiceProvider extends ServiceProvider
+class ContentServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
@@ -38,7 +37,7 @@ class CategoryServiceProvider extends ServiceProvider
 
         //TODO 需要加入强制publish选项
         $this->publishes([
-            __DIR__.'/../database/migrations' => database_path('migrations'),
+            __DIR__ . '/../database/migrations' => database_path('migrations'),
         ], 'migrations');
 
         $this->publishes([
@@ -46,37 +45,41 @@ class CategoryServiceProvider extends ServiceProvider
         ], 'config');
 
         $this->publishes([
-            __DIR__.'/../graphql/category' => base_path('graphql/category'),
+            __DIR__ . '/../graphql/category' => base_path('graphql/category'),
         ], 'live-graphql');
 
         //TODO 发布Nova配置文件
         $this->loadRoutesFrom(
-            $this->app->make('path.haxibiao-category').'/router.php'
+            $this->app->make('path.haxibiao-category') . '/router.php'
         );
     }
 
-    protected function bindPathsInContainer(){
+    protected function bindPathsInContainer()
+    {
         foreach ([
-                     'path.haxibiao-category'   =>        $root = dirname(__DIR__),
-                     'path.haxibiao-category.config'      => $root.'/config',
-                     'path.haxibiao-category.database'    => $database = $root.'/database',
-                     'path.haxibiao-category.migrations'  => $database.'/migrations',
-                     'path.haxibiao-category.seeds'       => $database.'/seeds',
-                     'path.haxibiao-category.graphql'     => $database.'/graphql'
-                 ] as $abstract => $instance) {
+            'path.haxibiao-category'            => $root = dirname(__DIR__),
+            'path.haxibiao-category.config'     => $root . '/config',
+            'path.haxibiao-category.database'   => $database = $root . '/database',
+            'path.haxibiao-category.migrations' => $database . '/migrations',
+            'path.haxibiao-category.seeds'      => $database . '/seeds',
+            'path.haxibiao-category.graphql'    => $database . '/graphql',
+        ] as $abstract => $instance) {
             $this->app->instance($abstract, $instance);
         }
     }
 
-    protected function registerCommands(){
+    protected function registerCommands()
+    {
         $this->commands([
+            InstallCommand::class,
             CategoryReFactoringCommand::class,
         ]);
     }
 
-    protected function registerMorphMap(){
+    protected function registerMorphMap()
+    {
         $this->morphMap([
-            'categories' => 'Haxibiao\Category\Models\Category',
+            'categories' => 'haxibiao\content\Category',
         ]);
     }
 

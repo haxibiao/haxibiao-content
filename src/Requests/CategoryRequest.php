@@ -1,6 +1,6 @@
 <?php
 
-namespace Haxibiao\Category\Requests;
+namespace haxibiao\content\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -25,10 +25,10 @@ class CategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|unique:categories,name',
-            'name_en' => 'required|unique:categories,name_en',
+            'name'        => 'required|unique:categories,name',
+            'name_en'     => 'required|unique:categories,name_en',
             // 'parent_id' => 'required',
-            'description'=>'max:190',
+            'description' => 'max:190',
         ];
     }
 }
