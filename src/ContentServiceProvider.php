@@ -55,6 +55,10 @@ class ContentServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(
             $this->app->make('path.haxibiao-category') . '/router.php'
         );
+
+        //绑定observers
+        \haxibiao\media\Spider::observe(\haxibiao\content\Observers\SpiderObserver::class);
+
     }
 
     protected function bindPathsInContainer()
