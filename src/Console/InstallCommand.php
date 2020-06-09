@@ -32,7 +32,10 @@ class InstallCommand extends Command
         $this->info('强制发布资源');
         $this->call('vendor:publish', ['--provider' => 'haxibiao\content\ContentServiceProvider', '--force']);
 
-        // $this->comment("复制 stubs ...");
+        $this->comment("复制 stubs ...");
+        copy(__DIR__ . '/stubs/Post.stub', app_path('Post.php'));
+        copy(__DIR__ . '/stubs/PostRecommend.stub', app_path('PostRecommend.php'));
+
         // copy($this->resolveStubPath('/stubs/Category.stub'), app_path('Category.php'));
 
         $this->comment('迁移数据库变化...');

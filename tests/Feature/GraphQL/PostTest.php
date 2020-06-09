@@ -10,7 +10,7 @@ class PostTest extends GraphQLTestCase
     //用户发布视频动态
     public function testUserPostsQuery()
     {
-        $query     = file_get_contents(__DIR__ . '/gql/post/UserPostsQuery.gql');
+        $query     = file_get_contents(__DIR__ . '/Post/UserPostsQuery.gql');
         $variables = [
             "user_id" => 4,
         ];
@@ -19,7 +19,7 @@ class PostTest extends GraphQLTestCase
 
     public function testRecommendPostsQuery()
     {
-        $query     = file_get_contents(__DIR__ . '/gql/post/RecommendPostsQuery.gql');
+        $query     = file_get_contents(__DIR__ . '/Post/RecommendPostsQuery.gql');
         $variables = [];
         $this->runGQL($query, $variables);
     }
@@ -27,7 +27,7 @@ class PostTest extends GraphQLTestCase
     // 视频详情
     public function testPostQuery()
     {
-        $query     = file_get_contents(__DIR__ . '/gql/post/PostQuery.gql');
+        $query     = file_get_contents(__DIR__ . '/Post/PostQuery.gql');
         $id        = Post::first()->id;
         $variables = [
             'id' => $id,
