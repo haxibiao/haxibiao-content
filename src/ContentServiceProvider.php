@@ -43,12 +43,13 @@ class ContentServiceProvider extends ServiceProvider
 
             //发布 graphql
             $this->publishes([
-                __DIR__ . '/../graphql' => base_path('graphql'),
+                __DIR__ . '/../graphql/post' => base_path('graphql/post'),
             ], 'content-graphql');
 
             //发布 tests
             $this->publishes([
-                __DIR__ . '/../tests' => base_path('tests'),
+                __DIR__ . '/../tests/Feature/GraphQL/Post'         => base_path('tests/Feature/GraphQL/Post'),
+                __DIR__ . '/../tests/Feature/GraphQL/PostTest.php' => base_path('tests/Feature/GraphQL/PostTest.php'),
             ], 'content-tests');
         }
 

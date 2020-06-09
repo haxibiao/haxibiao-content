@@ -128,15 +128,15 @@ trait PostRepo
         $maxReviewIdInDays = Post::getMaxReviewIdInDays();
 
         //构建查询
-        $qb = Post::with(['video', 'user', 'user.role'])
-            ->has('video')
+        $qb = Post::has('video')->with(['video', 'user', 'user.role'])
             ->publish();
         $qb = $qb->take($limit);
 
         //登录用户
 
         //1.过滤 过滤掉自己 和 不喜欢用户的作品
-        $notLikIds   = $user->notLikes()->ByType('users')->get()->pluck('not_likable_id')->toArray();
+        //FIXME: 答妹等喜欢还没notlike表的
+        $notLikIds[] = !class_exists("App\NotLike") ? [] : $user->notLikes()->ByType('users')->get()->pluck('not_likable_id')->toArray();
         $notLikIds[] = $user->id; //默认不喜欢刷到自己的视频动态
         $qb          = $qb->whereNotIn('user_id', $notLikIds);
 
