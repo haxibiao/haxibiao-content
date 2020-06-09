@@ -13,6 +13,10 @@ class CreateCategoriesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('categories')) {
+            return;
+        }
+
         Schema::create('categories', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id')->index();

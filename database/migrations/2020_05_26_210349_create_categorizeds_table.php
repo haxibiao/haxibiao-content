@@ -13,6 +13,10 @@ class CreateCategorizedsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('categorizeds')) {
+            return;
+        }
+
         Schema::create('categorizeds', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('category_id');
