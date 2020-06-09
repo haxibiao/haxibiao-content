@@ -33,22 +33,25 @@ class ContentServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->loadMigrationsFrom($this->app->make('path.haxibiao-category.migrations'));
+        //安装时需要
+        if ($this->app->runningInConsole()) {
+            $this->loadMigrationsFrom($this->app->make('path.haxibiao-category.migrations'));
 
-        //TODO 需要加入强制publish选项
-        $this->publishes([
-            __DIR__ . '/../database/migrations' => database_path('migrations'),
-        ], 'migrations');
+            $this->publishes([
+                __DIR__ . '/../config/haxibiao-categorized.php' => config_path('haxibiao-categorized.php'),
+            ], 'content-config');
 
-        $this->publishes([
-            __DIR__ . '/../config/haxibiao-categorized.php' => config_path('haxibiao-categorized.php'),
-        ], 'config');
+            //发布 graphql
+            $this->publishes([
+                __DIR__ . '/../graphql' => base_path('graphql'),
+            ], 'content-graphql');
 
-        $this->publishes([
-            __DIR__ . '/../graphql/category' => base_path('graphql/category'),
-        ], 'live-graphql');
+            //发布 tests
+            $this->publishes([
+                __DIR__ . '/../tests' => base_path('tests'),
+            ], 'content-tests');
+        }
 
-        //TODO 发布Nova配置文件
         $this->loadRoutesFrom(
             $this->app->make('path.haxibiao-category') . '/router.php'
         );

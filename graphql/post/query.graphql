@@ -1,0 +1,37 @@
+type Post {
+  id: Int!
+  user: User
+  video: Video
+  """
+  动态的内容
+  """
+  content: String
+  description: String
+  status: Int
+  liked: Int
+  count_likes: Int
+  count_comments: Int
+  review_id: String
+  review_day: String
+  is_ad: Int
+  created_at: String
+}
+
+extend type Query {
+  """
+  Post动态详情
+  """
+  post(id: Int! @eq): Post @find
+
+  """
+  学习视频列表（兼容token为游客的情况）
+  """
+  recommendPosts: [Post!]
+    @field(resolver: "haxibiao\\content\\Post@resolveRecommendPosts")
+
+  """
+  个人主页动态列表
+  """
+  posts(user_id: Int!): [Post!]
+    @paginate(builder: "haxibiao\\content\\Post@resolvePosts", defaultCount: 10)
+}
