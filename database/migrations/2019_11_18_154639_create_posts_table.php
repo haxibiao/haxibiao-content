@@ -22,6 +22,8 @@ class CreatePostsTable extends Migration
             $table->unsignedInteger('user_id')->index()->comment('作者');
             $table->unsignedInteger('video_id')->default(0)->index()->comment('视频ID');
 
+            $table->integer('spider_id')->nullable()->comment('动态的爬虫id');
+
             $table->string('description')->nullable()->comment('描述');
             $table->text('content')->nullable()->comment('内容');
 

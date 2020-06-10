@@ -1,12 +1,25 @@
 type Post {
   id: Int!
   user: User
+  """
+  视频
+  """
   video: Video
+  """
+  爬虫
+  """
+  spider: Spider
   """
   动态的内容
   """
   content: String
+  """
+  动态的简介，一般没场景用，除非内容过多的时候列表只显示简介
+  """
   description: String
+  """
+  -1删除，0草稿，1发布
+  """
   status: Int
   liked: Int
   count_likes: Int

@@ -38,8 +38,8 @@ class InstallCommand extends Command
 
         // copy($this->resolveStubPath('/stubs/Category.stub'), app_path('Category.php'));
 
-        //$this->comment('迁移数据库变化...');
-        //$this->call('migrate');
+        $this->comment('迁移数据库变化...');
+        $this->call('migrate');
 
     }
 

@@ -24,6 +24,7 @@ class Post extends Model
         'user_id',
         'description',
         'content',
+        'spider_id',
         'video_id',
         'status',
         'hot',

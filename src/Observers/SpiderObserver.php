@@ -15,6 +15,8 @@ class SpiderObserver
      */
     public function created(Spider $spider)
     {
+        //创建爬虫的时候，自动发布一个动态
+        Post::saveSpiderVideoPost($spider);
     }
 
     /**
@@ -26,7 +28,7 @@ class SpiderObserver
     public function updated(Spider $spider)
     {
         if ($spider->status == Spider::PROCESSED_STATUS) {
-            Post::saveSpiderVideoPost($spider);
+            Post::publishSpiderVideoPost($spider);
         }
     }
 

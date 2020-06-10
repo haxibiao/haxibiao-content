@@ -227,15 +227,24 @@ trait PostRepo
     //保存抖音爬虫视频动态
     public static function saveSpiderVideoPost($spider)
     {
-        $data = $spider->data;
-        $post = Post::firstOrNew(['video_id' => $spider->spider_id]);
-
-        //创建动态..
+        $post           = Post::firstOrNew(['spider_id' => $spider->id]);
+        $post->video_id = $spider->spider_id; //爬虫的类型spider_type="videos"
+        //创建动态 避免重复创建..
         if (!isset($post->id)) {
             $post->user_id    = $spider->user_id;
-            $post->content    = Arr::get($data, 'title', '');
-            $post->status     = Post::PUBLISH_STATUS; //发布成功动态
+            $post->content    = Arr::get($spider->data, 'title', '');
+            $post->status     = Post::PRIVARY_STATUS; //草稿，爬虫抓取中
             $post->created_at = now();
+            $post->save();
+        }
+    }
+
+    //抖音爬虫成功，发布视频动态
+    public static function publishSpiderVideoPost($spider)
+    {
+        $post = Post::where(['spider_id' => $spider->id])->first();
+        if ($post) {
+            $post->status     = Post::PUBLISH_STATUS; //发布成功动态
             $post->updated_at = $spider->updated_at;
             // $post->review_id  = Post::makeNewReviewId(); //定时发布时决定，有定时任务处理一定数量或者时间后随机打乱
             // $post->review_day = Post::makeNewReviewDay();
@@ -261,9 +270,7 @@ trait PostRepo
                     $user->decrement('ticket');
                 }
             }
-
         }
-
     }
 
 }
