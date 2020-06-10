@@ -9,6 +9,7 @@ use App\User;
 use haxibiao\content\Traits\PostAttrs;
 use haxibiao\content\Traits\PostRepo;
 use haxibiao\content\Traits\PostResolvers;
+use haxibiao\media\Spider;
 use haxibiao\media\Video;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -54,6 +55,11 @@ class Post extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function spider(): BelongsTo
+    {
+        return $this->belongsTo(Spider::class);
     }
 
     public function video(): BelongsTo

@@ -14,6 +14,11 @@ query UserPostsQuery($user_id: Int!, $page: Int) {
       liked
       is_ad
       created_at
+      spider {
+        id
+        created_at
+        status
+      }
       video {
         id
         width
