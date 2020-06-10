@@ -22,7 +22,7 @@ class CreatePostsTable extends Migration
             $table->unsignedInteger('user_id')->index()->comment('作者');
             $table->unsignedInteger('video_id')->default(0)->index()->comment('视频ID');
 
-            $table->string('description')->default("")->comment('描述');
+            $table->string('description')->nullable()->comment('描述');
             $table->text('content')->nullable()->comment('内容');
 
             $table->tinyInteger('status')->default(0)->comment('状态');
