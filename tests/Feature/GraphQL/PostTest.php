@@ -7,35 +7,50 @@ use haxibiao\content\Post;
 class PostTest extends GraphQLTestCase
 {
 
+    protected $user;
+
+    protected $post;
+
+    protected $video;
+
     public function setUp(): void
     {
         parent::setUp();
 
-        Post::firstOrCreate([
-            'user_id' => rand(1, 10),
-            'content' => "测试动态",
-            'status'  => Post::PUBLISH_STATUS,
+        $this->user  = factory(User::class)->create();
+
+        $this->video = factory(Video::class)->create([
+            'user_id' => $this->user->id
         ]);
 
-        Post::firstOrCreate([
-            'user_id'  => rand(1, 10),
-            'video_id' => rand(1, 10),
-            'content'  => "有视频的动态",
-            'status'   => Post::PUBLISH_STATUS,
+        $this->post  = factory(Post::class)->create([
+            'user_id'  => $this->user->id,
+            'video_id' => $this->video->id
         ]);
+
 
     }
 
-    //用户发布视频动态
+    /**
+     * 用户发布视频动态
+     *
+     * @group post
+     */
     public function testUserPostsQuery()
     {
         $query     = file_get_contents(__DIR__ . '/Post/UserPostsQuery.gql');
         $variables = [
-            "user_id" => 4,
+            "user_id" => $this->user->id,
         ];
         $this->runGQL($query, $variables);
     }
 
+
+    /**
+     * 推荐视频列表
+     *
+     * @group post
+     */
     public function testRecommendPostsQuery()
     {
         $query     = file_get_contents(__DIR__ . '/Post/RecommendPostsQuery.gql');
@@ -43,15 +58,29 @@ class PostTest extends GraphQLTestCase
         $this->runGQL($query, $variables);
     }
 
-    // 视频详情
+    /**
+     * 视频详情
+     *
+     * @group post
+     */
     public function testPostQuery()
     {
         $query     = file_get_contents(__DIR__ . '/Post/PostQuery.gql');
-        $id        = Post::first()->id;
+
         $variables = [
-            'id' => $id,
+            'id' => $this->post->id,
         ];
+
         $this->runGQL($query, $variables);
+    }
+
+
+    protected function tearDown(): void
+    {
+        $this->user->forceDelete();
+        $this->post->forceDelete();
+        $this->video->forceDelete();
+        parent::tearDown();
     }
 
 }

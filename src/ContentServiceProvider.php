@@ -29,7 +29,7 @@ class ContentServiceProvider extends ServiceProvider
     /**
      * Bootstrap services.
      *
-     * @return void
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function boot()
     {
@@ -51,6 +51,12 @@ class ContentServiceProvider extends ServiceProvider
                 __DIR__ . '/../tests/Feature/GraphQL/Post'         => base_path('tests/Feature/GraphQL/Post'),
                 __DIR__ . '/../tests/Feature/GraphQL/PostTest.php' => base_path('tests/Feature/GraphQL/PostTest.php'),
             ], 'content-tests');
+
+            //发布 factories
+            $this->publishes([
+                __DIR__ . '/../database/factories/PostFactory.php'  => base_path('database/factories/PostFactory.php'),
+                __DIR__ . '/../database/factories/VideoFactory.php' => base_path('database/factories/VideoFactory.php'),
+            ], 'content-factories');
         }
 
         $this->loadRoutesFrom(
