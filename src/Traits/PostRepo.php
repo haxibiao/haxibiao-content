@@ -162,6 +162,11 @@ trait PostRepo
         //获取数据
         $posts = $qb->get();
 
+        // 视频刷光了,先返回100个最新的视频顶一下
+        if ($posts->isEmpty()) {
+            return $qb->latest('id')->skip(rand(1, 100))->take(100)->get();
+        }
+
         //用户和当前这堆视频动态的 喜欢状态（是否已喜欢过，更新post->liked）
         //TODO: 后续换倒排表，到推荐子喜欢单次查询返回结果集
         $posts = Post::likedPosts($user, $posts);
