@@ -14,7 +14,7 @@ class EditVideoIdNullableToPosts extends Migration
     public function up()
     {
         Schema::table('posts', function (Blueprint $table) {
-            $table->unsignedInteger('video_id')->nullable()->index()->comment('视频ID');
+            $table->unsignedInteger('video_id')->nullable()->comment('视频ID')->change();
         });
     }
 
