@@ -131,7 +131,6 @@ trait PostRepo
         //构建查询
         $qb = Post::has('video')->with(['video', 'user', 'user.role'])
             ->publish();
-        $qb = $qb->take($limit);
 
         //登录用户
 
@@ -149,12 +148,13 @@ trait PostRepo
         $reviewId  = Post::getNextReviewId($postRecommend->day_review_ids, $maxReviewIdInDays);
         $reviewDay = substr($reviewId, 0, 8);
 
-        //视频刷光了
+        //视频刷光了,先返回100个最新的视频顶一下，有点逻辑需要分析
         if (is_null($reviewId)) {
-            return [];
+            return $qb->latest('id')->skip(rand(1, 100))->take(100)->get();
         }
 
         //3.取未刷完的这天的指针后的视频
+        $qb = $qb->take($limit);
         $qb = $qb->where('review_day', $reviewDay)
             ->where('review_id', '>', $reviewId)
             ->orderBy('review_id');
@@ -178,7 +178,6 @@ trait PostRepo
 
         return $mixPosts;
     }
-
 
     /**
      * 查询该刷哪天的哪个位置了...
