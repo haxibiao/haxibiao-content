@@ -20,7 +20,6 @@ trait PostRepo
         $qb = Post::with(['video', 'user', 'user.role'])->has('video')->publish()
             ->orderByDesc('review_id')
             ->take($limit);
-
         //存在用户
         if ($hasLogin) {
             //过滤掉自己 和 不喜欢用户的作品
@@ -116,7 +115,9 @@ trait PostRepo
 
     /**
      * 目前最简单的错日排重推荐视频算法(FastRecommend)，人人可以看最新，随机，过滤，不重复的视频流了
-     * @param $offset 没作用了
+     *
+     * @param int $limit
+     * @return array
      */
     public static function fastRecommendPosts($limit = 10)
     {
@@ -178,10 +179,13 @@ trait PostRepo
         return $mixPosts;
     }
 
+
     /**
      * 查询该刷哪天的哪个位置了...
+     *
      * @param $userReviewIds 用户刷过的指针记录
      * @param $maxReviewIdInDays 全动态表里所有的每天的最大review_ids
+     * @return int|mixed|null
      */
     public static function getNextReviewId($userReviewIds, $maxReviewIdInDays)
     {

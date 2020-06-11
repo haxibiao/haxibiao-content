@@ -10,7 +10,7 @@ use haxibiao\content\Traits\PostAttrs;
 use haxibiao\content\Traits\PostRepo;
 use haxibiao\content\Traits\PostResolvers;
 use haxibiao\media\Spider;
-use haxibiao\media\Video;
+use App\Video;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
