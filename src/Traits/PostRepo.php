@@ -129,8 +129,8 @@ trait PostRepo
         $maxReviewIdInDays = Post::getMaxReviewIdInDays();
 
         //构建查询
-        $qb = Post::has('video')->with(['video', 'user', 'user.role'])
-            ->publish();
+        $qb_published = Post::has('video')->with(['video', 'user', 'user.role'])->publish();
+        $qb           = $qb_published;
 
         //登录用户
 
@@ -148,9 +148,9 @@ trait PostRepo
         $reviewId  = Post::getNextReviewId($postRecommend->day_review_ids, $maxReviewIdInDays);
         $reviewDay = substr($reviewId, 0, 8);
 
-        //视频刷光了,先返回100个最新的视频顶一下，有点逻辑需要分析
+        //视频刷光了,先返回20个最新的视频顶一下，有点逻辑需要分析
         if (is_null($reviewId)) {
-            return $qb->latest('id')->skip(rand(1, 100))->take(100)->get();
+            return $qb->latest('id')->skip(rand(1, 100))->take(20)->get();
         }
 
         //3.取未刷完的这天的指针后的视频
@@ -162,9 +162,10 @@ trait PostRepo
         //获取数据
         $posts = $qb->get();
 
-        // 视频刷光了,先返回100个最新的视频顶一下
+        // 视频刷光了,先返回20个最新的视频顶一下
         if ($posts->isEmpty()) {
-            return $qb->latest('id')->skip(rand(1, 100))->take(100)->get();
+            $qb_published = Post::has('video')->with(['video', 'user', 'user.role'])->publish();
+            return $qb_published->latest('id')->skip(rand(1, 100))->take(20)->get();
         }
 
         //用户和当前这堆视频动态的 喜欢状态（是否已喜欢过，更新post->liked）
