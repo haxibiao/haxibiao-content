@@ -8,9 +8,13 @@ use haxibiao\content\Jobs\PublishNewPosts;
 use haxibiao\content\Post;
 use haxibiao\content\PostRecommend;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 
 trait PostRepo
 {
+    /**
+     * @deprecated
+     */
     public static function getHotPosts($user, $limit = 10, $offset = 0)
     {
         $hasLogin = !is_null($user);
@@ -20,7 +24,6 @@ trait PostRepo
         $qb = Post::with(['video', 'user', 'user.role'])->has('video')->publish()
             ->orderByDesc('review_id')
             ->take($limit);
-
         //存在用户
         if ($hasLogin) {
             //过滤掉自己 和 不喜欢用户的作品
@@ -64,8 +67,16 @@ trait PostRepo
         return $mixPosts;
     }
 
+    /**
+     * 混合广告视频
+     * @param $posts Collection
+     */
     public static function mixPosts($posts)
     {
+        //不够4个不参入广告
+        if ($posts->count() < 4) {
+            return $posts;
+        }
         $mixPosts = [];
         $index    = 0;
         foreach ($posts as $post) {
@@ -116,21 +127,20 @@ trait PostRepo
 
     /**
      * 目前最简单的错日排重推荐视频算法(FastRecommend)，人人可以看最新，随机，过滤，不重复的视频流了
-     * @param $offset 没作用了
+     *
+     * @param int $limit
+     * @return array
      */
-    public static function fastRecommendPosts($limit = 10)
+    public static function fastRecommendPosts($limit = 4)
     {
         $user = getUser(); //必须登录
-
-        $limit = $limit >= 10 ? 8 : 4;
 
         //把每天的最大指针拿进一个数组 //TODO: 可以缓存1小时
         $maxReviewIdInDays = Post::getMaxReviewIdInDays();
 
         //构建查询
-        $qb = Post::has('video')->with(['video', 'user', 'user.role'])
-            ->publish();
-        $qb = $qb->take($limit);
+        $qb_published = Post::has('video')->with(['video', 'user', 'user.role'])->publish();
+        $qb           = $qb_published;
 
         //登录用户
 
@@ -148,18 +158,26 @@ trait PostRepo
         $reviewId  = Post::getNextReviewId($postRecommend->day_review_ids, $maxReviewIdInDays);
         $reviewDay = substr($reviewId, 0, 8);
 
-        //视频刷光了
+        //视频刷光了,先返回20个最新的视频顶一下，有点逻辑需要分析
         if (is_null($reviewId)) {
-            return [];
+            return $qb->latest('id')->skip(rand(1, 100))->take(20)->get();
         }
 
         //3.取未刷完的这天的指针后的视频
+        $qb = $qb->take($limit);
         $qb = $qb->where('review_day', $reviewDay)
             ->where('review_id', '>', $reviewId)
             ->orderBy('review_id');
 
         //获取数据
         $posts = $qb->get();
+
+        // 视频刷光了,先返回20个最新的视频顶一下
+        if (!$posts->count()) {
+            Log::channel('fast_recommend')->error($reviewId . '指针没空，结果是空' . $reviewDay);
+            $qb_published = Post::has('video')->with(['video', 'user', 'user.role'])->publish();
+            return $qb_published->latest('id')->skip(rand(1, 100))->take(20)->get();
+        }
 
         //用户和当前这堆视频动态的 喜欢状态（是否已喜欢过，更新post->liked）
         //TODO: 后续换倒排表，到推荐子喜欢单次查询返回结果集
@@ -180,8 +198,10 @@ trait PostRepo
 
     /**
      * 查询该刷哪天的哪个位置了...
+     *
      * @param $userReviewIds 用户刷过的指针记录
      * @param $maxReviewIdInDays 全动态表里所有的每天的最大review_ids
+     * @return int|mixed|null
      */
     public static function getNextReviewId($userReviewIds, $maxReviewIdInDays)
     {
@@ -191,10 +211,10 @@ trait PostRepo
         rsort($userReviewIds);
         $userReviewIdsByDay = [];
         //FIXME: UserAttr(userReviewIdsByDay) = 返回用户刷过的每天的指针记录的数组
-        foreach ($userReviewIds as $dayReviewId) {
-            $reviewDay = substr($dayReviewId, 0, 8);
+        foreach ($userReviewIds as $userDayReviewId) {
+            $reviewDay = substr($userDayReviewId, 0, 8);
             //生成数组
-            $userReviewIdsByDay[$reviewDay] = $dayReviewId;
+            $userReviewIdsByDay[$reviewDay] = $userDayReviewId;
         }
 
         foreach ($maxReviewIdInDays as $item) {
@@ -204,17 +224,19 @@ trait PostRepo
             $maxReviewId = $item->max_review_id;
 
             //获取用户刷的（当前reviewDay）日指针
-            $dayReviewId = Arr::get($userReviewIdsByDay, $reviewDay);
+            $userDayReviewId = Arr::get($userReviewIdsByDay, $reviewDay);
 
             //未刷过该日视频
-            if (is_null($dayReviewId)) {
+            if (is_null($userDayReviewId)) {
+
                 $reviewId = Post::where('review_day', $reviewDay)->min('review_id') - 1;
                 break;
             }
 
             //未刷完该日视频
-            if ($maxReviewId > $dayReviewId) {
-                $reviewId = $dayReviewId;
+            if ($maxReviewId > $userDayReviewId) {
+
+                $reviewId = $userDayReviewId;
                 break;
             }
 
@@ -224,11 +246,11 @@ trait PostRepo
         return $reviewId; //null 表示刷完了全站视频...
     }
 
-    //保存抖音爬虫视频动态
+    //粘贴时：保存抖音爬虫视频动态
     public static function saveSpiderVideoPost($spider)
     {
-        $post           = Post::firstOrNew(['spider_id' => $spider->id]);
-        $post->video_id = $spider->spider_id; //爬虫的类型spider_type="videos"
+        $post = Post::firstOrNew(['spider_id' => $spider->id]);
+
         //创建动态 避免重复创建..
         if (!isset($post->id)) {
             $post->user_id    = $spider->user_id;
@@ -239,38 +261,48 @@ trait PostRepo
         }
     }
 
-    //抖音爬虫成功，发布视频动态
+    //抖音爬虫成功时：发布视频动态
     public static function publishSpiderVideoPost($spider)
     {
-        $post = Post::where(['spider_id' => $spider->id])->first();
+        $post           = Post::where(['spider_id' => $spider->id])->first();
+        $post->video_id = $spider->spider_id; //爬虫的类型spider_type="videos",这个video_id只有爬虫成功后才有...
+
         if ($post) {
-            $post->status     = Post::PUBLISH_STATUS; //发布成功动态
-            $post->updated_at = $spider->updated_at;
-            // $post->review_id  = Post::makeNewReviewId(); //定时发布时决定，有定时任务处理一定数量或者时间后随机打乱
-            // $post->review_day = Post::makeNewReviewDay();
-            $post->save();
-
-            //FIXME: 这个逻辑要放到 content 系统里，PostObserver updated ...
-            //超过100个动态或者已经有1个小时未归档了，自动发布.
-            $canPublished = Post::where('review_day', 0)
-                ->where('created_at', '<=', now()->subHour())->exists()
-            || Post::where('review_day', 0)->count() >= 100;
-
-            if ($canPublished) {
-                dispatch_now(new PublishNewPosts);
-            }
-
-            //抖音爬的视频，可直接奖励
-            $user = $spider->user;
-            if (!is_null($user)) {
-                //触发奖励
-                Gold::makeIncome($user, 10, '分享视频奖励');
-                //扣除精力-1
-                if ($user->ticket > 0) {
-                    $user->decrement('ticket');
-                }
-            }
+            Post::publishPost($post);
         }
     }
 
+    /**
+     * 发布动态，随机归档，奖励...
+     */
+    public static function publishPost(Post $post)
+    {
+        $post->status = Post::PUBLISH_STATUS; //发布成功动态
+
+        // $post->review_id  = Post::makeNewReviewId(); //定时发布时决定，有定时任务处理一定数量或者时间后随机打乱
+        // $post->review_day = Post::makeNewReviewDay();
+        $post->save();
+
+        //FIXME: 这个逻辑要放到 content 系统里，PostObserver updated ...
+        //超过100个动态或者已经有1个小时未归档了，自动发布.
+        $canPublished = Post::where('review_day', 0)
+            ->where('created_at', '<=', now()->subHour())->exists()
+        || Post::where('review_day', 0)->count() >= 100;
+
+        if ($canPublished) {
+            dispatch_now(new PublishNewPosts);
+        }
+
+        //抖音爬的视频，可直接奖励
+        $user = $post->user;
+        if (!is_null($user)) {
+            //触发奖励
+            Gold::makeIncome($user, 10, '分享视频奖励');
+            //扣除精力-1
+            if ($user->ticket > 0) {
+                $user->decrement('ticket');
+            }
+        }
+
+    }
 }

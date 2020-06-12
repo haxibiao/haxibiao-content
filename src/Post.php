@@ -6,11 +6,11 @@ use App\Comment;
 use App\Like;
 use App\Model;
 use App\User;
+use App\Video;
 use haxibiao\content\Traits\PostAttrs;
 use haxibiao\content\Traits\PostRepo;
 use haxibiao\content\Traits\PostResolvers;
 use haxibiao\media\Spider;
-use haxibiao\media\Video;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
@@ -160,6 +160,7 @@ class Post extends Model
     public static function getMaxReviewIdInDays()
     {
         $maxRviewIds = Post::selectRaw("review_day,max(review_id) as max_review_id")
+            ->whereStatus(1) //只考虑已上架发布的动态
             ->groupBy('review_day')
             ->latest('review_day')
             ->get();
@@ -186,7 +187,7 @@ class Post extends Model
         return $reviewIds;
     }
 
-    public static function getRecommendPosts($limit = 10)
+    public static function getRecommendPosts($limit = 4)
     {
         //登录
         if (checkUser()) {

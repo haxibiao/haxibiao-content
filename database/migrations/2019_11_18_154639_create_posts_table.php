@@ -20,7 +20,8 @@ class CreatePostsTable extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('user_id')->index()->comment('作者');
-            $table->unsignedInteger('video_id')->default(0)->index()->comment('视频ID');
+            $table->unsignedInteger('video_id')->nullable()->index()->comment('视频ID');
+            $table->integer('spider_id')->index()->nullable()->comment('动态的爬虫id');
 
             $table->integer('spider_id')->nullable()->comment('动态的爬虫id');
 
