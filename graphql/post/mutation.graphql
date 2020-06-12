@@ -1,0 +1,21 @@
+extend type Mutation @middleware(checks: ["auth:api"]) {
+  createPostContent(
+    body: String!
+    image_urls: [String!]
+    video_id: Int
+    qcvod_fileid: String
+    category_ids: [Int!]
+    images: [String!]
+    type: ContenType!
+    issueInput: IssueInfo
+  ): Post! @field(resolver: "haxibiao\\content\\Post@resolveCreateContent")
+}
+
+enum ContenType {
+  POST @enum(value: "post")
+  ISSUE @enum(value: "issue")
+}
+
+input IssueInfo {
+  gold: Int
+}

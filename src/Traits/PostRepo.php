@@ -2,16 +2,117 @@
 
 namespace haxibiao\content\Traits;
 
+use App\Ip;
 use App\Gold;
+use App\Post;
+use App\Image;
+use App\Issue;
+use App\Video;
 use App\Visit;
-use haxibiao\content\Jobs\PublishNewPosts;
-use haxibiao\content\Post;
-use haxibiao\content\PostRecommend;
+use App\Action;
+use App\Article;
+use Carbon\Carbon;
+use App\Jobs\ProcessVod;
 use Illuminate\Support\Arr;
+use Yansongda\Supports\Str;
+use App\Jobs\AwardResolution;
+use App\Exceptions\GQLException;
+use App\Exceptions\UserException;
+use haxibiao\helpers\BadWordUtils;
+use Illuminate\Support\Facades\DB;
+use haxibiao\content\PostRecommend;
 use Illuminate\Support\Facades\Log;
+use haxibiao\content\Jobs\PublishNewPosts;
 
 trait PostRepo
 {
+
+    public function resolveCreateContent($root, array $args, $context)
+    {
+        if (BadWordUtils::check(Arr::get($args, 'body'))) {
+            throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+        }
+        //参数格式化
+        $inputs = [
+            'body'         => Arr::get($args, 'body'),
+            'gold'         => Arr::get($args, 'issueInput.gold', 0),
+            'category_ids' => Arr::get($args, 'category_ids', null),
+            'images'       => Arr::get($args, 'images', null),
+            'video_id'     => Arr::get($args, 'video_id', null),
+            'qcvod_fileid' => Arr::get($args, 'qcvod_fileid', null),
+        ];
+        return $this->createPost($inputs);
+    }
+
+    /**
+     * 创建动态
+     * body:    文字描述
+     * category_ids:    话题
+     * images:  base64图片
+     * video_id: 视频ID
+     */
+    public static function resolveCreatePost($inputs)
+    {
+
+        DB::beginTransaction();
+
+        try {
+            $user = getUser();
+
+            $todayPublishVideoNum = Post::where("user_id", $user->id)
+                ->whereNotNull('video_id')
+                ->whereDate('created_at', Carbon::now())->count();
+            if ($todayPublishVideoNum == 10) {
+                throw new GQLException('每天只能发布10个视频动态!');
+            }
+
+            if ($user->isBlack()) {
+                throw new GQLException('发布失败,你以被禁言');
+            }
+
+            //TODO:目前应该只传qcvod_fileid进来，video_id好像用不到了
+            if ($inputs['qcvod_fileid']) {
+                $qcvod_fileid = $inputs['qcvod_fileid'];
+                $video        = Video::firstOrNew([
+                    'qcvod_fileid' => $qcvod_fileid,
+                ]);
+                $video->qcvod_fileid = $qcvod_fileid;
+                $video->user_id = $user->id;
+                // qc vod api 获取video cdn url ... 耗时间... 后面job处理了
+                //FIXME: 这里先用黑屏占位，后面通过job和fileid更新封面和视频? 还是从前端返回cdnurl 就可以秒播放了
+                $video->path = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
+                // $video->cover = '...'; //TODO: 待王彬新 sdk 提供封面cdn url
+                $video->title = Str::limit($inputs['body'], 50);
+                $video->save();
+                //创建article
+                $post              = new Post();
+                $post->user        = $user->id;
+                $post->video_id    = $video->id;
+                $post->status      = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
+                $post->description = Str::limit($inputs['body'], 280);
+                $post->review_id   = Post::makeNewReviewId();
+                $post->review_day  = Post::makeNewReviewDay();
+                $post->save();
+
+                ProcessVod::dispatch($video);
+
+                // 记录用户操作
+                Action::createAction('articles', $post->id, $post->user->id);
+                Ip::createIpRecord('articles', $post->id, $post->user->id);
+            }
+            DB::commit();
+            app_track_user('发布动态', 'post');
+            return $post;
+        } catch (\Exception $ex) {
+            if ($ex->getCode() == 0) {
+                Log::error($ex->getMessage());
+                DB::rollBack();
+                throw new GQLException('程序小哥正在加紧修复中!');
+            }
+            throw new GQLException($ex->getMessage());
+        }
+    }
+
     /**
      * @deprecated
      */
@@ -287,7 +388,7 @@ trait PostRepo
         //超过100个动态或者已经有1个小时未归档了，自动发布.
         $canPublished = Post::where('review_day', 0)
             ->where('created_at', '<=', now()->subHour())->exists()
-        || Post::where('review_day', 0)->count() >= 100;
+            || Post::where('review_day', 0)->count() >= 100;
 
         if ($canPublished) {
             dispatch_now(new PublishNewPosts);
@@ -303,6 +404,5 @@ trait PostRepo
                 $user->decrement('ticket');
             }
         }
-
     }
 }
