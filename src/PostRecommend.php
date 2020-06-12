@@ -2,6 +2,7 @@
 
 namespace haxibiao\content;
 
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 
 class PostRecommend extends Model
@@ -53,5 +54,4 @@ class PostRecommend extends Model
 
         return $this;
     }
-
 }
