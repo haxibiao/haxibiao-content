@@ -8,6 +8,7 @@ use haxibiao\content\Jobs\PublishNewPosts;
 use haxibiao\content\Post;
 use haxibiao\content\PostRecommend;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 
 trait PostRepo
 {
@@ -163,7 +164,8 @@ trait PostRepo
         $posts = $qb->get();
 
         // 视频刷光了,先返回20个最新的视频顶一下
-        if ($posts->isEmpty()) {
+        if (!$posts->count()) {
+            Log::channel('fast_recommend')->error($reviewId . '指针没空，结果是空' . $reviewDay);
             $qb_published = Post::has('video')->with(['video', 'user', 'user.role'])->publish();
             return $qb_published->latest('id')->skip(rand(1, 100))->take(20)->get();
         }
@@ -200,10 +202,10 @@ trait PostRepo
         rsort($userReviewIds);
         $userReviewIdsByDay = [];
         //FIXME: UserAttr(userReviewIdsByDay) = 返回用户刷过的每天的指针记录的数组
-        foreach ($userReviewIds as $dayReviewId) {
-            $reviewDay = substr($dayReviewId, 0, 8);
+        foreach ($userReviewIds as $userDayReviewId) {
+            $reviewDay = substr($userDayReviewId, 0, 8);
             //生成数组
-            $userReviewIdsByDay[$reviewDay] = $dayReviewId;
+            $userReviewIdsByDay[$reviewDay] = $userDayReviewId;
         }
 
         foreach ($maxReviewIdInDays as $item) {
@@ -213,17 +215,19 @@ trait PostRepo
             $maxReviewId = $item->max_review_id;
 
             //获取用户刷的（当前reviewDay）日指针
-            $dayReviewId = Arr::get($userReviewIdsByDay, $reviewDay);
+            $userDayReviewId = Arr::get($userReviewIdsByDay, $reviewDay);
 
             //未刷过该日视频
-            if (is_null($dayReviewId)) {
+            if (is_null($userDayReviewId)) {
+
                 $reviewId = Post::where('review_day', $reviewDay)->min('review_id') - 1;
                 break;
             }
 
             //未刷完该日视频
-            if ($maxReviewId > $dayReviewId) {
-                $reviewId = $dayReviewId;
+            if ($maxReviewId > $userDayReviewId) {
+
+                $reviewId = $userDayReviewId;
                 break;
             }
 
@@ -233,11 +237,11 @@ trait PostRepo
         return $reviewId; //null 表示刷完了全站视频...
     }
 
-    //保存抖音爬虫视频动态
+    //粘贴时：保存抖音爬虫视频动态
     public static function saveSpiderVideoPost($spider)
     {
-        $post           = Post::firstOrNew(['spider_id' => $spider->id]);
-        $post->video_id = $spider->spider_id; //爬虫的类型spider_type="videos"
+        $post = Post::firstOrNew(['spider_id' => $spider->id]);
+
         //创建动态 避免重复创建..
         if (!isset($post->id)) {
             $post->user_id    = $spider->user_id;
@@ -248,10 +252,12 @@ trait PostRepo
         }
     }
 
-    //抖音爬虫成功，发布视频动态
+    //抖音爬虫成功时：发布视频动态
     public static function publishSpiderVideoPost($spider)
     {
-        $post = Post::where(['spider_id' => $spider->id])->first();
+        $post           = Post::where(['spider_id' => $spider->id])->first();
+        $post->video_id = $spider->spider_id; //爬虫的类型spider_type="videos",这个video_id只有爬虫成功后才有...
+
         if ($post) {
             $post->status     = Post::PUBLISH_STATUS; //发布成功动态
             $post->updated_at = $spider->updated_at;
