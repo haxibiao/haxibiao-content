@@ -51,7 +51,7 @@ trait PostRepo
      * images:  base64图片
      * video_id: 视频ID
      */
-    public static function resolveCreatePost($inputs)
+    public static function CreatePost($inputs)
     {
 
         DB::beginTransaction();
@@ -86,10 +86,10 @@ trait PostRepo
                 $video->save();
                 //创建article
                 $post              = new Post();
-                $post->user        = $user->id;
+                $post->user_id        = $user->id;
                 $post->video_id    = $video->id;
                 $post->status      = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
-                $post->description = Str::limit($inputs['body'], 280);
+                $post->content     = Str::limit($inputs['body'], 100);
                 $post->review_id   = Post::makeNewReviewId();
                 $post->review_day  = Post::makeNewReviewDay();
                 $post->save();
