@@ -268,33 +268,41 @@ trait PostRepo
         $post->video_id = $spider->spider_id; //爬虫的类型spider_type="videos",这个video_id只有爬虫成功后才有...
 
         if ($post) {
-            $post->status     = Post::PUBLISH_STATUS; //发布成功动态
-            $post->updated_at = $spider->updated_at;
-            // $post->review_id  = Post::makeNewReviewId(); //定时发布时决定，有定时任务处理一定数量或者时间后随机打乱
-            // $post->review_day = Post::makeNewReviewDay();
-            $post->save();
-
-            //FIXME: 这个逻辑要放到 content 系统里，PostObserver updated ...
-            //超过100个动态或者已经有1个小时未归档了，自动发布.
-            $canPublished = Post::where('review_day', 0)
-                ->where('created_at', '<=', now()->subHour())->exists()
-            || Post::where('review_day', 0)->count() >= 100;
-
-            if ($canPublished) {
-                dispatch_now(new PublishNewPosts);
-            }
-
-            //抖音爬的视频，可直接奖励
-            $user = $spider->user;
-            if (!is_null($user)) {
-                //触发奖励
-                Gold::makeIncome($user, 10, '分享视频奖励');
-                //扣除精力-1
-                if ($user->ticket > 0) {
-                    $user->decrement('ticket');
-                }
-            }
+            Post::publishPost($post);
         }
     }
 
+    /**
+     * 发布动态，随机归档，奖励...
+     */
+    public static function publishPost(Post $post)
+    {
+        $post->status = Post::PUBLISH_STATUS; //发布成功动态
+
+        // $post->review_id  = Post::makeNewReviewId(); //定时发布时决定，有定时任务处理一定数量或者时间后随机打乱
+        // $post->review_day = Post::makeNewReviewDay();
+        $post->save();
+
+        //FIXME: 这个逻辑要放到 content 系统里，PostObserver updated ...
+        //超过100个动态或者已经有1个小时未归档了，自动发布.
+        $canPublished = Post::where('review_day', 0)
+            ->where('created_at', '<=', now()->subHour())->exists()
+        || Post::where('review_day', 0)->count() >= 100;
+
+        if ($canPublished) {
+            dispatch_now(new PublishNewPosts);
+        }
+
+        //抖音爬的视频，可直接奖励
+        $user = $post->user;
+        if (!is_null($user)) {
+            //触发奖励
+            Gold::makeIncome($user, 10, '分享视频奖励');
+            //扣除精力-1
+            if ($user->ticket > 0) {
+                $user->decrement('ticket');
+            }
+        }
+
+    }
 }
