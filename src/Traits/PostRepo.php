@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Log;
 
 trait PostRepo
 {
+    /**
+     * @deprecated
+     */
     public static function getHotPosts($user, $limit = 10, $offset = 0)
     {
         $hasLogin = !is_null($user);
@@ -64,8 +67,16 @@ trait PostRepo
         return $mixPosts;
     }
 
+    /**
+     * 混合广告视频
+     * @param $posts Collection
+     */
     public static function mixPosts($posts)
     {
+        //不够4个不参入广告
+        if ($posts->count() < 4) {
+            return $posts;
+        }
         $mixPosts = [];
         $index    = 0;
         foreach ($posts as $post) {
@@ -120,11 +131,9 @@ trait PostRepo
      * @param int $limit
      * @return array
      */
-    public static function fastRecommendPosts($limit = 10)
+    public static function fastRecommendPosts($limit = 4)
     {
         $user = getUser(); //必须登录
-
-        $limit = $limit >= 10 ? 8 : 4;
 
         //把每天的最大指针拿进一个数组 //TODO: 可以缓存1小时
         $maxReviewIdInDays = Post::getMaxReviewIdInDays();
