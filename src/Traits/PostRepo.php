@@ -4,6 +4,7 @@ namespace haxibiao\content\Traits;
 
 use App\Ip;
 use App\Gold;
+use App\Image;
 use App\Video;
 use App\Visit;
 use App\Action;
@@ -65,35 +66,64 @@ trait PostRepo
                 throw new GQLException('发布失败,你以被禁言');
             }
 
-            //TODO:目前应该只传qcvod_fileid进来，video_id好像用不到了
-            if ($inputs['qcvod_fileid']) {
-                $qcvod_fileid = $inputs['qcvod_fileid'];
-                $video        = Video::firstOrNew([
-                    'qcvod_fileid' => $qcvod_fileid,
-                ]);
-                $video->qcvod_fileid = $qcvod_fileid;
-                $video->user_id = $user->id;
-                // qc vod api 获取video cdn url ... 耗时间... 后面job处理了
-                //FIXME: 这里先用黑屏占位，后面通过job和fileid更新封面和视频? 还是从前端返回cdnurl 就可以秒播放了
-                $video->path = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
-                // $video->cover = '...'; //TODO: 待王彬新 sdk 提供封面cdn url
-                $video->title = Str::limit($inputs['body'], 50);
-                $video->save();
-                //创建article
+            //带视频
+            if ($inputs['video_id'] || $inputs['qcvod_fileid']) {
+                if ($inputs['qcvod_fileid']) {
+                    $qcvod_fileid = $inputs['qcvod_fileid'];
+                    $video        = Video::firstOrNew([
+                        'qcvod_fileid' => $qcvod_fileid,
+                    ]);
+                    $video->qcvod_fileid = $qcvod_fileid;
+                    $video->user_id = $user->id;
+                    // qc vod api 获取video cdn url ... 耗时间... 后面job处理了
+                    //FIXME: 这里先用黑屏占位，后面通过job和fileid更新封面和视频? 还是从前端返回cdnurl 就可以秒播放了
+                    $video->path = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
+                    // $video->cover = '...'; //TODO: 待王彬新 sdk 提供封面cdn url
+                    $video->title = Str::limit($inputs['body'], 50);
+                    $video->save();
+                    //创建article
+                    $post              = new Post();
+                    $post->user_id        = $user->id;
+                    $post->video_id    = $video->id;
+                    $post->status      = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
+                    $post->content     = Str::limit($inputs['body'], 100);
+                    $post->review_id   = Post::makeNewReviewId();
+                    $post->review_day  = Post::makeNewReviewDay();
+                    $post->save();
+                    \info("aaa");
+                    ProcessVod::dispatch($video);
+
+                    // 记录用户操作
+                    Action::createAction('articles', $post->id, $post->user->id);
+                    Ip::createIpRecord('articles', $post->id, $post->user->id);
+                } else if ($inputs['video_id']) {
+                    $video   = Video::findOrFail($inputs['video_id']);
+                    $post = $video->post;
+                    if (!$post) {
+                        $post = new Post();
+                    }
+                    $post->content     = Str::limit($inputs['body'], 100);
+                    $post->review_id   = Post::makeNewReviewId();
+                    $post->review_day  = Post::makeNewReviewDay();
+                    $post->video_id    = $video->id; //关联上视频
+                    $post->save();
+                }
+            } else {
+                //带图片
                 $post              = new Post();
-                $post->user_id        = $user->id;
-                $post->video_id    = $video->id;
-                $post->status      = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
                 $post->content     = Str::limit($inputs['body'], 100);
-                $post->review_id   = Post::makeNewReviewId();
-                $post->review_day  = Post::makeNewReviewDay();
+                $post->user_id     = $user->id;
                 $post->save();
 
-                ProcessVod::dispatch($video);
+                if ($inputs['images']) {
+                    foreach ($inputs['images'] as $image) {
+                        $image = Image::saveImage($image);
+                        $post->images()->sync($image);
+                    }
 
-                // 记录用户操作
-                Action::createAction('articles', $post->id, $post->user->id);
-                Ip::createIpRecord('articles', $post->id, $post->user->id);
+                    $post->cover_path = $post->images()->first()->path;
+                    $post->save();
+                }
             }
             DB::commit();
             app_track_user('发布动态', 'post');

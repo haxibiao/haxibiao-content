@@ -2,18 +2,19 @@
 
 namespace haxibiao\content;
 
-use App\Comment;
 use App\Like;
-use App\Model;
 use App\User;
+use App\Image;
+use App\Model;
 use App\Video;
-use haxibiao\content\Traits\PostAttrs;
-use haxibiao\content\Traits\PostRepo;
-use haxibiao\content\Traits\PostResolvers;
+use App\Comment;
 use haxibiao\media\Spider;
+use Illuminate\Support\Str;
+use haxibiao\content\Traits\PostRepo;
+use haxibiao\content\Traits\PostAttrs;
+use haxibiao\content\Traits\PostResolvers;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Support\Str;
 
 class Post extends Model
 {
@@ -90,6 +91,11 @@ class Post extends Model
     public function scopeDeleted($query)
     {
         return $query->where('status', self::DELETED_STATUS);
+    }
+
+    public function images()
+    {
+        return $this->morphToMany(Image::class, 'imageable', 'imageable');
     }
 
     public function replaceContentBadWord()
@@ -222,7 +228,6 @@ class Post extends Model
                 //游客
                 return Post::getGuestPosts($limit);
             }
-
         } else {
             //获取用户的视频动态
             $posts = Post::where('user_id', $userId)
