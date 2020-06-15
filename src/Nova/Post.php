@@ -10,13 +10,14 @@ use Laravel\Nova\Fields\ID;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\Image;
+
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Fields\BelongsTo;
 use Halimtuhu\ArrayImages\ArrayImages;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Nova\Fields\Image;
 
 class Post extends Resource
 {
@@ -100,9 +101,16 @@ class Post extends Resource
                 }
             ),
             BelongsTo::make('视频', 'video', Video::class)->exceptOnForms(),
-            Image::make('图片', function () {
-                return $this->video ?  $this->video->cover : null;
-            }),
+            Image::make('图片', 'video.cover')->thumbnail(
+                function () {
+                    return $this->video->cover;
+                }
+            )->preview(
+                function () {
+                    return $this->video->cover;
+                }
+            ),
+
             // BelongsTo::make('问题', 'issue', Issue::class),
             Text::make('视频时长', function () {
                 if ($video = $this->video) {
