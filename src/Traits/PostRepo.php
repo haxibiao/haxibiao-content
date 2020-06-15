@@ -438,4 +438,46 @@ trait PostRepo
             }
         }
     }
+
+    //个人主页动态
+    public static function posts($user_id)
+    {
+        Post::latest('id')->publish()->where('user_id', $user_id);
+    }
+
+    //分享post链接
+    public static function shareLink($id)
+    {
+        $post = Post::find($id);
+        throw_if(is_null($post), GQLException::class, '该动态不存在哦~,请稍后再试');
+
+        return sprintf('#%s/share/post/%d#, #%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,', config('app.url'), $post->id, $post->description, config('app.name_cn'));
+    }
+
+    //动态广场
+    public static function PublicPosts($user_id)
+    {
+        //排除用户拉黑（屏蔽）的用户发布的视频,排除拉黑（不感兴趣）的动态
+        $userBlockId = [];
+        $articleBlockId = [];
+        if ($user = checkUser()) {
+            $userBlockId = \App\UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
+            $articleBlockId = \App\UserBlock::select('article_block_id')->whereNotNull('article_block_id')->where('user_id', $user->id)->get();
+        }
+
+        $query = Post::Publish()
+            ->orderBy('id', 'desc');
+
+        if ($userBlockId) {
+            $query->whereNotIn('user_id', $userBlockId);
+        }
+        if ($articleBlockId) {
+            $query->whereNotIn('id', $articleBlockId);
+        }
+
+        if ($user_id) {
+            $query->where("user_id", $user_id);
+        }
+        return $query;
+    }
 }
