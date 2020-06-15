@@ -27,7 +27,11 @@ type Post {
   review_id: String
   review_day: String
   is_ad: Int
-  created_at: String
+
+  """
+  发布时间（多久前）
+  """
+  created_at: String @rename(attribute: "time_age")
 }
 
 extend type Query {

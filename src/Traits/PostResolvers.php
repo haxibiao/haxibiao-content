@@ -16,6 +16,7 @@ trait PostResolvers
     public function resolvePosts($root, $args, $context, $info)
     {
         app_track_user_event("个人主页视频动态");
+
         return Post::posts($args['user_id']);
     }
 
@@ -35,5 +36,12 @@ trait PostResolvers
     {
         app_track_user('分享视频');
         return Post::shareLink($args['id']);
+
+        $qb = Post::latest('id');
+        //自己看自己的发布列表时，需要看到未成功的爬虫视频动态...
+        if (getUserId() == $args['user_id']) {
+            $qb = $qb->publish();
+        }
+        return $qb->where('user_id', $args['user_id']);
     }
 }

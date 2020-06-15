@@ -2,9 +2,11 @@
 
 namespace haxibiao\content\Traits;
 
+use Carbon\Carbon;
+
 trait PostAttrs
 {
-    public function getTimeAgoAttribute()
+    public function getTimeAgeAttribute()
     {
         return time_ago($this->created_at);
     }
