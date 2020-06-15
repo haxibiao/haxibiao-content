@@ -21,7 +21,12 @@ trait PostAttrs
 
     public function getCreatedTimeAttribute()
     {
-        (string)$var = Carbon::parse($this->created_at)->diffInDays(today());
-        return $var . '天前';
+        //时间差，视频发布时间与今天的时间差
+        (string)$timeDifference = Carbon::parse($this->created_at)->diffInDays(today());
+
+        if (0 == $timeDifference) {
+            return "今天";
+        }
+        return $timeDifference . '天前';
     }
 }
