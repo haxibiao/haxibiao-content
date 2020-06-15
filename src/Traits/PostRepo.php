@@ -61,7 +61,7 @@ trait PostRepo
                 ->whereDate('created_at', Carbon::now())->count();
 
             //角色为0的用户发布限制10个，其余的角色大部分是内部人员，方便测试不限制
-            if ($todayPublishVideoNum == 10 || $user->role_id < 1) {
+            if ($todayPublishVideoNum == 10 && $user->role_id < 1) {
                 throw new GQLException('每天只能发布10个视频动态!');
             }
 
