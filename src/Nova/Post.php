@@ -8,12 +8,13 @@ use App\Nova\Video;
 use App\Nova\Resource;
 use Laravel\Nova\Fields\ID;
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Fields\BelongsTo;
-use Laravel\Nova\Fields\File;
 use Halimtuhu\ArrayImages\ArrayImages;
 use Illuminate\Support\Facades\Validator;
 
@@ -99,8 +100,8 @@ class Post extends Resource
                 }
             ),
             BelongsTo::make('视频', 'video', Video::class)->exceptOnForms(),
-            ArrayImages::make('图片', function () {
-                return $this->screenshots;
+            Image::make('图片', function () {
+                return $this->video ?  $this->video->cover : null;
             }),
             // BelongsTo::make('问题', 'issue', Issue::class),
             Text::make('视频时长', function () {
