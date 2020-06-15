@@ -14,6 +14,7 @@ use haxibiao\content\Post;
 use Illuminate\Support\Arr;
 use Yansongda\Supports\Str;
 use App\Exceptions\GQLException;
+use haxibiao\helpers\QcloudUtils;
 use haxibiao\helpers\BadWordUtils;
 use Illuminate\Support\Facades\DB;
 use haxibiao\content\PostRecommend;
@@ -80,7 +81,11 @@ trait PostRepo
                     $video->user_id = $user->id;
                     // qc vod api 获取video cdn url ... 耗时间... 后面job处理了
                     //FIXME: 这里先用黑屏占位，后面通过job和fileid更新封面和视频? 还是从前端返回cdnurl 就可以秒播放了
-                    $video->path = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
+                    $defalutPath = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
+
+                    //先给前端直接返回一个可播放的url
+                    $videoInfo      = QcloudUtils::getVideoInfo($qcvod_fileid);
+                    $video->path      = Arr::get($videoInfo, 'basicInfo.sourceVideoUrl', $defalutPath);
                     // $video->cover = '...'; //TODO: 待王彬新 sdk 提供封面cdn url
                     $video->title = Str::limit($inputs['body'], 50);
                     $video->save();
@@ -94,6 +99,7 @@ trait PostRepo
                     $post->review_day  = Post::makeNewReviewDay();
                     $post->save();
                     ProcessVod::dispatch($video);
+
 
                     // 记录用户操作
                     Action::createAction('articles', $post->id, $post->user->id);
