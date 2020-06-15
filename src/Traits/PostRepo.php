@@ -23,6 +23,7 @@ use haxibiao\content\Jobs\PublishNewPosts;
 trait PostRepo
 {
 
+    //创建post（video和image），不处理issue问答创建了
     public function resolveCreateContent($root, array $args, $context)
     {
         if (BadWordUtils::check(Arr::get($args, 'body'))) {
@@ -58,7 +59,9 @@ trait PostRepo
             $todayPublishVideoNum = Post::where("user_id", $user->id)
                 ->whereNotNull('video_id')
                 ->whereDate('created_at', Carbon::now())->count();
-            if ($todayPublishVideoNum == 10) {
+
+            //角色为0的用户发布限制10个，其余的角色大部分是内部人员，方便测试不限制
+            if ($todayPublishVideoNum == 10 || $user->role_id < 1) {
                 throw new GQLException('每天只能发布10个视频动态!');
             }
 
@@ -90,7 +93,6 @@ trait PostRepo
                     $post->review_id   = Post::makeNewReviewId();
                     $post->review_day  = Post::makeNewReviewDay();
                     $post->save();
-                    \info("aaa");
                     ProcessVod::dispatch($video);
 
                     // 记录用户操作

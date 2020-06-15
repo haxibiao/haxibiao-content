@@ -46,6 +46,11 @@ class ContentServiceProvider extends ServiceProvider
                 __DIR__ . '/../graphql/post' => base_path('graphql/post'),
             ], 'content-graphql');
 
+            // 发布 Nova
+            $this->publishes([
+                __DIR__ . '/Nova' => base_path('app/Nova'),
+            ], 'live-nova');
+
             //发布 tests
             $this->publishes([
                 __DIR__ . '/../tests/Feature/GraphQL/Post'         => base_path('tests/Feature/GraphQL/Post'),
@@ -65,7 +70,6 @@ class ContentServiceProvider extends ServiceProvider
 
         //绑定observers
         \haxibiao\media\Spider::observe(\haxibiao\content\Observers\SpiderObserver::class);
-
     }
 
     protected function bindPathsInContainer()
