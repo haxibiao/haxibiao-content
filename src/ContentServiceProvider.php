@@ -23,7 +23,11 @@ class ContentServiceProvider extends ServiceProvider
             'haxibiao-categorized'
         );
 
-        $this->registerCommands();
+        $this->commands([
+            InstallCommand::class,
+            CategoryReFactoringCommand::class,
+            FixContent::class,
+        ]);
     }
 
     /**
@@ -84,14 +88,6 @@ class ContentServiceProvider extends ServiceProvider
         ] as $abstract => $instance) {
             $this->app->instance($abstract, $instance);
         }
-    }
-
-    protected function registerCommands()
-    {
-        $this->commands([
-            InstallCommand::class,
-            CategoryReFactoringCommand::class,
-        ]);
     }
 
     protected function registerMorphMap()
