@@ -3,19 +3,14 @@
 namespace App\Nova;
 
 use App\Issue;
-use App\Nova\User;
-use App\Nova\Video;
-use App\Nova\Resource;
 use Laravel\Nova\Fields\ID;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\Text;
 
-use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Fields\BelongsTo;
-use Halimtuhu\ArrayImages\ArrayImages;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Nova\Fields\Image;
 
@@ -103,11 +98,11 @@ class Post extends Resource
             BelongsTo::make('视频', 'video', Video::class)->exceptOnForms(),
             Image::make('图片', 'video.cover')->thumbnail(
                 function () {
-                    return $this->video->cover;
+                    return $this->video?$this->video->cover:null;
                 }
             )->preview(
                 function () {
-                    return $this->video->cover;
+                    return $this->video ? $this->video->cover : null;
                 }
             ),
 
