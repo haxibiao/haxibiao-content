@@ -442,7 +442,7 @@ trait PostRepo
     //个人主页动态
     public static function posts($user_id)
     {
-        Post::latest('id')->publish()->where('user_id', $user_id);
+        return Post::latest('id')->publish()->where('user_id', $user_id);
     }
 
     //分享post链接
