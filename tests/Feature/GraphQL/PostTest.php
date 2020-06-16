@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\GraphQL;
 
+use App\User;
 use haxibiao\content\Post;
+use haxibiao\media\Video;
 
 class PostTest extends GraphQLTestCase
 {
@@ -17,17 +19,16 @@ class PostTest extends GraphQLTestCase
     {
         parent::setUp();
 
-        $this->user  = factory(User::class)->create();
+        $this->user = factory(User::class)->create();
 
         $this->video = factory(Video::class)->create([
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
         ]);
 
-        $this->post  = factory(Post::class)->create([
+        $this->post = factory(Post::class)->create([
             'user_id'  => $this->user->id,
-            'video_id' => $this->video->id
+            'video_id' => $this->video->id,
         ]);
-
 
     }
 
@@ -44,7 +45,6 @@ class PostTest extends GraphQLTestCase
         ];
         $this->runGQL($query, $variables);
     }
-
 
     /**
      * 推荐视频列表
@@ -65,7 +65,7 @@ class PostTest extends GraphQLTestCase
      */
     public function testPostQuery()
     {
-        $query     = file_get_contents(__DIR__ . '/Post/PostQuery.gql');
+        $query = file_get_contents(__DIR__ . '/Post/PostQuery.gql');
 
         $variables = [
             'id' => $this->post->id,
@@ -73,7 +73,6 @@ class PostTest extends GraphQLTestCase
 
         $this->runGQL($query, $variables);
     }
-
 
     protected function tearDown(): void
     {

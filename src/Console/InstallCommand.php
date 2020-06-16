@@ -30,7 +30,30 @@ class InstallCommand extends Command
     public function handle()
     {
         $this->info('强制发布资源');
-        $this->call('vendor:publish', ['--provider' => 'haxibiao\content\ContentServiceProvider', '--force']);
+
+        $this->call('vendor:publish', [
+            '--tag'   => 'content-config',
+            '--force' => true,
+        ]);
+        $this->call('vendor:publish', [
+            '--tag'   => 'content-graphql',
+            '--force' => true,
+        ]);
+
+        $this->call('vendor:publish', [
+            '--tag'   => 'content-nova',
+            '--force' => true,
+        ]);
+
+        $this->call('vendor:publish', [
+            '--tag'   => 'content-tests',
+            '--force' => true,
+        ]);
+
+        $this->call('vendor:publish', [
+            '--tag'   => 'content-factories',
+            '--force' => true,
+        ]);
 
         $this->comment("复制 stubs ...");
         copy(__DIR__ . '/stubs/Post.stub', app_path('Post.php'));

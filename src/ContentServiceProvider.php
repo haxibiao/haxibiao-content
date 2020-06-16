@@ -53,7 +53,7 @@ class ContentServiceProvider extends ServiceProvider
             // 发布 Nova
             $this->publishes([
                 __DIR__ . '/Nova' => base_path('app/Nova'),
-            ], 'live-nova');
+            ], 'content-nova');
 
             //发布 tests
             $this->publishes([

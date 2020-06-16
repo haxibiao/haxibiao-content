@@ -9,22 +9,22 @@ class CategoryTest extends TestCase
 {
     use CreatesApplication;
 
-    public function testcategoriesQuery()
-    {
-//        $query = file_get_contents(__DIR__ . '/Category/categoriesQuery.gql');
-        //
-        //        //hot分类
-        //        $variables = [
-        //            'filter'=> "hot" ,
-        //        ];
-        //
-        //        $this->startGraphQL($query, $variables);
-        //
-        //        //other分类
-        //        $variables = [
-        //            'filter'=> "other" ,
-        //        ];
-        //
-        //        $this->startGraphQL($query, $variables);
-    }
+    // public function testCategoriesQuery()
+    // {
+    //        $query = file_get_contents(__DIR__ . '/Category/CategoriesQuery.gql');
+    //
+    //        //hot分类
+    //        $variables = [
+    //            'filter'=> "hot" ,
+    //        ];
+    //
+    //        $this->startGraphQL($query, $variables);
+    //
+    //        //other分类
+    //        $variables = [
+    //            'filter'=> "other" ,
+    //        ];
+    //
+    //        $this->startGraphQL($query, $variables);
+    // }
 }
