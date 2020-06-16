@@ -71,7 +71,7 @@ class Post extends Resource
 
             Text::make('点赞数', 'count_likes')->hideWhenCreating(),
 
-            Textarea::make('文章内容', 'body')->rules('required')->hideFromIndex(),
+            Textarea::make('文章内容', 'description')->rules('required')->hideFromIndex(),
             Select::make('状态', 'status')->options([
                 1  => '公开',
                 0  => '草稿',
@@ -92,17 +92,17 @@ class Post extends Resource
                     if ($validator->fails()) {
                         return '视频格式有问题';
                     }
-                    return $model->saveVideoFile($file);
+                    return \App\Video::uploadVod($file);
                 }
             ),
             BelongsTo::make('视频', 'video', Video::class)->exceptOnForms(),
             Image::make('图片', 'video.cover')->thumbnail(
                 function () {
-                    return $this->video?$this->video->cover:null;
+                    return $this->cover;
                 }
             )->preview(
                 function () {
-                    return $this->video ? $this->video->cover : null;
+                    return $this->cover;
                 }
             ),
 
