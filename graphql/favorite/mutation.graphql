@@ -1,0 +1,8 @@
+extend type Mutation {
+  toggleFavorited(id: Int!, type: FavoriteType): Favorite! @field(resolver: "App\\Favorite@resolveToggleFavorite")
+}
+
+enum FavoriteType {
+  articles
+  posts
+}

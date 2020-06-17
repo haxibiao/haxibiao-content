@@ -57,13 +57,12 @@ class InstallCommand extends Command
 
         $this->comment("复制 stubs ...");
         copy(__DIR__ . '/stubs/Post.stub', app_path('Post.php'));
+        copy(__DIR__ . '/stubs/Favorite.stub', app_path('Favorite.php'));
         copy(__DIR__ . '/stubs/PostRecommend.stub', app_path('PostRecommend.php'));
 
         // copy($this->resolveStubPath('/stubs/Category.stub'), app_path('Category.php'));
 
         $this->comment('迁移数据库变化...');
         $this->call('migrate');
-
     }
-
 }

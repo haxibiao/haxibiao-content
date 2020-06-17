@@ -78,6 +78,11 @@ class Post extends Model
         return $this->morphMany(Like::class, 'likable');
     }
 
+    public function favorite()
+    {
+        return $this->morphMany(\App\Post::class, 'faved_type');
+    }
+
     public function scopePublish($query)
     {
         return $query->where('status', self::PUBLISH_STATUS);

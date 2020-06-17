@@ -2,8 +2,9 @@
 
 namespace haxibiao\content;
 
-use Illuminate\Database\Eloquent\Relations\Relation;
+use haxibiao\content\FixContent;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class ContentServiceProvider extends ServiceProvider
 {
@@ -26,7 +27,7 @@ class ContentServiceProvider extends ServiceProvider
         $this->commands([
             InstallCommand::class,
             CategoryReFactoringCommand::class,
-            FixContent::class,
+            // FixContent::class,
         ]);
     }
 
@@ -48,6 +49,10 @@ class ContentServiceProvider extends ServiceProvider
             //发布 graphql
             $this->publishes([
                 __DIR__ . '/../graphql/post' => base_path('graphql/post'),
+            ], 'content-graphql');
+
+            $this->publishes([
+                __DIR__ . '/../graphql/favorite' => base_path('graphql/favorite'),
             ], 'content-graphql');
 
             // 发布 Nova
