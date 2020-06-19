@@ -67,11 +67,15 @@ class Post extends Resource
                 $text = str_limit($this->description);
                 return '<a style="width: 300px" href="articles/' . $this->id . '">' . $text . "</a>";
             })->asHtml()->onlyOnIndex(),
-            Text::make('内容', 'content')->hideFromIndex()->hideWhenCreating(),
+
+            Text::make('内容', 'content')->hideWhenCreating(),
+
+            BelongsTo::make('上传用户', 'user', User::class)->onlyOnForms(),
 
             Text::make('点赞数', 'count_likes')->hideWhenCreating(),
 
-            Textarea::make('文章内容', 'description')->rules('required')->hideFromIndex(),
+            Textarea::make('文章内容', 'description'),
+
             Select::make('状态', 'status')->options([
                 1  => '公开',
                 0  => '草稿',
@@ -96,6 +100,7 @@ class Post extends Resource
                 }
             ),
             BelongsTo::make('视频', 'video', Video::class)->exceptOnForms(),
+            
             Image::make('图片', 'video.cover')->thumbnail(
                 function () {
                     return $this->cover;
