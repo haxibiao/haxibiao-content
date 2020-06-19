@@ -8,7 +8,9 @@ use App\Image;
 use App\Model;
 use App\Video;
 use App\Comment;
+use Carbon\Carbon;
 use haxibiao\media\Spider;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use haxibiao\content\Traits\PostRepo;
 use haxibiao\content\Traits\PostAttrs;
@@ -48,8 +50,12 @@ class Post extends Model
     {
         parent::boot();
 
+        //保存时触发
         self::saving(function ($post) {
             $post->replaceContentBadWord();
+
+            //设置review_id 和 review_day
+            $post->initReviewIdAndReviewDay();
         });
     }
 
@@ -108,9 +114,9 @@ class Post extends Model
         $content = $this->content;
         if (!empty($content)) {
             $content = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音小助手', '抖音', '@DOU+小助手'], '', $content);
+            $this->content     = $content;
+            $this->description = $content;
         }
-        $this->content     = $content;
-        $this->description = $content;
     }
 
     //按日期生成review_id
@@ -244,5 +250,29 @@ class Post extends Model
         }
 
         return $posts;
+    }
+
+
+    /**
+     * 设置 posts 表中 review_id 与 review_day
+     *
+     * note: 它们两个是排重算法依赖的值。拼接规则如下:
+     * review_id: 当前日期 + 当前动态，对应的视频，今日的发布顺序. 例如:20200619 00001
+     * review_day: 当前日期. 例如:20200619
+     */
+    public function initReviewIdAndReviewDay()
+    {
+        //模板值，拼接出想要的review_id
+        $temp_num = 100001;
+
+        //今日Posts新增数量，用于拼接review_id
+        $count = DB::table('videos')
+            ->whereDate('created_at', now())->count();
+
+        $new_num = $count + $temp_num;
+
+        //赋值
+        $this->review_id  = str_replace("-", "", Carbon::today()->toDateString()) . substr($new_num, 1, 5);
+        $this->review_day =  str_replace("-", "", Carbon::today()->toDateString());
     }
 }
