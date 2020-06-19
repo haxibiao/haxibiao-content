@@ -92,7 +92,7 @@ class Post extends Resource
                     if ($validator->fails()) {
                         return '视频格式有问题';
                     }
-                    return \App\Video::uploadVod($file);
+                    return \App\Video::uploadNovaVod($file);
                 }
             ),
             BelongsTo::make('视频', 'video', Video::class)->exceptOnForms(),
