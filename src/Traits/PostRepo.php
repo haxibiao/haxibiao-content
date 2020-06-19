@@ -460,21 +460,19 @@ trait PostRepo
         //排除用户拉黑（屏蔽）的用户发布的视频,排除拉黑（不感兴趣）的动态
         $userBlockId = [];
         $articleBlockId = [];
-        if ($user = checkUser()) {
-            $userBlockId = \App\UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
-            $articleBlockId = \App\UserBlock::select('article_block_id')->whereNotNull('article_block_id')->where('user_id', $user->id)->get();
-        }
-
         $query = Post::Publish()
             ->orderBy('id', 'desc');
+        if ($user = checkUser() && class_exists("App\\UserBlock", true)) {
+            $userBlockId = \App\UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
+            $articleBlockId = \App\UserBlock::select('article_block_id')->whereNotNull('article_block_id')->where('user_id', $user->id)->get();
 
-        if ($userBlockId) {
-            $query->whereNotIn('user_id', $userBlockId);
+            if ($userBlockId) {
+                $query->whereNotIn('user_id', $userBlockId);
+            }
+            if ($articleBlockId) {
+                $query->whereNotIn('id', $articleBlockId);
+            }
         }
-        if ($articleBlockId) {
-            $query->whereNotIn('id', $articleBlockId);
-        }
-
         if ($user_id) {
             $query->where("user_id", $user_id);
         }

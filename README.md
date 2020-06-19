@@ -7,15 +7,16 @@
 1.  `composer.json`改动如下：
     在`repositories`中添加 vcs 类型远程仓库指向
     `http://code.haxibiao.cn/packages/haxibiao-content`
-1.  执行`composer require haxibiao/content`
-1.  如果不是 laravel 5.6 以上，需要执行`php artisan content:install`
-1.  完成
+2.  执行`composer require haxibiao/content`
+3.  如果要使用 post 的 nova 后台上传视频需要 composer require qcloud/vod-sdk-v5
+4.  如果不是 laravel 5.6 以上，需要执行`php artisan content:install`
+5.  完成
 
 ### 如何完成更新？
 
 > 远程仓库的 composer package 发生更新时如何进行更新操作呢？
 
-1.  执行`composer update haxibiao/content`
+6.  执行`composer update haxibiao/content`
 
 ## 使用方法
 
