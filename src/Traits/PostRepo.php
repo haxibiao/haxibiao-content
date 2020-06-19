@@ -2,24 +2,24 @@
 
 namespace haxibiao\content\Traits;
 
-use App\Ip;
+use App\Action;
+use App\Exceptions\GQLException;
 use App\Gold;
 use App\Image;
+use App\Ip;
+use App\Jobs\ProcessVod;
 use App\Video;
 use App\Visit;
-use App\Action;
 use Carbon\Carbon;
-use App\Jobs\ProcessVod;
-use haxibiao\content\Post;
-use Illuminate\Support\Arr;
-use Yansongda\Supports\Str;
-use App\Exceptions\GQLException;
-use haxibiao\helpers\QcloudUtils;
-use haxibiao\helpers\BadWordUtils;
-use Illuminate\Support\Facades\DB;
-use haxibiao\content\PostRecommend;
-use Illuminate\Support\Facades\Log;
 use haxibiao\content\Jobs\PublishNewPosts;
+use haxibiao\content\Post;
+use haxibiao\content\PostRecommend;
+use haxibiao\helpers\BadWordUtils;
+use haxibiao\helpers\QcloudUtils;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Yansongda\Supports\Str;
 
 trait PostRepo
 {
@@ -78,49 +78,48 @@ trait PostRepo
                         'qcvod_fileid' => $qcvod_fileid,
                     ]);
                     $video->qcvod_fileid = $qcvod_fileid;
-                    $video->user_id = $user->id;
+                    $video->user_id      = $user->id;
                     // qc vod api 获取video cdn url ... 耗时间... 后面job处理了
                     //FIXME: 这里先用黑屏占位，后面通过job和fileid更新封面和视频? 还是从前端返回cdnurl 就可以秒播放了
                     $defalutPath = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
 
                     //先给前端直接返回一个可播放的url
-                    $videoInfo      = QcloudUtils::getVideoInfo($qcvod_fileid);
-                    $video->path      = Arr::get($videoInfo, 'basicInfo.sourceVideoUrl', $defalutPath);
+                    $videoInfo   = QcloudUtils::getVideoInfo($qcvod_fileid);
+                    $video->path = Arr::get($videoInfo, 'basicInfo.sourceVideoUrl', $defalutPath);
                     // $video->cover = '...'; //TODO: 待王彬新 sdk 提供封面cdn url
                     $video->title = Str::limit($inputs['body'], 50);
                     $video->save();
                     //创建article
-                    $post              = new Post();
-                    $post->user_id        = $user->id;
-                    $post->video_id    = $video->id;
-                    $post->status      = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
-                    $post->content     = Str::limit($inputs['body'], 100);
-                    $post->review_id   = Post::makeNewReviewId();
-                    $post->review_day  = Post::makeNewReviewDay();
+                    $post             = new Post();
+                    $post->user_id    = $user->id;
+                    $post->video_id   = $video->id;
+                    $post->status     = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
+                    $post->content    = Str::limit($inputs['body'], 100);
+                    $post->review_id  = Post::makeNewReviewId();
+                    $post->review_day = Post::makeNewReviewDay();
                     $post->save();
                     ProcessVod::dispatch($video);
-
 
                     // 记录用户操作
                     Action::createAction('articles', $post->id, $post->user->id);
                     Ip::createIpRecord('articles', $post->id, $post->user->id);
                 } else if ($inputs['video_id']) {
-                    $video   = Video::findOrFail($inputs['video_id']);
-                    $post = $video->post;
+                    $video = Video::findOrFail($inputs['video_id']);
+                    $post  = $video->post;
                     if (!$post) {
                         $post = new Post();
                     }
-                    $post->content     = Str::limit($inputs['body'], 100);
-                    $post->review_id   = Post::makeNewReviewId();
-                    $post->review_day  = Post::makeNewReviewDay();
-                    $post->video_id    = $video->id; //关联上视频
+                    $post->content    = Str::limit($inputs['body'], 100);
+                    $post->review_id  = Post::makeNewReviewId();
+                    $post->review_day = Post::makeNewReviewDay();
+                    $post->video_id   = $video->id; //关联上视频
                     $post->save();
                 }
             } else {
                 //带图片
-                $post              = new Post();
-                $post->content     = Str::limit($inputs['body'], 100);
-                $post->user_id     = $user->id;
+                $post          = new Post();
+                $post->content = Str::limit($inputs['body'], 100);
+                $post->user_id = $user->id;
                 $post->save();
 
                 if ($inputs['images']) {
@@ -134,7 +133,7 @@ trait PostRepo
                 }
             }
             DB::commit();
-            app_track_user('发布动态', 'post');
+            app_track_event('发布', '发布Post动态');
             return $post;
         } catch (\Exception $ex) {
             if ($ex->getCode() == 0) {
@@ -421,7 +420,7 @@ trait PostRepo
         //超过100个动态或者已经有1个小时未归档了，自动发布.
         $canPublished = Post::where('review_day', 0)
             ->where('created_at', '<=', now()->subHour())->exists()
-            || Post::where('review_day', 0)->count() >= 100;
+        || Post::where('review_day', 0)->count() >= 100;
 
         if ($canPublished) {
             dispatch_now(new PublishNewPosts);
@@ -458,12 +457,12 @@ trait PostRepo
     public static function PublicPosts($user_id)
     {
         //排除用户拉黑（屏蔽）的用户发布的视频,排除拉黑（不感兴趣）的动态
-        $userBlockId = [];
+        $userBlockId    = [];
         $articleBlockId = [];
-        $query = Post::Publish()
+        $query          = Post::Publish()
             ->orderBy('id', 'desc');
         if ($user = checkUser() && class_exists("App\\UserBlock", true)) {
-            $userBlockId = \App\UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
+            $userBlockId    = \App\UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
             $articleBlockId = \App\UserBlock::select('article_block_id')->whereNotNull('article_block_id')->where('user_id', $user->id)->get();
 
             if ($userBlockId) {

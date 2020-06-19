@@ -33,7 +33,7 @@ trait PostResolvers
      */
     public function getShareLink($rootValue, array $args, $context, $resolveInfo)
     {
-        app_track_user('分享', '分享视频');
+        app_track_event('分享', '分享视频');
         return Post::shareLink($args['id']);
 
         $qb = Post::latest('id');
