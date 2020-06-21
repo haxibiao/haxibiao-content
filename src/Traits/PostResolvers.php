@@ -2,7 +2,10 @@
 
 namespace haxibiao\content\Traits;
 
+use App\Tag;
 use haxibiao\content\Post;
+use App\Exceptions\GQLException;
+use Illuminate\Support\Arr;
 
 trait PostResolvers
 {
@@ -43,4 +46,25 @@ trait PostResolvers
         }
         return $qb->where('user_id', $args['user_id']);
     }
+
+
+    /**
+     * 获取标签下的视频
+     *
+     * @param $rootValue
+     * @param array $args
+     * @param $context
+     * @param $resolveInfo
+     * @return mixed
+     */
+    public function resolvePostsByTag($rootValue, array $args, $context, $resolveInfo)
+    {
+       $limit = Arr::get($args, 'limit', 5);
+
+       return Post::where('tag_id', $args['type'])
+           ->inRandomOrder()
+           ->take($limit)
+           ->get();
+    }
+
 }
