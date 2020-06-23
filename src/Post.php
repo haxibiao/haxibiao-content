@@ -46,6 +46,13 @@ class Post extends Model
 
     const TODAY_MAX_POST_NUM = 100000;
 
+    //安保联盟App中标识视频类别，其他项目没有用到
+    const STUDY = 1;
+    //娱乐视频
+    const PLAY  = 2;
+    //固定视频
+    const FIRST = 3;
+
     public static function boot()
     {
         parent::boot();

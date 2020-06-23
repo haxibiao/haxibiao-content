@@ -59,12 +59,31 @@ trait PostResolvers
      */
     public function resolvePostsByTag($rootValue, array $args, $context, $resolveInfo)
     {
-       $limit = Arr::get($args, 'limit', 5);
+        //视频类型
+        $type  = Arr::get($args, 'type');
 
-       return Post::where('tag_id', $args['type'])
-           ->inRandomOrder()
-           ->take($limit)
-           ->get();
+        //返回的条数
+        $limit = Arr::get($args, 'limit', 5);
+
+        //是否第一次调用接口
+        $is_first = Arr::get($args, 'is_first', false);
+
+        $result = Post::where('tag_id', $type)
+            ->whereStatus(Post::PUBLISH_STATUS)
+            ->inRandomOrder()
+            ->take($limit)
+            ->get();
+
+        //第一次获取学习视频，设置第一条视频为固定视频
+        if (Post::STUDY == $type && $is_first) {
+            $firstPosts = Post::where('tag_id', Post::FIRST)
+                ->whereStatus(Post::PUBLISH_STATUS)
+                ->get();
+
+            return collect([$firstPosts, $result])->collapse();
+        }
+
+        return $result;
     }
 
 }
