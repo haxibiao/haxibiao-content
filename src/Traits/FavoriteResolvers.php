@@ -20,4 +20,10 @@ trait FavoriteResolvers
         //兼容老版本接口不传type
         return Favorite::toggleFavorite($args['id'], $args['type'] ?? 'articles');
     }
+
+    public function resolveFavorites($root, $args, $context, $info)
+    {
+        app_track_event('我的收藏');
+        return Favorite::getFavoritesQuery($args['favorable_type']);
+    }
 }
