@@ -109,6 +109,7 @@ trait PostRepo
 
                     // 记录用户操作
                     Action::createAction('articles', $post->id, $post->user->id);
+                    // Ip::createIpRecord('users', $user->id, $user->id);
                 } else if ($video_id) {
                     $video = Video::findOrFail($video_id);
                     $post  = $video->post;
@@ -143,11 +144,11 @@ trait PostRepo
             app_track_event('发布', '发布Post动态');
             return $post;
         } catch (\Exception $ex) {
-            // if ($ex->getCode() == 0) {
-            //     Log::error($ex->getMessage());
-            //     DB::rollBack();
-            //     throw new GQLException('程序小哥正在加紧修复中!');
-            // }
+            if ($ex->getCode() == 0) {
+                Log::error($ex->getMessage());
+                DB::rollBack();
+                throw new GQLException('程序小哥正在加紧修复中!');
+            }
             throw new GQLException($ex->getMessage());
         }
     }
