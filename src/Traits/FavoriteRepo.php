@@ -35,6 +35,16 @@ trait FavoriteRepo
     public static function getFavoritesQuery($favorable_type)
     {
         $user = getUser();
+
+        //安保联盟当中的 Favorite 为 faved_id and faved_type，原因是上面切换收藏状态为 faved_id
+        if ('ablm' == config('app.name'))
+        {
+            return $qb = $user->favorites()
+                        ->with('faved_id')
+                        ->where('faved_type', $favorable_type)
+                        ->latest('id');
+        }
+
         $qb   = $user->favorites()
             ->with('favorable')
             ->where('favorable_type', $favorable_type)

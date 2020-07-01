@@ -24,6 +24,7 @@ trait FavoriteResolvers
     public function resolveFavorites($root, $args, $context, $info)
     {
         app_track_event('我的收藏');
+
         return Favorite::getFavoritesQuery($args['favorable_type']);
     }
 }
