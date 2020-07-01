@@ -7,7 +7,6 @@ use App\Exceptions\GQLException;
 use App\Gold;
 use App\Image;
 use App\Ip;
-use App\Jobs\ProcessVod;
 use App\Video;
 use App\Visit;
 use Carbon\Carbon;
@@ -20,12 +19,13 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yansongda\Supports\Str;
+use haxibiao\media\Jobs\ProcessVod;
 
 trait PostRepo
 {
 
     //创建post（video和image），不处理issue问答创建了
-    public function resolveCreateContent($root, array $args, $context)
+    public function resolveCreateContent($root, array $args, $context, $info)
     {
         if (BadWordUtils::check(Arr::get($args, 'body'))) {
             throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
@@ -39,7 +39,7 @@ trait PostRepo
             'video_id'     => Arr::get($args, 'video_id', null),
             'qcvod_fileid' => Arr::get($args, 'qcvod_fileid', null),
         ];
-        return $this->createPost($inputs);
+        return Post::createPost($inputs);
     }
 
     /**
@@ -51,6 +51,7 @@ trait PostRepo
      */
     public static function CreatePost($inputs)
     {
+
 
         DB::beginTransaction();
 
@@ -65,15 +66,21 @@ trait PostRepo
             if ($todayPublishVideoNum == 10 && $user->role_id < 1) {
                 throw new GQLException('每天只能发布10个视频动态!');
             }
-
             if ($user->isBlack()) {
                 throw new GQLException('发布失败,你以被禁言');
             }
 
+
             //带视频
-            if ($inputs['video_id'] || $inputs['qcvod_fileid']) {
-                if ($inputs['qcvod_fileid']) {
-                    $qcvod_fileid = $inputs['qcvod_fileid'];
+            $video_id = $inputs['video_id']  ?? null;
+            $qcvod_fileid = $inputs['qcvod_fileid'] ?? null;
+            $body =  $inputs['body'] ?? null;
+            $images = $inputs['images'] ?? null;
+
+
+            if ($video_id || $qcvod_fileid) {
+                if ($qcvod_fileid) {
+                    $qcvod_fileid = $qcvod_fileid;
                     $video        = Video::firstOrNew([
                         'qcvod_fileid' => $qcvod_fileid,
                     ]);
@@ -87,43 +94,44 @@ trait PostRepo
                     $videoInfo   = QcloudUtils::getVideoInfo($qcvod_fileid);
                     $video->path = Arr::get($videoInfo, 'basicInfo.sourceVideoUrl', $defalutPath);
                     // $video->cover = '...'; //TODO: 待王彬新 sdk 提供封面cdn url
-                    $video->title = Str::limit($inputs['body'], 50);
+                    $video->title = Str::limit($body, 50);
                     $video->save();
                     //创建article
                     $post             = new Post();
                     $post->user_id    = $user->id;
                     $post->video_id   = $video->id;
                     $post->status     = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
-                    $post->content    = Str::limit($inputs['body'], 100);
+                    $post->content    = Str::limit($body, 100);
                     $post->review_id  = Post::makeNewReviewId();
                     $post->review_day = Post::makeNewReviewDay();
                     $post->save();
-                    ProcessVod::dispatch($video);
+                    ProcessVod::dispatch($video); //TODO:与 media 包 关联
 
                     // 记录用户操作
                     Action::createAction('articles', $post->id, $post->user->id);
-                    Ip::createIpRecord('articles', $post->id, $post->user->id);
-                } else if ($inputs['video_id']) {
-                    $video = Video::findOrFail($inputs['video_id']);
+                    // Ip::createIpRecord('users', $user->id, $user->id);
+                } else if ($video_id) {
+                    $video = Video::findOrFail($video_id);
                     $post  = $video->post;
                     if (!$post) {
                         $post = new Post();
                     }
-                    $post->content    = Str::limit($inputs['body'], 100);
+                    $post->content    = Str::limit($body, 100);
                     $post->review_id  = Post::makeNewReviewId();
                     $post->review_day = Post::makeNewReviewDay();
                     $post->video_id   = $video->id; //关联上视频
+                    $post->user_id = $user->id;
                     $post->save();
                 }
             } else {
                 //带图片
                 $post          = new Post();
-                $post->content = Str::limit($inputs['body'], 100);
+                $post->content = Str::limit($body, 100);
                 $post->user_id = $user->id;
                 $post->save();
 
-                if ($inputs['images']) {
-                    foreach ($inputs['images'] as $image) {
+                if ($images) {
+                    foreach ($images as $image) {
                         $image = Image::saveImage($image);
                         $post->images()->sync($image);
                     }
@@ -420,7 +428,7 @@ trait PostRepo
         //超过100个动态或者已经有1个小时未归档了，自动发布.
         $canPublished = Post::where('review_day', 0)
             ->where('created_at', '<=', now()->subHour())->exists()
-        || Post::where('review_day', 0)->count() >= 100;
+            || Post::where('review_day', 0)->count() >= 100;
 
         if ($canPublished) {
             dispatch_now(new PublishNewPosts);
