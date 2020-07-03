@@ -29,5 +29,5 @@ extend type Mutation @middleware(checks: ["auth:api"]) {
     图片链接
     """
     images: [String!]
-  ): Post! @field(resolver: "Haxibiao\\content\\Post@resolveCreateContent")
+  ): Post! @field(resolver: "Haxibiao\\Content\\Post@resolveCreateContent")
 }
