@@ -39,6 +39,18 @@ trait PostRepo
             'video_id'     => Arr::get($args, 'video_id', null),
             'qcvod_fileid' => Arr::get($args, 'qcvod_fileid', null),
         ];
+
+        //FIXME:  安保联盟的 tag_id 与 category_ids 同含义
+        if ('ablm' == config('app.name')){
+            $inputs = [
+                'body'         => Arr::get($args, 'body'),
+                'gold'         => Arr::get($args, 'issueInput.gold', 0),
+                'tag_id'       => Arr::get($args, 'category_ids', null),
+                'images'       => Arr::get($args, 'images', null),
+                'video_id'     => Arr::get($args, 'video_id', null),
+                'qcvod_fileid' => Arr::get($args, 'qcvod_fileid', null),
+            ];
+        }
         return Post::createPost($inputs);
     }
 
@@ -66,6 +78,7 @@ trait PostRepo
             if ($todayPublishVideoNum == 10 && $user->role_id < 1) {
                 throw new GQLException('每天只能发布10个视频动态!');
             }
+
             if ($user->isBlack()) {
                 throw new GQLException('发布失败,你以被禁言');
             }
@@ -121,6 +134,12 @@ trait PostRepo
                     $post->review_day = Post::makeNewReviewDay();
                     $post->video_id   = $video->id; //关联上视频
                     $post->user_id = $user->id;
+
+                    //安保联盟post进行了分类
+                    if ('ablm' == (config('app.name'))) {
+                        $post->tag_id = $inputs['tag_id'][0];
+                    }
+
                     $post->save();
                 }
             } else {
