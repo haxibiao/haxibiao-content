@@ -138,6 +138,10 @@ trait PostRepo
                     //安保联盟post进行了分类
                     if ('ablm' == (config('app.name'))) {
                         $post->tag_id = $inputs['tag_id'][0];
+
+                        //保证下面返回的两个字段不为Null，数据库已设置默认值为0
+                        $post->count_likes = 0;
+                        $post->comments_count = 0;
                     }
 
                     $post->save();
