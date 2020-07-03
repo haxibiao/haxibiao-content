@@ -12,9 +12,9 @@ use Carbon\Carbon;
 use Haxibiao\Content\Jobs\PublishNewPosts;
 use Haxibiao\Content\Post;
 use Haxibiao\Content\PostRecommend;
-use haxibiao\helpers\BadWordUtils;
-use haxibiao\helpers\QcloudUtils;
-use haxibiao\media\Jobs\ProcessVod;
+use Haxibiao\Helpers\BadWordUtils;
+use Haxibiao\Helpers\QcloudUtils;
+use Haxibiao\Media\Jobs\ProcessVod;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -447,7 +447,7 @@ trait PostRepo
         //超过100个动态或者已经有1个小时未归档了，自动发布.
         $canPublished = Post::where('review_day', 0)
             ->where('created_at', '<=', now()->subHour())->exists()
-        || Post::where('review_day', 0)->count() >= 100;
+            || Post::where('review_day', 0)->count() >= 100;
 
         if ($canPublished) {
             dispatch_now(new PublishNewPosts);
