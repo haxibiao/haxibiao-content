@@ -1,8 +1,8 @@
 <?php
 
-namespace haxibiao\content\Jobs;
+namespace Haxibiao\Content\Jobs;
 
-use haxibiao\content\Post;
+use Haxibiao\Content\Post;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

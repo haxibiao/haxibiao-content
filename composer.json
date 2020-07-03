@@ -6,18 +6,18 @@
   },
   "autoload": {
     "psr-4": {
-      "haxibiao\\content\\": "src/"
+      "Haxibiao\\Content\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "haxibiao\\content\\Tests\\": "tests/"
+      "Haxibiao\\Content\\Tests\\": "tests/"
     }
   },
   "extra": {
     "laravel": {
       "providers": [
-        "haxibiao\\content\\ContentServiceProvider"
+        "Haxibiao\\Content\\ContentServiceProvider"
       ]
     }
   }

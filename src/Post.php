@@ -1,22 +1,22 @@
 <?php
 
-namespace haxibiao\content;
+namespace Haxibiao\Content;
 
-use App\Like;
-use App\User;
-use App\Image;
-use App\Model;
-use App\Video;
 use App\Comment;
+use App\Image;
+use App\Like;
+use App\Model;
+use App\User;
+use App\Video;
 use Carbon\Carbon;
-use haxibiao\media\Spider;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use haxibiao\content\Traits\PostRepo;
-use haxibiao\content\Traits\PostAttrs;
-use haxibiao\content\Traits\PostResolvers;
+use Haxibiao\Content\Traits\PostAttrs;
+use Haxibiao\Content\Traits\PostRepo;
+use Haxibiao\Content\Traits\PostResolvers;
+use Haxibiao\Media\Spider;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class Post extends Model
 {
@@ -49,7 +49,7 @@ class Post extends Model
     //安保联盟App中标识视频类别，其他项目没有用到
     const STUDY = 1;
     //娱乐视频
-    const PLAY  = 2;
+    const PLAY = 2;
     //固定视频
     const FIRST = 3;
 
@@ -120,7 +120,7 @@ class Post extends Model
     {
         $content = $this->content;
         if (!empty($content)) {
-            $content = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音小助手', '抖音', '@DOU+小助手'], '', $content);
+            $content           = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音小助手', '抖音', '@DOU+小助手'], '', $content);
             $this->content     = $content;
             $this->description = $content;
         }
@@ -259,7 +259,6 @@ class Post extends Model
         return $posts;
     }
 
-
     /**
      * 设置 posts 表中 review_id 与 review_day
      *
@@ -280,6 +279,6 @@ class Post extends Model
 
         //赋值
         $this->review_id  = str_replace("-", "", Carbon::today()->toDateString()) . substr($new_num, 1, 5);
-        $this->review_day =  str_replace("-", "", Carbon::today()->toDateString());
+        $this->review_day = str_replace("-", "", Carbon::today()->toDateString());
     }
 }

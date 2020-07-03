@@ -1,6 +1,6 @@
 <?php
 
-namespace haxibiao\content\Traits;
+namespace Haxibiao\Content\Traits;
 
 use App\Favorite;
 use App\Follow;

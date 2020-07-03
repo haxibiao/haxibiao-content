@@ -1,8 +1,8 @@
 <?php
 
-namespace haxibiao\content\Traits;
+namespace Haxibiao\Content\Traits;
 
-use haxibiao\content\Category;
+use Haxibiao\Content\Category;
 use haxibiao\helpers\QcloudUtils;
 use Illuminate\Support\Facades\DB;
 

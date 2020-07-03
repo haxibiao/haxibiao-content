@@ -1,6 +1,6 @@
 <?php
 
-namespace haxibiao\content\Traits;
+namespace Haxibiao\Content\Traits;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -11,6 +11,6 @@ trait HasContent
 {
     public function posts(): HasMany
     {
-        return $this->hasMany(\haxibiao\content\Post::class);
+        return $this->hasMany(\Haxibiao\Content\Post::class);
     }
 }

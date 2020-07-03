@@ -1,8 +1,8 @@
 <?php
 
-namespace haxibiao\content;
+namespace Haxibiao\Content;
 
-use haxibiao\content\Categorized;
+use Haxibiao\Content\Categorized;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 

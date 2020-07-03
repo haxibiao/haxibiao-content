@@ -1,25 +1,24 @@
 <?php
 
-namespace haxibiao\content\Traits;
+namespace Haxibiao\Content\Traits;
 
 use App\Action;
 use App\Exceptions\GQLException;
 use App\Gold;
 use App\Image;
-use App\Ip;
 use App\Video;
 use App\Visit;
 use Carbon\Carbon;
-use haxibiao\content\Jobs\PublishNewPosts;
-use haxibiao\content\Post;
-use haxibiao\content\PostRecommend;
+use Haxibiao\Content\Jobs\PublishNewPosts;
+use Haxibiao\Content\Post;
+use Haxibiao\Content\PostRecommend;
 use haxibiao\helpers\BadWordUtils;
 use haxibiao\helpers\QcloudUtils;
+use haxibiao\media\Jobs\ProcessVod;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yansongda\Supports\Str;
-use haxibiao\media\Jobs\ProcessVod;
 
 trait PostRepo
 {
@@ -41,7 +40,7 @@ trait PostRepo
         ];
 
         //FIXME:  安保联盟的 tag_id 与 category_ids 同含义
-        if ('ablm' == config('app.name')){
+        if ('ablm' == config('app.name')) {
             $inputs = [
                 'body'         => Arr::get($args, 'body'),
                 'gold'         => Arr::get($args, 'issueInput.gold', 0),
@@ -64,7 +63,6 @@ trait PostRepo
     public static function CreatePost($inputs)
     {
 
-
         DB::beginTransaction();
 
         try {
@@ -83,13 +81,11 @@ trait PostRepo
                 throw new GQLException('发布失败,你以被禁言');
             }
 
-
             //带视频
-            $video_id = $inputs['video_id']  ?? null;
+            $video_id     = $inputs['video_id'] ?? null;
             $qcvod_fileid = $inputs['qcvod_fileid'] ?? null;
-            $body =  $inputs['body'] ?? null;
-            $images = $inputs['images'] ?? null;
-
+            $body         = $inputs['body'] ?? null;
+            $images       = $inputs['images'] ?? null;
 
             if ($video_id || $qcvod_fileid) {
                 if ($qcvod_fileid) {
@@ -133,14 +129,14 @@ trait PostRepo
                     $post->review_id  = Post::makeNewReviewId();
                     $post->review_day = Post::makeNewReviewDay();
                     $post->video_id   = $video->id; //关联上视频
-                    $post->user_id = $user->id;
+                    $post->user_id    = $user->id;
 
                     //安保联盟post进行了分类
                     if ('ablm' == (config('app.name'))) {
                         $post->tag_id = $inputs['tag_id'][0];
 
                         //保证下面返回的两个字段不为Null，数据库已设置默认值为0
-                        $post->count_likes = 0;
+                        $post->count_likes    = 0;
                         $post->comments_count = 0;
                     }
 
@@ -451,7 +447,7 @@ trait PostRepo
         //超过100个动态或者已经有1个小时未归档了，自动发布.
         $canPublished = Post::where('review_day', 0)
             ->where('created_at', '<=', now()->subHour())->exists()
-            || Post::where('review_day', 0)->count() >= 100;
+        || Post::where('review_day', 0)->count() >= 100;
 
         if ($canPublished) {
             dispatch_now(new PublishNewPosts);

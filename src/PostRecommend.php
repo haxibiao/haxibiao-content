@@ -1,6 +1,6 @@
 <?php
 
-namespace haxibiao\content;
+namespace Haxibiao\Content;
 
 use App\User;
 use Illuminate\Database\Eloquent\Model;

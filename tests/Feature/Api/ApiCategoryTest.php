@@ -1,6 +1,6 @@
 <?php
 
-namespace haxibiao\content\Tests\Feature\Api;
+namespace Haxibiao\Content\Tests\Feature\Api;
 
 use Tests\TestCase;
 

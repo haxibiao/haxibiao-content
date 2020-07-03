@@ -1,8 +1,6 @@
 <?php
 
-namespace haxibiao\content\Traits;
-
-use Carbon\Carbon;
+namespace Haxibiao\Content\Traits;
 
 trait PostAttrs
 {

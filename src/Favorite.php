@@ -1,13 +1,13 @@
 <?php
 
-namespace haxibiao\content;
+namespace Haxibiao\Content;
 
+use App\Article;
+use App\Model;
 use App\Post;
 use App\User;
-use App\Model;
-use App\Article;
-use haxibiao\content\Traits\FavoriteRepo;
-use haxibiao\content\Traits\FavoriteResolvers;
+use Haxibiao\Content\Traits\FavoriteRepo;
+use Haxibiao\Content\Traits\FavoriteResolvers;
 
 class Favorite extends Model
 {
@@ -19,7 +19,6 @@ class Favorite extends Model
         'faved_id',
         'faved_type',
     ];
-
 
     public function faved()
     {

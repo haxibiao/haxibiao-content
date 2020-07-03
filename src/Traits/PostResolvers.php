@@ -1,10 +1,8 @@
 <?php
 
-namespace haxibiao\content\Traits;
+namespace Haxibiao\Content\Traits;
 
-use App\Tag;
-use haxibiao\content\Post;
-use App\Exceptions\GQLException;
+use Haxibiao\Content\Post;
 use Illuminate\Support\Arr;
 
 trait PostResolvers
@@ -47,7 +45,6 @@ trait PostResolvers
         return $qb->where('user_id', $args['user_id']);
     }
 
-
     /**
      * 获取标签下的视频
      *
@@ -60,7 +57,7 @@ trait PostResolvers
     public function resolvePostsByTag($rootValue, array $args, $context, $resolveInfo)
     {
         //视频类型
-        $type  = Arr::get($args, 'type');
+        $type = Arr::get($args, 'type');
 
         //返回的条数
         $limit = Arr::get($args, 'limit', 5);

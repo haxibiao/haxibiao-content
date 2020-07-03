@@ -1,10 +1,9 @@
 <?php
 
-namespace haxibiao\content;
+namespace Haxibiao\Content;
 
-use haxibiao\content\FixContent;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\ServiceProvider;
 
 class ContentServiceProvider extends ServiceProvider
 {
@@ -78,7 +77,7 @@ class ContentServiceProvider extends ServiceProvider
         );
 
         //绑定observers
-        \haxibiao\media\Spider::observe(\haxibiao\content\Observers\SpiderObserver::class);
+        \Haxibiao\Media\Spider::observe(Observers\SpiderObserver::class);
     }
 
     protected function bindPathsInContainer()
@@ -98,7 +97,7 @@ class ContentServiceProvider extends ServiceProvider
     protected function registerMorphMap()
     {
         $this->morphMap([
-            'categories' => 'haxibiao\content\Category',
+            'categories' => 'Haxibiao\Content\Category',
         ]);
     }
 

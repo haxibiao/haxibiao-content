@@ -1,8 +1,8 @@
 <?php
 
-namespace haxibiao\content;
+namespace Haxibiao\Content;
 
-use haxibiao\media\Spider;
+use Haxibiao\Media\Spider;
 use Illuminate\Console\Command;
 
 class FixContent extends Command

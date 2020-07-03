@@ -2,7 +2,7 @@
 
 declare (strict_types = 1);
 
-use haxibiao\content\Controllers\CategoryController;
+use Haxibiao\Content\Controllers\CategoryController;
 use Illuminate\Contracts\Routing\Registrar as RouteRegisterContract;
 use Illuminate\Support\Facades\Route;
 

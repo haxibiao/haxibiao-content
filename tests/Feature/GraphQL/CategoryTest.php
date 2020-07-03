@@ -1,6 +1,6 @@
 <?php
 
-namespace haxibiao\content\Tests\Feature\GraphQL;
+namespace Haxibiao\Content\Tests\Feature\GraphQL;
 
 use Illuminate\Foundation\Testing\TestCase;
 use Tests\CreatesApplication;

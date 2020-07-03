@@ -1,6 +1,6 @@
 <?php
 
-namespace haxibiao\content\Requests;
+namespace Haxibiao\Content\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;

@@ -1,9 +1,8 @@
 <?php
 
-namespace haxibiao\content\Observers;
+namespace Haxibiao\Content\Observers;
 
-use haxibiao\content\Post;
-use haxibiao\media\Video;
+use Haxibiao\Media\Video;
 
 class VideoObserver
 {

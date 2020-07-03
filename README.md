@@ -28,7 +28,7 @@
  namespace App;
 
  use Illuminate\Database\Eloquent\Model;
- use \haxibiao\content\Traits\Categorizable;
+ use \Haxibiao\Content\Traits\Categorizable;
 
  class Article extends Model
  {

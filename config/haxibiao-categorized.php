@@ -18,7 +18,7 @@ return [
         |--------------------------------------------------------------------------
          */
 
-        'category' => haxibiao\content\Category::class,
+        'category' => Haxibiao\Content\Category::class,
 
     ],
 

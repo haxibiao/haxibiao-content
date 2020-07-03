@@ -3,8 +3,8 @@
 namespace Tests\Feature\GraphQL;
 
 use App\User;
-use haxibiao\content\Post;
-use haxibiao\media\Video;
+use Haxibiao\Content\Post;
+use Haxibiao\Media\Video;
 
 class PostTest extends GraphQLTestCase
 {

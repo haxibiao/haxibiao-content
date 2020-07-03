@@ -1,9 +1,8 @@
 <?php
 
-namespace haxibiao\content\Traits;
+namespace Haxibiao\Content\Traits;
 
 use App\Favorite;
-
 
 trait FavoriteRepo
 {
@@ -19,7 +18,7 @@ trait FavoriteRepo
         $favorite = Favorite::firstOrNew([
             'user_id'    => getUser()->id,
             'faved_id'   => $id,
-            'faved_type' => $type
+            'faved_type' => $type,
         ]);
         //取消收藏
         if ($favorite->id) {
@@ -37,15 +36,14 @@ trait FavoriteRepo
         $user = getUser();
 
         //安保联盟当中的 Favorite 为 faved_id and faved_type，原因是上面切换收藏状态为 faved_id
-        if ('ablm' == config('app.name'))
-        {
+        if ('ablm' == config('app.name')) {
             return $qb = $user->favorites()
-                        ->with('faved_id')
-                        ->where('faved_type', $favorable_type)
-                        ->latest('id');
+                ->with('faved_id')
+                ->where('faved_type', $favorable_type)
+                ->latest('id');
         }
 
-        $qb   = $user->favorites()
+        $qb = $user->favorites()
             ->with('favorable')
             ->where('favorable_type', $favorable_type)
             ->latest('id');

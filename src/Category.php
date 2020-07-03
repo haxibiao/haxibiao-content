@@ -1,11 +1,11 @@
 <?php
 
-namespace haxibiao\content;
+namespace Haxibiao\Content;
 
-use haxibiao\content\Traits\BaseModel;
-use haxibiao\content\Traits\CategoryAttrs;
-use haxibiao\content\Traits\CategoryRepo;
-use haxibiao\content\Traits\CategoryResolvers;
+use Haxibiao\Content\Traits\BaseModel;
+use Haxibiao\Content\Traits\CategoryAttrs;
+use Haxibiao\Content\Traits\CategoryRepo;
+use Haxibiao\Content\Traits\CategoryResolvers;
 use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model

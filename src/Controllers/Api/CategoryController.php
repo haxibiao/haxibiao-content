@@ -1,10 +1,10 @@
 <?php
 
-namespace haxibiao\content\Controllers\Api;
+namespace Haxibiao\Content\Controllers\Api;
 
 use App\Article;
 use App\Notifications\ArticleApproved;
-use haxibiao\content\Category;
+use Haxibiao\Content\Category;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;

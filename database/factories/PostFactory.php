@@ -2,9 +2,8 @@
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
-
 use Faker\Generator as Faker;
-use haxibiao\content\Post;
+use Haxibiao\Content\Post;
 
 $factory->define(Post::class, function (Faker $faker) {
 
@@ -13,18 +12,18 @@ $factory->define(Post::class, function (Faker $faker) {
 
     return [
         // 作者
-        'user_id' => $user_id,
+        'user_id'     => $user_id,
 
         // 视频ID
-        'video_id' => $video_id,
+        'video_id'    => $video_id,
 
         // 描述
         'description' => $faker->text('30'),
 
         // 内容
-        'content' => $faker->text,
+        'content'     => $faker->text,
 
         // 状态
-        'status' => Post::PUBLISH_STATUS,
+        'status'      => Post::PUBLISH_STATUS,
     ];
 });
