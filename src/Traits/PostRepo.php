@@ -424,10 +424,9 @@ trait PostRepo
     //抖音爬虫成功时：发布视频动态
     public static function publishSpiderVideoPost($spider)
     {
-        $post           = Post::where(['spider_id' => $spider->id])->first();
-        $post->video_id = $spider->spider_id; //爬虫的类型spider_type="videos",这个video_id只有爬虫成功后才有...
-
+        $post = Post::where(['spider_id' => $spider->id])->first();
         if ($post) {
+            $post->video_id = $spider->spider_id; //爬虫的类型spider_type="videos",这个video_id只有爬虫成功后才有...
             Post::publishPost($post);
         }
     }
@@ -447,7 +446,7 @@ trait PostRepo
         //超过100个动态或者已经有1个小时未归档了，自动发布.
         $canPublished = Post::where('review_day', 0)
             ->where('created_at', '<=', now()->subHour())->exists()
-            || Post::where('review_day', 0)->count() >= 100;
+        || Post::where('review_day', 0)->count() >= 100;
 
         if ($canPublished) {
             dispatch_now(new PublishNewPosts);

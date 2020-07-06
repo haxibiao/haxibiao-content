@@ -3,6 +3,7 @@
 namespace Tests\Feature\GraphQL;
 
 use App\User;
+use Haxibiao\Base\GraphQLTestCase;
 use Haxibiao\Content\Post;
 use Haxibiao\Media\Video;
 

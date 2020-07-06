@@ -21,21 +21,6 @@ query RecommendPostsQuery {
       id
       name
       avatar
-      gender
-      follow_users_count
-      followers_count
-      followed_user_status
-      is_admin
-      profile {
-        sub_name
-        birthday
-        age
-        introduction
-      }
-      level {
-        id
-        level
-      }
     }
   }
 }
