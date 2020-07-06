@@ -87,3 +87,16 @@ extend type Query {
     limit: Int
   ): [Post] @field(resolver: "Haxibiao\\Content\\Post@resolvePostsByTag")
 }
+
+
+enum PostTag {
+  """
+  学习模块
+  """
+  STUDY @enum(value: 1)
+
+  """
+  娱乐模块
+  """
+  PLAY @enum(value: 2)
+} 
