@@ -299,7 +299,7 @@ trait PostRepo
         $maxReviewIdInDays = Post::getMaxReviewIdInDays();
 
         //构建查询
-        $qb_published = Post::has('video')->with(['video', 'user', 'user.role'])->publish();
+        $qb_published = Post::has('video')->with(['video', 'user'])->publish();
         $qb           = $qb_published;
 
         //登录用户
