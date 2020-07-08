@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Content\Traits;
 
+use App\Follow;
 use Haxibiao\Content\Post;
 use Illuminate\Support\Arr;
 
@@ -48,6 +49,7 @@ trait PostResolvers
     /**
      * 获取标签下的视频
      *
+     * note:安保联盟在使用它
      * @param $rootValue
      * @param array $args
      * @param $context
@@ -81,6 +83,37 @@ trait PostResolvers
         }
 
         return $result;
+    }
+
+    /**
+     * 关注用户发布的视频
+     *
+     * note:安保联盟在使用它
+     * @param $rootValue
+     * @param array $args
+     * @param $context
+     * @param $resolveInfo
+     * @return array|\Illuminate\Database\Eloquent\Builder
+     */
+    public function resolveFollowing($rootValue, array $args, $context, $resolveInfo)
+    {
+        //1.前置准备
+        $loginUser = getUser();
+
+        //关注类型
+        $filter = 'users';
+
+        //2.获取用户关注列表
+        $followedUserIds = Follow::follows($loginUser, $filter)->pluck('followed_id');
+
+        if (is_null($followedUserIds)){
+            return [];
+        }
+
+        //3.获取关注用户发布的视频
+        return Post::query()
+            ->whereIn('user_id', $followedUserIds)
+            ->orderByDesc('created_at');
     }
 
 }
