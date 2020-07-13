@@ -64,11 +64,6 @@ trait PostResolvers
         //返回的条数
         $limit = Arr::get($args, 'limit', 5);
 
-        //3：代表获取我关注用户的发布视频
-        if (3 == $type){
-            self::resolveFollowing($rootValue, $args, $context, $resolveInfo);
-        }
-
         //是否第一次调用接口
         $is_first = Arr::get($args, 'is_first', false);
 
@@ -110,10 +105,6 @@ trait PostResolvers
 
         //2.获取用户关注列表
         $followedUserIds = Follow::follows($loginUser, $filter)->pluck('followed_id');
-
-        if (is_null($followedUserIds)){
-            return [];
-        }
 
         //3.获取关注用户发布的视频
         return Post::query()
