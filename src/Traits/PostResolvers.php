@@ -64,6 +64,11 @@ trait PostResolvers
         //返回的条数
         $limit = Arr::get($args, 'limit', 5);
 
+        //3：代表获取我关注用户的发布视频
+        if (3 == $type){
+            self::resolveFollowing($rootValue, $args, $context, $resolveInfo);
+        }
+
         //是否第一次调用接口
         $is_first = Arr::get($args, 'is_first', false);
 
