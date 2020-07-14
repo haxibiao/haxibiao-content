@@ -57,11 +57,9 @@ trait PostRepo
             $tag_id = $arr['0'];
             $inputs = [
                 'body'         => Arr::get($args, 'body'),
-                'gold'         => Arr::get($args, 'issueInput.gold', 0),
                 'tag_id'       => $tag_id,
-                'images'       => Arr::get($args, 'images', null),
                 'video_id'     => Arr::get($args, 'video_id', null),
-                'qcvod_fileid' => Arr::get($args, 'qcvod_fileid', null),
+
             ];
         }
         return Post::createPost($inputs);
