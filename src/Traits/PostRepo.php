@@ -152,6 +152,11 @@ trait PostRepo
                         $post->comments_count = 0;
                     }
 
+                    //yyjieyou
+                    if ('yyjieyou' == (config('app.name'))) {
+                        $post->tag_id = $inputs['tag_id'];
+                    }
+
                     $post->save();
                 }
             } else {
