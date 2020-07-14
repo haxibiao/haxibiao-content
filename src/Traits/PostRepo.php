@@ -40,11 +40,25 @@ trait PostRepo
         ];
 
         //FIXME:  安保联盟的 tag_id 与 category_ids 同含义
-        if ('ablm' == config('app.name') || 'yyjieyou' == config('app.name')) {
+        if ('ablm' == config('app.name')) {
+
             $inputs = [
                 'body'         => Arr::get($args, 'body'),
                 'gold'         => Arr::get($args, 'issueInput.gold', 0),
                 'tag_id'       => Arr::get($args, 'category_ids', null),
+                'images'       => Arr::get($args, 'images', null),
+                'video_id'     => Arr::get($args, 'video_id', null),
+                'qcvod_fileid' => Arr::get($args, 'qcvod_fileid', null),
+            ];
+        }
+        //FIXME:  yyjieyou的 tag_id 与 category_ids 同含义 
+        if ('yyjieyou' == config('app.name')) {
+            $arr = $args['category_ids'] ?? null;
+            $tag_id = $arr['0'];
+            $inputs = [
+                'body'         => Arr::get($args, 'body'),
+                'gold'         => Arr::get($args, 'issueInput.gold', 0),
+                'tag_id'       => $tag_id,
                 'images'       => Arr::get($args, 'images', null),
                 'video_id'     => Arr::get($args, 'video_id', null),
                 'qcvod_fileid' => Arr::get($args, 'qcvod_fileid', null),
