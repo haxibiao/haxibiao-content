@@ -281,4 +281,13 @@ class Post extends Model
         $this->review_id  = str_replace("-", "", Carbon::today()->toDateString()) . substr($new_num, 1, 5);
         $this->review_day = str_replace("-", "", Carbon::today()->toDateString());
     }
+
+    public static function getStatuses()
+    {
+        return [
+            self::PUBLISH_STATUS => '已发布',
+            self::PRIVARY_STATUS => '草稿箱',
+            self::DELETED_STATUS => '已删除',
+        ];
+    }
 }
