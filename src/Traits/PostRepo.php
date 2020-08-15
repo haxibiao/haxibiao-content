@@ -8,7 +8,6 @@ use App\Gold;
 use App\Image;
 use App\Video;
 use App\Visit;
-use Carbon\Carbon;
 use Haxibiao\Content\Jobs\PublishNewPosts;
 use Haxibiao\Content\Post;
 use Haxibiao\Content\PostRecommend;
@@ -51,14 +50,14 @@ trait PostRepo
                 'qcvod_fileid' => Arr::get($args, 'qcvod_fileid', null),
             ];
         }
-        //FIXME:  yyjieyou的 tag_id 与 category_ids 同含义 
+        //FIXME:  yyjieyou的 tag_id 与 category_ids 同含义
         if ('yyjieyou' == config('app.name')) {
-            $arr = $args['category_ids'] ?? null;
+            $arr    = $args['category_ids'] ?? null;
             $tag_id = $arr['0'];
             $inputs = [
-                'body'         => Arr::get($args, 'body'),
-                'tag_id'       => $tag_id,
-                'video_id'     => Arr::get($args, 'video_id', null),
+                'body'     => Arr::get($args, 'body'),
+                'tag_id'   => $tag_id,
+                'video_id' => Arr::get($args, 'video_id', null),
 
             ];
         }
@@ -82,7 +81,7 @@ trait PostRepo
 
             $todayPublishVideoNum = Post::where("user_id", $user->id)
                 ->whereNotNull('video_id')
-                ->whereDate('created_at', Carbon::now())->count();
+                ->whereBetWeen('created_at', [today(), today()->addDay()])->count();
 
             //角色为0的用户发布限制10个，其余的角色大部分是内部人员，方便测试不限制
             if ($todayPublishVideoNum == 10 && $user->role_id < 1) {
@@ -463,7 +462,7 @@ trait PostRepo
         //超过100个动态或者已经有1个小时未归档了，自动发布.
         $canPublished = Post::where('review_day', 0)
             ->where('created_at', '<=', now()->subHour())->exists()
-            || Post::where('review_day', 0)->count() >= 100;
+        || Post::where('review_day', 0)->count() >= 100;
 
         if ($canPublished) {
             dispatch_now(new PublishNewPosts);

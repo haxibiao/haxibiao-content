@@ -273,7 +273,7 @@ class Post extends Model
 
         //今日Posts新增数量，用于拼接review_id
         $count = DB::table('videos')
-            ->whereDate('created_at', now())->count();
+            ->whereBetWeen('created_at', [today(), today()->addDay()])->count();
 
         $new_num = $count + $temp_num;
 
