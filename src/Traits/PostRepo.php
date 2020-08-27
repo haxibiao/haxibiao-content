@@ -97,6 +97,7 @@ trait PostRepo
             $qcvod_fileid = $inputs['qcvod_fileid'] ?? null;
             $body         = $inputs['body'] ?? null;
             $images       = $inputs['images'] ?? null;
+<<<<<<< Updated upstream
 
             if ($video_id || $qcvod_fileid) {
                 if ($qcvod_fileid) {
@@ -104,6 +105,24 @@ trait PostRepo
                     $video        = Video::firstOrNew([
                         'qcvod_fileid' => $qcvod_fileid,
                     ]);
+=======
+            $shareLink       = data_get($inputs,'share_link');
+
+            if($shareLink){
+                //精力点校验
+                throw_if($user->ticket < 1, UserException::class, '分享视频失败,精力点不足,请补充精力点!');
+                $videoInfo   = QcloudUtils::getVideoInfo($qcvod_fileid);
+                $sourceVideoUrl = data_get($videoInfo, 'basicInfo.sourceVideoUrl');
+
+                $dyUrl = Spider::extractURL($shareLink);
+                $result = @file_get_contents('http://media.haxibiao.com/api/v1/spider/parse?share_link='.$dyUrl);
+                $result = json_decode($result);
+                $video        = Video::firstOrNew([
+                    'hash' => hash_file('md5',$sourceVideoUrl),
+                ]);
+                if(!$video->exists){
+                    $video->user_id      = $user->id;
+>>>>>>> Stashed changes
                     $video->qcvod_fileid = $qcvod_fileid;
                     $video->user_id      = $user->id;
                     // qc vod api 获取video cdn url ... 耗时间... 后面job处理了
@@ -125,6 +144,7 @@ trait PostRepo
                     $post->review_id  = Post::makeNewReviewId();
                     $post->review_day = Post::makeNewReviewDay();
                     $post->save();
+<<<<<<< Updated upstream
                     ProcessVod::dispatch($video); //TODO:与 media 包 关联
 
                     // 记录用户操作
@@ -149,6 +169,64 @@ trait PostRepo
                         //保证下面返回的两个字段不为Null，数据库已设置默认值为0
                         $post->count_likes    = 0;
                         $post->comments_count = 0;
+=======
+                    self::extractTag($post);
+                }
+                //触发更新事件-扣除精力点
+                $spider->updateTimestamps();
+            } else {
+                if ($video_id || $qcvod_fileid) {
+                    if ($qcvod_fileid) {
+                        //先给前端直接返回一个可播放的url
+                        $videoInfo   = QcloudUtils::getVideoInfo($qcvod_fileid);
+                        $defalutPath = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
+                        $sourceVideoUrl = Arr::get($videoInfo, 'basicInfo.sourceVideoUrl', $defalutPath);
+
+                        $video        = Video::firstOrNew([
+                            'qcvod_fileid' => $qcvod_fileid,
+                        ]);
+                        $video->user_id      = $user->id;
+                        //$video->hash         = hash_file('md5',$sourceVideoUrl);
+                        $video->path         = $sourceVideoUrl;
+                        // $video->cover = '...'; //TODO: 待王彬新 sdk 提供封面cdn url
+                        $video->title = Str::limit($body, 50);
+                        $video->save();
+                        //创建post
+                        $post             = new static();
+                        $post->user_id    = $user->id;
+                        $post->video_id   = $video->id;
+                        $post->status     = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
+                        $post->content    = $body;
+                        $post->review_id  = static::makeNewReviewId();
+                        $post->review_day = static::makeNewReviewDay();
+                        $post->save();
+                        ProcessVod::dispatch($video);
+
+                        // 记录用户操作
+                        Action::createAction('posts', $post->id, $post->user->id);
+                        // Ip::createIpRecord('users', $user->id, $user->id);
+                    } else if ($video_id) {
+                        $post = static::where('video_id',$video_id)->first();
+                        if (!$post) {
+                            $post = new static();
+                        }
+                        $post->content    = $body;
+                        $post->review_id  = static::makeNewReviewId();
+                        $post->review_day = static::makeNewReviewDay();
+                        $post->video_id   = $video_id; //关联上视频
+                        $post->user_id    = $user->id;
+
+                        //安保联盟post进行了分类
+                        if ('ablm' == (config('app.name'))) {
+                            $post->tag_id = $inputs['tag_id'][0];
+
+                            //保证下面返回的两个字段不为Null，数据库已设置默认值为0
+                            $post->count_likes    = 0;
+                            $post->comments_count = 0;
+                        }
+
+                        $post->save();
+>>>>>>> Stashed changes
                     }
 
                     //yyjieyou
