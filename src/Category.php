@@ -96,6 +96,15 @@ class Category extends Model
 
     public function publishedWorks()
     {
+        //FIXME:暂时兼容一下haxibiao博客
+        if (config('app.name') == 'haxibiao') {
+            return $this->belongsToMany('App\Article')
+                ->where('articles.status', '>', 0)
+                ->wherePivot('submit', '已收录')
+                ->withPivot('submit')
+                ->withTimestamps();
+        }
+
         return $this->categorized(\App\Article::class)
             ->where('articles.status', '>', 0)
             ->wherePivot('submit', '已收录')

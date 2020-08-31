@@ -234,7 +234,8 @@ class IssueController extends Controller
             }
         }
 
-        $issue->status = -1;
+        //注释原因：issue中无status字段
+        //$issue->status = -1;
         $issue->save();
         if ($issue->bonus > 0) {
             if ($issue->answered_ids) {

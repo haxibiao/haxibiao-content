@@ -117,7 +117,9 @@ class Post extends Model
         if (!empty($content)) {
             $content           = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音小助手', '抖音', '@DOU+小助手'], '', $content);
             $this->content     = $content;
-            $this->description = $content;
+            if(!$this->description){
+                $this->description = $content;
+            }
         }
     }
 

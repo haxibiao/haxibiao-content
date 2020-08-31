@@ -308,7 +308,10 @@ class ArticleController extends Controller
 
     public function shareVideo($id){
         $post = Post::findOrFail($id);
-
+        if (empty($post->video)){
+            return  view('errors.404',
+                ['data' => "您分享的视频好像不存在呢(。・＿・。)ﾉ"]);
+        }
         return view('share.shareVideo',[
             'post' => $post,
             'video' => $post->video,

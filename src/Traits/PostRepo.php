@@ -49,7 +49,15 @@ trait PostRepo
                 'qcvod_fileid' => Arr::get($args, 'qcvod_fileid', null),
             ];
         }
-        return Post::createPost($inputs);
+        $post = Post::createPost($inputs);
+
+        // 关联商品
+        $productId = data_get($args,'product_id');
+        if($productId){
+            $post->syncProducts(Arr::wrap($productId));
+        }
+
+        return $post;
     }
 
     /**

@@ -21,6 +21,13 @@ class Article extends Model
 
     protected $guarded = [];
 
+    protected static function boot()
+    {
+        parent::boot();
+        static::observe(Observers\ArticleObserver::class);
+    }
+
+    
     //提交状态
     const REFUSED_SUBMIT   = -1; //已拒绝
     const REVIEW_SUBMIT    = 0; //待审核

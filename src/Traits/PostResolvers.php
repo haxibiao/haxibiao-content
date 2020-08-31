@@ -8,6 +8,15 @@ use Illuminate\Support\Arr;
 
 trait PostResolvers
 {
+    public function resolveUpdatePost($root, $args, $context, $info){
+        $postId = data_get($args,'post_id');
+        $post = Post::findOrFail($postId);
+        $post->update(
+            Arr::only($args, ['content', 'description'])
+        );
+        return $post;
+    }
+
     public function resolveRecommendPosts($root, $args, $context, $info)
     {
         app_track_event("首页", "获取学习视频");
