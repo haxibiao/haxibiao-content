@@ -9,20 +9,27 @@ use App\Model;
 use App\User;
 use App\Video;
 use Carbon\Carbon;
+use Haxibiao\Content\Traits\Categorizable;
 use Haxibiao\Content\Traits\PostAttrs;
 use Haxibiao\Content\Traits\PostRepo;
 use Haxibiao\Content\Traits\PostResolvers;
 use Haxibiao\Media\Spider;
+use Haxibiao\Media\Traits\WithImage;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Post extends Model
 {
+    use SoftDeletes;
+
     use PostRepo;
     use PostAttrs;
     use PostResolvers;
+    use WithImage;
+    use Categorizable;
 
     protected $fillable = [
         'user_id',
@@ -109,11 +116,6 @@ class Post extends Model
     public function scopeDeleted($query)
     {
         return $query->where('status', self::DELETED_STATUS);
-    }
-
-    public function images()
-    {
-        return $this->morphToMany(Image::class, 'imageable', 'imageable');
     }
 
     public function replaceContentBadWord()

@@ -42,11 +42,6 @@ type Article {
   remark: String
 }
 
-#type ArticlePaginator {
-#  data: [Article!]!
-#  paginatorInfo: PaginatorInfo!
-#}
-
 extend type Query @middleware(checks: ["auth:api"]) {
   followedArticles(user_id: Int!): [Article!]
   @paginate(defaultCount: 10, builder: "App\\Article@resolveFollowedArticles")
@@ -60,18 +55,34 @@ extend type Query @middleware(checks: ["auth:api"]) {
 }
 
 extend type Query {
+  """
+  获取推荐视频(废弃)
+  """
   recommendVideos(count: Int = 5, page: Int = 1): ArticlePaginator
-  @field(resolver: "App\\Article@resolveRecommendVideos")
+  @field(resolver: "App\\Article@resolveRecommendVideos") @deprecated(reason: "请使用recommendPosts!!!")
+
+  """
+  获取推荐视频(废弃)
+  """
   RecommendVideos(count: Int = 5, page: Int = 1): ArticlePaginator
-  @field(resolver: "App\\Article@resolveRecommendVideos")
+  @field(resolver: "App\\Article@resolveRecommendVideos") @deprecated(reason: "请使用recommendPosts!!!")
 
   article(id: Int! @eq): Article @find
+
+  """
+  获取推荐文章
+  """
   recommendArticles: [Article!]
   @paginate(
     defaultCount: 10
     builder: "App\\Article@resolveRecommendArticles"
   )
-  sharePost(id:ID!):String @field(resolver: "App\\Article@getShareLink")
+
+  """
+  分享动态(废弃)
+  """
+  sharePost(id:ID!):String @field(resolver: "App\\Article@getShareLink") @deprecated(reason: "请使用shareNewPost!!!")
+
   articles(
     status: ArticleStatus = all
     user_id: Int

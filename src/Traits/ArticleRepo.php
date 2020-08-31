@@ -26,7 +26,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-
 trait ArticleRepo
 {
     protected function createPost($inputs)
@@ -99,12 +98,12 @@ trait ArticleRepo
                 $article->save();
 
                 if ($inputs['images']) {
-                    $images = [];
+                    $imageIds = [];
                     foreach ($inputs['images'] as $image) {
-                        $image = Image::saveImage($image);
-                        $images[] = $image;
+                        $model = Image::saveImage($image);
+                        $imageIds[] = $model->id;
                     }
-                    $article->images()->sync($images);
+                    $article->images()->sync($imageIds);
                     $article->cover_path = $article->images()->first()->path;
                     $article->save();
                 }

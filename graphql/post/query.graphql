@@ -18,6 +18,14 @@ type Post {
   """
   description: String
   """
+  图片
+  """
+  images:[Image]
+  """
+  分类
+  """
+  categories:[Category]
+  """
   -1删除，0草稿，1发布
   """
   status: Int

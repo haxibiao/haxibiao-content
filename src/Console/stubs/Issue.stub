@@ -1,0 +1,9 @@
+<?php
+
+namespace App;
+
+use Haxibiao\Content\Issue as HxbIssue;
+
+class Issue extends HxbIssue
+{
+}

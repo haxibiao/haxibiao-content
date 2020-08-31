@@ -27,7 +27,7 @@ trait PostResolvers
     public function resolvePublicPosts($root, $args, $context, $info)
     {
         app_track_event("首页", "访问动态广场");
-        return Post::PublicPosts($args['user_id'] ?? null);
+        return Post::publicPosts($args['user_id'] ?? null);
     }
 
     /**

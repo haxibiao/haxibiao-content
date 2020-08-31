@@ -1,10 +1,11 @@
 extend type Mutation @middleware(checks: ["auth:api"]) {
+
     createPost(
         body: String!
         image_urls: [String!]
         video_id: Int
         category_ids: [Int!]
-    ): Article! @field(resolver: "App\\Article@resolveCreatePost")
+    ): Article! @field(resolver: "App\\Article@resolveCreatePost") @deprecated(reason: "请使用createPostContent!!!")
 
     createContent(
         body: String!
@@ -18,7 +19,7 @@ extend type Mutation @middleware(checks: ["auth:api"]) {
     ): Article!
     @field(
         resolver: "App\\Article@createContent"
-    )
+    ) @deprecated(reason: "请使用createPostContent!!!")
     restoreArticle(id: Int!): Article
     @field(resolver: "App\\Article@restoreArticle")
     deleteArticle(id: Int!): Article
