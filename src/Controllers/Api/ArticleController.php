@@ -91,7 +91,7 @@ class ArticleController extends Controller
     public function store(ArticleRequest $request)
     {
         $user = $request->user();
-        if (!str_contains($user->email, '@haxibiao.com')) {
+        if ( !str_contains(data_get($user,'email',''), '@haxibiao.com')) {
             abort(403, '您无权发布文章');
         }
         if ($slug = $request->slug) {

@@ -4,7 +4,7 @@ namespace Haxibiao\Content\Controllers\Api;
 
 use App\Article;
 use App\Notifications\ArticleApproved;
-use Haxibiao\Content\Category;
+use App\Category;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;

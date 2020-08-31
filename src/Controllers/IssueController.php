@@ -41,10 +41,12 @@ class IssueController extends Controller
             ->where('bonus', '>', 0);
         $questions  = $qb->paginate(10);
         $categories = Category::where('count_questions', '>', 0)->orderBy('updated_at', 'desc')->take(7)->get();
+        $hot = [];
         return view('question.index')
             ->withCategory($category)
             ->withCategories($categories)
-            ->withQuestions($questions);
+            ->withQuestions($questions)
+            ->withHot($hot);
     }
     /**
      * Display a listing of the resource.

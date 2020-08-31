@@ -28,7 +28,7 @@ use Illuminate\Support\Str;
 
 trait ArticleRepo
 {
-    protected function createPost($inputs)
+    public function createPost($inputs)
     {
 
         DB::beginTransaction();

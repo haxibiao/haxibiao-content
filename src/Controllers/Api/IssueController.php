@@ -29,7 +29,7 @@ class IssueController extends Controller
     //问题可以邀请用户列表,七天内只能邀请一次
     public function questionUninvited(Request $request, $issue_id)
     {
-        $user = Auth::guard('api')->user();
+        $user = $request->user();
         //获取当前七天前邀请的用户
         $inviteIds = $user->issueInvites()->where('issue_id', $issue_id)
             ->whereRaw('DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= date(updated_at)')
