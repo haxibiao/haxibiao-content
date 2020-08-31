@@ -23,6 +23,11 @@ class Article extends Model
         'json' => 'object',
     ];
 
+    public function getMorphClass()
+    {
+        return 'articles';
+    }
+
     protected $fillable = [
         'title',
         'keywords',

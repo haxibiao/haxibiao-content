@@ -26,6 +26,7 @@ class ContentServiceProvider extends ServiceProvider
         $this->commands([
             Console\InstallCommand::class,
             Console\CategoryReFactoringCommand::class,
+            Console\PostReFactoringCommand::class,
             // FixContent::class,
         ]);
     }
@@ -105,6 +106,7 @@ class ContentServiceProvider extends ServiceProvider
             'categories' => config('haxibiao-content.models.category'),
             'articles'   => config('haxibiao-content.models.article'),
             'posts'      => config('haxibiao-content.models.post'),
+            'issues'      => config('haxibiao-content.models.issue'),
         ]);
     }
 

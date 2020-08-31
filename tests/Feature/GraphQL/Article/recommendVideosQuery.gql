@@ -1,0 +1,53 @@
+#动态广场
+query postsSquareQuery($page: Int) {
+    articles(page: $page, submit: SUBMITTED_SUBMIT, status: public) {
+        paginatorInfo {
+            hasMorePages
+            currentPage
+        }
+        data {
+            id
+            type
+            body
+            description
+            time_ago
+            cover
+            hits
+            count_likes
+            count_replies
+            count_tips
+            liked
+            answered_status
+            question_reward
+            user {
+                avatar
+                name
+                id
+                followed_status
+            }
+            categories {
+                id
+                name
+                logo
+            }
+            images {
+                id
+                url
+                width
+                height
+            }
+            video {
+                id
+                url
+                duration
+                info {
+                    width
+                    height
+                    rotate
+                    covers
+                }
+                cover_url
+            }
+        }
+    }
+}

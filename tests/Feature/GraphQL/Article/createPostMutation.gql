@@ -1,0 +1,75 @@
+# body:文字描述
+# images:图片base64
+# image_urls:图片地址(弃用)
+# video_id:视频ID
+# category_ids:分类IDs
+# type:内容的类型
+# issueInput:问答参数
+# 参数示例
+# {
+#   "body":"视频里面是什么东西？",
+#   "video_id":773,
+#   "type": "ISSUE",
+#   "issueInput": {
+#     "gold":30
+#   }
+# }
+mutation createPostMutation(
+    $body: String!
+    $images: [String!]
+    $video_id: Int
+    $qcvod_fileid: String
+    $category_ids: [Int!]
+    $type: ContenType!
+    $issueInput: IssueInfo
+) {
+    createContent(
+        body: $body
+        images: $images
+        video_id: $video_id
+        qcvod_fileid: $qcvod_fileid
+        category_ids: $category_ids
+        type: $type
+        issueInput: $issueInput
+    ) {
+        id
+        type
+        title
+        description
+        time_ago
+        cover
+        count_likes
+        count_replies
+        liked
+        answered_status
+        question_reward
+        user {
+            avatar
+            name
+            id
+        }
+        categories {
+            id
+            name
+            logo
+        }
+        images {
+            id
+            url
+            width
+            height
+        }
+        video {
+            id
+            url
+            duration
+            info {
+                width
+                height
+                rotate
+                covers
+            }
+            cover_url
+        }
+    }
+}

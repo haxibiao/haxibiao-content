@@ -37,9 +37,19 @@ class Category extends Model
         return config('haxibiao-content.models.category');
     }
 
+    public function getMorphClass()
+    {
+        return 'categories';
+    }
+
     public function user()
     {
         return $this->belongsTo(\App\User::class);
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany('App\User');
     }
 
     public function admins()
@@ -55,26 +65,10 @@ class Category extends Model
             ->orderBy('pivot_count_approved', 'desc');
     }
 
-    public function users()
-    {
-        return $this->belongsToMany('App\User');
-    }
-
     public function videoArticles()
     {
         return $this->categorized(\App\Article::class)
             ->where('articles.type', 'video');
-    }
-
-    public function containedVideoPosts()
-    {
-        return $this->categorized(\App\Article::class)
-            ->where('articles.type', 'video');
-    }
-
-    public function issues()
-    {
-        return $this->categorized(\App\Issue::class);
     }
 
     public function articles()
@@ -83,12 +77,7 @@ class Category extends Model
             ->withPivot('submit')
             ->withTimestamps()
             ->orderBy('pivot_updated_at', 'desc')
-            ->exclude(['body', 'json']);
-    }
-
-    public function videoPosts()
-    {
-        return $this->articles()->where('type', 'video');
+            ->exclude(['body']);
     }
 
     public function newRequestArticles()
@@ -98,6 +87,17 @@ class Category extends Model
             ->withPivot('updated_at');
     }
 
+    public function videoPosts()
+    {
+        return $this->articles()->where('type', 'video');
+    }
+
+    public function containedVideoPosts()
+    {
+        return $this->categorized(\App\Article::class)
+            ->where('articles.type', 'video');
+    }
+
     public function requestedInMonthArticles()
     {
         return $this->categorized(\App\Article::class)
@@ -105,6 +105,20 @@ class Category extends Model
             ->withPivot('submit', 'created_at')
             ->withTimestamps()
             ->orderBy('pivot_created_at', 'desc');
+    }
+
+    public function publishedWorks()
+    {
+        return $this->categorized(\App\Article::class)
+            ->where('articles.status', '>', 0)
+            ->wherePivot('submit', '已收录')
+            ->withPivot('submit')
+            ->withTimestamps();
+    }
+
+    public function hasManyArticles()
+    {
+        return $this->hasMany('App\Article', 'category_id', 'id');
     }
 
     public function publishedArticles()
@@ -119,37 +133,19 @@ class Category extends Model
         return $this->belongsTo($this->categorizableModel(), 'parent_id');
     }
 
-    public function follows()
-    {
-        return $this->morphMany(\App\Follow::class, 'followed');
-    }
-
-    public function publishedWorks()
-    {
-        //FIXME:暂时兼容一下haxibiao博客
-        if (config('app.name') == 'haxibiao') {
-            return $this->belongsToMany('App\Article')
-                ->where('articles.status', '>', 0)
-                ->wherePivot('submit', '已收录')
-                ->withPivot('submit')
-                ->withTimestamps();
-        }
-
-        return $this->categorized(\App\Article::class)
-            ->where('articles.status', '>', 0)
-            ->wherePivot('submit', '已收录')
-            ->withPivot('submit')
-            ->withTimestamps();
-    }
-
     public function subCategory()
     {
         return $this->hasMany($this->categorizableModel(), 'parent_id', 'id');
     }
 
-    public function hasManyArticles()
+    public function issues()
     {
-        return $this->hasMany('App\Article', 'category_id', 'id');
+        return $this->categorized(\App\Issue::class);
+    }
+
+    public function follows()
+    {
+        return $this->morphMany(\App\Follow::class, 'followed');
     }
 
     public function categorized($related)

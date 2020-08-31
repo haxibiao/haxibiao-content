@@ -1,10 +1,11 @@
 <?php
 
 namespace Haxibiao\Content\Traits;
-use App\User;
+use App\Visit;
 use Illuminate\Support\Str;
+use App\User;
 
-trait IssueAttrs
+trait SolutionAttrs
 {
 
     public function getImageUrlsAttribute()
@@ -23,10 +24,9 @@ trait IssueAttrs
     }
     public function getImageCoverAttribute()
     {
-        $image_url = $this->image_urls->first();
-        if (isset($image_url)) {
-            if (Str::contains($image_url, 'http')) {
-                return $image_url;
+        if (isset($this->image_url)) {
+            if (Str::contains($this->image_url, 'http')) {
+                return $this->image_url;
             }
             return \Storage::cloud()->url($this->image_url);
         }
@@ -35,22 +35,15 @@ trait IssueAttrs
 
     }
 
-    public function getImageAttribute()
+    public function getLikedAttribute()
     {
-        return $this->images->first();
+        if ($user = getUser(false)) {
+            return $like = $user->likedSolutions()->where('liked_id', $this->id)->count() > 0;
+        }
+        return false;
     }
-    public function getImage1Attribute()
+    public function getCountVisitsAttribute()
     {
-        return $this->images->first();
-    }
-
-    public function getImage2Attribute()
-    {
-        return $this->images->first();
-    }
-
-    public function getImage3Attribute()
-    {
-        return $this->images->first();
+        return  Visit::where('visited_id',$this->id)->where('visited_type','solutions')->count();
     }
 }

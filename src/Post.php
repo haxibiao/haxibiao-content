@@ -31,6 +31,11 @@ class Post extends Model
     use WithImage;
     use Categorizable;
 
+    public function getMorphClass()
+    {
+        return 'posts';
+    }
+
     protected $fillable = [
         'user_id',
         'description',

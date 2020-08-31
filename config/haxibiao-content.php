@@ -20,6 +20,7 @@ return [
         'category' => Haxibiao\Content\Category::class,
         'article'  => Haxibiao\Content\Article::class,
         'post'     => Haxibiao\Content\Post::class,
+        'issue'     => Haxibiao\Content\Issue::class,
     ],
 
 ];

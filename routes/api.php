@@ -4,6 +4,7 @@ declare (strict_types = 1);
 
 use Haxibiao\Content\Controllers\Api\ArticleController;
 use Haxibiao\Content\Controllers\Api\CategoryController;
+use Haxibiao\Content\Controllers\Api\IssueController;
 use Illuminate\Contracts\Routing\Registrar as RouteRegisterContract;
 use Illuminate\Support\Facades\Route;
 /**
@@ -98,4 +99,36 @@ Route::group(['prefix' => 'api'], function (RouteRegisterContract $api) {
 
     Route::get('fake-users', ArticleController::class .'@fakeUsers');
     Route::middleware('auth:api')->get('/article-trash', ArticleController::class .'@trash');
+});
+
+
+/**
+ * Issue
+ */
+Route::group(['prefix' => 'api'], function (RouteRegisterContract $api) {
+    //相似问答
+    Route::get('/suggest-question', IssueController::class.'@suggest');
+    //问答
+    Route::get('/question/{id}', IssueController::class.'@question');
+    // 举报
+    Route::get('/report-question-{id}', IssueController::class.'@reportQuestion');
+    // 收藏问题，内逻辑同收藏文章...
+    Route::get('/favorite-question-{id}', IssueController::class.'@favoriteQuestion');
+    // 回答
+    Route::get('/answer/{id}', IssueController::class.'@answer');
+    // 回答下按钮操作
+    Route::get('/like-answer-{id}', IssueController::class.'@likeAnswer');
+    Route::get('/unlike-answer-{id}', IssueController::class.'@unlikeAnswer');
+    Route::get('/report-answer-{id}', IssueController::class.'@reportAnswer');
+    Route::get('/delete-answer-{id}', IssueController::class.'@deleteAnswer');
+    // 邀请列表
+    Route::get('/question-{id}-uninvited', IssueController::class.'@questionUninvited');
+    // 点邀请
+    Route::get('/question-{qid}-invite-user-{id}', IssueController::class.'@questionInvite');
+    Route::post('/question-{id}-answered', IssueController::class.'@answered');
+    //删除问题
+    Route::get('/delete-question-{id}', IssueController::class.'@delete');
+
+    //commend question
+    Route::get('/commend-question', IssueController::class.'@commend');
 });

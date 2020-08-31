@@ -1,14 +1,22 @@
 <?php
 
-namespace App;
+namespace Haxibiao\Content;
 
+use App\Model;
+use Haxibiao\Content\Traits\Categorizable;
 use Haxibiao\Content\Traits\IssueAttrs;
+use Haxibiao\Content\Traits\IssueResolvers;
+use Haxibiao\Media\Image;
+use Haxibiao\Media\Traits\WithImage;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Issue extends Model
 {
+    use IssueResolvers;
     use IssueAttrs;
     use SoftDeletes;
+    use WithImage;
+    use Categorizable;
 
     public $fillable = [
         'user_id',
@@ -17,10 +25,12 @@ class Issue extends Model
         'is_anonymous',
         'bonus',
         'deadline',
-        'image1',
-        'image2',
-        'image3',
     ];
+
+    public function getMorphClass()
+    {
+        return 'issues';
+    }
 
     public function article(){
         return $this->hasOne(\App\Article::class);
@@ -31,24 +41,25 @@ class Issue extends Model
         return $this->belongsTo(\App\User::class);
     }
 
-    public function categories()
+    public function solutions()
     {
-        return $this->belongsToMany(\App\Category::class);
+        return $this->hasMany(\App\Solution::class)->orderBy('id', 'desc');
     }
 
+    //兼容重构前的resolution
     public function resolutions()
     {
-        return $this->hasMany(\App\Resolution::class)->orderBy('id', 'desc');
+        return $this->hasMany(\App\Solution::class)->orderBy('id', 'desc');
     }
 
     public function latestResolution()
     {
-        return $this->belongsTo(\App\Resolution::class, 'latest_resolution_id');
+        return $this->belongsTo(\App\Solution::class, 'latest_resolution_id');
     }
 
     public function bestResolution()
     {
-        return $this->belongsTo(\App\Resolution::class, 'best_resolution_id');
+        return $this->belongsTo(\App\Solution::class, 'best_resolution_id');
     }
 
     public function isPay()
@@ -90,9 +101,9 @@ class Issue extends Model
             return $image_url;
         }
         //没有，只好用问题里的图片
-        if (!empty($this->image1)) {
+        if (!empty($this->image_url)) {
             //多用於列表，都用小圖
-            $image_url = $this->image1;
+            $image_url = $this->image_url;
             $image     = Image::where('path', $image_url)->first();
             if ($image) {
                 $image_url = $image->thumbnail;
@@ -101,30 +112,6 @@ class Issue extends Model
             return $image_url;
         }
         return null;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function image1()
-    {
-        return $this->image1;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function image2()
-    {
-        return $this->image2;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function image3()
-    {
-        return $this->image3;
     }
 
     public function link()
@@ -136,8 +123,4 @@ class Issue extends Model
         return $this->resolution_ids ? '已经结账' : '无人回答已经退回余额';
     }
 
-    public function images()
-    {
-        return $this->morphToMany(Image::class, 'imageable', 'imageable');
-    }
 }
