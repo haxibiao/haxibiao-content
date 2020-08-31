@@ -32,6 +32,11 @@ class Category extends Model
         'logo_app',
     ];
 
+    private function categorizableModel(): string
+    {
+        return config('haxibiao-content.models.category');
+    }
+
     public function user()
     {
         return $this->belongsTo(\App\User::class);
@@ -111,7 +116,7 @@ class Category extends Model
 
     public function parent()
     {
-        return $this->belongsTo(Category::class, 'parent_id');
+        return $this->belongsTo($this->categorizableModel(), 'parent_id');
     }
 
     public function follows()
@@ -139,7 +144,7 @@ class Category extends Model
 
     public function subCategory()
     {
-        return $this->hasMany(Category::class, 'parent_id', 'id');
+        return $this->hasMany($this->categorizableModel(), 'parent_id', 'id');
     }
 
     public function hasManyArticles()

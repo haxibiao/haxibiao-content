@@ -2,33 +2,37 @@
 
 namespace Haxibiao\Content\Traits;
 
-use Haxibiao\Content\Category;
 
 trait HasCategory
 {
+    public function categorizableModel(): string
+    {
+        return config('haxibiao-content.models.category');
+    }
+
     public function categories()
     {
-        return $this->belongsToMany(Category::class);
+        return $this->belongsToMany($this->categorizableModel());
     }
 
     public function adminCategories()
     {
-        return $this->belongsToMany(Category::class)->where('type', 'article')->wherePivot('is_admin', 1);
+        return $this->belongsToMany($this->categorizableModel())->where('type', 'article')->wherePivot('is_admin', 1);
     }
 
     public function requestCategories()
     {
-        return $this->belongsToMany(Category::class)->wherePivot('approved', 0);
+        return $this->belongsToMany($this->categorizableModel())->wherePivot('approved', 0);
     }
 
     public function joinCategories()
     {
-        return $this->belongsToMany(Category::class)->wherePivot('approved', 1);
+        return $this->belongsToMany($this->categorizableModel())->wherePivot('approved', 1);
     }
 
     public function hasManyCategories()
     {
-        return $this->hasMany(Category::class, 'user_id', 'id')->where('type', 'article');
+        return $this->hasMany($this->categorizableModel(), 'user_id', 'id')->where('type', 'article');
     }
 
     public function newReuqestCategories()

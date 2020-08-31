@@ -1,6 +1,6 @@
 <?php
 
-namespace Haxibiao\Content;
+namespace Haxibiao\Content\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
@@ -57,6 +57,7 @@ class InstallCommand extends Command
 
         $this->comment("复制 stubs ...");
         copy(__DIR__ . '/stubs/Post.stub', app_path('Post.php'));
+        copy(__DIR__ . '/stubs/Article.stub', app_path('Article.php'));
         copy(__DIR__ . '/stubs/Favorite.stub', app_path('Favorite.php'));
         copy(__DIR__ . '/stubs/PostRecommend.stub', app_path('PostRecommend.php'));
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Haxibiao\Content;
+namespace Haxibiao\Content\Console;
 
 use Haxibiao\Media\Spider;
 use Illuminate\Console\Command;

@@ -9,8 +9,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 trait HasContent
 {
+    use HasCategory;
+    use HasArticle;
+
+    public function postableModel(): string
+    {
+        return config('haxibiao-content.models.post');
+    }
+
     public function posts(): HasMany
     {
-        return $this->hasMany(\Haxibiao\Content\Post::class);
+        return $this->hasMany($this->postableModel());
     }
 }

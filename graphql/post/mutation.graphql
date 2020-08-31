@@ -1,4 +1,7 @@
 extend type Mutation @middleware(checks: ["auth:api"]) {
+  """
+  创建动态
+  """
   createPostContent(
     """
     正文
@@ -29,5 +32,5 @@ extend type Mutation @middleware(checks: ["auth:api"]) {
     图片链接
     """
     images: [String!]
-  ): Post! @field(resolver: "Haxibiao\\Content\\Post@resolveCreateContent")
+  ): Post! @field(resolver: "App\\Post@resolveCreateContent")
 }

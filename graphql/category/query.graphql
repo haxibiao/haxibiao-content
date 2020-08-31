@@ -23,7 +23,7 @@ type Category {
 }
 
 extend type Query {
-  category(id: Int! @eq): Category @find(model: "App\\Category ")
+  category(id: Int! @eq): Category @find(model: "App\\Category")
   categoryAdmins(category_id: Int!): [User!]
     @paginate(defaultCount: 10, builder: "App\\Category@resolveAdmins")
   categoryAuthors(category_id: Int!): [User!]

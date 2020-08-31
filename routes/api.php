@@ -2,10 +2,13 @@
 
 declare (strict_types = 1);
 
+use Haxibiao\Content\Controllers\Api\ArticleController;
 use Haxibiao\Content\Controllers\Api\CategoryController;
 use Illuminate\Contracts\Routing\Registrar as RouteRegisterContract;
 use Illuminate\Support\Facades\Route;
-
+/**
+ * Category
+ */
 Route::group(['prefix' => 'api'], function (RouteRegisterContract $api) {
 
     $api->group(['prefix' => 'category'], function (RouteRegisterContract $api) {
@@ -58,4 +61,41 @@ Route::group(['prefix' => 'api'], function (RouteRegisterContract $api) {
         });
     });
 
+});
+
+/**
+ * Article
+ */
+Route::group(['prefix' => 'api'], function (RouteRegisterContract $api) {
+
+    $api->group(['prefix' => 'article'], function (RouteRegisterContract $api) {
+
+        Route::get('/import', ArticleController::class .'@import');
+        Route::post('/import', ArticleController::class .'@import');
+        Route::get('/', ArticleController::class .'@index');
+        Route::get('/{id}', ArticleController::class .'@show');
+        Route::get('/{id}/likes', ArticleController::class .'@likes');
+
+        Route::post('/{id}/json', ArticleController::class .'@saveRelation');
+        //获取文章所有相关片段数据
+        Route::get('/{id}/lists', ArticleController::class .'@getAllRelations');
+        //删除文章相关片段数据
+        Route::get('/{id}/del-{key}', ArticleController::class .'@deleteRelation');
+        //获取文章相关片段数据
+        Route::get('/{id}/{key}', ArticleController::class .'@getRelation');
+
+        Route::post('/resolverDouyin', 'Api\ArticleController@resolverDouyinVideo');
+
+        $api->group(['middleware' => 'auth:api'], function (RouteRegisterContract $api) {
+            Route::post('/create-post', ArticleController::class .'@createPost');
+            Route::post('/create', ArticleController::class .'@store');
+            Route::put('/{id}/update', ArticleController::class .'@update');
+            Route::delete('/{id}', ArticleController::class .'@delete');
+            Route::get('/{id}/restore', ArticleController::class .'@restore');
+            Route::get('/{id}/destroy', ArticleController::class .'@destroy');
+        });
+    });
+
+    Route::get('fake-users', ArticleController::class .'@fakeUsers');
+    Route::middleware('auth:api')->get('/article-trash', ArticleController::class .'@trash');
 });

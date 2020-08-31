@@ -19,13 +19,13 @@ class ContentServiceProvider extends ServiceProvider
         $this->registerMorphMap();
 
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/haxibiao-categorized.php',
-            'haxibiao-categorized'
+            __DIR__ . '/../config/haxibiao-content.php',
+            'haxibiao-content'
         );
 
         $this->commands([
-            InstallCommand::class,
-            CategoryReFactoringCommand::class,
+            Console\InstallCommand::class,
+            Console\CategoryReFactoringCommand::class,
             // FixContent::class,
         ]);
     }
@@ -42,7 +42,7 @@ class ContentServiceProvider extends ServiceProvider
             $this->loadMigrationsFrom($this->app->make('path.haxibiao-category.migrations'));
 
             $this->publishes([
-                __DIR__ . '/../config/haxibiao-categorized.php' => config_path('haxibiao-categorized.php'),
+                __DIR__ . '/../config/haxibiao-content.php' => config_path('haxibiao-content.php'),
             ], 'content-config');
 
             //发布 graphql
@@ -52,6 +52,10 @@ class ContentServiceProvider extends ServiceProvider
 
             $this->publishes([
                 __DIR__ . '/../graphql/favorite' => base_path('graphql/favorite'),
+            ], 'content-graphql');
+
+            $this->publishes([
+                __DIR__ . '/../graphql/article' => base_path('graphql/article'),
             ], 'content-graphql');
 
             // 发布 Nova
@@ -78,6 +82,7 @@ class ContentServiceProvider extends ServiceProvider
 
         //绑定observers
         \Haxibiao\Media\Spider::observe(Observers\SpiderObserver::class);
+        \Haxibiao\Content\Article::observe(Observers\ArticleObserver::class);
     }
 
     protected function bindPathsInContainer()
@@ -97,7 +102,9 @@ class ContentServiceProvider extends ServiceProvider
     protected function registerMorphMap()
     {
         $this->morphMap([
-            'categories' => 'Haxibiao\Content\Category',
+            'categories' => config('haxibiao-content.models.category'),
+            'articles'   => config('haxibiao-content.models.article'),
+            'posts'      => config('haxibiao-content.models.post'),
         ]);
     }
 

@@ -8,27 +8,31 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 trait Categorizable
 {
+    private function categorizableModel(): string
+    {
+        return config('haxibiao-content.models.category');
+    }
 
     public function category()
     {
-        return $this->belongsTo(Category::class, 'category_id');
+        return $this->belongsTo($this->categorizableModel(), 'category_id');
     }
 
     public function allCategories()
     {
-        return $this->morphToMany(Category::class, 'categorized')
+        return $this->morphToMany($this->categorizableModel(), 'categorized')
             ->withPivot(['id', 'submit'])
             ->withTimestamps();
     }
 
     public function hasCategories()
     {
-        return $this->morphToMany(Category::class, 'categorized');
+        return $this->morphToMany($this->categorizableModel(), 'categorized');
     }
 
     public function categories(): MorphToMany
     {
-        return $this->morphToMany(Category::class, 'categorized')
+        return $this->morphToMany($this->categorizableModel(), 'categorized')
             ->withPivot(['id', 'submit'])
             ->withTimestamps();
     }
@@ -53,15 +57,6 @@ trait Categorizable
 
         return $this;
     }
-
-//    public function getCountCategoriesAttribute()
-    //    {
-    //        if ($this->relationLoaded('categories')) {
-    //            return $this->categories->count();
-    //        }
-    //
-    //        return $this->categories()->count();
-    //    }
 
     public function hasCategory($categories)
     {
