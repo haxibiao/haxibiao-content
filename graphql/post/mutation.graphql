@@ -33,4 +33,8 @@ extend type Mutation @middleware(checks: ["auth:api"]) {
     """
     images: [String!]
   ): Post! @field(resolver: "App\\Post@resolveCreateContent")
+  """
+  删除动态
+  """
+  deletePost(id: ID!): Post @delete
 }

@@ -59,15 +59,21 @@ extend type Query {
   获取推荐视频(废弃)
   """
   recommendVideos(count: Int = 5, page: Int = 1): ArticlePaginator
-  @field(resolver: "App\\Article@resolveRecommendVideos") @deprecated(reason: "请使用recommendPosts!!!")
+  @field(resolver: "App\\Post@patchResolveRecommendPosts")
+  @deprecated(reason: "该接口已废弃，请使用recommendPosts")
 
   """
   获取推荐视频(废弃)
   """
   RecommendVideos(count: Int = 5, page: Int = 1): ArticlePaginator
-  @field(resolver: "App\\Article@resolveRecommendVideos") @deprecated(reason: "请使用recommendPosts!!!")
+  @field(resolver: "App\\Post@patchResolveRecommendPosts")
+  @deprecated(reason: "该接口已废弃，请使用recommendPosts")
 
-  article(id: Int! @eq): Article @find
+
+  """
+  查询动态详情请使用post，文章详情暂时绕道
+  """
+  article(id: Int! @eq): Article @find(model: "App\\Post")
 
   """
   获取推荐文章
@@ -81,7 +87,8 @@ extend type Query {
   """
   分享动态(废弃)
   """
-  sharePost(id:ID!):String @field(resolver: "App\\Article@getShareLink") @deprecated(reason: "请使用shareNewPost!!!")
+  sharePost(id:ID!):String @field(resolver: "App\\Article@getShareLink")
+  @deprecated(reason: "该接口已废弃，请使用shareNewPost")
 
   articles(
     status: ArticleStatus = all
@@ -89,11 +96,11 @@ extend type Query {
     category_id: Int
     submit: ArticleSubmitStatus = ALL
     orderBy: [OrderByClause!] @orderBy
-  ): [Article!]
-  @paginate(
+  ): [Article!] @paginate(
     defaultCount: 10
-    builder: "App\\Article@articles"
+    builder: "App\\Post@resolvePublicPosts"
   )
+  @deprecated(reason: "该接口已废弃")
 }
 
 enum ArticleStatus {

@@ -11,6 +11,7 @@ use App\Video;
 use Carbon\Carbon;
 use Haxibiao\Content\Traits\Categorizable;
 use Haxibiao\Content\Traits\PostAttrs;
+use Haxibiao\Content\Traits\PostOldPatch;
 use Haxibiao\Content\Traits\PostRepo;
 use Haxibiao\Content\Traits\PostResolvers;
 use Haxibiao\Media\Spider;
@@ -30,27 +31,14 @@ class Post extends Model
     use PostResolvers;
     use WithImage;
     use Categorizable;
+    use PostOldPatch;
 
     public function getMorphClass()
     {
         return 'posts';
     }
 
-    protected $fillable = [
-        'user_id',
-        'description',
-        'content',
-        'spider_id',
-        'video_id',
-        'status',
-        'hot',
-        'count_likes',
-        'count_comments',
-        'created_at',
-        'updated_at',
-        'review_id',
-        'review_day',
-    ];
+    protected $guarded = [];
 
     const PUBLISH_STATUS = 1;
     const PRIVARY_STATUS = 0;
@@ -228,9 +216,13 @@ class Post extends Model
         return Post::getGuestPosts($limit);
     }
 
-    public static function getGuestPosts($limit = 10)
+    public static function getGuestPosts($limit = 5)
     {
-        $qb = Post::with(['video', 'user', 'user.role'])
+        $withRelationList = ['video', 'user'];
+        if(class_exists("App\\Role", true)){
+            $withRelationList = array_merge($withRelationList,['user.role']);
+        }
+        $qb = Post::with($withRelationList)
             ->has('video')
             ->publish();
         $qb     = $qb->take($limit);

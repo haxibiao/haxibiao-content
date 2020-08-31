@@ -6,7 +6,6 @@ use App\Action;
 use App\Exceptions\GQLException;
 use App\Gold;
 use App\Image;
-use App\Video;
 use App\Visit;
 use Carbon\Carbon;
 use Haxibiao\Content\Jobs\PublishNewPosts;
@@ -15,6 +14,7 @@ use Haxibiao\Content\PostRecommend;
 use Haxibiao\Helpers\BadWordUtils;
 use Haxibiao\Helpers\QcloudUtils;
 use Haxibiao\Media\Jobs\ProcessVod;
+use Haxibiao\Media\Video;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -32,7 +32,6 @@ trait PostRepo
         //参数格式化
         $inputs = [
             'body'         => Arr::get($args, 'body'),
-            'gold'         => Arr::get($args, 'issueInput.gold', 0),
             'category_ids' => Arr::get($args, 'category_ids', null),
             'images'       => Arr::get($args, 'images', null),
             'video_id'     => Arr::get($args, 'video_id', null),
@@ -115,7 +114,7 @@ trait PostRepo
                     ProcessVod::dispatch($video);
 
                     // 记录用户操作
-                    Action::createAction('articles', $post->id, $post->user->id);
+                    Action::createAction('posts', $post->id, $post->user->id);
                     // Ip::createIpRecord('users', $user->id, $user->id);
                 } else if ($video_id) {
                     $post = Post::where('video_id',$video_id)->first();
@@ -183,8 +182,12 @@ trait PostRepo
         $hasLogin = !is_null($user);
         $limit    = $limit >= 10 ? 8 : 4;
 
+        $withRelationList = ['video', 'user'];
+        if(class_exists("App\\Role", true)){
+            $withRelationList = array_merge($withRelationList,['user.role']);
+        }
         //构建查询
-        $qb = Post::with(['video', 'user', 'user.role'])->has('video')->publish()
+        $qb = Post::with($withRelationList)->has('video')->publish()
             ->orderByDesc('review_id')
             ->take($limit);
         //存在用户
@@ -304,7 +307,6 @@ trait PostRepo
         //构建查询
         $qb_published = Post::has('video')->with(['video', 'user'])->publish();
         $qb           = $qb_published;
-
         //登录用户
 
         //1.过滤 过滤掉自己 和 不喜欢用户的作品
@@ -338,7 +340,12 @@ trait PostRepo
         // 视频刷光了,先返回20个最新的视频顶一下
         if (!$posts->count()) {
             Log::channel('fast_recommend')->error($reviewId . '指针没空，结果是空' . $reviewDay);
-            $qb_published = Post::has('video')->with(['video', 'user', 'user.role'])->publish();
+            $withRelationList = ['video', 'user'];
+            if(class_exists("App\\Role", true)){
+                $withRelationList = array_merge($withRelationList,['user.role']);
+            }
+
+            $qb_published = Post::has('video')->with($withRelationList)->publish();
             return $qb_published->latest('id')->skip(rand(1, 100))->take(20)->get();
         }
 

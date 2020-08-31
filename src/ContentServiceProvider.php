@@ -40,7 +40,7 @@ class ContentServiceProvider extends ServiceProvider
     {
         //安装时需要
         if ($this->app->runningInConsole()) {
-            $this->loadMigrationsFrom($this->app->make('path.haxibiao-category.migrations'));
+            $this->loadMigrationsFrom($this->app->make('path.haxibiao-content.migrations'));
 
             $this->publishes([
                 __DIR__ . '/../config/haxibiao-content.php' => config_path('haxibiao-content.php'),
@@ -78,24 +78,25 @@ class ContentServiceProvider extends ServiceProvider
         }
 
         $this->loadRoutesFrom(
-            $this->app->make('path.haxibiao-category') . '/router.php'
+            $this->app->make('path.haxibiao-content') . '/router.php'
         );
 
         //绑定observers
         \Haxibiao\Media\Spider::observe(Observers\SpiderObserver::class);
         \Haxibiao\Content\Article::observe(Observers\ArticleObserver::class);
+        \Haxibiao\Media\Video::observe(Observers\VideoObserver::class);
     }
 
     protected function bindPathsInContainer()
     {
         foreach ([
-            'path.haxibiao-category'            => $root = dirname(__DIR__),
-            'path.haxibiao-category.config'     => $root . '/config',
-            'path.haxibiao-category.database'   => $database = $root . '/database',
-            'path.haxibiao-category.migrations' => $database . '/migrations',
-            'path.haxibiao-category.seeds'      => $database . '/seeds',
-            'path.haxibiao-category.graphql'    => $database . '/graphql',
-        ] as $abstract => $instance) {
+                     'path.haxibiao-content'            => $root = dirname(__DIR__),
+                     'path.haxibiao-content.config'     => $root . '/config',
+                     'path.haxibiao-content.database'   => $database = $root . '/database',
+                     'path.haxibiao-content.migrations' => $database . '/migrations',
+                     'path.haxibiao-content.seeds'      => $database . '/seeds',
+                     'path.haxibiao-content.graphql'    => $root . '/graphql',
+                 ] as $abstract => $instance) {
             $this->app->instance($abstract, $instance);
         }
     }

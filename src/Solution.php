@@ -13,16 +13,7 @@ class Solution extends Model
     use SolutionResolvers;
     use SolutionAttrs;
 
-    public $fillable = [
-        'issue_id',
-        'user_id',
-        'article_id',
-        'answer',
-        'image_url',
-        'count_likes',
-        'block_type',
-        'block_id'
-    ];
+    protected $guarded = [];
 
     protected $touches = ['issue'];
 
@@ -76,7 +67,7 @@ class Solution extends Model
     }
     public function likes()
     {
-        return $this->morphMany(\App\Like::class, 'liked');
+        return $this->morphMany(\App\Like::class, 'likable');
     }
 
     public function comments()

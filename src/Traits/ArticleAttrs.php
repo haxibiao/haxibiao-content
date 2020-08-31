@@ -118,7 +118,7 @@ trait ArticleAttrs
     public function getLikedAttribute()
     {
         if ($user = getUser(false)) {
-            return $like = $user->likedArticles()->where('liked_id', $this->id)->count() > 0;
+            return $like = $user->likedArticles()->where('likable_id', $this->id)->count() > 0;
         }
         return false;
     }
@@ -143,7 +143,7 @@ trait ArticleAttrs
     public function getLikedIdAttribute()
     {
         if ($user = getUser(false)) {
-            $like = $user->likedArticles()->where('liked_id', $this->id)->first();
+            $like = $user->likedArticles()->where('likable_id', $this->id)->first();
             return $like ? $like->id : 0;
         }
         return 0;

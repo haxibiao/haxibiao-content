@@ -17,20 +17,7 @@ class Category extends Model
 
     const LOGO_PATH = '/images/category.logo.jpg';
 
-    protected $fillable = [
-        'name',
-        'name_en',
-        'description',
-        'user_id',
-        'parent_id',
-        'type',
-        'order',
-        'status',
-        'request_status',
-        'is_official',
-        'is_for_app',
-        'logo_app',
-    ];
+    protected $guarded = [];
 
     private function categorizableModel(): string
     {

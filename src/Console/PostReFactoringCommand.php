@@ -5,10 +5,13 @@ namespace Haxibiao\Content\Console;
 use App\Article;
 use Haxibiao\Content\Post;
 use Haxibiao\Media\Image;
+use Haxibiao\Media\Spider;
+use Haxibiao\Media\Video;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class PostReFactoringCommand extends Command
 {
@@ -50,6 +53,9 @@ class PostReFactoringCommand extends Command
                 // 修复标签
                 $this->handleTag($article, $newPost);
 
+                // 修复spider
+                $this->handleSpider($article, $newPost);
+
                 $count++;
             }
         });
@@ -58,6 +64,16 @@ class PostReFactoringCommand extends Command
         $time    = $endTime - $startTime;
         $this->info('本次修复数据,总耗时:' . $time);
 
+        // 修复冗余数据
+        Post::withTrashed()->with(['likes','comments'])->chunk(100,function($posts){
+            foreach ($posts as $post){
+                DB::table('posts')->where('id',$post->id)->update([
+                    'count_likes'    => $post->likes()->count(),
+                    'count_comments' => $post->comments()->count()
+                ]);
+                $this->info($post->id);
+            }
+        });
     }
 
     private function insertPost($article){
@@ -66,18 +82,20 @@ class PostReFactoringCommand extends Command
         Post::unsetEventDispatcher();
 
         // 注意参数判空
-        $post = new Post();
+        $post = Post::firstOrNew([
+            'user_id'   => $article->user_id,
+            'created_at'=> $article->created_at
+        ]);
+        $post->status        = $article->status;
         $post->video_id      = $article->video_id;
         $post->description   = $article->description;
         $post->content       = $article->body;
-        $post->status        = $article->status;
         $post->hot           = $article->is_hot;
         if($article->review_id){
             $post->review_id     = $article->review_id;
             $post->review_day    = substr($article->review_id,0,8);
         }
         $post->updated_at    = $article->updated_at;
-        $post->created_at    = $article->created_at;
         $post->deleted_at    = $article->deleted_at;
         $post->save(['timestamps'=>false]);
 
@@ -108,7 +126,7 @@ class PostReFactoringCommand extends Command
                 'updated_at' => now(),
             ];
         }
-        $post->categories()->sync($syncData);
+        $post->categorize($syncData);
     }
 
     private function handleImage($article,$post){
@@ -169,11 +187,18 @@ class PostReFactoringCommand extends Command
         if (!Schema::hasTable('likes')) {
             return;
         }
-        DB::table('likes')->where('liked_id',$article->id)
-            ->where('liked_type','articles')
+        $columnOfTypeName  = 'likable_type';
+        $columnOfIdName    = 'likable_id';
+        if( !Schema::hasColumn('likes','likable_id')){
+            $columnOfTypeName = 'liked_type';
+            $columnOfIdName   = 'liked_id';
+        }
+
+        DB::table('likes')->where($columnOfIdName,$article->id)
+            ->where($columnOfTypeName,'articles')
             ->update([
-                'liked_type' => 'posts',
-                'liked_id'   => $post->id
+                $columnOfTypeName => 'posts',
+                $columnOfIdName   => $post->id
             ]);
     }
 
@@ -226,6 +251,47 @@ class PostReFactoringCommand extends Command
             ->update([
                 'taggable_type' => 'posts',
                 'taggable_id'   => $post->id
+            ]);
+    }
+
+    private function handleSpider($article,$post){
+
+        $isDouYinSpider = Str::contains($article->source_url, ['v.douyin.com', 'www.iesdouyin.com']);
+
+        if(!$isDouYinSpider){
+            return;
+        }
+        $video = Video::withTrashed()
+            ->where('id',$article->video_id)
+            ->first();
+        if(!$video){
+            return;
+        }
+
+        $dispatcher = Spider::getEventDispatcher();
+        Spider::unsetEventDispatcher();
+
+        $spider = Spider::firstOrNew([
+            'source_url' => $article->source_url,
+        ]);
+
+        $spider->user_id = $article->user_id;
+        $spider->status  = $video->status >= 1;// 大于1代表正常状态
+        $spider->spider_id   = $video->id;
+        $spider->spider_type = 'videos';
+        $spider->data = [
+            'title' => $article->description
+        ];
+        $spider->created_at  = $video->created_at;
+        $spider->updated_at  = $video->updated_at;
+        $spider->save(['timestamps' => false]);
+
+        Spider::setEventDispatcher($dispatcher);
+
+        // DB操作不触发模型事件
+        DB::table('posts')->where('id',$post->id)
+            ->update([
+                'spider_id' => $spider->id,
             ]);
     }
 }

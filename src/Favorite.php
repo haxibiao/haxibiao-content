@@ -14,11 +14,7 @@ class Favorite extends Model
     use FavoriteRepo;
     use FavoriteResolvers;
 
-    protected $fillable = [
-        'user_id',
-        'faved_id',
-        'faved_type',
-    ];
+    protected $guarded = [];
 
     public function faved()
     {

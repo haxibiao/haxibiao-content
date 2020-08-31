@@ -7,10 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PostRecommend extends Model
 {
-    protected $fillable = [
-        'user_id',
-        'day_review_ids',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'day_review_ids' => 'array',

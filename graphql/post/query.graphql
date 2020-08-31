@@ -29,7 +29,7 @@ type Post {
   -1删除，0草稿，1发布
   """
   status: Int
-  liked: Int
+  liked: Boolean
   count_likes: Int
   count_comments: Int
   review_id: String
@@ -39,7 +39,7 @@ type Post {
   """
   发布时间（多久前）
   """
-  created_at: String @rename(attribute: "time_age")
+  created_at: String @rename(attribute: "time_age") created_at: String @rename(attribute: "time_age")
 }
 
 extend type Query {

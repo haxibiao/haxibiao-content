@@ -3,6 +3,7 @@
 namespace Haxibiao\Content\Controllers;
 
 use App\Jobs\DelayArticle;
+use App\Post;
 use App\Tag;
 use Haxibiao\Content\Article;
 use Haxibiao\Content\Requests\ArticleRequest;
@@ -306,12 +307,12 @@ class ArticleController extends Controller
 
 
     public function shareVideo($id){
-        $article = Article::findOrFail($id);
+        $post = Post::findOrFail($id);
 
         return view('share.shareVideo',[
-            'article' => $article,
-            'video' => $article->video,
-            'user' => $article->user,
+            'post' => $post,
+            'video' => $post->video,
+            'user' => $post->user,
         ]);
     }
 }

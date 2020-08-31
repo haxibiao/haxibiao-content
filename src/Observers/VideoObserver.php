@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Content\Observers;
 
+use App\Post;
 use Haxibiao\Media\Video;
 
 class VideoObserver
@@ -25,13 +26,11 @@ class VideoObserver
      */
     public function updated(Video $video)
     {
-        //视频更新，获得了封面...
-        //这段代码放media包里面了
-        // if ($video->cover) {
-        //     if ($post = Post::where('video_id', $video->id)->first()) {
-        //         Post::publishPost($post);
-        //     }
-        // }
+        if ($video->cover) {
+            if ($post = Post::where('video_id', $video->id)->first()) {
+                Post::publishPost($post);
+            }
+        }
     }
 
     /**

@@ -38,7 +38,7 @@ trait SolutionAttrs
     public function getLikedAttribute()
     {
         if ($user = getUser(false)) {
-            return $like = $user->likedSolutions()->where('liked_id', $this->id)->count() > 0;
+            return $like = $user->likedSolutions()->where('likable_id', $this->id)->count() > 0;
         }
         return false;
     }

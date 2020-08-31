@@ -18,14 +18,7 @@ class Issue extends Model
     use WithImage;
     use Categorizable;
 
-    public $fillable = [
-        'user_id',
-        'title',
-        'background',
-        'is_anonymous',
-        'bonus',
-        'deadline',
-    ];
+    protected $guarded = [];
 
     public function getMorphClass()
     {

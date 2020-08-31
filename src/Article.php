@@ -19,38 +19,7 @@ class Article extends Model
     use Categorizable;
     use WithMedia;
 
-    protected $casts = [
-        'json' => 'object',
-    ];
-
-    public function getMorphClass()
-    {
-        return 'articles';
-    }
-
-    protected $fillable = [
-        'title',
-        'keywords',
-        'description',
-        'author',
-        'author_id',
-        'user_id',
-        'category_id',
-        'collection_id',
-        'body',
-        'count_words',
-        'is_top',
-        'status',
-        'source_url',
-        'hits',
-        'count_likes',
-        'count_comments',
-        'type',
-        'video_id',
-        'slug',
-        'submit',
-        'cover_path',
-    ];
+    protected $guarded = [];
 
     //提交状态
     const REFUSED_SUBMIT   = -1; //已拒绝
@@ -65,6 +34,15 @@ class Article extends Model
     protected $touches = ['category', 'collection', 'categories'];
 
     protected $dates = ['edited_at', 'delay_time', 'commented'];
+
+    protected $casts = [
+        'json' => 'object',
+    ];
+
+    public function getMorphClass()
+    {
+        return 'articles';
+    }
 
     public function issue()
     {
@@ -100,7 +78,7 @@ class Article extends Model
 
     public function likes()
     {
-        return $this->morphMany(\App\Like::class, 'liked');
+        return $this->morphMany(\App\Like::class, 'likable');
     }
 
     public function tags()

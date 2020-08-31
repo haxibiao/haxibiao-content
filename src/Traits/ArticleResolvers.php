@@ -5,6 +5,7 @@ namespace Haxibiao\Content\Traits;
 use App\Article;
 use App\Exceptions\GQLException;
 use App\Scopes\ArticleSubmitScope;
+use Haxibiao\Content\Post;
 use Haxibiao\Helpers\BadWordUtils;
 use App\Visit;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -94,10 +95,9 @@ trait ArticleResolvers
 
     public function deleteArticle($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
-        $article = Article::findOrFail($args['id']);
-        $article->forceDelete();
-
-        return $article;
+        $post = Post::findOrFail($args['id']);
+        $post->delete();
+        return $post;
     }
 
     public function resolvePendingArticles(
@@ -320,12 +320,9 @@ trait ArticleResolvers
 
     public function getShareLink($rootValue, array $args, $context, $resolveInfo)
     {
-        $article = Article::find($args['id']);
-        throw_if(is_null($article), GQLException::class, '该动态不存在哦~,请稍后再试');
-        if ($article->type !== 'post' && $article->type !== 'video') {
-            throw new GQLException('目前只能分享视频动态哦~');
-        }
-        return sprintf('#%s/share/post/%d#, #%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,', config('app.url'), $article->id, $article->description, config('app.name_cn'));
+        $post = Post::has('video')->find($args['id']);
+        throw_if(is_null($post), GQLException::class, '该动态不存在哦~,请稍后再试');
+        return sprintf('#%s/share/post/%d#, #%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,', config('app.url'), $post->id, $post->description, config('app.name_cn'));
     }
 
     public function deleteBadWord($description)
