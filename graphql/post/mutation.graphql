@@ -34,21 +34,6 @@ extend type Mutation @middleware(checks: ["auth:api"]) {
     images: [String!]
   ): Post! @field(resolver: "App\\Post@resolveCreateContent")
 
-  updatePost(
-    """
-    动态ID
-    """
-    post_id: Int!
-    """
-    正文
-    """
-    content: String
-    """
-    正文
-    """
-    description: String
-  ): Post! @field(resolver: "App\\Post@resolveUpdatePost")
-
   """
   删除动态
   """
