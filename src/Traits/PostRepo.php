@@ -42,7 +42,8 @@ trait PostRepo
         ];
 
         //FIXME:  安保联盟的 tag_id 与 category_ids 同含义
-        if ('ablm' == config('app.name') || 'yyjieyou' == config('app.name')) {
+        if ('ablm' == config('app.name')) {
+
             $inputs = [
                 'body'         => Arr::get($args, 'body'),
                 'gold'         => Arr::get($args, 'issueInput.gold', 0),
@@ -50,6 +51,17 @@ trait PostRepo
                 'images'       => Arr::get($args, 'images', null),
                 'video_id'     => Arr::get($args, 'video_id', null),
                 'qcvod_fileid' => Arr::get($args, 'qcvod_fileid', null),
+            ];
+        }
+        //FIXME:  yyjieyou的 tag_id 与 category_ids 同含义
+        if ('yyjieyou' == config('app.name')) {
+            $arr = $args['category_ids'] ?? null;
+            $tag_id = $arr['0'];
+            $inputs = [
+                'body'         => Arr::get($args, 'body'),
+                'tag_id'       => $tag_id,
+                'video_id'     => Arr::get($args, 'video_id', null),
+
             ];
         }
         $post = static::createPost($inputs);
@@ -213,6 +225,11 @@ trait PostRepo
                             //保证下面返回的两个字段不为Null，数据库已设置默认值为0
                             $post->count_likes    = 0;
                             $post->comments_count = 0;
+                        }
+
+                        //yyjieyou
+                        if ('yyjieyou' == (config('app.name'))) {
+                            $post->tag_id = $inputs['tag_id'];
                         }
 
                         $post->save();
