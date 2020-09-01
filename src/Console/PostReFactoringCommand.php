@@ -26,6 +26,7 @@ class PostReFactoringCommand extends Command
         Article::withTrashed()->whereIn('type',['video','post'])->chunk(100, function ($articles) use (&$count) {
             foreach ($articles as $article) {
                 $this->info('正在修复：'. $article->id);
+                $this->info('正在修复：'. $article->review_id);
                 // Post填充Article中的动态
                 $newPost = $this->insertPost($article);
 
@@ -146,25 +147,32 @@ class PostReFactoringCommand extends Command
             ];
         }
         // 主封面图
-        if($article->cover_path){
+        if($article->cover_path && filter_var($article->cover_path, FILTER_VALIDATE_URL)){
+            $fullUrl = str_replace('https','http',$article->cover_path);
+            if(!str_contains($article->cover_path,'http')){
+                $fullUrl = Storage::disk('cosv5')->url($fullUrl);
+            }
             // 处理图片关系
-            $fullUrl = Storage::disk('cosv5')->url($article->cover_path);
-            $hash = hash_file('md5', $fullUrl);
-            list($width, $height) = getimagesize($fullUrl);
-            $image = Image::firstOrCreate([
-                'hash' => $hash
-            ],[
-                'user_id' => 1,
-                'path'    => $article->cover_path,
-                'disk'   => 'cosv5',
-                'extension' => pathinfo($article->cover_path,PATHINFO_EXTENSION),
-                'width'     => $width,
-                'height'    => $height
-            ]);
-            $syncData[$image->id] = [
-                'created_at' => $image->created_at,
-                'updated_at' => $image->updated_at,
-            ];
+            try{
+                $hash = hash_file('md5', $fullUrl);
+                list($width, $height) = getimagesize($fullUrl);
+                $image = Image::firstOrCreate([
+                    'hash' => $hash
+                ],[
+                    'user_id' => 1,
+                    'path'    => $article->cover_path,
+                    'disk'   => 'cosv5',
+                    'extension' => pathinfo($article->cover_path,PATHINFO_EXTENSION),
+                    'width'     => $width,
+                    'height'    => $height
+                ]);
+                $syncData[$image->id] = [
+                    'created_at' => $image->created_at,
+                    'updated_at' => $image->updated_at,
+                ];
+            } catch (\Exception $ex){
+
+            }
         }
         $post->images()->sync($syncData);
     }

@@ -10,24 +10,29 @@ trait PostResolvers
 {
     public function resolveUpdatePost($root, $args, $context, $info){
         $postId = data_get($args,'post_id');
-        $post = Post::findOrFail($postId);
+        $post = static::findOrFail($postId);
         $post->update(
             Arr::only($args, ['content', 'description'])
         );
+
+        // 同步标签
+        $tagNames = data_get($args,'tag_names',[]);
+        $post->retagByNames($tagNames);
+
         return $post;
     }
 
     public function resolveRecommendPosts($root, $args, $context, $info)
     {
         app_track_event("首页", "获取学习视频");
-        return Post::getRecommendPosts();
+        return static::getRecommendPosts();
     }
 
     public function resolvePosts($root, $args, $context, $info)
     {
         app_track_event("用户页", "视频动态");
 
-        return Post::posts($args['user_id']);
+        return static::posts($args['user_id']);
     }
 
     /**
@@ -36,7 +41,7 @@ trait PostResolvers
     public function resolvePublicPosts($root, $args, $context, $info)
     {
         app_track_event("首页", "访问动态广场");
-        return Post::publicPosts($args['user_id'] ?? null);
+        return static::publicPosts($args['user_id'] ?? null);
     }
 
     /**
@@ -45,9 +50,9 @@ trait PostResolvers
     public function getShareLink($rootValue, array $args, $context, $resolveInfo)
     {
         app_track_event('分享', '分享视频');
-        return Post::shareLink($args['id']);
+        return static::shareLink($args['id']);
 
-        $qb = Post::latest('id');
+        $qb = static::latest('id');
         //自己看自己的发布列表时，需要看到未成功的爬虫视频动态...
         if (getUserId() == $args['user_id']) {
             $qb = $qb->publish();
@@ -76,7 +81,7 @@ trait PostResolvers
         //是否第一次调用接口
         $is_first = Arr::get($args, 'is_first', false);
 
-        $result = Post::where('tag_id', $type)
+        $result = static::where('tag_id', $type)
             ->whereStatus(Post::PUBLISH_STATUS)
             ->inRandomOrder()
             ->take($limit)
@@ -84,7 +89,7 @@ trait PostResolvers
 
         //第一次获取学习视频，设置第一条视频为固定视频
         if (Post::STUDY == $type && $is_first) {
-            $firstPosts = Post::where('tag_id', Post::FIRST)
+            $firstPosts = static::where('tag_id', Post::FIRST)
                 ->whereStatus(Post::PUBLISH_STATUS)
                 ->get();
 
@@ -116,7 +121,7 @@ trait PostResolvers
         $followedUserIds = Follow::follows($loginUser, $filter)->pluck('followed_id');
 
         //3.获取关注用户发布的视频
-        return Post::query()
+        return static::query()
             ->whereIn('user_id', $followedUserIds)
             ->orderByDesc('created_at');
     }

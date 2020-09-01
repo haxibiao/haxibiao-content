@@ -6,6 +6,7 @@ use App\Action;
 use App\Exceptions\GQLException;
 use App\Gold;
 use App\Image;
+use App\Spider;
 use App\Visit;
 use Carbon\Carbon;
 use Haxibiao\Content\Jobs\PublishNewPosts;
@@ -18,6 +19,7 @@ use Haxibiao\Media\Video;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Yansongda\Supports\Str;
 
 trait PostRepo
@@ -36,6 +38,7 @@ trait PostRepo
             'images'       => Arr::get($args, 'images', null),
             'video_id'     => Arr::get($args, 'video_id', null),
             'qcvod_fileid' => Arr::get($args, 'qcvod_fileid', null),
+            'share_link'   => data_get($args, 'share_link', null),
         ];
 
         //FIXME:  安保联盟的 tag_id 与 category_ids 同含义
@@ -49,12 +52,12 @@ trait PostRepo
                 'qcvod_fileid' => Arr::get($args, 'qcvod_fileid', null),
             ];
         }
-        $post = Post::createPost($inputs);
+        $post = static::createPost($inputs);
 
-        // 关联商品
-        $productId = data_get($args,'product_id');
-        if($productId){
-            $post->syncProducts(Arr::wrap($productId));
+        $tagNames = data_get($args,'tag_names',[]);
+        if($tagNames){
+            $post->tagByNames($tagNames);
+            $post->save();
         }
 
         return $post;
@@ -69,21 +72,8 @@ trait PostRepo
      */
     public static function createPost($inputs)
     {
-
-        DB::beginTransaction();
-
         try {
             $user = getUser();
-
-            $todayPublishVideoNum = Post::where("user_id", $user->id)
-                ->whereNotNull('video_id')
-                ->whereDate('created_at', Carbon::now())->count();
-
-            //角色为0的用户发布限制10个，其余的角色大部分是内部人员，方便测试不限制
-            if ($todayPublishVideoNum == 10 && $user->role_id < 1) {
-                throw new GQLException('每天只能发布10个视频动态!');
-            }
-
             if ($user->isBlack()) {
                 throw new GQLException('发布失败,你以被禁言');
             }
@@ -93,89 +83,168 @@ trait PostRepo
             $qcvod_fileid = $inputs['qcvod_fileid'] ?? null;
             $body         = $inputs['body'] ?? null;
             $images       = $inputs['images'] ?? null;
+            $shareLink       = data_get($inputs,'share_link');
 
-            if ($video_id || $qcvod_fileid) {
-                if ($qcvod_fileid) {
-                    $video        = Video::firstOrNew([
-                        'qcvod_fileid' => $qcvod_fileid,
-                    ]);
+            if($shareLink){
+                $videoInfo   = QcloudUtils::getVideoInfo($qcvod_fileid);
+                $sourceVideoUrl = data_get($videoInfo, 'basicInfo.sourceVideoUrl');
+
+                $dyUrl = Spider::extractURL($shareLink);
+                $result = @file_get_contents('http://media.haxibiao.com/api/v1/spider/parse?share_link='.$dyUrl);
+                $result = json_decode($result);
+                $video        = Video::firstOrNew([
+                    'hash' => hash_file('md5',$sourceVideoUrl),
+                ]);
+                if(!$video->exists){
                     $video->user_id      = $user->id;
-                    // qc vod api 获取video cdn url ... 耗时间... 后面job处理了
-                    //FIXME: 这里先用黑屏占位，后面通过job和fileid更新封面和视频? 还是从前端返回cdnurl 就可以秒播放了
-                    $defalutPath = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
+                    $video->qcvod_fileid = $qcvod_fileid;
+                    $video->path         = $sourceVideoUrl;
+                    $video->disk = 'vod';
+                    $video->created_at = now();
+                    $video->updated_at = now();
+                    $video->saveDataOnly();
 
-                    //先给前端直接返回一个可播放的url
-                    $videoInfo   = QcloudUtils::getVideoInfo($qcvod_fileid);
-                    $video->path = Arr::get($videoInfo, 'basicInfo.sourceVideoUrl', $defalutPath);
-                    // $video->cover = '...'; //TODO: 待王彬新 sdk 提供封面cdn url
-                    $video->title = Str::limit($body, 50);
-                    $video->save();
-                    //创建article
-                    $post             = new Post();
-                    $post->user_id    = $user->id;
-                    $post->video_id   = $video->id;
-                    $post->status     = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
-                    $post->content    = $body;
-                    $post->review_id  = Post::makeNewReviewId();
-                    $post->review_day = Post::makeNewReviewDay();
+                    $coversUrl = data_get($result,'raw.raw.item_list.0.video.origin_cover.url_list.0');
+                    $imagePath = 'images/' . genrate_uuid('jpg');
+                    Storage::cloud()->put($imagePath,file_get_contents($coversUrl));
+
+                    $dynamicCoverUrl  = data_get($result,'raw.raw.item_list.0.video.dynamic_cover.url_list.0');
+                    $dynamicCoverPath = 'images/' .genrate_uuid('webp') ;
+                    Storage::cloud()->put($dynamicCoverPath, file_get_contents($dynamicCoverUrl));
+
+                    $width          = data_get($result, 'raw.raw.item_list.0.video.width');
+                    $height         = data_get($result, 'raw.raw.item_list.0.video.height');
+                    $duration       = data_get($result, 'raw.raw.item_list.0.video.duration',0);
+
+                    $video->json = [
+                        'cover'         =>  Storage::cloud()->url($imagePath),
+                        'width'         =>  $width,
+                        'height'        =>  $height,
+                        'duration'      =>  intval($duration/1000),
+                        'sourceVideoUrl' => $sourceVideoUrl,
+                        'dynamic_cover'  => Storage::cloud()->url($dynamicCoverPath),
+                        'share_link'     => $dyUrl,
+                    ];
+                    $video->status = Video::TRANSCODE_STATUS;
+                    $video->saveDataOnly();
+                }
+
+                $model = Spider::where('spider_id',$video->id)
+                    ->first();
+                $sourceUrl = data_get($model,'source_url');
+                if($sourceUrl && ($sourceUrl != $dyUrl)){
+                    throw new GQLException('上传的参数有误');
+                }
+
+                $spider = Spider::firstOrNew([
+                    'source_url' => $dyUrl,
+                ]);
+                if(!$spider->exists){
+                    $spider->data       = [
+                        'title' =>    $body,
+                        'raw'   =>    data_get($result,'raw.raw'),
+                    ];
+                    $spider->status     = Spider::PROCESSED_STATUS;
+                    $spider->spider_type= 'videos';
+                    $spider->spider_id = $video->id;
+                    $spider->created_at = now();
+                    $spider->updated_at = now();
+                    $spider->saveDataOnly();
+                }
+                $post = static::firstOrNew([
+                    'user_id'  => $user->id,
+                    'video_id' => $video->id
+                ]);
+                if(!$post->exists){
+                    $post->content     = $body;
+                    $post->status      = Post::PUBLISH_STATUS;
+                    $post->spider_id   = $spider->id;
+                    $post->review_id  = static::makeNewReviewId();
+                    $post->review_day = static::makeNewReviewDay();
                     $post->save();
-                    ProcessVod::dispatch($video);
-
-                    // 记录用户操作
-                    Action::createAction('posts', $post->id, $post->user->id);
-                    // Ip::createIpRecord('users', $user->id, $user->id);
-                } else if ($video_id) {
-                    $post = Post::where('video_id',$video_id)->first();
-                    if (!$post) {
-                        $post = new Post();
-                    }
-                    $post->content    = $body;
-                    $post->review_id  = Post::makeNewReviewId();
-                    $post->review_day = Post::makeNewReviewDay();
-                    $post->video_id   = $video_id; //关联上视频
-                    $post->user_id    = $user->id;
-
-                    //安保联盟post进行了分类
-                    if ('ablm' == (config('app.name'))) {
-                        $post->tag_id = $inputs['tag_id'][0];
-
-                        //保证下面返回的两个字段不为Null，数据库已设置默认值为0
-                        $post->count_likes    = 0;
-                        $post->comments_count = 0;
-                    }
-
-                    $post->save();
+                    self::extractTag($post);
                 }
             } else {
-                //带图片
-                $post          = new Post();
-                $post->content = $body;
-                $post->user_id = $user->id;
-                $post->status  = Post::PUBLISH_STATUS;
-                $post->save();
+                if ($video_id || $qcvod_fileid) {
+                    if ($qcvod_fileid) {
+                        //先给前端直接返回一个可播放的url
+                        $videoInfo   = QcloudUtils::getVideoInfo($qcvod_fileid);
+                        $defalutPath = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
+                        $sourceVideoUrl = Arr::get($videoInfo, 'basicInfo.sourceVideoUrl', $defalutPath);
 
-                if ($images) {
-                    $imageIds = [];
-                    foreach ($images as $image) {
-                        $model = Image::saveImage($image);
-                        $imageIds[] = $model->id;
+                        $video        = Video::firstOrNew([
+                            'qcvod_fileid' => $qcvod_fileid,
+                        ]);
+                        $video->user_id      = $user->id;
+                        //$video->hash         = hash_file('md5',$sourceVideoUrl);
+                        $video->path         = $sourceVideoUrl;
+                        // $video->cover = '...'; //TODO: 待王彬新 sdk 提供封面cdn url
+                        $video->title = Str::limit($body, 50);
+                        $video->save();
+                        //创建post
+                        $post             = new static();
+                        $post->user_id    = $user->id;
+                        $post->video_id   = $video->id;
+                        $post->status     = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
+                        $post->content    = $body;
+                        $post->review_id  = static::makeNewReviewId();
+                        $post->review_day = static::makeNewReviewDay();
+                        $post->save();
+                        ProcessVod::dispatch($video);
+
+                        // 记录用户操作
+                        Action::createAction('posts', $post->id, $post->user->id);
+                        // Ip::createIpRecord('users', $user->id, $user->id);
+                    } else if ($video_id) {
+                        $post = static::where('video_id',$video_id)->first();
+                        if (!$post) {
+                            $post = new static();
+                        }
+                        $post->content    = $body;
+                        $post->review_id  = static::makeNewReviewId();
+                        $post->review_day = static::makeNewReviewDay();
+                        $post->video_id   = $video_id; //关联上视频
+                        $post->user_id    = $user->id;
+
+                        //安保联盟post进行了分类
+                        if ('ablm' == (config('app.name'))) {
+                            $post->tag_id = $inputs['tag_id'][0];
+
+                            //保证下面返回的两个字段不为Null，数据库已设置默认值为0
+                            $post->count_likes    = 0;
+                            $post->comments_count = 0;
+                        }
+
+                        $post->save();
                     }
-                    $post->images()->sync($imageIds);
-                }
-            }
+                } else {
+                    //带图片
+                    $post          = new static();
+                    $post->content = $body;
+                    $post->user_id = $user->id;
+                    $post->status  = Post::PUBLISH_STATUS;
+                    $post->save();
 
+                    if ($images) {
+                        $imageIds = [];
+                        foreach ($images as $image) {
+                            $model = Image::saveImage($image);
+                            $imageIds[] = $model->id;
+                        }
+                        $post->images()->sync($imageIds);
+                    }
+                }
+
+            }
             // Sync分类关系
             if($inputs['category_ids']){
                 $post->categorize($inputs['category_ids']);
             }
-
-            DB::commit();
             app_track_event('发布', '发布Post动态');
             return $post;
         } catch (\Exception $ex) {
             if ($ex->getCode() == 0) {
                 Log::error($ex->getMessage());
-                DB::rollBack();
                 throw new GQLException('程序小哥正在加紧修复中!');
             }
             throw new GQLException($ex->getMessage());
@@ -195,7 +264,7 @@ trait PostRepo
             $withRelationList = array_merge($withRelationList,['user.role']);
         }
         //构建查询
-        $qb = Post::with($withRelationList)->has('video')->publish()
+        $qb = static::with($withRelationList)->has('video')->publish()
             ->orderByDesc('review_id')
             ->take($limit);
         //存在用户
@@ -221,10 +290,10 @@ trait PostRepo
 
         if ($hasLogin) {
             //喜欢状态
-            $posts = Post::likedPosts($user, $posts);
+            $posts = static::likedPosts($user, $posts);
 
             //关注动态的用户
-            $posts = Post::followedPostsUsers($user, $posts);
+            $posts = static::followedPostsUsers($user, $posts);
 
             //批量插入
             Visit::saveVisits($user, $posts, 'posts');
@@ -236,7 +305,7 @@ trait PostRepo
         // }
 
         //混合广告视频
-        $mixPosts = Post::mixPosts($posts);
+        $mixPosts = static::mixPosts($posts);
 
         return $mixPosts;
     }
@@ -310,10 +379,10 @@ trait PostRepo
         $user = getUser(); //必须登录
 
         //把每天的最大指针拿进一个数组 //TODO: 可以缓存1小时
-        $maxReviewIdInDays = Post::getMaxReviewIdInDays();
+        $maxReviewIdInDays = static::getMaxReviewIdInDays();
 
         //构建查询
-        $qb_published = Post::has('video')->with(['video', 'user'])->publish();
+        $qb_published = static::has('video')->with(['video', 'user'])->publish();
         $qb           = $qb_published;
         //登录用户
 
@@ -328,11 +397,13 @@ trait PostRepo
 
         $postRecommend = PostRecommend::firstOrCreate(['user_id' => $user->id]);
         //2.找出指针：最新，随机 每个用户的推荐视频推荐表，就是日刷指针记录表，找到最近未刷完的指针（指针含日期和review_id）
-        $reviewId  = Post::getNextReviewId($postRecommend->day_review_ids, $maxReviewIdInDays);
+        $reviewId  = static::getNextReviewId($postRecommend->day_review_ids, $maxReviewIdInDays);
         $reviewDay = substr($reviewId, 0, 8);
 
         //视频刷光了,先返回20个最新的视频顶一下，有点逻辑需要分析
         if (is_null($reviewId)) {
+            $result = $qb->latest('id')->skip(rand(1, 100))->take(20)->get();
+            Visit::saveVisits($user, $result, 'posts');
             return $qb->latest('id')->skip(rand(1, 100))->take(20)->get();
         }
 
@@ -353,24 +424,29 @@ trait PostRepo
                 $withRelationList = array_merge($withRelationList,['user.role']);
             }
 
-            $qb_published = Post::has('video')->with($withRelationList)->publish();
-            return $qb_published->latest('id')->skip(rand(1, 100))->take(20)->get();
+            $qb_published = static::has('video')->with($withRelationList)->publish();
+            $result = $qb_published->latest('id')->skip(rand(1, 100))->take(20)->get();
+            Visit::saveVisits($user, $result, 'posts');
+            return $result;
         }
 
         //用户和当前这堆视频动态的 喜欢状态（是否已喜欢过，更新post->liked）
         //TODO: 后续换倒排表，到推荐子喜欢单次查询返回结果集
-        $posts = Post::likedPosts($user, $posts);
+        $posts = static::likedPosts($user, $posts);
 
         //关注动态的用户（是否已关注过，更新post->followed)
         //TODO: 后续换倒排表，到推荐子喜欢单次查询返回结果集
-        $posts = Post::followedPostsUsers($user, $posts);
+        $posts = static::followedPostsUsers($user, $posts);
 
         //4.更新指针
         $postRecommend->updateCursor($posts);
 
         //混合广告视频
-        $mixPosts = Post::mixPosts($posts);
-
+        $mixPosts = $posts;
+        if(adIsOpened()){
+            $mixPosts = static::mixPosts($posts);
+        }
+        Visit::saveVisits($user, $mixPosts, 'posts');
         return $mixPosts;
     }
 
@@ -407,7 +483,7 @@ trait PostRepo
             //未刷过该日视频
             if (is_null($userDayReviewId)) {
 
-                $reviewId = Post::where('review_day', $reviewDay)->min('review_id') - 1;
+                $reviewId = static::where('review_day', $reviewDay)->min('review_id') - 1;
                 break;
             }
 
@@ -427,11 +503,14 @@ trait PostRepo
     //粘贴时：保存抖音爬虫视频动态
     public static function saveSpiderVideoPost($spider)
     {
-        $post = Post::firstOrNew(['spider_id' => $spider->id]);
+        $post = static::firstOrNew(['spider_id' => $spider->id]);
 
         //创建动态 避免重复创建..
         if (!isset($post->id)) {
             $post->user_id    = $spider->user_id;
+            if(!config('app.name') == 'yinxiangshipin'){
+                $post->content    = Arr::get($spider->data, 'title', '');
+            }
             $post->content    = Arr::get($spider->data, 'title', '');
             $post->status     = Post::PRIVARY_STATUS; //草稿，爬虫抓取中
             $post->created_at = now();
@@ -442,18 +521,19 @@ trait PostRepo
     //抖音爬虫成功时：发布视频动态
     public static function publishSpiderVideoPost($spider)
     {
-        $post = Post::where(['spider_id' => $spider->id])->first();
+        $post = static::where(['spider_id' => $spider->id])->first();
         if ($post) {
             $post->video_id = $spider->spider_id; //爬虫的类型spider_type="videos",这个video_id只有爬虫成功后才有...
-            Post::publishPost($post);
+            static::publishPost($post);
         }
     }
 
     /**
      * 发布动态，随机归档，奖励...
      */
-    public static function publishPost(Post $post)
+    public static function publishPost($post)
     {
+        self::extractTag($post);
         $post->status = Post::PUBLISH_STATUS; //发布成功动态
 
         // $post->review_id  = Post::makeNewReviewId(); //定时发布时决定，有定时任务处理一定数量或者时间后随机打乱
@@ -462,9 +542,9 @@ trait PostRepo
 
         //FIXME: 这个逻辑要放到 content 系统里，PostObserver updated ...
         //超过100个动态或者已经有1个小时未归档了，自动发布.
-        $canPublished = Post::where('review_day', 0)
+        $canPublished = static::where('review_day', 0)
                 ->where('created_at', '<=', now()->subHour())->exists()
-            || Post::where('review_day', 0)->count() >= 100;
+            || static::where('review_day', 0)->count() >= 100;
 
         if ($canPublished) {
             dispatch_now(new PublishNewPosts);
@@ -482,16 +562,46 @@ trait PostRepo
         }
     }
 
+    public static function extractTag($post){
+        $spider = $post->spider;
+        if(!$spider){
+            return;
+        }
+        $tagNames = [];
+        $tagList = data_get($spider,'data.raw.item_list.0.text_extra',[]);
+        $shareTitle = data_get($spider,'data.raw.item_list.0.share_info.share_title');
+        $description = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音', '@DOU+小助手'], '', $shareTitle);
+        if(!$post->content){
+            $post->content          = trim($description);
+        }
+        foreach($tagList as $tag){
+            $name   = $tag['hashtag_name'];
+            //移除关键词
+            if(!$name){
+                continue;
+            }
+            $name = Str::replaceArray('抖音',[''],$name);
+            $description = Str::replaceFirst('#'.$name,'',$description);
+            $tagNames[] = $name;
+        }
+        if(!$post->description){
+            $post->description      = trim($description);
+        }
+        // 标签
+        $post->tagByNames($tagNames);
+        $post->save();
+    }
+
     //个人主页动态
     public static function posts($user_id)
     {
-        return Post::latest('id')->publish()->where('user_id', $user_id);
+        return static::latest('id')->publish()->where('user_id', $user_id);
     }
 
     //分享post链接
     public static function shareLink($id)
     {
-        $post = Post::find($id);
+        $post = static::find($id);
         throw_if(is_null($post), GQLException::class, '该动态不存在哦~,请稍后再试');
 
         return sprintf('#%s/share/post/%d#, #%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,', config('app.url'), $post->id, $post->description, config('app.name_cn'));
@@ -503,7 +613,7 @@ trait PostRepo
         //排除用户拉黑（屏蔽）的用户发布的视频,排除拉黑（不感兴趣）的动态
         $userBlockId    = [];
         $articleBlockId = [];
-        $query          = Post::publish()
+        $query          = static::publish()
             ->orderBy('id', 'desc');
         if (($user = getUser(false)) && class_exists("App\\UserBlock", true)) {
             $userBlockId    = \App\UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();

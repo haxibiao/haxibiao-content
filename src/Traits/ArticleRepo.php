@@ -618,7 +618,7 @@ trait ArticleRepo
                 $comment_action->save(['timestamps' => false]);
             }
             //改变被喜欢的评论 动态
-            foreach ($comment->hasManyLikes as $comment_like) {
+            foreach ($comment->likes as $comment_like) {
                 $comment_like_action = $comment_like->morphMany(\App\Action::class, 'actionable')->first();
                 if ($comment_like_action) {
                     $comment_like_action->status = $this->status;

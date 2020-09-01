@@ -2,7 +2,7 @@
 
 namespace Haxibiao\Content\Observers;
 
-use Haxibiao\Content\Post;
+use App\Post;
 use Haxibiao\Media\Spider;
 
 class SpiderObserver

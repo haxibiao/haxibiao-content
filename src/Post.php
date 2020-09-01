@@ -153,7 +153,7 @@ class Post extends Model
 
     public static function todayMinReviewId()
     {
-        $minReviewPost = Post::select('review_id')
+        $minReviewPost = static::select('review_id')
             ->where('review_id', '>=', today()->format('Ymd') * 100000 + 1)
             ->orderBy('review_id')
             ->first();
@@ -164,7 +164,7 @@ class Post extends Model
 
     public static function makeTodayMaxReviewId()
     {
-        $reviewDay = Post::makeNewReviewDay();
+        $reviewDay = static::makeNewReviewDay();
         $maxNum    = Post::TODAY_MAX_POST_NUM;
 
         return $reviewDay * $maxNum + $maxNum - 1;
@@ -172,7 +172,7 @@ class Post extends Model
 
     public static function makeTodayMinReviewId()
     {
-        $reviewDay = Post::makeNewReviewDay();
+        $reviewDay = static::makeNewReviewDay();
         $maxNum    = Post::TODAY_MAX_POST_NUM;
 
         return $reviewDay * $maxNum;
@@ -180,7 +180,7 @@ class Post extends Model
 
     public static function getMaxReviewIdInDays()
     {
-        $maxRviewIds = Post::selectRaw("review_day,max(review_id) as max_review_id")
+        $maxRviewIds = static::selectRaw("review_day,max(review_id) as max_review_id")
             ->whereStatus(1) //只考虑已上架发布的动态
             ->groupBy('review_day')
             ->latest('review_day')
@@ -212,10 +212,10 @@ class Post extends Model
     {
         //登录
         if (checkUser()) {
-            return Post::fastRecommendPosts($limit);
+            return static::fastRecommendPosts($limit);
         }
         //游客
-        return Post::getGuestPosts($limit);
+        return static::getGuestPosts($limit);
     }
 
     public static function getGuestPosts($limit = 5)
@@ -224,7 +224,7 @@ class Post extends Model
         if(class_exists("App\\Role", true)){
             $withRelationList = array_merge($withRelationList,['user.role']);
         }
-        $qb = Post::with($withRelationList)
+        $qb = static::with($withRelationList)
             ->has('video')
             ->publish();
         $qb     = $qb->take($limit);
@@ -241,15 +241,15 @@ class Post extends Model
             //视频刷
             if (checkUser()) {
                 //登录
-                $posts = Post::fastRecommendPosts($limit);
+                $posts = static::fastRecommendPosts($limit);
                 return $posts;
             } else {
                 //游客
-                return Post::getGuestPosts($limit);
+                return static::getGuestPosts($limit);
             }
         } else {
             //获取用户的视频动态
-            $posts = Post::where('user_id', $userId)
+            $posts = static::where('user_id', $userId)
                 ->publish()
                 ->latest('id')
                 ->skip($offset)
