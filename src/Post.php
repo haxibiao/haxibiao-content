@@ -91,6 +91,12 @@ class Post extends Model
         return $this->morphMany(Like::class, 'likable');
     }
 
+    public function images()
+    {
+        return $this->morphToMany(Image::class, 'imageable','imageable')
+            ->withTimestamps();
+    }
+
     public function favorite()
     {
         return $this->morphMany(\App\Post::class, 'faved_type');
