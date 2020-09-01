@@ -1,6 +1,11 @@
 ## haxibiao/content
 
-> haxibiao/content 是哈希表内容管理系统
+> haxibiao/content 是哈希表内容管理系统,主要包含了以下的功能:
+
+- Post - 动态
+- Article - 文章
+- Category - 分类
+- Issue/Solution - 问答
 
 ## 安装步骤
 
@@ -8,15 +13,30 @@
     在`repositories`中添加 vcs 类型远程仓库指向
     `http://code.haxibiao.cn/packages/haxibiao-content`
 2.  执行`composer require haxibiao/content`
-3.  如果要使用 post 的 nova 后台上传视频需要 composer require qcloud/vod-sdk-v5
-4.  如果不是 laravel 5.6 以上，需要执行`php artisan content:install`
+3.  执行`php artisan content:install` 发布包中的资源文件
+4.  执行`php artisan migrate` 执行包中的迁移文件
 5.  完成
+
+### 更新日志
+
+**1.1**
+
+_Released on 2020-09-01_
+
+- 加入付费问答与抖音视频本地上传
+- 增加静态模型绑定,解决子类无法触发父类事件以及Model的扩展性问题
+- 修复Video中的Width/Height等属性为null的情况 
+- 修复部分GQL语法错误,以及函数命名不规范的问题
+- package中模型加入$guarded属性，兼容填充数据时字段不一致问题
+- Post中加上了PostOldPatch Trait解决工厂Article Post的兼容问题,并修复了事件通知
+- 为方便工厂系项目集成,加入数据修复脚本 `CategoryReFactoringCommand` 与 `PostReFactoringCommand`完成数据修复
+- 剔除冗余的失效路由代码,完成API与GQL的测试用例补充
 
 ### 如何完成更新？
 
 > 远程仓库的 composer package 发生更新时如何进行更新操作呢？
 
-6.  执行`composer update haxibiao/content`
+1.  执行`composer update haxibiao/content`
 
 ## 使用方法
 
