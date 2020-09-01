@@ -84,6 +84,7 @@ trait PostRepo
      */
     public static function createPost($inputs)
     {
+        info($inputs);
         try {
             $user = getUser();
             if ($user->isBlack()) {
@@ -98,11 +99,16 @@ trait PostRepo
             $shareLink       = data_get($inputs,'share_link');
 
             if($shareLink){
-                $videoInfo   = QcloudUtils::getVideoInfo($qcvod_fileid);
-                $sourceVideoUrl = data_get($videoInfo, 'basicInfo.sourceVideoUrl');
+                throw_if(is_null($qcvod_fileid), GQLException::class, '收藏失败,请稍后重试!');
 
+                $videoInfo   = QcloudUtils::getVideoInfo($qcvod_fileid);
+                throw_if(is_null($videoInfo), GQLException::class, '收藏失败,请稍后重试!');
+
+                $sourceVideoUrl = data_get($videoInfo, 'basicInfo.sourceVideoUrl');
                 $dyUrl = Spider::extractURL($shareLink);
                 $result = @file_get_contents('http://media.haxibiao.com/api/v1/spider/parse?share_link='.$dyUrl);
+                throw_if(!$result, GQLException::class, '收藏失败,请稍后重试!');
+
                 $result = json_decode($result);
                 $video        = Video::firstOrNew([
                     'hash' => hash_file('md5',$sourceVideoUrl),
@@ -260,8 +266,8 @@ trait PostRepo
             app_track_event('发布', '发布Post动态');
             return $post;
         } catch (\Exception $ex) {
+            Log::error($ex->getMessage());
             if ($ex->getCode() == 0) {
-                Log::error($ex->getMessage());
                 throw new GQLException('程序小哥正在加紧修复中!');
             }
             throw new GQLException($ex->getMessage());
