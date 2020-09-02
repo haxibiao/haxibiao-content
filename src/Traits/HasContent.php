@@ -21,4 +21,9 @@ trait HasContent
     {
         return $this->hasMany($this->postableModel());
     }
+
+    public function douyinPosts(): HasMany
+    {
+        return $this->hasMany($this->postableModel())->whereNotNull('spider_id');
+    }
 }
