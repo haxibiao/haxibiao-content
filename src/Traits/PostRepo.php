@@ -4,6 +4,7 @@ namespace Haxibiao\Content\Traits;
 
 use App\Action;
 use App\Exceptions\GQLException;
+use App\Exceptions\UserException;
 use App\Gold;
 use App\Image;
 use App\Spider;
@@ -104,6 +105,9 @@ trait PostRepo
                 $videoInfo   = QcloudUtils::getVideoInfo($qcvod_fileid);
                 throw_if(is_null($videoInfo), GQLException::class, '收藏失败,请稍后重试!');
 
+                //精力点校验
+                throw_if($user->ticket < 1, UserException::class, '分享视频失败,精力点不足,请补充精力点!');
+
                 $sourceVideoUrl = data_get($videoInfo, 'basicInfo.sourceVideoUrl');
                 $dyUrl = Spider::extractURL($shareLink);
                 $result = @file_get_contents('http://media.haxibiao.com/api/v1/spider/parse?share_link='.$dyUrl);
@@ -182,6 +186,8 @@ trait PostRepo
                     $post->save();
                     self::extractTag($post);
                 }
+                //触发更新事件-扣除精力点
+                $spider->updateTimestamps();
             } else {
                 if ($video_id || $qcvod_fileid) {
                     if ($qcvod_fileid) {
