@@ -23,7 +23,7 @@ return [
         'issue'     => Haxibiao\Content\Issue::class,
     ],
 
-    'share-config' =>[
+    'share_config' =>[
         'share_msg' => '#%s/share/post/%d#, #%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,'
     ]
 ];
