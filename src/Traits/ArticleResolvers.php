@@ -320,7 +320,6 @@ trait ArticleResolvers
 
     public function getShareLink($rootValue, array $args, $context, $resolveInfo)
     {
-        dd(config('haxibiao-content.share-config.share_msg','#%s/share/post/%d#, #%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,'));
         $post = Post::has('video')->find($args['id']);
         throw_if(is_null($post), GQLException::class, '该动态不存在哦~,请稍后再试');
         $shareMag = config('haxibiao-content.share_config.share_msg','#%s/share/post/%d#, #%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,');
