@@ -15,7 +15,10 @@ class VideoObserver
      */
     public function created(Video $video)
     {
-        //
+        $user = $video->user;
+        //更新任务状态
+        $user->reviewTasksByClass(get_class($video));
+
     }
 
     /**
