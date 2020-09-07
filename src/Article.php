@@ -7,8 +7,10 @@ use Haxibiao\Content\Traits\ArticleAttrs;
 use Haxibiao\Content\Traits\ArticleRepo;
 use Haxibiao\Content\Traits\ArticleResolvers;
 use Haxibiao\Content\Traits\Categorizable;
+use Haxibiao\Media\Traits\WithImage;
 use Haxibiao\Media\Traits\WithMedia;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Haxibiao\Media\Image;
 
 class Article extends Model
 {
@@ -18,6 +20,7 @@ class Article extends Model
     use SoftDeletes;
     use Categorizable;
     use WithMedia;
+    use WithImage;
 
     protected $guarded = [];
 
@@ -60,6 +63,11 @@ class Article extends Model
     public function user()
     {
         return $this->belongsTo('App\User');
+    }
+
+    public function images()
+    {
+        return $this->morphToMany(Image::class, 'imageable')->withTimestamps();
     }
 
     public function video()
