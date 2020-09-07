@@ -93,8 +93,7 @@ class Post extends Model
 
     public function images()
     {
-        return $this->morphToMany(Image::class, 'imageable','imageable')
-            ->withTimestamps();
+        return $this->morphToMany(Image::class, 'imageable')->withTimestamps();
     }
 
     public function favorite()
