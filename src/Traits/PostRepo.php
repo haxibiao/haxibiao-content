@@ -187,7 +187,8 @@ trait PostRepo
                     self::extractTag($post);
                 }
                 //触发更新事件-扣除精力点
-                $spider->updateTimestamps();
+                $spider->updated_at=now();
+                $spider->save();
             } else {
                 if ($video_id || $qcvod_fileid) {
                     if ($qcvod_fileid) {
