@@ -4,7 +4,6 @@ namespace Haxibiao\Content\Traits;
 
 use App\Article;
 use App\Exceptions\GQLException;
-use App\Helpers\Redis\RedisSharedCounter;
 use App\Scopes\ArticleSubmitScope;
 use Haxibiao\Content\Post;
 use Haxibiao\Helpers\BadWordUtils;
@@ -326,7 +325,7 @@ trait ArticleResolvers
         $shareMag = config('haxibiao-content.share_config.share_msg','#%s/share/post/%d#, #%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,');
         if(checkUser()&&class_exists("App\\Helpers\\Redis\\RedisSharedCounter",true)){
             $user = getUser();
-            RedisSharedCounter::updateCounter($user->id);
+            \App\Helpers\Redis\RedisSharedCounter::updateCounter($user->id);
             //触发分享任务
             $user->reviewTasksByClass('Share');
         }
