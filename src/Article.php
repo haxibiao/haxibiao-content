@@ -67,7 +67,7 @@ class Article extends Model
 
     public function images()
     {
-        return $this->morphToMany(Image::class, 'imageable')->withTimestamps();
+        return $this->morphToMany(Image::class, 'imageable','imageable')->withTimestamps();
     }
 
     public function video()
