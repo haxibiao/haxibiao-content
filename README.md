@@ -18,6 +18,15 @@
 5.  完成
 
 ### 更新日志
+**1.2**
+
+_Released on 2020-09-11_
+
+- 发布采集加入精力点扣除逻辑([#b3d13eb1](http://code.haxibiao.cn/packages/haxibiao-content/commit/b3d13eb166019b4cd81e51f7a4698dc484c29fdb), [#1eb5f125](http://code.haxibiao.cn/packages/haxibiao-content/commit/1eb5f125712977bd1460bcf4ba704b28cd766426), [#326fda41](http://code.haxibiao.cn/packages/haxibiao-content/commit/326fda415b5b0774a5faf0fa31d28d15a8815055))
+- 分享模版可进行配置 ([#560dfd4e](http://code.haxibiao.cn/packages/haxibiao-content/commit/560dfd4e92bb7b5e41bcee993ddf9a10e876ff89), [#e316924d](http://code.haxibiao.cn/packages/haxibiao-content/commit/e316924d647500a926a5895a569339b683762b0a) [#38ac327e](http://code.haxibiao.cn/packages/haxibiao-content/commit/38ac327eeb0150ec7ebafd6a9772a683cc136d2e))
+- 修复class重复命名 ([#ab8c554e](http://code.haxibiao.cn/packages/haxibiao-content/commit/ab8c554e10788587a1542a935d1a5ee5a2a3ab86))
+- Article模型修复Image关系 ([#b1f1402c](http://code.haxibiao.cn/packages/haxibiao-content/commit/b1f1402cfda9d7f2529fd77bdcb5448163b2c320), [#824ad122](http://code.haxibiao.cn/packages/haxibiao-content/commit/824ad122ee3fa7ffa24e314f771918b9ef0bd72d), [#ef5bca4a](http://code.haxibiao.cn/packages/haxibiao-content/commit/ef5bca4a9f0866bb82cfae19c770060c20a3d0cc))
+- 增加分享链接计数 ([#1cffe56d](http://code.haxibiao.cn/packages/haxibiao-content/commit/1cffe56d51733aec58b4ef4d2003fbdb5d698213))
 
 **1.1**
 
