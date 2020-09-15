@@ -1,7 +1,4 @@
 extend type Mutation @middleware(checks: ["auth:api"]) {
-  """
-  创建动态
-  """
   createPostContent(
     """
     正文
@@ -19,6 +16,11 @@ extend type Mutation @middleware(checks: ["auth:api"]) {
     video_id: Int
 
     """
+    商品ID（关联article）
+    """
+    product_id: Int
+
+    """
     视频文件ID
     """
     qcvod_fileid: String
@@ -32,10 +34,5 @@ extend type Mutation @middleware(checks: ["auth:api"]) {
     图片链接
     """
     images: [String!]
-  ): Post! @field(resolver: "App\\Post@resolveCreateContent")
-
-  """
-  删除动态
-  """
-  deletePost(id: ID!): Post @delete
+  ): Post! @field(resolver: "Haxibiao\\Content\\Post@resolveCreateContent")
 }

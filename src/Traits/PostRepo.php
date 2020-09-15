@@ -36,6 +36,7 @@ trait PostRepo
         $inputs = [
             'body'         => Arr::get($args, 'body'),
             'category_ids' => Arr::get($args, 'category_ids', null),
+            'product_id' => Arr::get($args, 'product_id', null),
             'images'       => Arr::get($args, 'images', null),
             'video_id'     => Arr::get($args, 'video_id', null),
             'qcvod_fileid' => Arr::get($args, 'qcvod_fileid', null),
@@ -67,8 +68,8 @@ trait PostRepo
         }
         $post = static::createPost($inputs);
 
-        $tagNames = data_get($args,'tag_names',[]);
-        if($tagNames){
+        $tagNames = data_get($args, 'tag_names', []);
+        if ($tagNames) {
             $post->tagByNames($tagNames);
             $post->save();
         }
@@ -97,9 +98,9 @@ trait PostRepo
             $qcvod_fileid = $inputs['qcvod_fileid'] ?? null;
             $body         = $inputs['body'] ?? null;
             $images       = $inputs['images'] ?? null;
-            $shareLink       = data_get($inputs,'share_link');
+            $shareLink       = data_get($inputs, 'share_link');
 
-            if($shareLink){
+            if ($shareLink) {
                 throw_if(is_null($qcvod_fileid), GQLException::class, '收藏失败,请稍后重试!');
 
                 $videoInfo   = QcloudUtils::getVideoInfo($qcvod_fileid);
@@ -110,14 +111,14 @@ trait PostRepo
 
                 $sourceVideoUrl = data_get($videoInfo, 'basicInfo.sourceVideoUrl');
                 $dyUrl = Spider::extractURL($shareLink);
-                $result = @file_get_contents('http://media.haxibiao.com/api/v1/spider/parse?share_link='.$dyUrl);
+                $result = @file_get_contents('http://media.haxibiao.com/api/v1/spider/parse?share_link=' . $dyUrl);
                 throw_if(!$result, GQLException::class, '收藏失败,请稍后重试!');
 
                 $result = json_decode($result);
                 $video        = Video::firstOrNew([
-                    'hash' => hash_file('md5',$sourceVideoUrl),
+                    'hash' => hash_file('md5', $sourceVideoUrl),
                 ]);
-                if(!$video->exists){
+                if (!$video->exists) {
                     $video->user_id      = $user->id;
                     $video->qcvod_fileid = $qcvod_fileid;
                     $video->path         = $sourceVideoUrl;
@@ -126,23 +127,23 @@ trait PostRepo
                     $video->updated_at = now();
                     $video->saveDataOnly();
 
-                    $coversUrl = data_get($result,'raw.raw.item_list.0.video.origin_cover.url_list.0');
+                    $coversUrl = data_get($result, 'raw.raw.item_list.0.video.origin_cover.url_list.0');
                     $imagePath = 'images/' . genrate_uuid('jpg');
-                    Storage::cloud()->put($imagePath,file_get_contents($coversUrl));
+                    Storage::cloud()->put($imagePath, file_get_contents($coversUrl));
 
-                    $dynamicCoverUrl  = data_get($result,'raw.raw.item_list.0.video.dynamic_cover.url_list.0');
-                    $dynamicCoverPath = 'images/' .genrate_uuid('webp') ;
+                    $dynamicCoverUrl  = data_get($result, 'raw.raw.item_list.0.video.dynamic_cover.url_list.0');
+                    $dynamicCoverPath = 'images/' . genrate_uuid('webp');
                     Storage::cloud()->put($dynamicCoverPath, file_get_contents($dynamicCoverUrl));
 
                     $width          = data_get($result, 'raw.raw.item_list.0.video.width');
                     $height         = data_get($result, 'raw.raw.item_list.0.video.height');
-                    $duration       = data_get($result, 'raw.raw.item_list.0.video.duration',0);
+                    $duration       = data_get($result, 'raw.raw.item_list.0.video.duration', 0);
 
                     $video->json = [
                         'cover'         =>  Storage::cloud()->url($imagePath),
                         'width'         =>  $width,
                         'height'        =>  $height,
-                        'duration'      =>  intval($duration/1000),
+                        'duration'      =>  intval($duration / 1000),
                         'sourceVideoUrl' => $sourceVideoUrl,
                         'dynamic_cover'  => Storage::cloud()->url($dynamicCoverPath),
                         'share_link'     => $dyUrl,
@@ -151,23 +152,23 @@ trait PostRepo
                     $video->saveDataOnly();
                 }
 
-                $model = Spider::where('spider_id',$video->id)
+                $model = Spider::where('spider_id', $video->id)
                     ->first();
-                $sourceUrl = data_get($model,'source_url');
-                if($sourceUrl && ($sourceUrl != $dyUrl)){
+                $sourceUrl = data_get($model, 'source_url');
+                if ($sourceUrl && ($sourceUrl != $dyUrl)) {
                     throw new GQLException('上传的参数有误');
                 }
 
                 $spider = Spider::firstOrNew([
                     'source_url' => $dyUrl,
                 ]);
-                if(!$spider->exists){
+                if (!$spider->exists) {
                     $spider->data       = [
                         'title' =>    $body,
-                        'raw'   =>    data_get($result,'raw.raw'),
+                        'raw'   =>    data_get($result, 'raw.raw'),
                     ];
                     $spider->status     = Spider::PROCESSED_STATUS;
-                    $spider->spider_type= 'videos';
+                    $spider->spider_type = 'videos';
                     $spider->spider_id = $video->id;
                     $spider->created_at = now();
                     $spider->updated_at = now();
@@ -177,7 +178,7 @@ trait PostRepo
                     'user_id'  => $user->id,
                     'video_id' => $video->id
                 ]);
-                if(!$post->exists){
+                if (!$post->exists) {
                     $post->content     = $body;
                     $post->status      = Post::PUBLISH_STATUS;
                     $post->spider_id   = $spider->id;
@@ -187,7 +188,7 @@ trait PostRepo
                     self::extractTag($post);
                 }
                 //触发更新事件-扣除精力点
-                $spider->updated_at=now();
+                $spider->updated_at = now();
                 $spider->save();
             } else {
                 if ($video_id || $qcvod_fileid) {
@@ -221,7 +222,7 @@ trait PostRepo
                         Action::createAction('posts', $post->id, $post->user->id);
                         // Ip::createIpRecord('users', $user->id, $user->id);
                     } else if ($video_id) {
-                        $post = static::where('video_id',$video_id)->first();
+                        $post = static::where('video_id', $video_id)->first();
                         if (!$post) {
                             $post = new static();
                         }
@@ -264,10 +265,14 @@ trait PostRepo
                         $post->images()->sync($imageIds);
                     }
                 }
-
             }
+
+            if (env('APP_NAME') == "dianmoge") {
+                Post::createArticle($inputs, $user);
+            }
+
             // Sync分类关系
-            if($inputs['category_ids']){
+            if ($inputs['category_ids']) {
                 $post->categorize($inputs['category_ids']);
             }
             app_track_event('发布', '发布Post动态');
@@ -281,6 +286,74 @@ trait PostRepo
         }
     }
 
+    public static function createArticle($inputs, $user)
+    {
+        //带视频动态
+        if ($inputs['video_id'] || $inputs['qcvod_fileid']) {
+            if ($inputs['video_id']) {
+                $video   = Video::findOrFail($inputs['video_id']);
+                $article = $video->article;
+                if (!$article) {
+                    $article = new \App\Article();
+                }
+                $article->type        = 'post';
+                $article->title       = Str::limit($inputs['body'], 50);
+                $article->description = Str::limit($inputs['body'], 280);
+                $article->body        = $inputs['body'];
+                $article->review_id   = \App\Article::makeNewReviewId();
+                $article->video_id    = $video->id; //关联上视频
+                $article->save();
+            } else {
+                $qcvod_fileid = $inputs['qcvod_fileid'];
+                $video        = Video::firstOrNew([
+                    'qcvod_fileid' => $qcvod_fileid,
+                ]);
+                $video->qcvod_fileid = $qcvod_fileid;
+                $video->user_id      = $user->id;
+                $video->path         = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
+                $video->title        = Str::limit($inputs['body'], 50);
+                $video->save();
+                //创建article
+                $article              = new \App\Article();
+                $article->status      = 1;
+                $article->submit      = \App\Article::REVIEW_SUBMIT;
+                $article->title       = Str::limit($inputs['body'], 50);
+                $article->description = Str::limit($inputs['body'], 280);
+                $article->body        = $inputs['body'];
+                $article->type        = 'post';
+                $article->review_id   = \App\Article::makeNewReviewId();
+                $article->video_id    = $video->id;
+                $article->cover_path  = 'video/black.jpg';
+                $article->save();
+
+                ProcessVod::dispatch($video);
+            }
+
+            //存文字动态或图片动态
+        } else {
+            $article              = new \App\Article();
+            $body                 = $inputs['body'];
+            $article->body        = $body;
+            $article->description = Str::limit($body, 280); //截取微博那么长的内容存简介
+            $article->type        = 'post';
+            $article->user_id     = $user->id;
+            $article->save();
+
+            if ($inputs['images']) {
+                foreach ($inputs['images'] as $image) {
+                    $image = Image::saveImage($image);
+                    $article->images()->attach($image->id);
+                }
+
+                $article->cover_path = $article->images()->first()->path;
+                $article->save();
+            }
+        };
+        if (isset($inputs['product_id'])) {
+            $article->update(['product_id' => $inputs['product_id']]);
+        }
+    }
+
     /**
      * @deprecated
      */
@@ -290,8 +363,8 @@ trait PostRepo
         $limit    = $limit >= 10 ? 8 : 4;
 
         $withRelationList = ['video', 'user'];
-        if(class_exists("App\\Role", true)){
-            $withRelationList = array_merge($withRelationList,['user.role']);
+        if (class_exists("App\\Role", true)) {
+            $withRelationList = array_merge($withRelationList, ['user.role']);
         }
         //构建查询
         $qb = static::with($withRelationList)->has('video')->publish()
@@ -450,8 +523,8 @@ trait PostRepo
         if (!$posts->count()) {
             Log::channel('fast_recommend')->error($reviewId . '指针没空，结果是空' . $reviewDay);
             $withRelationList = ['video', 'user'];
-            if(class_exists("App\\Role", true)){
-                $withRelationList = array_merge($withRelationList,['user.role']);
+            if (class_exists("App\\Role", true)) {
+                $withRelationList = array_merge($withRelationList, ['user.role']);
             }
 
             $qb_published = static::has('video')->with($withRelationList)->publish();
@@ -473,7 +546,7 @@ trait PostRepo
 
         //混合广告视频
         $mixPosts = $posts;
-        if(adIsOpened()){
+        if (adIsOpened()) {
             $mixPosts = static::mixPosts($posts);
         }
         Visit::saveVisits($user, $mixPosts, 'posts');
@@ -538,7 +611,7 @@ trait PostRepo
         //创建动态 避免重复创建..
         if (!isset($post->id)) {
             $post->user_id    = $spider->user_id;
-            if(!config('app.name') == 'yinxiangshipin'){
+            if (!config('app.name') == 'yinxiangshipin') {
                 $post->content    = Arr::get($spider->data, 'title', '');
             } else {
                 $post->content    = Arr::get($spider->data, 'title', '');
@@ -574,7 +647,7 @@ trait PostRepo
         //FIXME: 这个逻辑要放到 content 系统里，PostObserver updated ...
         //超过100个动态或者已经有1个小时未归档了，自动发布.
         $canPublished = static::where('review_day', 0)
-                ->where('created_at', '<=', now()->subHour())->exists()
+            ->where('created_at', '<=', now()->subHour())->exists()
             || static::where('review_day', 0)->count() >= 100;
 
         if ($canPublished) {
@@ -593,29 +666,30 @@ trait PostRepo
         }
     }
 
-    public static function extractTag($post){
+    public static function extractTag($post)
+    {
         $spider = $post->spider;
-        if(!$spider){
+        if (!$spider) {
             return;
         }
         $tagNames = [];
-        $tagList = data_get($spider,'data.raw.item_list.0.text_extra',[]);
-        $shareTitle = data_get($spider,'data.raw.item_list.0.share_info.share_title');
+        $tagList = data_get($spider, 'data.raw.item_list.0.text_extra', []);
+        $shareTitle = data_get($spider, 'data.raw.item_list.0.share_info.share_title');
         $description = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音', '@DOU+小助手'], '', $shareTitle);
-        if(!$post->content){
+        if (!$post->content) {
             $post->content          = trim($description);
         }
-        foreach($tagList as $tag){
+        foreach ($tagList as $tag) {
             $name   = $tag['hashtag_name'];
             //移除关键词
-            if(!$name){
+            if (!$name) {
                 continue;
             }
-            $name = Str::replaceArray('抖音',[''],$name);
-            $description = Str::replaceFirst('#'.$name,'',$description);
+            $name = Str::replaceArray('抖音', [''], $name);
+            $description = Str::replaceFirst('#' . $name, '', $description);
             $tagNames[] = $name;
         }
-        if(!$post->description){
+        if (!$post->description) {
             $post->description      = trim($description);
         }
         // 标签
@@ -635,13 +709,13 @@ trait PostRepo
         $post = static::find($id);
         throw_if(is_null($post), GQLException::class, '该动态不存在哦~,请稍后再试');
 
-        $shareMag = config('haxibiao-content.share_config.share_msg','#%s/share/post/%d#, #%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,');
-        if(checkUser()&&class_exists("App\\Helpers\\Redis\\RedisSharedCounter",true)){
+        $shareMag = config('haxibiao-content.share_config.share_msg', '#%s/share/post/%d#, #%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,');
+        if (checkUser() && class_exists("App\\Helpers\\Redis\\RedisSharedCounter", true)) {
             $user = getUser();
             \App\Helpers\Redis\RedisSharedCounter::updateCounter($user->id);
-           //触发分享任务
-           $user->reviewTasksByClass('Share');
-       }
+            //触发分享任务
+            $user->reviewTasksByClass('Share');
+        }
         return sprintf($shareMag, config('app.url'), $post->id, $post->description, config('app.name_cn'));
     }
 
