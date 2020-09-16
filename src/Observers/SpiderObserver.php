@@ -29,12 +29,6 @@ class SpiderObserver
     {
         if ($spider->status == Spider::PROCESSED_STATUS) {
             Post::publishSpiderVideoPost($spider);
-            $post = Post::where(['spider_id' => $spider->id])->first();
-            if($post){
-                $user = $post->user;
-                //更新任务状态
-                $user->reviewTasksByClass(get_class($spider));
-            }
         }
     }
 
