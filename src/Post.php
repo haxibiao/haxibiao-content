@@ -310,7 +310,7 @@ class Post extends Model
             return;
         }
         // 系统是否开启马甲号逻辑
-        $postOpenVest = config('haixbiao-content.post_open_vest',false);
+        $postOpenVest = config('haxibiao-content.post_open_vest',false);
         if(!$postOpenVest){
             return;
         }
