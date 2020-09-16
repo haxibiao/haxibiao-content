@@ -27,6 +27,7 @@ class SpiderObserver
      */
     public function updated(Spider $spider)
     {
+        // 这里考虑用event来触发 && 方便不同产品的奖励机制
         if ($spider->status == Spider::PROCESSED_STATUS) {
             Post::publishSpiderVideoPost($spider);
         }
