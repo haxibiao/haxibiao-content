@@ -304,8 +304,9 @@ class Post extends Model
      * 展示转移交给马甲用户
      */
     public function transferToVest(){
-        $user = $this->user;
-        if(!$user){
+        $user = User::find($this->user_id);
+        $ownerId = data_get($this,'owner_id');
+        if(!$user || $ownerId){
             return;
         }
         // 系统是否开启马甲号逻辑
