@@ -15,8 +15,8 @@ class ArticleController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth')->except('show','shareVideo');
-        $this->middleware('auth.editor')->except('index', 'show', 'storePost', 'edit', 'destroy','shareVideo'); //编辑自己的文章的时候，无需编辑身份
+        $this->middleware('auth')->except('show', 'shareVideo');
+        $this->middleware('auth.editor')->except('index', 'show', 'storePost', 'edit', 'destroy', 'shareVideo'); //编辑自己的文章的时候，无需编辑身份
     }
 
     /**
@@ -28,7 +28,7 @@ class ArticleController extends Controller
     public function storePost(Request $request)
     {
         $article = new Article();
-        $article->createPost($request->all());
+        $article->createPost(array_except($request->all(), ['api_token']));
         $article->saveCategories($request->get('categories'));
         return redirect()->to($article->url);
     }
@@ -91,7 +91,7 @@ class ArticleController extends Controller
     public function store(ArticleRequest $request)
     {
         $user = $request->user();
-        if ( !str_contains(data_get($user,'email',''), '@haxibiao.com')) {
+        if (!str_contains(data_get($user, 'email', ''), '@haxibiao.com')) {
             abort(403, '您无权发布文章');
         }
         if ($slug = $request->slug) {
@@ -105,9 +105,8 @@ class ArticleController extends Controller
             if (is_numeric($slug)) {
                 dd('slug 不能为纯数字');
             }
-
         }
-        $article = new Article($request->all());
+        $article = new Article(array_except($request->all(), ['api_token']));
         $article->save();
 
         //delay
@@ -216,7 +215,7 @@ class ArticleController extends Controller
         if ($slug = $request->slug) {
             $validator = Validator::make(
                 $request->input(),
-                ['slug' => 'unique:articles,slug,' . $article->id]//校验时忽略当前文章
+                ['slug' => 'unique:articles,slug,' . $article->id] //校验时忽略当前文章
             );
             if ($validator->fails()) {
                 dd('当前slug已被使用');
@@ -226,7 +225,7 @@ class ArticleController extends Controller
             }
         }
 
-        $article->update($request->all());
+        $article->update(array_except($request->all(), ['api_token']));
         $article->edited_at   = \Carbon\Carbon::now();
         $article->count_words = ceil(strlen(strip_tags($article->body)) / 2);
         $article->source_url  = null; //手动编辑过的文章，都不再是爬虫文章
@@ -306,10 +305,11 @@ class ArticleController extends Controller
     }
 
 
-    public function shareVideo($id){
+    public function shareVideo($id)
+    {
         $article = Article::findOrFail($id);
 
-        return view('share.shareVideo',[
+        return view('share.shareVideo', [
             'article' => $article,
             'video' => $article->video,
             'user' => $article->user,
