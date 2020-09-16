@@ -657,8 +657,14 @@ trait PostRepo
         //抖音爬的视频，可直接奖励
         $user = $post->user;
         if (!is_null($user)) {
-            //触发奖励
-            Gold::makeIncome($user, 10, '分享视频奖励');
+            /**
+             * caohan,yxsp取消粘贴抖音视频的积分奖励
+             * http://pm3.haxibiao.com:8080/browse/YXSP-93
+             */
+            if(!in_array(config('app.name'),['caohan','yinxiangshipin','ainicheng'])){
+                //触发奖励
+                Gold::makeIncome($user, 10, '分享视频奖励');
+            }
             //扣除精力-1
             if ($user->ticket > 0) {
                 $user->decrement('ticket');
