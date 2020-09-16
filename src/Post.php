@@ -63,6 +63,9 @@ class Post extends Model
 
             //设置review_id 和 review_day
             $post->initReviewIdAndReviewDay();
+
+            // 公司用户展示权利交给马甲号
+            $post->transferToVest();
         });
     }
 
@@ -295,5 +298,39 @@ class Post extends Model
             self::PRIVARY_STATUS => '草稿箱',
             self::DELETED_STATUS => '已删除',
         ];
+    }
+
+    /**
+     * 展示转移交给马甲用户
+     */
+    public function transferToVest(){
+        $user = $this->user;
+        if(!$user){
+            return;
+        }
+        // 系统是否开启马甲号逻辑
+        $postOpenVest = config('haixbiao-content.post_open_vest',false);
+        if(!$postOpenVest){
+            return;
+        }
+
+        // 普通用户不执行马甲逻辑
+        $roleId = $user->role_id;
+        if(!in_array($roleId,[User::EDITOR_STATUS,User::ADMIN_STATUS])){
+            return;
+        }
+
+        // 数据库不完整
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('posts', 'owner_id')) {
+            return;
+        }
+        $userIds = User::where('role_id',User::VEST_STATUS)->pluck('id')->toArray();
+        $userIds = array_merge($userIds,[$user->id]);
+        $vestId  = array_random($userIds);
+        if(!$vestId){
+            return;
+        }
+        $this->owner_id = $user->id;
+        $this->user_id  = $vestId;
     }
 }
