@@ -74,6 +74,11 @@ class Post extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class,'owner_id');
+    }
+
     public function spider(): BelongsTo
     {
         return $this->belongsTo(Spider::class);
@@ -328,10 +333,9 @@ class Post extends Model
         $userIds = User::where('role_id',User::VEST_STATUS)->pluck('id')->toArray();
         $userIds = array_merge($userIds,[$user->id]);
         $vestId  = array_random($userIds);
-        if(!$vestId){
-            return;
+        if($vestId){
+            $this->owner_id = $user->id;
+            $this->user_id  = $vestId;
         }
-        $this->owner_id = $user->id;
-        $this->user_id  = $vestId;
     }
 }
