@@ -82,6 +82,11 @@ trait PostResolvers
             return collect([$firstPosts, $result])->collapse();
         }
 
+        //插入广告
+        $adVideo = $result[0];
+        $adVideo->is_ad = true;
+        $result[] = $adVideo;
+
         return $result;
     }
 
@@ -111,5 +116,4 @@ trait PostResolvers
             ->whereIn('user_id', $followedUserIds)
             ->orderByDesc('created_at');
     }
-
 }
