@@ -76,7 +76,7 @@ class Post extends Model
 
     public function owner(): BelongsTo
     {
-        return $this->belongsTo(User::class,'owner_id');
+        return $this->belongsTo(User::class, 'owner_id');
     }
 
     public function spider(): BelongsTo
@@ -99,10 +99,10 @@ class Post extends Model
         return $this->morphMany(Like::class, 'likable');
     }
 
-//    public function images()
-//    {
-//        return $this->morphToMany(Image::class, 'imageable','imageable')->withTimestamps();
-//    }
+    //    public function images()
+    //    {
+    //        return $this->morphToMany(Image::class, 'imageable','imageable')->withTimestamps();
+    //    }
 
     public function favorite()
     {
@@ -130,7 +130,7 @@ class Post extends Model
         if (!empty($content)) {
             $content           = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音小助手', '抖音', '@DOU+小助手'], '', $content);
             $this->content     = $content;
-            if(!$this->description){
+            if (!$this->description) {
                 $this->description = $content;
             }
         }
@@ -234,8 +234,8 @@ class Post extends Model
     public static function getGuestPosts($limit = 5)
     {
         $withRelationList = ['video', 'user'];
-        if(class_exists("App\\Role", true)){
-            $withRelationList = array_merge($withRelationList,['user.role']);
+        if (class_exists("App\\Role", true)) {
+            $withRelationList = array_merge($withRelationList, ['user.role']);
         }
         $qb = static::with($withRelationList)
             ->has('video')
@@ -308,21 +308,22 @@ class Post extends Model
     /**
      * 展示转移交给马甲用户
      */
-    public function transferToVest(){
+    public function transferToVest()
+    {
         $user = User::find($this->user_id);
-        $ownerId = data_get($this,'owner_id');
-        if(!$user || $ownerId){
+        $ownerId = data_get($this, 'owner_id');
+        if (empty($user) || !empty($ownerId)) {
             return;
         }
         // 系统是否开启马甲号逻辑
-        $postOpenVest = config('haxibiao-content.post_open_vest',false);
-        if(!$postOpenVest){
+        $postOpenVest = config('haxibiao-content.post_open_vest', false);
+        if (!$postOpenVest) {
             return;
         }
 
         // 普通用户不执行马甲逻辑
         $roleId = $user->role_id;
-        if(!in_array($roleId,[User::EDITOR_STATUS,User::ADMIN_STATUS])){
+        if (!in_array($roleId, [User::EDITOR_STATUS, User::ADMIN_STATUS])) {
             return;
         }
 
@@ -330,10 +331,10 @@ class Post extends Model
         if (!\Illuminate\Support\Facades\Schema::hasColumn('posts', 'owner_id')) {
             return;
         }
-        $userIds = User::where('role_id',User::VEST_STATUS)->pluck('id')->toArray();
-        $userIds = array_merge($userIds,[$user->id]);
+        $userIds = User::where('role_id', User::VEST_STATUS)->pluck('id')->toArray();
+        $userIds = array_merge($userIds, [$user->id]);
         $vestId  = array_random($userIds);
-        if($vestId){
+        if ($vestId) {
             $this->owner_id = $user->id;
             $this->user_id  = $vestId;
         }
