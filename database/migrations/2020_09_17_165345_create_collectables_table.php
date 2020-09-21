@@ -13,6 +13,9 @@ class CreateCollectablesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('collectables')) {
+            Schema::drop('collectables');
+        }
         Schema::create('collectables', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
