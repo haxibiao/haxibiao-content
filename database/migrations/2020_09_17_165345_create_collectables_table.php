@@ -22,7 +22,7 @@ class CreateCollectablesTable extends Migration
             $table->string('collection_name');
 
             //索引字段
-            $table->unique(['collection_id', 'collectable_id', 'collectable_type']);
+            $table->unique(['collection_id', 'collectable_id', 'collectable_type'],'collectable_unique');
             $table->index('user_id');
             $table->index('collection_name');
 
