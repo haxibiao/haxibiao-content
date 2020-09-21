@@ -3,6 +3,7 @@
 namespace Haxibiao\Content\Traits;
 
 use App\Action;
+use App\Collection;
 use App\Exceptions\GQLException;
 use App\Gold;
 use App\Image;
@@ -39,6 +40,8 @@ trait PostRepo
             'video_id'     => Arr::get($args, 'video_id', null),
             'qcvod_fileid' => Arr::get($args, 'qcvod_fileid', null),
             'share_link'   => data_get($args, 'share_link', null),
+            'collection_ids'   => data_get($args, 'collection_ids', null),
+
         ];
 
         //FIXME:  安保联盟的 tag_id 与 category_ids 同含义
@@ -183,7 +186,10 @@ trait PostRepo
                     $post->review_id  = static::makeNewReviewId();
                     $post->review_day = static::makeNewReviewDay();
                     $post->save();
+                    //默认添加抖音中的标签
                     self::extractTag($post);
+                    //默认添加抖音中的合集
+                    self::extractCollect($post);
                 }
                 //触发更新事件-扣除精力点
                 $spider->updated_at = now();
@@ -272,6 +278,9 @@ trait PostRepo
             // Sync分类关系
             if ($inputs['category_ids']) {
                 $post->categorize($inputs['category_ids']);
+            }
+            if ($inputs['collection_ids']) {
+                $post->collectable($inputs['collection_ids']);
             }
             app_track_event('发布', '发布Post动态');
             return $post;
@@ -700,6 +709,28 @@ trait PostRepo
         }
         // 标签
         $post->tagByNames($tagNames);
+        $post->save();
+    }
+
+    //默认添加抖音中的合集
+    public static function extractCollect($post)
+    {
+        $spider = $post->spider;
+        if (!$spider) {
+            return;
+        }
+        $collections  = data_get($spider, 'data.raw.item_list.0.cha_list',[]);
+        if (!$collections) {
+            return;
+        }
+        $collectionIds=[];
+        foreach ($collections as $collection) {
+            $collectionName = data_get($collection, 'cha_name');
+            $collectionByName = Collection::getCollectionByName($collectionName);
+            $collectionIds[]= $collectionByName->id;
+        }
+        // 合集
+        $post->collectable($collectionIds);
         $post->save();
     }
 

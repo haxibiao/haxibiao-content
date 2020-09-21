@@ -21,6 +21,7 @@ return [
         'article'  => Haxibiao\Content\Article::class,
         'post'     => Haxibiao\Content\Post::class,
         'issue'     => Haxibiao\Content\Issue::class,
+        'collection'     => Haxibiao\Content\Collection::class,
     ],
     // 分享模版
     'share_config' =>[

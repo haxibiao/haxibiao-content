@@ -9,6 +9,7 @@ use App\Model;
 use App\User;
 use App\Video;
 use Carbon\Carbon;
+use Haxibiao\Content\Traits\CanCollect;
 use Haxibiao\Content\Traits\Categorizable;
 use Haxibiao\Content\Traits\PostAttrs;
 use Haxibiao\Content\Traits\PostOldPatch;
@@ -31,6 +32,7 @@ class Post extends Model
     use PostResolvers;
     use WithImage;
     use Categorizable;
+    use CanCollect;
     use PostOldPatch;
 
     public function getMorphClass()
