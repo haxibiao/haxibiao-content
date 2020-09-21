@@ -35,6 +35,11 @@ trait CollectionResolvers
         $collection->save();
         return $collection;
     }
+    public function resolveCollection($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo){
+        $collection_id = Arr::get($args, 'collection_id');
+        app_track_event('合集玩法','查看合集内视频',$collection_id);
+        return Collection::findOrFail($collection_id);
+    }
 
     // 创建合集信息
     public function resolveUpdateCollection($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
