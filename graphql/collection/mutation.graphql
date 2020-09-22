@@ -8,6 +8,10 @@ extend type Mutation @middleware(checks: ["auth:api"]){
         """
         name: String!
         """
+        合集简介
+        """
+        description: String
+        """
         合集封面，只要一张图
         """
         logo: String
@@ -15,6 +19,10 @@ extend type Mutation @middleware(checks: ["auth:api"]){
         合集类型
         """
         type:CollectType=POST
+        """
+        动态id
+        """
+        post_ids:[Int!]
     )
     : Collection! @field(resolver: "App\\Collection@resolveCreateCollection")
 
@@ -41,6 +49,20 @@ extend type Mutation @middleware(checks: ["auth:api"]){
     )
     : Collection! @field(resolver: "App\\Collection@resolveUpdateCollection")
 
+    """
+    批量添加视频到合集中
+    """
+    moveInCollections(
+        """
+        合集id
+        """
+        collection_ids:[Int!]!
+        """
+        合集id
+        """
+        post_ids:[Int!]!
+    )
+    : Boolean! @field(resolver: "App\\Collection@resolveMoveInCollection")
 }
 
 

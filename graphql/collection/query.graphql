@@ -8,8 +8,13 @@ type Collection {
   count_follows: Int
   followed: Int
   user: User!
+  """
+  合集内的视频
+  """
+  posts:[Post]
 }
 
 extend type Query {
   collections(user_id: Int! @eq): [Collection!] @paginate(defaultCount: 10)
+  collection(collection_id:Int!):Collection @field(resolver: "App\\Collection@resolveCollection")
 }

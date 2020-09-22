@@ -76,4 +76,9 @@ class Collection extends Model
 
         return $collection;
     }
+    //添加动态到合集中
+    public function collectByPostIds($post_ids){
+
+        $this->posts()->sync($post_ids, false);
+    }
 }

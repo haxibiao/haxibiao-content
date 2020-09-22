@@ -18,6 +18,8 @@ trait CollectionResolvers
         $name = Arr::get($args, 'name');
         $logo = Arr::get($args, 'logo');
         $type = Arr::get($args, 'type');
+        $description = Arr::get($args, 'description','');
+        $post_ids = Arr::get($args, 'post_ids');
 
         if ($logo){
             $image = Image::saveImage($logo);
@@ -29,11 +31,15 @@ trait CollectionResolvers
         $collection = Collection::firstOrNew([
             'user_id'=>getUser()->id,
             'name' => $name,
+            'description' => $description,
             'logo' => $logo,
             'type' => $type,
             'status'=>1
         ]);
         $collection->save();
+        if ($post_ids){
+            $collection->collectByPostIds($post_ids);
+        }
         return $collection;
     }
     public function resolveCollection($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo){
