@@ -1,7 +1,8 @@
 type Collection {
   id: Int!
   name: String!
-  logo: String
+  description: String!
+  logo: String @rename(attribute: "image")
   status: Int
   type: String
   count_articles: Int

@@ -64,6 +64,20 @@ class Collection extends Model
         }
         return env('APP_URL') . $path;
     }
+
+
+    public function getImageAttribute()
+    {
+        if (starts_with($this->logo, 'http')) {
+            return $this->logo;
+        }
+        $localFileExist = !is_prod() && \Storage::disk('public')->exists($this->logo);
+        if ($localFileExist) {
+            return env('LOCAL_APP_URL') . '/storage/' . $this->logo;
+        }
+        return \Storage::disk('cosv5')->url($this->logo);
+    }
+
     public static function  getCollectionByName($name,$logo=null){
         $collection = self::firstOrCreate([
             'name' => $name ],
