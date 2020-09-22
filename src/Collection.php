@@ -95,4 +95,9 @@ class Collection extends Model
 
         $this->posts()->sync($post_ids, false);
     }
+    //添加动态到合集中
+    public function cancelCollectByPostIds($post_ids){
+
+        $this->posts()->detach($post_ids, false);
+    }
 }
