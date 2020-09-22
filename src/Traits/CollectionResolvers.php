@@ -112,4 +112,8 @@ trait CollectionResolvers
         return $qb;
     }
 
+    public function resolveSearchCollections($rootValue, $args, $context, $resolveInfo){
+        return static::search(data_get($args,'query'));
+    }
+
 }

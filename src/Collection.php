@@ -4,6 +4,7 @@ namespace Haxibiao\Content;
 
 use Haxibiao\Base\User;
 use Haxibiao\Content\Traits\CollectionResolvers;
+use Haxibiao\Helpers\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Haxibiao\Sns\Traits\CanBeFollow;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +13,14 @@ class Collection extends Model
 {
     use CollectionResolvers;
     use CanBeFollow;
+    use Searchable;
+
+    protected $searchable = [
+        'columns' => [
+            'collections.name' => 1,
+            'collections.description' => 1,
+        ],
+    ];
 
     public $fillable = [
         'user_id',
@@ -78,12 +87,12 @@ class Collection extends Model
         return \Storage::disk('cosv5')->url($this->logo);
     }
 
-    public static function  getCollectionByName($name,$logo=null){
+    public static function  getCollectionByName($name,$user=null,$logo=null){
         $collection = self::firstOrCreate([
             'name' => $name ],
             [
                 'logo' => $logo,
-                'user_id'=>getUser()->id,
+                'user_id'=>$user??getUser()->id,
                 'type' => 'posts',
                 'status'=>1
         ]);
