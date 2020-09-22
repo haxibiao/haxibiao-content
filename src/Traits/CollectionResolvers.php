@@ -4,6 +4,7 @@ namespace Haxibiao\Content\Traits;
 
 use App\Collection;
 use App\Image;
+use App\Post;
 use App\User;
 use GraphQL\Type\Definition\ResolveInfo;
 use Illuminate\Support\Arr;
@@ -63,4 +64,19 @@ trait CollectionResolvers
         return $collection;
     }
 
+
+    // 创建合集信息
+    public function resolveMoveInCollection($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    {
+        $collection_ids = Arr::get($args, 'collection_ids');
+        $post_ids = Arr::get($args, 'post_ids');
+        foreach ($post_ids as $post_id){
+            $post = Post::find($post_id);
+            if ($post){
+                $post->collectable($collection_ids);
+                $post->save();
+            }
+        }
+        return true;
+    }
 }
