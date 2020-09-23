@@ -73,9 +73,9 @@ class Collection extends Model
         return $this->articles()->where('status', '>=', '0');
     }
 
-    public function logo()
+    public function getLogoAttribute()
     {
-        $path = empty($this->logo) ? '/images/collection.png' : $this->logo;
+        $path = empty($this->getRawOriginal('logo')) ? '/images/collection.png' : $this->getRawOriginal('logo');
         if (file_exists(public_path($path))) {
             return $path;
         }
@@ -95,25 +95,31 @@ class Collection extends Model
         return \Storage::disk('cosv5')->url($this->logo);
     }
 
-    public static function  getCollectionByName($name,$user=null,$logo=null){
-        $collection = self::firstOrCreate([
-            'name' => $name ],
+    public static function  getCollectionByName($name, $user = null, $logo = null)
+    {
+        $collection = self::firstOrCreate(
+            [
+                'name' => $name
+            ],
             [
                 'logo' => $logo,
-                'user_id'=>$user??getUser()->id,
+                'user_id' => $user ?? getUser()->id,
                 'type' => 'posts',
-                'status'=>1
-        ]);
+                'status' => 1
+            ]
+        );
 
         return $collection;
     }
     //添加动态到合集中
-    public function collectByPostIds($post_ids){
+    public function collectByPostIds($post_ids)
+    {
 
         $this->posts()->sync($post_ids, false);
     }
     //添加动态到合集中
-    public function cancelCollectByPostIds($post_ids){
+    public function cancelCollectByPostIds($post_ids)
+    {
 
         $this->posts()->detach($post_ids, false);
     }
