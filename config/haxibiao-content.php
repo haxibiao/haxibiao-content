@@ -29,5 +29,8 @@ return [
         'share_collection_msg' => '#%s/share/collection/%d#, #%s#,打开【%s】,直接观看视频合集,玩视频就能赚钱~,'
     ],
     // 动态是否开启马甲号分发
-    'post_open_vest' => env('POST_OPEN_VEST', false)
+    'post_open_vest' => env('POST_OPEN_VEST', false),
+
+    // 合集默认封面图片
+    'collection_default_logo' => 'https://haxibiao-1251052432.cos.ap-guangzhou.myqcloud.com/images/collection.png',
 ];
