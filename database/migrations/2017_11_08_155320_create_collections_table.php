@@ -28,6 +28,7 @@ class CreateCollectionsTable extends Migration
             $table->integer('count_follows')->default(0)->index();
 
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

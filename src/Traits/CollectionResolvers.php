@@ -12,6 +12,8 @@ use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 trait CollectionResolvers
 {
+
+
     // 创建合集信息
     public function resolveCreateCollection($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
@@ -71,7 +73,6 @@ trait CollectionResolvers
         return $collection;
     }
 
-
     // 添加动态到合集中
     public function resolveMoveInCollection($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
@@ -86,6 +87,7 @@ trait CollectionResolvers
         }
         return true;
     }
+
     // 从合集中移除动态
     public function resolveMoveOutCollection($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
@@ -99,6 +101,7 @@ trait CollectionResolvers
         }
         return true;
     }
+
     public function resolverPosts($rootValue, $args, $context, $resolveInfo){
 
         $order      = data_get($args,'order');

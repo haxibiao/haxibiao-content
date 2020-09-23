@@ -63,6 +63,11 @@ extend type Mutation @middleware(checks: ["auth:api"]){
         post_ids:[Int!]!
     )
     : Boolean! @field(resolver: "App\\Collection@resolveMoveInCollection")
+
+    """
+    删除合集
+    """
+    deleteCollection(id: Int!): Collection @delete
 }
 
 

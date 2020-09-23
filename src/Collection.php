@@ -2,18 +2,18 @@
 
 namespace Haxibiao\Content;
 
-use Haxibiao\Base\User;
 use Haxibiao\Content\Traits\CollectionResolvers;
 use Haxibiao\Helpers\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Haxibiao\Sns\Traits\CanBeFollow;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Collection extends Model
 {
     use CollectionResolvers;
     use CanBeFollow;
     use Searchable;
+    use SoftDeletes;
 
     protected $searchable = [
         'columns' => [
@@ -22,14 +22,18 @@ class Collection extends Model
         ],
     ];
 
-    public $fillable = [
-        'user_id',
-        'status',
-        'type',
-        'name',
-        'logo',
-        'count_words',
-    ];
+    protected $guarded = [];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        //删除时触发
+        self::deleted(function ($model) {
+            // 移除所有的中间关系
+            $model->collectables()->delete();
+        });
+    }
 
 
     //合集中的post
@@ -44,6 +48,10 @@ class Collection extends Model
         return $this->morphedByMany($related, 'collectable');
     }
 
+    public function collectables()
+    {
+        return $this->hasMany(Collectable::class);
+    }
 
     public function user()
     {
@@ -57,12 +65,12 @@ class Collection extends Model
 
     public function hasManyArticles()
     {
-        return $this->hasMany(\App\Article::class)->where('status', '>=', '0');
+        return $this->articles()->where('status', '>=', '0');
     }
 
     public function publishedArticles()
     {
-        return $this->hasMany(\App\Article::class)->where('status', '>=', '0');
+        return $this->articles()->where('status', '>=', '0');
     }
 
     public function logo()
