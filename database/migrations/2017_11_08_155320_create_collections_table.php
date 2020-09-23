@@ -21,11 +21,13 @@ class CreateCollectionsTable extends Migration
             $table->string('name');
             $table->string('description');
             $table->string('logo')->nullable();
+            $table->unsignedInteger('sort_rank')->nullable()->index()->comment('排序(置顶方法)');
 
             //add counts
             $table->integer('count')->default(0);
             $table->integer('count_words')->default(0);
             $table->integer('count_follows')->default(0)->index();
+            $table->unsignedInteger('count_posts')->default(0)->index();
 
             $table->timestamps();
             $table->softDeletes();

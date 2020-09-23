@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddSoftDeletesToCollectionsTable extends Migration
+class AddSortrankToCollectablesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class AddSoftDeletesToCollectionsTable extends Migration
      */
     public function up()
     {
-        Schema::table('collections', function (Blueprint $table) {
-            if (!Schema::hasColumn('collections','deleted_at')){
-                $table->softDeletes();
+        Schema::table('collectables', function (Blueprint $table) {
+            if (!Schema::hasColumn('collections','sort_rank')){
+                $table->unsignedInteger('sort_rank')->nullable()->comment('排序(置顶方法)');
             }
         });
     }
@@ -27,7 +27,7 @@ class AddSoftDeletesToCollectionsTable extends Migration
      */
     public function down()
     {
-        Schema::table('collections', function (Blueprint $table) {
+        Schema::table('collectables', function (Blueprint $table) {
             //
         });
     }

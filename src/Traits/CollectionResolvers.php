@@ -16,26 +16,31 @@ trait CollectionResolvers
     //分享合集url
     public function getShareLink($rootValue, array $args, $context, $resolveInfo)
     {
-        $collection = Collection::has('posts')->find($args['collection_id']);
+        $collection = static::has('posts')->find($args['collection_id']);
         throw_if(is_null($collection), GQLException::class, '该合集不存在哦~,请稍后再试');
+
         $shareMag = config('haxibiao-content.share_config.share_collection_msg', '#%s/share/post/%d#, #%s#,打开【%s】,直接观看合集视频,玩视频就能赚钱~,');
+
         if (checkUser() && class_exists("App\\Helpers\\Redis\\RedisSharedCounter", true)) {
             $user = getUser();
             \App\Helpers\Redis\RedisSharedCounter::updateCounter($user->id);
             //触发分享任务
             $user->reviewTasksByClass('Share');
         }
+
         return sprintf($shareMag, config('app.url'), $collection->id, $collection->description, config('app.name_cn'));
     }
 
-    // 创建合集信息
-    public function resolveCreateCollection($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    /**
+     * 创建合集
+     */
+    public function resolveCreateCollection($rootValue, array $args, $context, $resolveInfo)
     {
-        $name = Arr::get($args, 'name');
-        $logo = Arr::get($args, 'logo');
-        $type = Arr::get($args, 'type');
-        $description = Arr::get($args, 'description', '');
-        $post_ids = Arr::get($args, 'post_ids');
+        $name = data_get($args, 'name');
+        $logo = data_get($args, 'logo');
+        $type = data_get($args, 'type');
+        $description = data_get($args, 'description', '');
+        $post_ids = data_get($args, 'post_ids');
 
         if ($logo) {
             $image = Image::saveImage($logo);
@@ -44,17 +49,18 @@ trait CollectionResolvers
             $logo = User::AVATAR_DEFAULT;
         }
 
-        $collection = Collection::firstOrNew([
+        $collection = static::firstOrCreate([
             'user_id' => getUser()->id,
             'name' => $name,
+        ],[
             'description' => $description,
             'logo' => $logo,
             'type' => $type,
-            'status' => 1
+            'status' => Collection::STATUS_ONLINE
         ]);
-        $collection->save();
+        // TODO 限制只能只能是POST（待修）
         if ($post_ids) {
-            $collection->collectByPostIds($post_ids);
+            $collection->collect($post_ids,\App\Post::class);
         }
         return $collection;
     }
@@ -63,18 +69,17 @@ trait CollectionResolvers
     {
         $collection_id = Arr::get($args, 'collection_id');
         app_track_event('合集玩法', '查看合集内视频', $collection_id);
-        return Collection::findOrFail($collection_id);
+        return static::findOrFail($collection_id);
     }
 
-    // 创建合集信息
-    public function resolveUpdateCollection($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    /**
+     * 修改合集
+     */
+    public function resolveUpdateCollection($rootValue, array $args, $context, $resolveInfo)
     {
-        $collection_id = Arr::get($args, 'collection_id');
-        $collection = Collection::findOrFail($collection_id);
-        $collection->update([
-            'name' => Arr::get($args, 'name', $collection->name),
-            'type' => Arr::get($args, 'type', $collection->type),
-        ]);
+        $collection_id = data_get($args, 'collection_id');
+        $collection = static::findOrFail($collection_id);
+
         $logo = Arr::get($args, 'logo');
         if ($logo) {
             $image = Image::saveImage($logo);
@@ -84,53 +89,76 @@ trait CollectionResolvers
         }
         $collection->update([
             'logo' => $logo,
+            'name' => Arr::get($args, 'name', $collection->name),
+            'type' => Arr::get($args, 'type', $collection->type),
         ]);
         return $collection;
     }
 
-    // 添加动态到合集中
-    public function resolveMoveInCollection($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    /**
+     * 添加资源对象至合集
+     */
+    public function resolveMoveInCollection($rootValue, array $args, $context, $resolveInfo)
     {
-        $collection_ids = Arr::get($args, 'collection_ids');
+        $collection_ids = data_get($args, 'collection_ids');
         $post_ids = Arr::get($args, 'post_ids');
         foreach ($post_ids as $post_id) {
             $post = Post::find($post_id);
             if ($post) {
-                $post->collectable($collection_ids);
-                $post->save();
+                $post->collectivize($collection_ids);
             }
         }
         return true;
     }
 
-    // 从合集中移除动态
-    public function resolveMoveOutCollection($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    /**
+     * 移除合集中的资源对象
+     */
+    public function resolveMoveOutCollection($rootValue, array $args, $context, $resolveInfo)
     {
         $collection_ids = Arr::get($args, 'collection_ids');
         $post_ids = Arr::get($args, 'post_ids');
+
         foreach ($collection_ids as $collection_id) {
-            $collection = Collection::find($collection_id);
+            $collection = static::find($collection_id);
             if ($collection) {
-                $collection->cancelCollectByPostIds($post_ids);
+                $collection->uncollect($post_ids,\App\Post::class);
             }
         }
         return true;
     }
 
+    /**
+     * 查询合集下的资源对象列表
+     */
     public function resolverPosts($rootValue, $args, $context, $resolveInfo)
     {
 
-        $order      = data_get($args, 'order');
+        $order       = data_get($args, 'order');
+        $currentPage = data_get($args, 'page');
+        $perPage     = data_get($args, 'count');
 
         $qb = $rootValue->posts()->publish();
+        $total = $qb->count();
 
-        $qb->when($order == 'LATEST', function ($q) {
-            $q->orderByDesc('id');
-        });
+        $postList = $qb->when($order == 'LATEST', function ($q) {
+            $q->orderBy('sort_rank');
+        })->skip(($currentPage * $perPage) - $perPage)
+            ->take($perPage)
+            ->get();
 
-        return $qb;
+        $currentEpisode =  $perPage * ($currentPage - 1 ) + 1;
+        foreach ($postList as $post){
+            $post->current_episode = $currentEpisode;
+            $currentEpisode++;
+        }
+
+        return new \Illuminate\Pagination\LengthAwarePaginator($postList, $total, $perPage, $currentPage);
     }
 
+    /**
+     * 搜索合集
+     */
     public function resolveSearchCollections($rootValue, $args, $context, $resolveInfo)
     {
         return static::search(data_get($args, 'query'));

@@ -280,7 +280,7 @@ trait PostRepo
                 $post->categorize($inputs['category_ids']);
             }
             if ($inputs['collection_ids']) {
-                $post->collectable($inputs['collection_ids']);
+                $post->collectivize($inputs['collection_ids']);
             }
             app_track_event('发布', '发布Post动态');
             return $post;
@@ -719,18 +719,31 @@ trait PostRepo
         if (!$spider) {
             return;
         }
-        $collections  = data_get($spider, 'data.raw.item_list.0.cha_list',[]);
-        if (!$collections) {
+        $mixInfos  = data_get($spider, 'data.raw.item_list.0.mix_info',[]);
+        if (!$mixInfos) {
             return;
         }
-        $collectionIds=[];
-        foreach ($collections as $collection) {
-            $collectionName = data_get($collection, 'cha_name');
-            $collectionByName = Collection::getCollectionByName($collectionName);
-            $collectionIds[]= $collectionByName->id;
+        $cIds=[];
+        foreach ($mixInfos as $mixInfo) {
+            $name = data_get($mixInfo, 'mix_name');
+            $user = getUser();
+            $img  = data_get($mixInfo, 'cover_url.url_list.0');
+            if($img){
+                $img = Image::saveImage($img);
+            }
+            $collection = Collection::firstOrCreate([
+                'name'    => $name,
+                'user_id' => $user->user_id
+            ],[
+                'description' => data_get($mixInfo, 'desc'),
+                'logo'   => $img,
+                'type'   => 'posts',
+                'status' => Collection::STATUS_ONLINE,
+            ]);
+            $collectionIds[]= $collection->id;
         }
         // 合集
-        $post->collectable($collectionIds);
+        $post->collectivize($cIds);
         $post->save();
     }
 

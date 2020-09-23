@@ -15,6 +15,13 @@ class Collection extends Model
     use Searchable;
     use SoftDeletes;
 
+    protected $table = 'collections';
+
+    /**
+     * 上架状态
+     */
+    const STATUS_ONLINE = 1;
+
     protected $searchable = [
         'columns' => [
             'collections.name' => 1,
@@ -35,14 +42,11 @@ class Collection extends Model
         });
     }
 
-
-    //合集中的post
-    public function posts()
+    public function user()
     {
-        return $this->collectable(\App\Post::class);
+        return $this->belongsTo(\App\User::class);
     }
 
-    //合集对象
     public function collectable($related)
     {
         return $this->morphedByMany($related, 'collectable');
@@ -53,14 +57,14 @@ class Collection extends Model
         return $this->hasMany(Collectable::class);
     }
 
-    public function user()
+    public function posts()
     {
-        return $this->belongsTo(\App\User::class);
+        return $this->collectable(\App\Post::class);
     }
 
     public function articles()
     {
-        return $this->hasMany(\App\Article::class);
+        return $this->collectable(\App\Article::class);
     }
 
     public function hasManyArticles()
@@ -82,7 +86,6 @@ class Collection extends Model
         return env('APP_URL') . $path;
     }
 
-
     public function getImageAttribute()
     {
         if (starts_with($this->logo, 'http')) {
@@ -95,32 +98,50 @@ class Collection extends Model
         return \Storage::disk('cosv5')->url($this->logo);
     }
 
-    public static function  getCollectionByName($name, $user = null, $logo = null)
+    public function scopeByCollectionIds($query, $collectionIds)
     {
-        $collection = self::firstOrCreate(
-            [
-                'name' => $name
-            ],
-            [
-                'logo' => $logo,
-                'user_id' => $user ?? getUser()->id,
-                'type' => 'posts',
-                'status' => 1
-            ]
-        );
-
-        return $collection;
+        return $query->whereIn('id', $collectionIds);
     }
-    //添加动态到合集中
-    public function collectByPostIds($post_ids)
-    {
 
-        $this->posts()->sync($post_ids, false);
+    public function getCountPostAttribute(){
+        return $this->posts()->count();
     }
-    //添加动态到合集中
-    public function cancelCollectByPostIds($post_ids)
-    {
 
-        $this->posts()->detach($post_ids, false);
+    public function collect($collectableIds,$collectableType){
+
+        $index = 1;
+        foreach ($collectableIds as $collectableId){
+            $syncData[$collectableId] = [
+                'sort_rank'          => $index,
+                'collection_name'    => $this->name
+            ];
+            $index++;
+        }
+        $this->collectable($collectableType)
+            ->sync($collectableIds);
+
+        return $this;
+    }
+
+    public function uncollect($collectableIds,$collectableType){
+        $this->collectable($collectableType)
+            ->detach($collectableIds);
+
+        return $this;
+    }
+
+    public function recollect($collectableIds,$collectableType){
+        $index = 1;
+        foreach ($collectableIds as $collectableId){
+            $syncData[$collectableId] = [
+                'sort_rank'          => $index,
+                'collection_name'    => $this->name
+            ];
+            $index++;
+        }
+        $this->collectable($collectableType)
+            ->sync($collectableIds,false);
+
+        return $this;
     }
 }

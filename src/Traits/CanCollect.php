@@ -4,80 +4,79 @@ namespace Haxibiao\Content\Traits;
 
 use App\Collection;
 
+use App\Tag;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 trait CanCollect
 {
-    private function collectableModel(): string
-    {
-        return config('haxibiao-content.models.collection');
-    }
 
-    public function collection()
+    public static function bootCanCollect()
     {
-        return $this->belongsTo($this->collectableModel(), 'collection_id');
-    }
-
-    public function allCollections()
-    {
-        return $this->morphToMany($this->collectableModel(), 'collectable')
-            ->withPivot(['id', 'collection_name'])
-            ->withTimestamps();
-    }
-
-    public function hasCollections()
-    {
-        return $this->morphToMany($this->collectableModel(), 'collectable');
+        static::deleting(function($model) {
+            $collectionIds = $model->collections()->get()->pluck('id');
+            $model->uncollectivize($collectionIds);
+        });
     }
 
     public function collections(): MorphToMany
     {
-        return $this->morphToMany($this->collectableModel(), 'collectable')
+        return $this->morphToMany(\App\Collection::class, 'collectable')
             ->withPivot(['id', 'collection_name'])
             ->withTimestamps();
     }
 
-    public function collectable($collections)
+    public function collectable()
     {
-        $this->collections()->sync($collections, false);
+        return $this->morphMany(\Haxibiao\Content\Collectable::class, 'collectable');
+    }
+
+    /**
+     * 以前的文章系统中有一个主文集的概念
+     * @return mixed
+     */
+    public function collection()
+    {
+        return $this->belongsTo(\App\Collection::class, 'collection_id');
+    }
+
+    public function collectivize($collections)
+    {
+        $syncData       = [];
+        $collections    = Collection::byCollectionIds($collections)->get();
+        $index = 1;
+        foreach ($collections as $collection){
+            $syncData[$collection->id] = [
+                'sort_rank'          => $index,
+                'collection_name'   => $collection->name
+            ];
+            $index++;
+        }
+        $this->collections()->sync($syncData, false);
 
         return $this;
     }
 
-    public function reCollectable($collections = [])
+    public function recollectivize($collections = [])
     {
-        $this->collections()->sync($collections);
+        $syncData       = [];
+        $collections    = Collection::byCollectionIds($collections)->get();
+        $index = 1;
+        foreach ($collections as $collection){
+            $syncData[$collection->id] = [
+                'sort_rank'          => $index,
+                'collection_name'   => $collection->name
+            ];
+            $index++;
+        }
+        $this->collections()->sync($syncData);
 
         return $this;
     }
 
-    public function unCollectable($collections)
+    public function uncollectivize($collections)
     {
         $this->collections()->detach($collections);
 
         return $this;
-    }
-
-    public function hasCollection($collections)
-    {
-        if (is_string($collections)) {
-            return $this->collections()->contains('name', $collections);
-        }
-
-        if ($collections instanceof Collection) {
-            return $this->collections()->contains('id', $collections->id);
-        }
-
-        if (is_array($collections)) {
-            foreach ($collections as $collection) {
-                if ($this->hasCollection($collection)) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        return $collections->intersect($this->collections)->isNotEmpty();
     }
 }
