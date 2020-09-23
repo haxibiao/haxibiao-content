@@ -103,7 +103,7 @@ class Collection extends Model
         return $query->whereIn('id', $collectionIds);
     }
 
-    public function getCountPostAttribute(){
+    public function getCountPostsAttribute(){
         return $this->posts()->count();
     }
 
