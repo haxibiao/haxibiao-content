@@ -32,7 +32,7 @@ Route::resource('/article', ArticleController::class);
 Route::resource('/post', ArticleController::class);
 Route::any('/share/post/{id}', ArticleController::class . '@shareVideo');
 
-Route::get('/share/Collection/{id}', CollectionController::class . '@shareCollection');
+Route::get('/share/collection/{id}', CollectionController::class . '@shareCollection');
 /**
  * 问答
  */
