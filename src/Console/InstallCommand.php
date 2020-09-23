@@ -55,6 +55,11 @@ class InstallCommand extends Command
             '--force' => true,
         ]);
 
+        $this->call('vendor:publish', [
+            '--tag'   => 'content-resources',
+            '--force' => true,
+        ]);
+
         $this->comment("复制 stubs ...");
         copy(__DIR__ . '/stubs/Post.stub', app_path('Post.php'));
         copy(__DIR__ . '/stubs/Article.stub', app_path('Article.php'));

@@ -75,6 +75,14 @@ class ContentServiceProvider extends ServiceProvider
                 __DIR__ . '/../database/factories/PostFactory.php'  => base_path('database/factories/PostFactory.php'),
                 __DIR__ . '/../database/factories/VideoFactory.php' => base_path('database/factories/VideoFactory.php'),
             ], 'content-factories');
+
+            //发布 resoucre
+            $this->publishes([
+                __DIR__ . '/../resources/css'  => base_path('public/css'),
+                __DIR__ . '/../resources/images'  => base_path('public/images'),
+                __DIR__ . '/../resources/js'  => base_path('public/js'),
+                __DIR__ . '/../resources/views'  => base_path('resources/views'),
+            ], 'content-resources');
         }
 
         $this->loadRoutesFrom(
@@ -89,13 +97,13 @@ class ContentServiceProvider extends ServiceProvider
     protected function bindPathsInContainer()
     {
         foreach ([
-                     'path.haxibiao-content'            => $root = dirname(__DIR__),
-                     'path.haxibiao-content.config'     => $root . '/config',
-                     'path.haxibiao-content.database'   => $database = $root . '/database',
-                     'path.haxibiao-content.migrations' => $database . '/migrations',
-                     'path.haxibiao-content.seeds'      => $database . '/seeds',
-                     'path.haxibiao-content.graphql'    => $root . '/graphql',
-                 ] as $abstract => $instance) {
+            'path.haxibiao-content'            => $root = dirname(__DIR__),
+            'path.haxibiao-content.config'     => $root . '/config',
+            'path.haxibiao-content.database'   => $database = $root . '/database',
+            'path.haxibiao-content.migrations' => $database . '/migrations',
+            'path.haxibiao-content.seeds'      => $database . '/seeds',
+            'path.haxibiao-content.graphql'    => $root . '/graphql',
+        ] as $abstract => $instance) {
             $this->app->instance($abstract, $instance);
         }
     }

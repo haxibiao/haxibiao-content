@@ -12,10 +12,11 @@ type Collection {
   """
   合集内的视频
   """
-  posts:[Post]
+  posts: [Post]
 }
 
 extend type Query {
   collections(user_id: Int! @eq): [Collection!] @paginate(defaultCount: 10)
-  collection(collection_id:Int!):Collection @field(resolver: "App\\Collection@resolveCollection")
+  collection(collection_id: Int!): Collection @field(resolver: "App\\Collection@resolveCollection")
+  shareCollection(collection_id: Int!): Collection @field(resolver: "App\\Collection@getShareLink")
 }
