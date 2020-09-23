@@ -7,6 +7,7 @@ use App\Image;
 use App\Post;
 use App\User;
 use GraphQL\Type\Definition\ResolveInfo;
+use Haxibiao\Base\Exceptions\GQLException;
 use Illuminate\Support\Arr;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
