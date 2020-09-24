@@ -81,22 +81,26 @@ class CollectionReFactoringCommand extends Command
                 // 合集描述
                 $desc = data_get($mixInfo, 'desc')?:'暂无描述';
 
-                if($img){
-                    $img = Image::saveImage($img);
-                }
-
-                \App\Collection::firstOrCreate([
+                $collection = \App\Collection::firstOrCreate([
                     'name'    => $name,
                     'user_id' => $user_id
-                ],[
-                    'description' => $desc,
-                    'logo'   => $img->path,
-                    'type'   => 'posts',
-                    'status' => Collection::STATUS_ONLINE,
-                    'json'   => [
-                        'mix_info'=>$mixInfo,
-                    ]
                 ]);
+
+                if(!$collection->exists){
+                    if($img){
+                        $img = Image::saveImage($img);
+                    }
+                    $collection->forceFill([
+                        'description' => $desc,
+                        'logo'   => data_get($img,'path'),
+                        'type'   => 'posts',
+                        'status' => Collection::STATUS_ONLINE,
+                        'json'   => [
+                            'mix_info'=>$mixInfo,
+                        ]
+                    ]);
+                    $collection->save();
+                }
                 $this->info($name);
             }
         });
@@ -127,7 +131,11 @@ class CollectionReFactoringCommand extends Command
                 }
 
                 $collection->posts()
-                    ->attach($post->id, ['sort_rank' => $currentEpisode]);
+                    ->syncWithoutDetaching([
+                        $post->id => [
+                            'sort_rank' => $currentEpisode
+                        ]
+                    ]);
 
                 $this->info($post->id);
             }
