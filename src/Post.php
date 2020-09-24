@@ -323,12 +323,18 @@ class Post extends Model implements Collectionable
             return;
         }
 
+        // 数据库不完整
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('posts', 'owner_id')) {
+            return;
+        }
+
         // 有合集的抖音视频不分发马甲号
         $spiderId = data_get($this,'spider_id');
         if($spiderId){
             $spider   = Spider::find($spiderId);
             $mixInfo = data_get($spider,'data.raw.item_list.0.mix_info');
-            if($mixInfo){
+            if($mixInfo && $this->owner_id){
+                $this->user_id = $this->owner_id;
                 return;
             }
         }
@@ -339,10 +345,6 @@ class Post extends Model implements Collectionable
             return;
         }
 
-        // 数据库不完整
-        if (!\Illuminate\Support\Facades\Schema::hasColumn('posts', 'owner_id')) {
-            return;
-        }
         $userIds = User::where('role_id', User::VEST_STATUS)->pluck('id')->toArray();
         $userIds = array_merge($userIds, [$user->id]);
         $vestId  = array_random($userIds);
