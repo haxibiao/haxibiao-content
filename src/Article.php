@@ -3,16 +3,18 @@
 namespace Haxibiao\Content;
 
 use App\Model;
+use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Traits\ArticleAttrs;
 use Haxibiao\Content\Traits\ArticleRepo;
 use Haxibiao\Content\Traits\ArticleResolvers;
+use Haxibiao\Content\Traits\CanCollect;
 use Haxibiao\Content\Traits\Categorizable;
 use Haxibiao\Media\Traits\WithImage;
 use Haxibiao\Media\Traits\WithMedia;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Haxibiao\Media\Image;
 
-class Article extends Model
+class Article extends Model implements Collectionable
 {
     use ArticleRepo;
     use ArticleResolvers;
@@ -21,6 +23,7 @@ class Article extends Model
     use Categorizable;
     use WithMedia;
     use WithImage;
+    use CanCollect;
 
     protected $guarded = [];
 
@@ -73,12 +76,6 @@ class Article extends Model
     public function video()
     {
         return $this->belongsTo('App\Video');
-    }
-
-    //主文集
-    public function collection()
-    {
-        return $this->belongsTo('App\Collection');
     }
 
     public function favorites()
