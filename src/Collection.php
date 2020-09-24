@@ -53,7 +53,9 @@ class Collection extends Model
 
     public function collectable($related)
     {
-        return $this->morphedByMany($related, 'collectable');
+        return $this->morphedByMany($related, 'collectable')
+            ->withTimestamps()
+            ->withPivot(['sort_rank']);
     }
 
     public function collectables()
@@ -63,7 +65,8 @@ class Collection extends Model
 
     public function posts()
     {
-        return $this->collectable(\App\Post::class)->withTimestamps();
+        return $this->collectable(\App\Post::class)->withTimestamps()
+            ->withPivot(['sort_rank']);
     }
 
     public function articles()
@@ -121,6 +124,7 @@ class Collection extends Model
     public function collect($collectableIds,$collectableType){
 
         $index = 1;
+        $syncData = [];
         foreach ($collectableIds as $collectableId){
             $syncData[$collectableId] = [
                 'sort_rank'          => $index,
@@ -129,7 +133,7 @@ class Collection extends Model
             $index++;
         }
         $this->collectable($collectableType)
-            ->sync($collectableIds);
+            ->sync($syncData);
 
         return $this;
     }
@@ -142,16 +146,21 @@ class Collection extends Model
     }
 
     public function recollect($collectableIds,$collectableType){
-        $index = 1;
+
+        $maxSortRank = $this->collectable($collectableType)
+            ->get()
+            ->max('pivot.sort_rank')?:0;
+        $syncData = [];
         foreach ($collectableIds as $collectableId){
+            $maxSortRank++;
             $syncData[$collectableId] = [
-                'sort_rank'          => $index,
+                'sort_rank'          => $maxSortRank,
                 'collection_name'    => $this->name
             ];
-            $index++;
         }
+
         $this->collectable($collectableType)
-            ->sync($collectableIds,false);
+            ->sync($syncData,false);
 
         return $this;
     }
