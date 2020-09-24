@@ -47,7 +47,7 @@ trait CollectionResolvers
             $image = Image::saveImage($logo);
             $logo = $image->path;
         } else {
-            $logo = User::AVATAR_DEFAULT;
+            $logo = config('haxibiao-content.collection_default_logo');
         }
 
         $collection = static::firstOrCreate([

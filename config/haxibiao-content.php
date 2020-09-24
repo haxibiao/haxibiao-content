@@ -32,5 +32,5 @@ return [
     'post_open_vest' => env('POST_OPEN_VEST', false),
 
     // 合集默认封面图片
-    'collection_default_logo' => 'https://haxibiao-1251052432.cos.ap-guangzhou.myqcloud.com/images/collection.png',
+    'collection_default_logo' => 'http://haxibiao-1251052432.cos.ap-guangzhou.myqcloud.com/images/collection.png',
 ];
