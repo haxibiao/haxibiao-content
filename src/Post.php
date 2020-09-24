@@ -323,6 +323,16 @@ class Post extends Model implements Collectionable
             return;
         }
 
+        // 有合集的抖音视频不分发马甲号
+        $spiderId = data_get($this,'spider_id');
+        if($spiderId){
+            $spider   = Spider::find($spiderId);
+            $mixInfo = data_get($spider,'data.raw.item_list.0.mix_info');
+            if($mixInfo){
+                return;
+            }
+        }
+
         // 普通用户不执行马甲逻辑
         $roleId = $user->role_id;
         if (!in_array($roleId, [User::EDITOR_STATUS, User::ADMIN_STATUS])) {
