@@ -9,6 +9,7 @@ use App\Gold;
 use App\Image;
 use App\Spider;
 use App\Visit;
+use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Jobs\PublishNewPosts;
 use Haxibiao\Content\Post;
 use Haxibiao\Content\PostRecommend;
@@ -188,8 +189,11 @@ trait PostRepo
                     $post->save();
                     //默认添加抖音中的标签
                     self::extractTag($post);
-                    //默认添加抖音中的合集
-                    self::extractCollect($post);
+
+                    if($post instanceof Collectionable){
+                        //默认添加抖音中的合集
+                        self::extractCollect($post);
+                    }
                 }
                 //触发更新事件-扣除精力点
                 $spider->updated_at = now();
@@ -719,32 +723,39 @@ trait PostRepo
         if (!$spider) {
             return;
         }
-        $mixInfos  = data_get($spider, 'data.raw.item_list.0.mix_info',[]);
-        if (!$mixInfos) {
+        $mixInfo  = data_get($spider, 'data.raw.item_list.0.mix_info');
+        if (!$mixInfo) {
             return;
         }
-        $cIds=[];
-        foreach ($mixInfos as $mixInfo) {
-            $name = data_get($mixInfo, 'mix_name');
-            $user = getUser();
-            $img  = data_get($mixInfo, 'cover_url.url_list.0');
+
+        $name = data_get($mixInfo, 'mix_name');
+        $user = getUser();
+        $img  = data_get($mixInfo, 'cover_url.url_list.0');
+        $collection = Collection::firstOrNew([
+            'name'    => $name,
+            'user_id' => $user->user_id
+        ]);
+        if(!$collection->exists){
             if($img){
                 $img = Image::saveImage($img);
             }
-            $collection = Collection::firstOrCreate([
-                'name'    => $name,
-                'user_id' => $user->user_id
-            ],[
+            $collection->forceFill([
                 'description' => data_get($mixInfo, 'desc'),
-                'logo'   => $img,
+                'logo'   => data_get($img,'path'),
                 'type'   => 'posts',
                 'status' => Collection::STATUS_ONLINE,
-            ]);
-            $collectionIds[]= $collection->id;
+                'json'   => [
+                    'mix_info' => $mixInfo,
+                ]
+            ])->save();
         }
-        // 合集
-        $post->collectivize($cIds);
-        $post->save();
+
+        $collection->posts()
+            ->syncWithoutDetaching([
+                $post->id => [
+                    'sort_rank' => data_get($mixInfo, 'statis.current_episode')
+                ]
+            ]);
     }
 
     //个人主页动态

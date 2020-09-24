@@ -3,12 +3,12 @@
 namespace Haxibiao\Content;
 
 use App\Comment;
-use App\Image;
 use App\Like;
 use App\Model;
 use App\User;
 use App\Video;
 use Carbon\Carbon;
+use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Traits\CanCollect;
 use Haxibiao\Content\Traits\Categorizable;
 use Haxibiao\Content\Traits\PostAttrs;
@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class Post extends Model
+class Post extends Model implements Collectionable
 {
     use SoftDeletes;
 
