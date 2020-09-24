@@ -20,7 +20,6 @@ class CreateCollectablesTable extends Migration
             $table->id();
             $table->timestamps();
             $table->integer('collection_id')->unsigned();
-            $table->integer('user_id')->unsigned();
             $table->morphs('collectable');
             $table->string('collection_name');
 
