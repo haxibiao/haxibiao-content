@@ -80,16 +80,17 @@ class Collection extends Model
     public function getLogoAttribute()
     {
         $defaultLogo = config('haxibiao-content.collection_default_logo','https://haxibiao-1251052432.cos.ap-guangzhou.myqcloud.com/images/collection.png');
-        if(!$this->getRawOriginal('logo')){
+        $logo = $this->getRawOriginal('logo');
+        if(!$logo){
            return $defaultLogo;
         }
 
         $isValidateUrl = filter_var($defaultLogo, FILTER_VALIDATE_URL);
         if($isValidateUrl){
-            return $this->getRawOriginal('logo');
+            return $logo;
         }
 
-        return \Storage::disk('cosv5')->url($this->logo);
+        return \Storage::disk('cosv5')->url($logo);
     }
 
     public function getImageAttribute()
