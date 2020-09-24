@@ -16,8 +16,8 @@ class Collectable extends Model
         'collectable_type',
     ];
 
-    public function collectable()
-    {
-        return $this->morphTo();
-    }
+//    public function collectable()
+//    {
+//        return $this->morphTo();
+//    }
 }

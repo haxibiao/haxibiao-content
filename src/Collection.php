@@ -122,6 +122,11 @@ class Collection extends Model
         return $this->posts()->count();
     }
 
+
+    public function getUpdatedToEpisodeAttribute(){
+        return $this->posts()->count();
+    }
+
     public function collect($collectableIds,$collectableType){
 
         $index = 1;

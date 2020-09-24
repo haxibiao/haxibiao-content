@@ -69,6 +69,7 @@ class CollectionReFactoringCommand extends Command
                 if(Schema::hasColumn('posts','owner_id')){
                     $owner_id = $post->owner_id;
                     if($owner_id){
+                        $user_id = $post->owner_id;
                         $post->user_id = $owner_id;
                         $post->saveDataOnly();
                     }

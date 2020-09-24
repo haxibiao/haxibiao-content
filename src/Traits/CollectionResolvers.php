@@ -151,7 +151,7 @@ trait CollectionResolvers
             ->take($perPage)
             ->get();
 
-        $currentEpisode =  $perPage * ($currentPage - 1 ) + 1;
+        $currentEpisode =  $perPage * ($currentPage - 1) + 1;
         foreach ($postList as $post){
             $post->current_episode = $currentEpisode;
             $currentEpisode++;

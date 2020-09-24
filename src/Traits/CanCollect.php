@@ -21,7 +21,7 @@ trait CanCollect
     public function collections(): MorphToMany
     {
         return $this->morphToMany(\App\Collection::class, 'collectable')
-            ->withPivot(['id', 'collection_name'])
+            ->withPivot(['id', 'collection_name','sort_rank'])
             ->withTimestamps();
     }
 
@@ -78,5 +78,22 @@ trait CanCollect
         $this->collections()->detach($collections);
 
         return $this;
+    }
+
+    public function getCurrentEpisodeAttribute(){
+        $collection = $this->collections()
+            ->first();
+        if(!$collection){
+            return null;
+        }
+        $results = $collection->posts()->orderBy('collectables.sort_rank','asc')->get();
+        $index = 1;
+        foreach ($results as $result){
+            if(data_get($result,'pivot.collectable_id') == $this->id){
+                return $index;
+            }
+            $index ++;
+        }
+        return null;
     }
 }
