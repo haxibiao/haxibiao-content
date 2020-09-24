@@ -1,22 +1,38 @@
 type Collection {
   id: Int!
   name: String!
+  """
+  合集描述
+  """
   description: String!
-  logo: String @rename(attribute: "image")
+  """
+  封面图
+  """
+  logo: String
   status: Int
+  """
+  合集类型
+  """
   type: String
   count_articles: Int
   count_follows: Int
+  count_posts: Int
   followed: Int
   user: User!
   """
-  合集内的视频
+  最新的合集数
   """
-  posts: [Post]
+  updated_to_episode: Int
+  """
+  合集内的动态
+  """
+  posts(count: Int = 10, page: Int = 1,order: PostOrderEnum = LATEST): PostPaginator
+    @field(resolver: "App\\Collection@resolverPosts")
 }
 
 extend type Query {
   collections(user_id: Int! @eq): [Collection!] @paginate(defaultCount: 10)
   collection(collection_id: Int!): Collection @field(resolver: "App\\Collection@resolveCollection")
-  shareCollection(collection_id: Int!): Collection @field(resolver: "App\\Collection@getShareLink")
+  shareCollection(collection_id: Int!): String @field(resolver: "App\\Collection@getShareLink")
+  searchCollections(query: String!): [Collection] @paginate(defaultCount: 5, builder: "App\\Collection@resolveSearchCollections")
 }
