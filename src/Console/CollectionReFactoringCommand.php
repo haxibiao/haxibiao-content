@@ -82,7 +82,7 @@ class CollectionReFactoringCommand extends Command
                 // 合集描述
                 $desc = data_get($mixInfo, 'desc')?:'暂无描述';
 
-                $collection = \App\Collection::firstOrCreate([
+                $collection = \App\Collection::firstOrNew([
                     'name'    => $name,
                     'user_id' => $user_id
                 ]);
