@@ -27,7 +27,7 @@ class ContentServiceProvider extends ServiceProvider
             Console\InstallCommand::class,
             Console\CategoryReFactoringCommand::class,
             Console\PostReFactoringCommand::class,
-            // FixContent::class,
+            Console\CollectionReFactoringCommand::class,
         ]);
     }
 
