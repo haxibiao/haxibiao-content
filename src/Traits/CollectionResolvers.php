@@ -8,6 +8,7 @@ use App\Post;
 use App\User;
 use GraphQL\Type\Definition\ResolveInfo;
 use Haxibiao\Base\Exceptions\GQLException;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
@@ -39,9 +40,9 @@ trait CollectionResolvers
     {
         $name = data_get($args, 'name');
         $logo = data_get($args, 'logo');
-        $type = data_get($args, 'type');
+        $collectableType = data_get($args, 'collectable_type');
         $description = data_get($args, 'description', '');
-        $post_ids = data_get($args, 'post_ids');
+        $collectableIds    = data_get($args, 'collectable_ids');
 
         if ($logo) {
             $image = Image::saveImage($logo);
@@ -56,12 +57,12 @@ trait CollectionResolvers
         ],[
             'description' => $description,
             'logo' => $logo,
-            'type' => $type,
+            'type' => $collectableType,
             'status' => Collection::STATUS_ONLINE
         ]);
-        // TODO 限制只能只能是POST（待修）
-        if ($post_ids) {
-            $collection->collect($post_ids,\App\Post::class);
+
+        if ($collectableIds) {
+            $collection->collect($collectableIds,Relation::getMorphedModel($collectableType));
         }
         return $collection;
     }
@@ -101,14 +102,16 @@ trait CollectionResolvers
      */
     public function resolveMoveInCollection($rootValue, array $args, $context, $resolveInfo)
     {
-        $collection_ids = data_get($args, 'collection_ids');
-        $post_ids = Arr::get($args, 'post_ids');
-        foreach ($post_ids as $post_id) {
-            $post = Post::find($post_id);
-            if ($post) {
-                $post->collectivize($collection_ids);
-            }
+        $collectionId = data_get($args, 'collection_id');
+        $collectableIds = data_get($args, 'collectable_ids');
+        $collectableType = data_get($args, 'collectable_type');
+
+        $collection = static::find($collectionId);
+        if(!$collection){
+            return false;
         }
+
+        $collection->recollect($collectableIds,Relation::getMorphedModel($collectableType));
         return true;
     }
 
@@ -117,15 +120,16 @@ trait CollectionResolvers
      */
     public function resolveMoveOutCollection($rootValue, array $args, $context, $resolveInfo)
     {
-        $collection_ids = Arr::get($args, 'collection_ids');
-        $post_ids = Arr::get($args, 'post_ids');
+        $collectionId = data_get($args, 'collection_id');
+        $collectableIds = data_get($args, 'collectable_ids');
+        $collectableType = data_get($args, 'collectable_type');
 
-        foreach ($collection_ids as $collection_id) {
-            $collection = static::find($collection_id);
-            if ($collection) {
-                $collection->uncollect($post_ids,\App\Post::class);
-            }
+        $collection = static::find($collectionId);
+        if(!$collection){
+            return false;
         }
+
+        $collection->uncollect($collectableIds,Relation::getMorphedModel($collectableType));
         return true;
     }
 
