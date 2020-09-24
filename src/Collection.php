@@ -29,6 +29,10 @@ class Collection extends Model
         ],
     ];
 
+    protected $casts = [
+        'json' => 'object',
+    ];
+
     protected $guarded = [];
 
     public static function boot()
@@ -59,12 +63,12 @@ class Collection extends Model
 
     public function posts()
     {
-        return $this->collectable(\App\Post::class);
+        return $this->collectable(\App\Post::class)->withTimestamps();
     }
 
     public function articles()
     {
-        return $this->collectable(\App\Article::class);
+        return $this->collectable(\App\Article::class)->withTimestamps();
     }
 
     public function hasManyArticles()
