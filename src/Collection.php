@@ -6,6 +6,7 @@ use Haxibiao\Content\Traits\CollectionResolvers;
 use Haxibiao\Helpers\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Haxibiao\Sns\Traits\CanBeFollow;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Collection extends Model
@@ -124,22 +125,33 @@ class Collection extends Model
     public function collect($collectableIds,$collectableType){
 
         $index = 1;
+
+        $modelStr = Relation::getMorphedModel($collectableType);
+        $modelIds = $modelStr::whereIn('id',$collectableIds)->get()->pluck('id')->toArray();
+        $modelIds  = array_flip($modelIds);
+
         $syncData = [];
         foreach ($collectableIds as $collectableId){
+            // 跳过脏数据
+            if(!array_key_exists($collectableId,$modelIds )){
+                continue;
+            }
             $syncData[$collectableId] = [
                 'sort_rank'          => $index,
                 'collection_name'    => $this->name
             ];
             $index++;
         }
-        $this->collectable($collectableType)
+        $this->collectable($modelStr)
             ->sync($syncData);
 
         return $this;
     }
 
     public function uncollect($collectableIds,$collectableType){
-        $this->collectable($collectableType)
+
+        $modelStr = Relation::getMorphedModel($collectableType);
+        $this->collectable($modelStr)
             ->detach($collectableIds);
 
         return $this;
@@ -147,19 +159,28 @@ class Collection extends Model
 
     public function recollect($collectableIds,$collectableType){
 
-        $maxSortRank = $this->collectable($collectableType)
+        $modelStr = Relation::getMorphedModel($collectableType);
+        $modelIds = $modelStr::whereIn('id',$collectableIds)->get()->pluck('id')->toArray();
+        $modelIds  = array_flip($modelIds);
+
+        $maxSortRank = $this->collectable($modelStr)
             ->get()
             ->max('pivot.sort_rank')?:0;
+
         $syncData = [];
         foreach ($collectableIds as $collectableId){
             $maxSortRank++;
+
+            // 跳过脏数据
+            if(!array_key_exists($collectableId,$modelIds )){
+                continue;
+            }
             $syncData[$collectableId] = [
                 'sort_rank'          => $maxSortRank,
                 'collection_name'    => $this->name
             ];
         }
-
-        $this->collectable($collectableType)
+        $this->collectable($modelStr)
             ->sync($syncData,false);
 
         return $this;

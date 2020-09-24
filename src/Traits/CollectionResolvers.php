@@ -60,9 +60,8 @@ trait CollectionResolvers
             'type' => $collectableType,
             'status' => Collection::STATUS_ONLINE
         ]);
-
         if ($collectableIds) {
-            $collection->collect($collectableIds,Relation::getMorphedModel($collectableType));
+            $collection->collect($collectableIds,$collectableType);
         }
         return $collection;
     }
@@ -111,7 +110,7 @@ trait CollectionResolvers
             return false;
         }
 
-        $collection->recollect($collectableIds,Relation::getMorphedModel($collectableType));
+        $collection->recollect($collectableIds,$collectableType);
         return true;
     }
 
@@ -129,7 +128,7 @@ trait CollectionResolvers
             return false;
         }
 
-        $collection->uncollect($collectableIds,Relation::getMorphedModel($collectableType));
+        $collection->uncollect($collectableIds,$collectableType);
         return true;
     }
 
