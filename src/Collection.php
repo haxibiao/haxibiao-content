@@ -85,7 +85,7 @@ class Collection extends Model
            return $defaultLogo;
         }
 
-        $isValidateUrl = filter_var($defaultLogo, FILTER_VALIDATE_URL);
+        $isValidateUrl = filter_var($logo, FILTER_VALIDATE_URL);
         if($isValidateUrl){
             return $logo;
         }
