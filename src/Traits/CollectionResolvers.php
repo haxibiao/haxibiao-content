@@ -14,6 +14,9 @@ use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 trait CollectionResolvers
 {
+    public function resolveCollections($rootValue, array $args, $context, $resolveInfo){
+        return static::where('user_id',data_get($args,'user_id'));
+    }
 
     //分享合集url
     public function getShareLink($rootValue, array $args, $context, $resolveInfo)
