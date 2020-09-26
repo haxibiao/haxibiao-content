@@ -118,7 +118,7 @@ class Collection extends Model
         $this->posts()->each(function ($post) use (&$countViews){
             $countViews += data_get($post,'video.json.count_views',0);
         });
-        return $countViews;
+        return numberToReadable($countViews);
     }
 
     public function scopeByCollectionIds($query, $collectionIds)
