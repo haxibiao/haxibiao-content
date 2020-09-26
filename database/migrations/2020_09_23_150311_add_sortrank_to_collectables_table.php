@@ -14,7 +14,7 @@ class AddSortrankToCollectablesTable extends Migration
     public function up()
     {
         Schema::table('collectables', function (Blueprint $table) {
-            if (!Schema::hasColumn('collections','sort_rank')){
+            if (!Schema::hasColumn('collectables', 'sort_rank')) {
                 $table->unsignedInteger('sort_rank')->nullable()->comment('排序(置顶方法)');
             }
         });
