@@ -5,14 +5,12 @@ namespace Haxibiao\Content;
 use Haxibiao\Content\Traits\CollectionResolvers;
 use Haxibiao\Helpers\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
-use Haxibiao\Sns\Traits\CanBeFollow;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Collection extends Model
 {
     use CollectionResolvers;
-    use CanBeFollow;
     use Searchable;
     use SoftDeletes;
 
@@ -118,7 +116,7 @@ class Collection extends Model
         $this->posts()->each(function ($post) use (&$countViews){
             $countViews += data_get($post,'video.json.count_views',0);
         });
-        return $countViews;
+        return numberToReadable($countViews);
     }
 
     public function scopeByCollectionIds($query, $collectionIds)

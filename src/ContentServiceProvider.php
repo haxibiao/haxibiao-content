@@ -52,10 +52,6 @@ class ContentServiceProvider extends ServiceProvider
             ], 'content-graphql');
 
             $this->publishes([
-                __DIR__ . '/../graphql/favorite' => base_path('graphql/favorite'),
-            ], 'content-graphql');
-
-            $this->publishes([
                 __DIR__ . '/../graphql/article' => base_path('graphql/article'),
             ], 'content-graphql');
 
