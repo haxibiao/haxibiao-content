@@ -106,10 +106,6 @@ class Post extends Model implements Collectionable
     //    {
     //        return $this->morphToMany(Image::class, 'imageable','imageable')->withTimestamps();
     //    }
-    public function images()
-    {
-        return $this->morphToMany(Image::class, 'imageable')->withTimestamps();
-    }
 
     public function favorite()
     {
