@@ -5,14 +5,12 @@ namespace Haxibiao\Content;
 use Haxibiao\Content\Traits\CollectionResolvers;
 use Haxibiao\Helpers\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
-use Haxibiao\Sns\Traits\CanBeFollow;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Collection extends Model
 {
     use CollectionResolvers;
-    use CanBeFollow;
     use Searchable;
     use SoftDeletes;
 
