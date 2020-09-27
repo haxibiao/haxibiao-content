@@ -15,6 +15,7 @@ use Haxibiao\Content\Traits\PostAttrs;
 use Haxibiao\Content\Traits\PostOldPatch;
 use Haxibiao\Content\Traits\PostRepo;
 use Haxibiao\Content\Traits\PostResolvers;
+use Haxibiao\Media\Image;
 use Haxibiao\Media\Spider;
 use Haxibiao\Media\Traits\WithImage;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -105,6 +106,10 @@ class Post extends Model implements Collectionable
     //    {
     //        return $this->morphToMany(Image::class, 'imageable','imageable')->withTimestamps();
     //    }
+    public function images()
+    {
+        return $this->morphToMany(Image::class, 'imageable')->withTimestamps();
+    }
 
     public function favorite()
     {
