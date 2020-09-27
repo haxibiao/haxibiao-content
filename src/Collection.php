@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Content;
 
+use App\Visit;
 use Haxibiao\Content\Traits\CollectionResolvers;
 use Haxibiao\Helpers\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
@@ -45,6 +46,10 @@ class Collection extends Model
         });
     }
 
+    public function visits()
+    {
+        return $this->morphMany(Visit::class, 'visited');
+    }
     public function user()
     {
         return $this->belongsTo(\App\User::class);

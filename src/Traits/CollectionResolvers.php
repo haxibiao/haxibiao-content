@@ -6,6 +6,7 @@ use App\Collection;
 use App\Image;
 use App\Post;
 use App\User;
+use App\Visit;
 use GraphQL\Type\Definition\ResolveInfo;
 use Haxibiao\Base\Exceptions\GQLException;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -74,6 +75,13 @@ trait CollectionResolvers
     {
         $collection_id = Arr::get($args, 'collection_id');
         app_track_event('合集玩法', '查看合集内视频', $collection_id);
+        if (checkUser()){
+            //添加集合浏览记录
+            $user = getUser();
+            Visit::createVisit($user->id,$collection_id,'collections');
+            $user->reviewTasksByClass('Visit');
+
+        }
         return static::findOrFail($collection_id);
     }
 
