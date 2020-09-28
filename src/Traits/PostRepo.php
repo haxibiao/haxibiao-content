@@ -730,7 +730,7 @@ trait PostRepo
         }
 
         $name = data_get($mixInfo, 'mix_name');
-        $user = getUser();
+        $user = checkUser()?getUser()->id:$post->user_id;
         $img  = data_get($mixInfo, 'cover_url.url_list.0');
         $collection = Collection::firstOrNew([
             'name'    => $name,
