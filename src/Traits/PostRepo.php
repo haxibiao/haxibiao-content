@@ -108,7 +108,7 @@ trait PostRepo
                 $videoInfo = QcloudUtils::getVideoInfo($qcvod_fileid);
                 throw_if(is_null($videoInfo), GQLException::class, '收藏失败,请稍后重试!');
 
-//                //精力点校验
+                //                //精力点校验
                 //                throw_if($user->ticket < 1, UserException::class, '分享视频失败,精力点不足,请补充精力点!');
 
                 $sourceVideoUrl = data_get($videoInfo, 'basicInfo.sourceVideoUrl');
@@ -190,7 +190,7 @@ trait PostRepo
                     //默认添加抖音中的标签
                     self::extractTag($post);
 
-                    if($post instanceof Collectionable){
+                    if ($post instanceof Collectionable) {
                         //默认添加抖音中的合集
                         self::extractCollect($post);
                     }
@@ -660,7 +660,7 @@ trait PostRepo
         //超过100个动态或者已经有1个小时未归档了，自动发布.
         $canPublished = static::where('review_day', 0)
             ->where('created_at', '<=', now()->subHour())->exists()
-        || static::where('review_day', 0)->count() >= 100;
+            || static::where('review_day', 0)->count() >= 100;
 
         if ($canPublished) {
             dispatch_now(new PublishNewPosts);
@@ -730,19 +730,19 @@ trait PostRepo
         }
 
         $name = data_get($mixInfo, 'mix_name');
-        $user_id = checkUser()?getUser()->id:$post->user_id;
+        $user_id = checkUser() ? getUser()->id : $post->user_id;
         $img  = data_get($mixInfo, 'cover_url.url_list.0');
         $collection = Collection::firstOrNew([
             'name'    => $name,
             'user_id' => $user_id
         ]);
-        if(!$collection->exists){
-            if($img){
+        if (!$collection->exists) {
+            if ($img) {
                 $img = Image::saveImage($img);
             }
             $collection->forceFill([
-                'description' => data_get($mixInfo, 'desc'),
-                'logo'   => data_get($img,'path'),
+                'description' => data_get($mixInfo, 'desc') ?? "",
+                'logo'   => data_get($img, 'path'),
                 'type'   => 'posts',
                 'status' => Collection::STATUS_ONLINE,
                 'json'   => [
