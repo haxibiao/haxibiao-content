@@ -649,6 +649,7 @@ trait PostRepo
     public static function publishPost($post)
     {
         self::extractTag($post);
+        self::extractCollect($post);
         $post->status = Post::PUBLISH_STATUS; //发布成功动态
 
         // $post->review_id  = Post::makeNewReviewId(); //定时发布时决定，有定时任务处理一定数量或者时间后随机打乱
@@ -733,7 +734,7 @@ trait PostRepo
         $img  = data_get($mixInfo, 'cover_url.url_list.0');
         $collection = Collection::firstOrNew([
             'name'    => $name,
-            'user_id' => $user->user_id
+            'user_id' => $user->id
         ]);
         if(!$collection->exists){
             if($img){
