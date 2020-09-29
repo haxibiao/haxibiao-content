@@ -5,6 +5,7 @@ namespace Haxibiao\Content;
 use App\Visit;
 use Haxibiao\Content\Traits\CollectionResolvers;
 use Haxibiao\Helpers\Traits\Searchable;
+use Haxibiao\Content\Traits\BaseModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,6 +15,7 @@ class Collection extends Model
     use CollectionResolvers;
     use Searchable;
     use SoftDeletes;
+    use BaseModel;
 
     protected $table = 'collections';
 
