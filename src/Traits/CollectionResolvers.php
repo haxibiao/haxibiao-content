@@ -104,6 +104,7 @@ trait CollectionResolvers
             'logo' => $logo,
             'name' => Arr::get($args, 'name', $collection->name),
             'type' => Arr::get($args, 'type', $collection->type),
+            'description' => Arr::get($args, 'description', $collection->description),
         ]);
         return $collection;
     }
