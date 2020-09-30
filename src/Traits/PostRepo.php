@@ -652,6 +652,9 @@ trait PostRepo
         self::extractCollect($post);
         $post->status = Post::PUBLISH_STATUS; //发布成功动态
 
+        if (config('app.name') != 'ablm') {
+            $post->tag_id = 2;
+        }
         // $post->review_id  = Post::makeNewReviewId(); //定时发布时决定，有定时任务处理一定数量或者时间后随机打乱
         // $post->review_day = Post::makeNewReviewDay();
         $post->save();
