@@ -791,7 +791,7 @@ trait PostRepo
         $userBlockId    = [];
         $articleBlockId = [];
         $query          = static::publish()
-            ->orderBy('id', 'desc');
+            ->inRandomOrder();
         if (($user = getUser(false)) && class_exists("App\\UserBlock", true)) {
             $userBlockId    = \App\UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
             $articleBlockId = \App\UserBlock::select('article_block_id')->whereNotNull('article_block_id')->where('user_id', $user->id)->get();
