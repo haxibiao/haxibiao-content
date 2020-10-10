@@ -2,15 +2,14 @@
 
 namespace Haxibiao\Content\Traits;
 
-use App\Collection;
-use App\Image;
 use App\Post;
 use App\User;
+use App\Image;
 use App\Visit;
+use App\Collection;
+use Illuminate\Support\Arr;
 use GraphQL\Type\Definition\ResolveInfo;
 use Haxibiao\Base\Exceptions\GQLException;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Arr;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 trait CollectionResolvers
@@ -187,7 +186,7 @@ trait CollectionResolvers
     public function resolveRandomCollections($rootValue, $args, $context, $resolveInfo)
     {
         //过滤掉推荐列表中的集合
-        $qb=Collection::whereNotNull('sort_rank');
+        $qb=Collection::whereNull('sort_rank');
 
         //登录用户
         if (checkUser()) {
@@ -209,5 +208,35 @@ trait CollectionResolvers
         ;
 
         return $qb;
+    }
+
+     /**
+     * 推荐集合列表
+     */
+    
+    public function resolveRecommendCollections($rootValue, $args, $context, $resolveInfo)
+    {
+        //置顶的合集
+        $topCollection=Collection::top()->first();
+         
+        $qb=Collection::where('sort_rank','>=',Collection::RECOMMEND_COLLECTION)
+            ->orderby('sort_rank','asc');
+            $recommendCollectionsA=$qb->take(3)->get();
+            $recommendCollectionsB=$qb->take(3)->skip(3)->get();
+
+            //降低rank值，减少出现的概率
+            foreach($recommendCollectionsA as $collectionA){
+                $collectionA->increment('sort_rank');
+            }
+            foreach($recommendCollectionsB as $collectionB){
+                $collectionB->increment('sort_rank');
+            }
+        $result=[];
+          //构建返回结果
+          $result['topCollection']            = $topCollection;
+          $result['recommendCollectionsA']     = $recommendCollectionsA;
+          $result['recommendCollectionsB'] = $recommendCollectionsB;
+
+        return $result;
     }
 }
