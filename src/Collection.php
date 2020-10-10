@@ -23,7 +23,11 @@ class Collection extends Model
      * 上架状态
      */
     const STATUS_ONLINE = 1;
-
+    /* 推荐集合 */
+    const RECOMMEND_COLLECTION = 2;
+    /* 置顶集合 */
+    const TOP_COLLECTION = 1;
+    
     protected $searchable = [
         'columns' => [
             'collections.name' => 1,
@@ -129,6 +133,10 @@ class Collection extends Model
     public function scopeByCollectionIds($query, $collectionIds)
     {
         return $query->whereIn('id', $collectionIds);
+    }
+    public function scopeTop($query)
+    {
+        return $query->where('sort_rank', self::TOP_COLLECTION);
     }
 
     public function getCountPostsAttribute(){

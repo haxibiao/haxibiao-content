@@ -180,4 +180,34 @@ trait CollectionResolvers
     {
         return static::search(data_get($args, 'query'));
     }
+
+    /**
+     * 随机推荐的一组集合
+     */
+    public function resolveRandomCollections($rootValue, $args, $context, $resolveInfo)
+    {
+        //过滤掉推荐列表中的集合
+        $qb=Collection::whereNotNull('sort_rank');
+
+        //登录用户
+        if (checkUser()) {
+            $user=getUser(false);
+            //过滤掉自己 和 不喜欢用户的作品
+            $notLikIds   = $user->notLikes()->ByType('users')->get()->pluck('not_likable_id')->toArray();
+            $notLikIds[] = $user->id;
+            $qb          = $qb->whereNotIn('user_id', $notLikIds);
+
+            //排除浏览过的视频
+            $visitVideoIds = Visit::ofType('collections')->ofUserId($user->id)->get()->pluck('visited_id');
+            if (!is_null($visitVideoIds)) {
+                $qb = $qb->whereNotIn('id', $visitVideoIds);
+            }
+        } 
+        //随机进行排序 最近七天的
+        $qb=$qb->inRandomOrder()            
+        ->whereBetWeen('created_at', [today()->subDay(7), today()])
+        ;
+
+        return $qb;
+    }
 }

@@ -22,6 +22,7 @@ class CreateCollectionsTable extends Migration
             $table->string('description');
             $table->string('logo')->nullable();
             $table->json('json')->nullable()->comment('非结构化的数据，冗余一些额外信息');
+            //集合排序字段
             $table->unsignedInteger('sort_rank')->nullable()->index()->comment('排序(置顶方法)');
 
             //add counts

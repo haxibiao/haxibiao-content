@@ -22,6 +22,9 @@ class CreateCollectablesTable extends Migration
             $table->integer('collection_id')->unsigned();
             $table->morphs('collectable');
             $table->string('collection_name');
+             //post在集合中的排序
+            $table->unsignedInteger('sort_rank')->nullable()->index()->comment('排序(置顶方法)');
+
 
             //索引字段
             $table->unique(['collection_id', 'collectable_id', 'collectable_type'], 'collectable_unique');
