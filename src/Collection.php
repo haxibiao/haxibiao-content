@@ -27,7 +27,7 @@ class Collection extends Model
     const RECOMMEND_COLLECTION = 2;
     /* 置顶集合 */
     const TOP_COLLECTION = 1;
-    
+
     protected $searchable = [
         'columns' => [
             'collections.name' => 1,
@@ -39,7 +39,7 @@ class Collection extends Model
         'json' => 'object',
     ];
 
-    protected $guarded = [];
+    protected $guarded = ['api_token'];
 
     public static function boot()
     {
@@ -96,14 +96,14 @@ class Collection extends Model
 
     public function getLogoAttribute()
     {
-        $defaultLogo = config('haxibiao-content.collection_default_logo','https://haxibiao-1251052432.cos.ap-guangzhou.myqcloud.com/images/collection.png');
+        $defaultLogo = config('haxibiao-content.collection_default_logo', 'https://haxibiao-1251052432.cos.ap-guangzhou.myqcloud.com/images/collection.png');
         $logo = $this->getRawOriginal('logo');
-        if(!$logo){
-           return $defaultLogo;
+        if (!$logo) {
+            return $defaultLogo;
         }
 
         $isValidateUrl = filter_var($logo, FILTER_VALIDATE_URL);
-        if($isValidateUrl){
+        if ($isValidateUrl) {
             return $logo;
         }
 
@@ -122,10 +122,11 @@ class Collection extends Model
         return \Storage::disk('cosv5')->url($this->logo);
     }
 
-    public function getCountViewsAttribute(){
+    public function getCountViewsAttribute()
+    {
         $countViews = 0;
-        $this->posts()->each(function ($post) use (&$countViews){
-            $countViews += data_get($post,'video.json.count_views',0);
+        $this->posts()->each(function ($post) use (&$countViews) {
+            $countViews += data_get($post, 'video.json.count_views', 0);
         });
         return numberToReadable($countViews);
     }
@@ -139,27 +140,30 @@ class Collection extends Model
         return $query->where('sort_rank', self::TOP_COLLECTION);
     }
 
-    public function getCountPostsAttribute(){
+    public function getCountPostsAttribute()
+    {
         return $this->posts()->count();
     }
 
 
-    public function getUpdatedToEpisodeAttribute(){
+    public function getUpdatedToEpisodeAttribute()
+    {
         return $this->posts()->count();
     }
 
-    public function collect($collectableIds,$collectableType){
+    public function collect($collectableIds, $collectableType)
+    {
 
         $index = 1;
 
         $modelStr = Relation::getMorphedModel($collectableType);
-        $modelIds = $modelStr::whereIn('id',$collectableIds)->get()->pluck('id')->toArray();
+        $modelIds = $modelStr::whereIn('id', $collectableIds)->get()->pluck('id')->toArray();
         $modelIds  = array_flip($modelIds);
 
         $syncData = [];
-        foreach ($collectableIds as $collectableId){
+        foreach ($collectableIds as $collectableId) {
             // 跳过脏数据
-            if(!array_key_exists($collectableId,$modelIds )){
+            if (!array_key_exists($collectableId, $modelIds)) {
                 continue;
             }
             $syncData[$collectableId] = [
@@ -174,7 +178,8 @@ class Collection extends Model
         return $this;
     }
 
-    public function uncollect($collectableIds,$collectableType){
+    public function uncollect($collectableIds, $collectableType)
+    {
 
         $modelStr = Relation::getMorphedModel($collectableType);
         $this->collectable($modelStr)
@@ -183,22 +188,23 @@ class Collection extends Model
         return $this;
     }
 
-    public function recollect($collectableIds,$collectableType){
+    public function recollect($collectableIds, $collectableType)
+    {
 
         $modelStr = Relation::getMorphedModel($collectableType);
-        $modelIds = $modelStr::whereIn('id',$collectableIds)->get()->pluck('id')->toArray();
+        $modelIds = $modelStr::whereIn('id', $collectableIds)->get()->pluck('id')->toArray();
         $modelIds  = array_flip($modelIds);
 
         $maxSortRank = $this->collectable($modelStr)
             ->get()
-            ->max('pivot.sort_rank')?:0;
+            ->max('pivot.sort_rank') ?: 0;
 
         $syncData = [];
-        foreach ($collectableIds as $collectableId){
+        foreach ($collectableIds as $collectableId) {
             $maxSortRank++;
 
             // 跳过脏数据
-            if(!array_key_exists($collectableId,$modelIds )){
+            if (!array_key_exists($collectableId, $modelIds)) {
                 continue;
             }
             $syncData[$collectableId] = [
@@ -207,7 +213,7 @@ class Collection extends Model
             ];
         }
         $this->collectable($modelStr)
-            ->sync($syncData,false);
+            ->sync($syncData, false);
 
         return $this;
     }

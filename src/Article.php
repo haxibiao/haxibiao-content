@@ -25,7 +25,7 @@ class Article extends Model implements Collectionable
     use WithImage;
     use CanCollect;
 
-    protected $guarded = [];
+    protected $guarded = ['api_token'];
 
     protected static function boot()
     {
@@ -33,13 +33,13 @@ class Article extends Model implements Collectionable
         static::observe(Observers\ArticleObserver::class);
     }
 
-    
+
     //提交状态
     const REFUSED_SUBMIT   = -1; //已拒绝
     const REVIEW_SUBMIT    = 0; //待审核
     const SUBMITTED_SUBMIT = 1; //已收录
 
-//  动态状态
+    //  动态状态
     const STATUS_REFUSED = -1;
     const STATUS_REVIEW  = 0;
     const STATUS_ONLINE  = 1;
