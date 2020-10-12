@@ -82,7 +82,7 @@ trait CanCollect
 
     public function getCurrentEpisodeAttribute(){
         $collection = $this->collections()
-            ->first();
+            ->latest()->first();
         if(!$collection){
             return null;
         }
