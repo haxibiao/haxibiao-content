@@ -14,8 +14,9 @@ use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 trait CollectionResolvers
 {
-    public function resolveCollections($rootValue, array $args, $context, $resolveInfo){
-        return static::where('user_id',data_get($args,'user_id'))
+    public function resolveCollections($rootValue, array $args, $context, $resolveInfo)
+    {
+        return static::where('user_id', data_get($args, 'user_id'))->where('name', 'like', '%' . ($args['keyword'] ?? '') . '%')
             ->orderByDesc('updated_at');
     }
 
@@ -58,14 +59,14 @@ trait CollectionResolvers
         $collection = static::firstOrCreate([
             'user_id' => getUser()->id,
             'name' => $name,
-        ],[
+        ], [
             'description' => $description,
             'logo' => $logo,
             'type' => $collectableType,
             'status' => Collection::STATUS_ONLINE
         ]);
         if ($collectableIds) {
-            $collection->collect($collectableIds,$collectableType);
+            $collection->collect($collectableIds, $collectableType);
         }
         return $collection;
     }
@@ -74,12 +75,11 @@ trait CollectionResolvers
     {
         $collection_id = Arr::get($args, 'collection_id');
         app_track_event('合集玩法', '查看合集内视频', $collection_id);
-        if (checkUser()){
+        if (checkUser()) {
             //添加集合浏览记录
             $user = getUser();
-            Visit::createVisit($user->id,$collection_id,'collections');
+            Visit::createVisit($user->id, $collection_id, 'collections');
             $user->reviewTasksByClass('Visit');
-
         }
         return static::findOrFail($collection_id);
     }
@@ -118,11 +118,11 @@ trait CollectionResolvers
         $collectableType = data_get($args, 'collectable_type');
 
         $collection = static::find($collectionId);
-        if(!$collection){
+        if (!$collection) {
             return false;
         }
 
-        $collection->recollect($collectableIds,$collectableType);
+        $collection->recollect($collectableIds, $collectableType);
         return true;
     }
 
@@ -136,11 +136,11 @@ trait CollectionResolvers
         $collectableType = data_get($args, 'collectable_type');
 
         $collection = static::find($collectionId);
-        if(!$collection){
+        if (!$collection) {
             return false;
         }
 
-        $collection->uncollect($collectableIds,$collectableType);
+        $collection->uncollect($collectableIds, $collectableType);
         return true;
     }
 
@@ -164,7 +164,7 @@ trait CollectionResolvers
             ->get();
 
         $currentEpisode =  $perPage * ($currentPage - 1) + 1;
-        foreach ($postList as $post){
+        foreach ($postList as $post) {
             $post->current_episode = $currentEpisode;
             $currentEpisode++;
         }
@@ -186,11 +186,11 @@ trait CollectionResolvers
     public function resolveRandomCollections($rootValue, $args, $context, $resolveInfo)
     {
         //过滤掉推荐列表中的集合
-        $qb=Collection::whereNull('sort_rank');
+        $qb = Collection::whereNull('sort_rank');
 
         //登录用户
         if (checkUser()) {
-            $user=getUser(false);
+            $user = getUser(false);
             //过滤掉自己 和 不喜欢用户的作品
             $notLikIds   = $user->notLikes()->ByType('users')->get()->pluck('not_likable_id')->toArray();
             $notLikIds[] = $user->id;
@@ -201,41 +201,40 @@ trait CollectionResolvers
             if (!is_null($visitVideoIds)) {
                 $qb = $qb->whereNotIn('id', $visitVideoIds);
             }
-        } 
+        }
         //随机进行排序 最近七天的
-        $qb=$qb->inRandomOrder()            
-        ->whereBetWeen('created_at', [today()->subDay(7), today()])
-        ;
+        $qb = $qb->inRandomOrder()
+            ->whereBetWeen('created_at', [today()->subDay(7), today()]);
 
         return $qb;
     }
 
-     /**
+    /**
      * 推荐集合列表
      */
-    
+
     public function resolveRecommendCollections($rootValue, $args, $context, $resolveInfo)
     {
         //置顶的合集
-        $topCollection=Collection::top()->first();
-         
-        $qb=Collection::where('sort_rank','>=',Collection::RECOMMEND_COLLECTION)
-            ->orderby('sort_rank','asc');
-            $recommendCollectionsA=$qb->take(3)->get();
-            $recommendCollectionsB=$qb->take(3)->skip(3)->get();
+        $topCollection = Collection::top()->first();
 
-            //降低rank值，减少出现的概率
-            foreach($recommendCollectionsA as $collectionA){
-                $collectionA->increment('sort_rank');
-            }
-            foreach($recommendCollectionsB as $collectionB){
-                $collectionB->increment('sort_rank');
-            }
-        $result=[];
-          //构建返回结果
-          $result['topCollection']            = $topCollection;
-          $result['recommendCollectionsA']     = $recommendCollectionsA;
-          $result['recommendCollectionsB'] = $recommendCollectionsB;
+        $qb = Collection::where('sort_rank', '>=', Collection::RECOMMEND_COLLECTION)
+            ->orderby('sort_rank', 'asc');
+        $recommendCollectionsA = $qb->take(3)->get();
+        $recommendCollectionsB = $qb->take(3)->skip(3)->get();
+
+        //降低rank值，减少出现的概率
+        foreach ($recommendCollectionsA as $collectionA) {
+            $collectionA->increment('sort_rank');
+        }
+        foreach ($recommendCollectionsB as $collectionB) {
+            $collectionB->increment('sort_rank');
+        }
+        $result = [];
+        //构建返回结果
+        $result['topCollection']            = $topCollection;
+        $result['recommendCollectionsA']     = $recommendCollectionsA;
+        $result['recommendCollectionsB'] = $recommendCollectionsB;
 
         return $result;
     }
