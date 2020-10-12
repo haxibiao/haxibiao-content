@@ -763,9 +763,13 @@ trait PostRepo
     }
 
     //个人主页动态
-    public static function posts($user_id)
+    public static function posts($user_id, $keyword)
     {
-        return static::latest('id')->publish()->where('user_id', $user_id);
+        $qb =  static::latest('id')->publish()->where('user_id', $user_id);
+        if (!empty($keyword)) {
+            $qb = $qb->where('description', 'like', "%{$keyword}%");
+        }
+        return $qb;
     }
 
     //分享post链接
