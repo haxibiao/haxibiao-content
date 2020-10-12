@@ -18,7 +18,7 @@ trait PostResolvers
     {
         app_track_event("用户页", "视频动态");
 
-        return static::posts($args['user_id'], $args['keyword'] ?? '');
+        return static::posts($args['user_id'], data_get($args,'keyword'));
     }
 
     /**
