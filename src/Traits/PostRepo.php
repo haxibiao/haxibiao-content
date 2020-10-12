@@ -624,9 +624,7 @@ trait PostRepo
             $post->user_id = $spider->user_id;
             if (!config('app.name') == 'yinxiangshipin') {
                 $post->content = Arr::get($spider->data, 'title', '');
-            } else {
-                $post->content = Arr::get($spider->data, 'title', '');
-            }
+            } 
             $post->status     = Post::PRIVARY_STATUS; //草稿，爬虫抓取中
             $post->created_at = now();
             $post->save();
