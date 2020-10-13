@@ -15,11 +15,9 @@ class AddSortRankToCollections extends Migration
     {
         Schema::table('collections', function (Blueprint $table) {
             //添加集合排序字段
-            Schema::table('collections', function (Blueprint $table) {
-                if (!Schema::hasColumn('colletions', 'sort_rank')) {
-                    $table->unsignedInteger('sort_rank')->nullable()->comment('排序(置顶方法)');
-                }
-            });
+            if (!Schema::hasColumn('collections', 'sort_rank')) {
+                $table->unsignedInteger('sort_rank')->nullable()->comment('排序(置顶方法)');
+            }
         });
     }
 
