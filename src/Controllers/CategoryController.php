@@ -27,7 +27,8 @@ class CategoryController extends Controller
     /**
     专题管理列表
      */
-    function list(Request $request) {
+    function list(Request $request)
+    {
         $qb               = Category::where('status', '>=', 0)->orderBy('id', 'desc');
         $data['keywords'] = '';
         if ($request->get('q')) {
@@ -264,9 +265,12 @@ class CategoryController extends Controller
                 return $q->orWhere('parent_id', $category->id);
             })->get();
         if (count($level_categories) == 0) {
-            $data['related_category'] = User::find($category->user_id)
-                ->adminCategories
-                ->take(5);
+            $user = User::find($category->user_id);
+            if ($user) {
+                $data['related_category'] = $user
+                    ->adminCategories
+                    ->take(5);
+            }
         } else {
             $data['related_category'] = $level_categories;
         }
