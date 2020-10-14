@@ -219,7 +219,11 @@ trait PostRepo
                         $post             = new static();
                         $post->user_id    = $user->id;
                         $post->video_id   = $video->id;
-                        $post->status     = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
+                        if ('dongdianyi' == (config('app.name'))) {
+                            $post->status     = Post::PUBLISH_STATUS;
+                        }else{
+                            $post->status     = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
+                        }
                         $post->content    = $body;
                         $post->review_id  = static::makeNewReviewId();
                         $post->review_day = static::makeNewReviewDay();
