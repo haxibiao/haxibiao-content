@@ -3,11 +3,21 @@
 namespace Haxibiao\Content\Traits;
 
 use App\Follow;
+use App\Video;
 use Haxibiao\Content\Post;
 use Illuminate\Support\Arr;
 
 trait PostResolvers
 {
+    public function resolvePostByVid($rootValue, array $args, $context, $resolveInfo){
+        $videoIds = Video::where('vid',data_get($args,'vid'))->get()
+            ->pluck('id')
+            ->toArray();
+        // TODO 暂时只返回一个
+        $post = \App\Post::whereIn('video_id',$videoIds)->first();
+        return $post;
+    }
+
     public function resolveRecommendPosts($root, $args, $context, $info)
     {
         app_track_event("首页", "获取学习视频");

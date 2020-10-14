@@ -89,6 +89,8 @@ extend type Query {
     """
     limit: Int
   ): [Post] @field(resolver: "App\\Post@resolvePostsByTag")
+
+  postByVid(vid: String!):Post @field(resolver: "App\\Post@resolvePostByVid")
 }
 
 enum PostTag {
