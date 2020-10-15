@@ -142,15 +142,12 @@ class Collection extends Model
         return $query->where('sort_rank', self::TOP_COLLECTION);
     }
 
-    public function getCountPostsAttribute()
-    {
-        return $this->posts()->count();
-    }
-
 
     public function getUpdatedToEpisodeAttribute()
     {
-        return $this->posts()->count();
+        $this->count_posts=$this->posts()->count();
+        $this->save();
+        return  $this->count_posts;
     }
 
     public function collect($collectableIds, $collectableType)
