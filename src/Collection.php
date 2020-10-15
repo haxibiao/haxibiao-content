@@ -27,6 +27,8 @@ class Collection extends Model
     const RECOMMEND_COLLECTION = 2;
     /* 置顶集合 */
     const TOP_COLLECTION = 1;
+    //置顶合集图片
+    const TOP_COVER = 'storage/collection/top_cover.png';
 
     protected $searchable = [
         'columns' => [
@@ -216,5 +218,22 @@ class Collection extends Model
             ->sync($syncData, false);
 
         return $this;
+    }
+
+    public static function getTopCover()
+    {
+        return \Storage::cloud()->url(self::TOP_COVER);
+        
+    }
+    public static function setTopCover($file)
+    {
+        if ($file) {
+            //UploadedFile
+            $cover = self::TOP_COVER;
+            $imageStream = file_get_contents($file->getRealPath()); 
+           return \Storage::cloud()->put($cover, $imageStream);
+        }
+        return \Storage::cloud()->url(self::TOP_COVER);
+        
     }
 }
