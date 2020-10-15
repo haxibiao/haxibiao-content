@@ -9,6 +9,7 @@ use App\Gold;
 use App\Image;
 use App\Spider;
 use App\Visit;
+use GraphQL\Type\Schema;
 use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Jobs\PublishNewPosts;
 use Haxibiao\Content\Post;
@@ -17,6 +18,7 @@ use Haxibiao\Helpers\BadWordUtils;
 use Haxibiao\Helpers\QcloudUtils;
 use Haxibiao\Media\Events\PostPublishSuccess;
 use Haxibiao\Media\Jobs\ProcessVod;
+use Haxibiao\Media\Jobs\VideoAddMetadata;
 use Haxibiao\Media\Video;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
@@ -228,7 +230,19 @@ trait PostRepo
                         $post->review_id  = static::makeNewReviewId();
                         $post->review_day = static::makeNewReviewDay();
                         $post->save();
-                        ProcessVod::dispatch($video);
+
+                        $chain = [];
+                        if(config('haxibiao-content.enabled_video_share',false)){
+                            // 如果视频大于video_threshold_size,不处理metadata
+                            $fileSize = data_get($videoInfo,'metaData.size',null);
+                            $flag     = $fileSize && $fileSize < config('haxibiao-content.video_threshold_size',100*1024*1024);
+                            if( $flag){
+                                $chain = [
+                                    new VideoAddMetadata($video),// 修改视频的metadata信息
+                                ];
+                            }
+                        }
+                        ProcessVod::withChain($chain)->dispatch($video);
 
                         // 记录用户操作
                         Action::createAction('posts', $post->id, $post->user->id);
