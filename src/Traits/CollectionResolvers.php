@@ -202,6 +202,8 @@ trait CollectionResolvers
                 $qb = $qb->whereNotIn('id', $visitVideoIds);
             }
         }
+        //动态数量大于三的
+        $qb = $qb->where('count_posts','>=',3);
         //随机进行排序 最近七天的
         $qb = $qb->inRandomOrder()
             ->whereBetWeen('created_at', [today()->subDay(7), today()]);
