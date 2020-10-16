@@ -189,12 +189,14 @@ trait PostRepo
                     $post->review_id  = static::makeNewReviewId();
                     $post->review_day = static::makeNewReviewDay();
                     $post->save();
-                    //默认添加抖音中的标签
-                    self::extractTag($post);
+                    if ('dongdianyi' != (config('app.name'))) {
+                        //默认添加抖音中的标签
+                        self::extractTag($post);
 
-                    if ($post instanceof Collectionable) {
-                        //默认添加抖音中的合集
-                        self::extractCollect($post);
+                        if ($post instanceof Collectionable) {
+                            //默认添加抖音中的合集
+                            self::extractCollect($post);
+                        }
                     }
                 }
                 //触发更新事件-扣除精力点
@@ -664,8 +666,10 @@ trait PostRepo
      */
     public static function publishPost($post)
     {
-        self::extractTag($post);
-        self::extractCollect($post);
+        if ('dongdianyi' != (config('app.name'))) {
+            self::extractTag($post);
+            self::extractCollect($post);
+        }
         $post->status = Post::PUBLISH_STATUS; //发布成功动态
 
         if (config('app.name') == 'ablm') {
