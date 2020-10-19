@@ -97,7 +97,13 @@ trait PostRepo
      */
     public static function createPost($inputs)
     {
-        info($inputs);
+        if (in_array(config('app.name'), ['dongmeiwei'])){
+            $islegal = app('SensitiveUtils')->islegal(data_get($inputs,'body'));
+            if (!$islegal) {
+                throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+            }
+        }
+
         try {
             $user = getUser();
             if ($user->isBlack()) {
