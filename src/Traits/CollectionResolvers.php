@@ -205,9 +205,8 @@ trait CollectionResolvers
         //动态数量大于三的
         $qb = $qb->where('count_posts','>=',3);
         //按照合集创建时间排序
-        $qb = $qb->orderby('created_at');
-        //合集太少，暂时不筛选合集时间
-            // ->whereBetWeen('created_at', [now()->subDay(14), now()]);
+        $qb = $qb->orderby('created_at','desc')
+            ->whereBetWeen('created_at', [now()->subDay(30), now()]);
 
         return $qb;
     }
