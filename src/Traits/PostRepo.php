@@ -233,18 +233,19 @@ trait PostRepo
                         $post->review_day = static::makeNewReviewDay();
                         $post->save();
 
-                        $chain = [];
-                        if(config('haxibiao-content.enabled_video_share',false)){
-                            // 如果视频大于video_threshold_size,不处理metadata
-                            $fileSize = data_get($videoInfo,'metaData.size',null);
-                            $flag     = $fileSize && $fileSize < config('haxibiao-content.video_threshold_size',100*1024*1024);
-                            if( $flag){
-                                $chain = [
-                                    new VideoAddMetadata($video),// 修改视频的metadata信息
-                                ];
-                            }
-                        }
-                        ProcessVod::withChain($chain)->dispatch($video);
+//                        $chain = [];
+//                        if(config('haxibiao-content.enabled_video_share',false)){
+//                            // 如果视频大于video_threshold_size,不处理metadata
+//                            $fileSize = data_get($videoInfo,'metaData.size',null);
+//                            $flag     = $fileSize && $fileSize < config('haxibiao-content.video_threshold_size',100*1024*1024);
+//                            if( $flag){
+//                                $chain = [
+//                                    new VideoAddMetadata($video),// 修改视频的metadata信息
+//                                ];
+//                            }
+//                        }
+//                        ProcessVod::withChain($chain)->dispatch($video);
+                        ProcessVod::dispatch($video);
 
                         // 记录用户操作
                         Action::createAction('posts', $post->id, $post->user->id);
