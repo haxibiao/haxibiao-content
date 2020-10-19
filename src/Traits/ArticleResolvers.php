@@ -54,8 +54,15 @@ trait ArticleResolvers
     }
     public function createContent($root, array $args, $context)
     {
-        if (BadWordUtils::check(Arr::get($args, 'body'))) {
-            throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+        if (in_array(config('app.name'), ['dongmeiwei'])){
+            $islegal = app('SensitiveUtils')->islegal(Arr::get($args, 'body'));
+            if (!$islegal) {
+                throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+            }
+        } else {
+            if (BadWordUtils::check(Arr::get($args, 'body'))) {
+                throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+            }
         }
         //参数格式化
         $inputs = [
@@ -340,8 +347,16 @@ trait ArticleResolvers
         // $description = preg_replace('/#([\w]+)/u', '', $description);
         $description = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '#抖音小助手', '抖音', 'dou', 'Dou', 'DOU', '抖音助手'], '', $description);
         $description = trim($description);
-        if (BadWordUtils::check($description)) {
-            throw new GQLException('您的分享文本中包含非法内容,请删除后再试!');
+
+        if (in_array(config('app.name'), ['dongmeiwei'])){
+            $islegal = app('SensitiveUtils')->islegal(Arr::get($description, 'body'));
+            if (!$islegal) {
+                throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+            }
+        } else {
+            if (BadWordUtils::check(Arr::get($description, 'body'))) {
+                throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+            }
         }
 
         return $description;

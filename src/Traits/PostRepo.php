@@ -31,8 +31,15 @@ trait PostRepo
     //创建post（video和image），不处理issue问答创建了
     public function resolveCreateContent($root, array $args, $context, $info)
     {
-        if (BadWordUtils::check(Arr::get($args, 'body'))) {
-            throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+        if (in_array(config('app.name'), ['dongmeiwei'])){
+            $islegal = app('SensitiveUtils')->islegal(Arr::get($args, 'body'));
+            if (!$islegal) {
+                throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+            }
+        } else {
+            if (BadWordUtils::check(Arr::get($args, 'body'))) {
+                throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+            }
         }
         //参数格式化
         $inputs = [
