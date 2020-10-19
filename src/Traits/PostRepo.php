@@ -33,7 +33,7 @@ trait PostRepo
     {
         if (in_array(config('app.name'), ['dongmeiwei'])){
             $islegal = app('SensitiveUtils')->islegal(Arr::get($args, 'body'));
-            if (!$islegal) {
+            if ($islegal) {
                 throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
             }
         } else {
@@ -99,7 +99,7 @@ trait PostRepo
     {
         if (in_array(config('app.name'), ['dongmeiwei'])){
             $islegal = app('SensitiveUtils')->islegal(data_get($inputs,'body'));
-            if (!$islegal) {
+            if ($islegal) {
                 throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
             }
         }
