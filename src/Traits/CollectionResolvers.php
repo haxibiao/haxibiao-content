@@ -196,18 +196,18 @@ trait CollectionResolvers
             $notLikIds[] = $user->id;
             $qb          = $qb->whereNotIn('user_id', $notLikIds);
 
-            //排除浏览过的视频
-            $visitVideoIds = Visit::ofType('collections')->ofUserId($user->id)->get()->pluck('visited_id');
-            if (!is_null($visitVideoIds)) {
-                $qb = $qb->whereNotIn('id', $visitVideoIds);
-            }
+            // //排除浏览过的视频->合集太少，暂时不排除已浏览过的数据
+            // $visitVideoIds = Visit::ofType('collections')->ofUserId($user->id)->get()->pluck('visited_id');
+            // if (!is_null($visitVideoIds)) {
+            //     $qb = $qb->whereNotIn('id', $visitVideoIds);
+            // }
         }
         //动态数量大于三的
         $qb = $qb->where('count_posts','>=',3);
-        //随机进行排序 最近七天的
-        $qb = $qb->inRandomOrder()
-            ->whereBetWeen('created_at', [now()->subDay(14), now()]);
-        $qb->get();
+        //按照合集创建时间排序
+        $qb = $qb->orderby('created_at');
+        //合集太少，暂时不筛选合集时间
+            // ->whereBetWeen('created_at', [now()->subDay(14), now()]);
 
         return $qb;
     }
