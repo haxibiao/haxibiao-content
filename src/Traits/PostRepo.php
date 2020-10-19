@@ -300,10 +300,10 @@ trait PostRepo
             }
 
             // Sync分类关系
-            if ($inputs['category_ids']) {
+            if ($inputs['category_ids'] ?? null) {
                 $post->categorize($inputs['category_ids']);
             }
-            if ($inputs['collection_ids']) {
+            if ($inputs['collection_ids'] ?? null) {
                 $post->collectivize($inputs['collection_ids']);
             }
             app_track_event('发布', '发布Post动态');
