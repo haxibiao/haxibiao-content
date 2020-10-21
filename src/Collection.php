@@ -108,9 +108,7 @@ class Collection extends Model
         if ($isValidateUrl) {
             return $logo;
         }
-
-        $disk = env('FILESYSTEM_CLOUD');
-        return \Storage::disk($disk)->url($logo);
+        return \Storage::cloud()->url($logo);
     }
 
     public function getImageAttribute()
@@ -122,8 +120,8 @@ class Collection extends Model
         if ($localFileExist) {
             return env('LOCAL_APP_URL') . '/storage/' . $this->logo;
         }
-        $disk = env('FILESYSTEM_CLOUD');
-        return \Storage::disk($disk)->url($this->logo);
+
+        return \Storage::cloud()->url($this->logo);
     }
 
     public function getCountViewsAttribute()
