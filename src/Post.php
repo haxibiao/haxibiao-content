@@ -67,8 +67,11 @@ class Post extends Model implements Collectionable
             //设置review_id 和 review_day
             $post->initReviewIdAndReviewDay();
 
-            // 公司用户展示权利交给马甲号
-            $post->transferToVest();
+        });
+        //更新时触发--方便保证spider中有相关数据
+        self::updating(function ($post) {
+          // 公司用户展示权利交给马甲号
+          $post->transferToVest();
         });
     }
 
@@ -329,13 +332,12 @@ class Post extends Model implements Collectionable
             return;
         }
 
-        // 有合集的抖音视频不分发马甲号
+        // 有合集的抖音视频&&已经分配过马甲号 不分发马甲号
         $spiderId = data_get($this,'spider_id');
         if($spiderId){
             $spider   = Spider::find($spiderId);
             $mixInfo = data_get($spider,'data.raw.item_list.0.mix_info');
-            if($mixInfo && $this->owner_id){
-                $this->user_id = $this->owner_id;
+            if(!$mixInfo || $this->owner_id){
                 return;
             }
         }
