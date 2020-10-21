@@ -337,7 +337,11 @@ class Post extends Model implements Collectionable
         if($spiderId){
             $spider   = Spider::find($spiderId);
             $mixInfo = data_get($spider,'data.raw.item_list.0.mix_info');
-            if(!$mixInfo || $this->owner_id){
+            if($mixInfo && $this->owner_id){
+                $this->user_id = $this->owner_id;
+                return;
+            }
+            if($mixInfo){
                 return;
             }
         }
