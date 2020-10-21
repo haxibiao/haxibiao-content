@@ -109,7 +109,8 @@ class Collection extends Model
             return $logo;
         }
 
-        return \Storage::disk('cosv5')->url($logo);
+        $disk = env('FILESYSTEM_CLOUD');
+        return \Storage::disk($disk)->url($logo);
     }
 
     public function getImageAttribute()
@@ -121,7 +122,8 @@ class Collection extends Model
         if ($localFileExist) {
             return env('LOCAL_APP_URL') . '/storage/' . $this->logo;
         }
-        return \Storage::disk('cosv5')->url($this->logo);
+        $disk = env('FILESYSTEM_CLOUD');
+        return \Storage::disk($disk)->url($this->logo);
     }
 
     public function getCountViewsAttribute()
@@ -145,7 +147,7 @@ class Collection extends Model
 
     public function getUpdatedToEpisodeAttribute()
     {
-        $this->count_posts=$this->posts()->count();
+        $this->count_posts = $this->posts()->count();
         $this->save();
         return  $this->count_posts;
     }
@@ -220,17 +222,15 @@ class Collection extends Model
     public static function getTopCover()
     {
         return \Storage::cloud()->url(self::TOP_COVER);
-        
     }
     public static function setTopCover($file)
     {
         if ($file) {
             //UploadedFile
             $cover = self::TOP_COVER;
-            $imageStream = file_get_contents($file->getRealPath()); 
-           return \Storage::cloud()->put($cover, $imageStream);
+            $imageStream = file_get_contents($file->getRealPath());
+            return \Storage::cloud()->put($cover, $imageStream);
         }
         return \Storage::cloud()->url(self::TOP_COVER);
-        
     }
 }
