@@ -9,12 +9,13 @@ use Illuminate\Support\Arr;
 
 trait PostResolvers
 {
-    public function resolvePostByVid($rootValue, array $args, $context, $resolveInfo){
-        $videoIds = Video::where('vid',data_get($args,'vid'))->get()
+    public function resolvePostByVid($rootValue, array $args, $context, $resolveInfo)
+    {
+        $videoIds = Video::where('vid', data_get($args, 'vid'))->get()
             ->pluck('id')
             ->toArray();
         // TODO 暂时只返回一个
-        $post = \App\Post::whereIn('video_id',$videoIds)->first();
+        $post = \App\Post::whereIn('video_id', $videoIds)->first();
         return $post;
     }
 
@@ -28,7 +29,7 @@ trait PostResolvers
     {
         app_track_event("用户页", "视频动态");
 
-        return static::posts($args['user_id'], data_get($args,'keyword'));
+        return static::posts($args['user_id'], data_get($args, 'keyword'));
     }
 
     /**
@@ -93,7 +94,7 @@ trait PostResolvers
         }
 
         //插入广告
-        $adVideo = $result[0];
+        $adVideo = $result[2];
         $adVideo->is_ad = true;
         $result[] = $adVideo;
 
