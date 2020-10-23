@@ -9,7 +9,6 @@ use App\Gold;
 use App\Image;
 use App\Spider;
 use App\Visit;
-use GraphQL\Type\Schema;
 use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Jobs\PublishNewPosts;
 use Haxibiao\Content\Post;
@@ -18,7 +17,6 @@ use Haxibiao\Helpers\BadWordUtils;
 use Haxibiao\Helpers\QcloudUtils;
 use Haxibiao\Media\Events\PostPublishSuccess;
 use Haxibiao\Media\Jobs\ProcessVod;
-use Haxibiao\Media\Jobs\VideoAddMetadata;
 use Haxibiao\Media\Video;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
@@ -31,7 +29,7 @@ trait PostRepo
     //创建post（video和image），不处理issue问答创建了
     public function resolveCreateContent($root, array $args, $context, $info)
     {
-        if (in_array(config('app.name'), ['dongmeiwei'])){
+        if (in_array(config('app.name'), ['dongmeiwei'])) {
             $islegal = app('SensitiveUtils')->islegal(Arr::get($args, 'body'));
             if ($islegal) {
                 throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
@@ -43,14 +41,14 @@ trait PostRepo
         }
         //参数格式化
         $inputs = [
-            'body'         => Arr::get($args, 'body'),
-            'category_ids' => Arr::get($args, 'category_ids', null),
-            'product_id'   => Arr::get($args, 'product_id', null),
-            'images'       => Arr::get($args, 'images', null),
-            'video_id'     => Arr::get($args, 'video_id', null),
-            'qcvod_fileid' => Arr::get($args, 'qcvod_fileid', null),
-            'share_link'   => data_get($args, 'share_link', null),
-            'collection_ids'   => data_get($args, 'collection_ids', null),
+            'body'           => Arr::get($args, 'body'),
+            'category_ids'   => Arr::get($args, 'category_ids', null),
+            'product_id'     => Arr::get($args, 'product_id', null),
+            'images'         => Arr::get($args, 'images', null),
+            'video_id'       => Arr::get($args, 'video_id', null),
+            'qcvod_fileid'   => Arr::get($args, 'qcvod_fileid', null),
+            'share_link'     => data_get($args, 'share_link', null),
+            'collection_ids' => data_get($args, 'collection_ids', null),
 
         ];
 
@@ -97,8 +95,8 @@ trait PostRepo
      */
     public static function createPost($inputs)
     {
-        if (in_array(config('app.name'), ['dongmeiwei'])){
-            $islegal = app('SensitiveUtils')->islegal(data_get($inputs,'body'));
+        if (in_array(config('app.name'), ['dongmeiwei'])) {
+            $islegal = app('SensitiveUtils')->islegal(data_get($inputs, 'body'));
             if ($islegal) {
                 throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
             }
@@ -233,13 +231,13 @@ trait PostRepo
                         $video->title = Str::limit($body, 50);
                         $video->save();
                         //创建post
-                        $post             = new static();
-                        $post->user_id    = $user->id;
-                        $post->video_id   = $video->id;
+                        $post           = new static();
+                        $post->user_id  = $user->id;
+                        $post->video_id = $video->id;
                         if ('dongdianyi' == (config('app.name'))) {
-                            $post->status     = Post::PUBLISH_STATUS;
-                        }else{
-                            $post->status     = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
+                            $post->status = Post::PUBLISH_STATUS;
+                        } else {
+                            $post->status = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
                         }
                         $post->content    = $body;
                         $post->review_id  = static::makeNewReviewId();
@@ -247,17 +245,17 @@ trait PostRepo
                         $post->save();
 
 //                        $chain = [];
-//                        if(config('haxibiao-content.enabled_video_share',false)){
-//                            // 如果视频大于video_threshold_size,不处理metadata
-//                            $fileSize = data_get($videoInfo,'metaData.size',null);
-//                            $flag     = $fileSize && $fileSize < config('haxibiao-content.video_threshold_size',100*1024*1024);
-//                            if( $flag){
-//                                $chain = [
-//                                    new VideoAddMetadata($video),// 修改视频的metadata信息
-//                                ];
-//                            }
-//                        }
-//                        ProcessVod::withChain($chain)->dispatch($video);
+                        //                        if(config('haxibiao-content.enabled_video_share',false)){
+                        //                            // 如果视频大于video_threshold_size,不处理metadata
+                        //                            $fileSize = data_get($videoInfo,'metaData.size',null);
+                        //                            $flag     = $fileSize && $fileSize < config('haxibiao-content.video_threshold_size',100*1024*1024);
+                        //                            if( $flag){
+                        //                                $chain = [
+                        //                                    new VideoAddMetadata($video),// 修改视频的metadata信息
+                        //                                ];
+                        //                            }
+                        //                        }
+                        //                        ProcessVod::withChain($chain)->dispatch($video);
                         ProcessVod::dispatch($video);
 
                         // 记录用户操作
@@ -658,7 +656,7 @@ trait PostRepo
             $post->user_id = $spider->user_id;
             if (!config('app.name') == 'yinxiangshipin') {
                 $post->content = Arr::get($spider->data, 'title', '');
-            } 
+            }
             $post->status     = Post::PRIVARY_STATUS; //草稿，爬虫抓取中
             $post->created_at = now();
             $post->save();
@@ -697,7 +695,7 @@ trait PostRepo
         //超过100个动态或者已经有1个小时未归档了，自动发布.
         $canPublished = static::where('review_day', 0)
             ->where('created_at', '<=', now()->subHour())->exists()
-            || static::where('review_day', 0)->count() >= 100;
+        || static::where('review_day', 0)->count() >= 100;
 
         if ($canPublished) {
             dispatch_now(new PublishNewPosts);
@@ -714,7 +712,11 @@ trait PostRepo
              */
             if (!in_array(config('app.name'), ['caohan', 'yinxiangshipin', 'ainicheng'])) {
                 //触发奖励
-                Gold::makeIncome($user, 10, '分享视频奖励');
+                if ($user->id == 2) {
+                    Gold::makeIncome($user, 6, '测试分享视频奖励');
+                } else {
+                    Gold::makeIncome($user, 10, '分享视频奖励');
+                }
             }
             //扣除精力-1
             if ($user->ticket > 0) {
@@ -761,17 +763,17 @@ trait PostRepo
         if (!$spider) {
             return;
         }
-        $mixInfo  = data_get($spider, 'data.raw.item_list.0.mix_info');
+        $mixInfo = data_get($spider, 'data.raw.item_list.0.mix_info');
         if (!$mixInfo) {
             return;
         }
 
-        $name = data_get($mixInfo, 'mix_name');
-        $user_id = checkUser() ? getUser()->id : $post->user_id;
-        $img  = data_get($mixInfo, 'cover_url.url_list.0');
+        $name       = data_get($mixInfo, 'mix_name');
+        $user_id    = checkUser() ? getUser()->id : $post->user_id;
+        $img        = data_get($mixInfo, 'cover_url.url_list.0');
         $collection = Collection::firstOrNew([
             'name'    => $name,
-            'user_id' => $user_id
+            'user_id' => $user_id,
         ]);
         if (!$collection->exists) {
             if ($img) {
@@ -779,27 +781,27 @@ trait PostRepo
             }
             $collection->forceFill([
                 'description' => data_get($mixInfo, 'desc') ?? "",
-                'logo'   => data_get($img, 'path'),
-                'type'   => 'posts',
-                'status' => Collection::STATUS_ONLINE,
-                'json'   => [
+                'logo'        => data_get($img, 'path'),
+                'type'        => 'posts',
+                'status'      => Collection::STATUS_ONLINE,
+                'json'        => [
                     'mix_info' => $mixInfo,
-                ]
+                ],
             ])->save();
         }
 
         $collection->posts()
             ->syncWithoutDetaching([
                 $post->id => [
-                    'sort_rank' => data_get($mixInfo, 'statis.current_episode')
-                ]
+                    'sort_rank' => data_get($mixInfo, 'statis.current_episode'),
+                ],
             ]);
     }
 
     //个人主页动态
-    public static function posts($user_id, $keyword=null)
+    public static function posts($user_id, $keyword = null)
     {
-        $qb =  static::latest('id')->publish()->where('user_id', $user_id);
+        $qb = static::latest('id')->publish()->where('user_id', $user_id);
         if (!empty($keyword)) {
             $qb = $qb->where('description', 'like', "%{$keyword}%");
         }
@@ -830,7 +832,7 @@ trait PostRepo
         $articleBlockId = [];
         $query          = static::publish()
             ->whereBetWeen('created_at', [today()->subDay(7), today()])
-            ->inRandomOrder(); 
+            ->inRandomOrder();
         if (($user = getUser(false)) && class_exists("App\\UserBlock", true)) {
             $userBlockId    = \App\UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
             $articleBlockId = \App\UserBlock::select('article_block_id')->whereNotNull('article_block_id')->where('user_id', $user->id)->get();
