@@ -81,6 +81,7 @@ trait CollectionResolvers
             Visit::createVisit($user->id, $collection_id, 'collections');
             $user->reviewTasksByClass('Visit');
         }
+
         return static::findOrFail($collection_id);
     }
 
@@ -156,6 +157,13 @@ trait CollectionResolvers
 
         $qb = $rootValue->posts()->publish();
         $total = $qb->count();
+
+        if(in_array(
+            ['video','collections','images'],
+            data_get($resolveInfo->getFieldSelection(1),'data')
+        )){
+            $qb->with(['video','collections','images']);
+        }
 
         $postList = $qb->when($order == 'LATEST', function ($q) {
             $q->orderBy('sort_rank');
