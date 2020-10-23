@@ -4,11 +4,13 @@ namespace Haxibiao\Content;
 
 use App\Visit;
 use Haxibiao\Content\Traits\CollectionResolvers;
+use Haxibiao\Helpers\Traits\PivotEventTrait;
 use Haxibiao\Helpers\Traits\Searchable;
 use Haxibiao\Content\Traits\BaseModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Schema;
 
 class Collection extends Model
 {
@@ -16,6 +18,7 @@ class Collection extends Model
     use Searchable;
     use SoftDeletes;
     use BaseModel;
+
 
     protected $table = 'collections';
 
@@ -168,6 +171,8 @@ class Collection extends Model
         $this->collectable($modelStr)
             ->sync($syncData);
 
+        $this->updateCountPosts();
+
         return $this;
     }
 
@@ -177,6 +182,8 @@ class Collection extends Model
         $modelStr = Relation::getMorphedModel($collectableType);
         $this->collectable($modelStr)
             ->detach($collectableIds);
+
+        $this->updateCountPosts();
 
         return $this;
     }
@@ -208,6 +215,8 @@ class Collection extends Model
         $this->collectable($modelStr)
             ->sync($syncData, false);
 
+        $this->updateCountPosts();
+
         return $this;
     }
 
@@ -215,6 +224,7 @@ class Collection extends Model
     {
         return \Storage::cloud()->url(self::TOP_COVER);
     }
+
     public static function setTopCover($file)
     {
         if ($file) {
@@ -224,5 +234,16 @@ class Collection extends Model
             return \Storage::cloud()->put($cover, $imageStream);
         }
         return \Storage::cloud()->url(self::TOP_COVER);
+    }
+
+    /**
+     * 更新集数
+     */
+    private function updateCountPosts(){
+        if (!Schema::hasColumn('collections', 'count_posts')){
+            return;
+        }
+        $this->count_posts = $this->posts()->count();
+        $this->save();
     }
 }
