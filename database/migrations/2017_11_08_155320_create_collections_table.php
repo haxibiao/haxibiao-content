@@ -30,6 +30,7 @@ class CreateCollectionsTable extends Migration
             $table->integer('count_words')->default(0);
             $table->integer('count_follows')->default(0)->index();
             $table->unsignedInteger('count_posts')->default(0)->index();
+            $table->unsignedInteger('count_views')->default(0)->comment('浏览量');
 
             $table->timestamps();
             $table->softDeletes();

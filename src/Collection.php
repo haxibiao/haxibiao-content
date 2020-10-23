@@ -124,13 +124,9 @@ class Collection extends Model
         return \Storage::cloud()->url($this->logo);
     }
 
-    public function getCountViewsAttribute()
+    public function getCountPlaysAttribute()
     {
-        $countViews = 0;
-        $this->posts()->each(function ($post) use (&$countViews) {
-            $countViews += data_get($post, 'video.json.count_views', 0);
-        });
-        return numberToReadable($countViews);
+        return numberToReadable(data_get($this,'count_views',0));
     }
 
     public function scopeByCollectionIds($query, $collectionIds)
