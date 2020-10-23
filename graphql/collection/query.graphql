@@ -8,7 +8,7 @@ type Collection {
   """
   合集播放量
   """
-  count_views: String
+  count_views: String @rename(attribute:"count_plays")
   """
   封面图
   """
