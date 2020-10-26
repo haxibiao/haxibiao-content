@@ -276,7 +276,7 @@ class ArticleController extends Controller
             $article->update(['status' => -1]);
         }
         //改变动态
-        $article->changeAction();
+        // $article->changeAction();
         return redirect()->back();
     }
 
