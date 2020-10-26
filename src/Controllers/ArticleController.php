@@ -10,6 +10,8 @@ use Haxibiao\Content\Requests\ArticleRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+
 
 class ArticleController extends Controller
 {
@@ -91,7 +93,7 @@ class ArticleController extends Controller
     public function store(ArticleRequest $request)
     {
         $user = $request->user();
-        if (!str_contains($user->email, '@haxibiao.com')) {
+        if (!Str::contains($user->email, ['@haxibiao.com','@haxifang.cn'])) {
             abort(403, '您无权发布文章');
         }
         if ($slug = $request->slug) {
