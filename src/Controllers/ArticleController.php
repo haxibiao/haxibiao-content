@@ -174,9 +174,11 @@ class ArticleController extends Controller
             ->take(10)
             ->get();
 
-        return view('article.show')
-            ->withArticle($article)
-            ->withData($data);
+        // return view('article.show')
+        //     ->withArticle($article)
+        //     ->withData($data);
+
+        return view('blog.details')->with(['article' => $article]);;
     }
 
     /**
