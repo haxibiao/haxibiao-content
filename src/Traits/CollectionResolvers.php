@@ -200,9 +200,11 @@ trait CollectionResolvers
         if (checkUser()) {
             $user = getUser(false);
             //过滤掉自己 和 不喜欢用户的作品
-            $notLikIds   = $user->notLikes()->ByType('users')->get()->pluck('not_likable_id')->toArray();
-            $notLikIds[] = $user->id;
-            $qb          = $qb->whereNotIn('user_id', $notLikIds);
+            if(class_exists("App\NotLike")){
+                $notLikIds   = $user->notLikes()->ByType('users')->get()->pluck('not_likable_id')->toArray();
+                $notLikIds[] = $user->id;
+                $qb          = $qb->whereNotIn('user_id', $notLikIds);
+            }
 
             // //排除浏览过的视频->合集太少，暂时不排除已浏览过的数据
             // $visitVideoIds = Visit::ofType('collections')->ofUserId($user->id)->get()->pluck('visited_id');
@@ -213,7 +215,7 @@ trait CollectionResolvers
         //动态数量大于三的
         $qb = $qb->where('count_posts','>=',3);
         //按照合集创建时间排序
-        $qb = $qb->orderby('created_at','desc')
+        $qb = $qb->inRandomOrder()
             ->whereBetWeen('created_at', [now()->subDay(30), now()]);
 
         return $qb;

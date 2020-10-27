@@ -15,22 +15,22 @@
 
     <div id="war">
         <div id="top">
-            <img src="{{$collect->logo}}">
+            <img src="{{$collection->logo}}">
             <div id="top_right">
                 <div id="title">
-                    <img src="/imges/collection_icon.png">
-                    <strong>{{ $collect->name }}</strong>
+                    <img src="/images/collection_icon.png">
+                    <strong>{{ $collection->name }}</strong>
                 </div>
                 <div id="top_main">
-                    <p>@ {{ $collect->user->name }}</p>
+                    <p>@ {{ $collection->user->name }}</p>
                     <strong>&nbsp; 创建的合集</strong>
                 </div>
-                <strong>更新至第{{ $collect->count }}集</strong>
+                <strong>更新至第{{ $collection->count_posts }}集</strong>
             </div>
         </div>
         <div id="play_data">
             <span>
-                {{random_int(10000,100000)}} 播放&nbsp;·&nbsp;{{random_int(1000,10000)}}收藏
+                {{random_int(10000,100000)}} 播放&nbsp;·&nbsp;{{random_int(100,100)}}收藏
             </span>
         </div>
 
@@ -45,8 +45,8 @@
                         <p><strong>第 {{$i++}} 集 &nbsp;| &nbsp;</strong>{{$post->description}}</p>
                     </div>
                     <div class="text_button">
-                        <strong>01:08</strong>&nbsp;&nbsp;
-                        <span>{{random_int(1000,10000)}}播放</span>
+                        <strong>{{gmstrftime('%M:%S',$post->video->duration)}}</strong>&nbsp;&nbsp;
+                        <span>{{random_int(100,1000)}}播放</span>
                     </div>
                 </div>
             </a>
