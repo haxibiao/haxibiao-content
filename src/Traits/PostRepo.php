@@ -220,10 +220,11 @@ trait PostRepo
                         $videoInfo      = QcloudUtils::getVideoInfo($qcvod_fileid);
                         $defalutPath    = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
                         $sourceVideoUrl = Arr::get($videoInfo, 'basicInfo.sourceVideoUrl', $defalutPath);
-
-                        $video = Video::firstOrNew([
-                            'qcvod_fileid' => $qcvod_fileid,
+                        $video  = Video::firstOrNew([
+                            'hash' => hash_file('md5', $sourceVideoUrl),
                         ]);
+                        throw_if($video->exists, GQLException::class, '该视频已经被上传过啦，换一个试试');
+                        $video->qcvod_fileid = $qcvod_fileid;
                         $video->user_id = $user->id;
                         //$video->hash         = hash_file('md5',$sourceVideoUrl);
                         $video->path = $sourceVideoUrl;
