@@ -159,11 +159,11 @@ trait CollectionResolvers
         $qb = $rootValue->posts()->publish();
         $total = $qb->count();
 
-        if(in_array(
-            ['video','collections','images'],
-            data_get($resolveInfo->getFieldSelection(1),'data')
-        )){
-            $qb->with(['video','collections','images']);
+        if (in_array(
+            ['video', 'collections', 'images'],
+            data_get($resolveInfo->getFieldSelection(1), 'data')
+        )) {
+            $qb->with(['video', 'collections', 'images']);
         }
 
         $postList = $qb->when($order == 'LATEST', function ($q) {
@@ -201,7 +201,7 @@ trait CollectionResolvers
         if (checkUser()) {
             $user = getUser(false);
             //过滤掉自己 和 不喜欢用户的作品
-            if(class_exists("App\NotLike")){
+            if (class_exists("App\NotLike")) {
                 $notLikIds   = $user->notLikes()->ByType('users')->get()->pluck('not_likable_id')->toArray();
                 $notLikIds[] = $user->id;
                 $qb          = $qb->whereNotIn('user_id', $notLikIds);
@@ -214,15 +214,20 @@ trait CollectionResolvers
             // }
         }
         //动态数量大于三的
-        $qb = $qb->where('count_posts','>=',3);
+        $qb = $qb->where('count_posts', '>=', 3);
         //按照合集创建时间排序
-        $qb = $qb->inRandomOrder()
-            ->whereBetWeen('created_at', [now()->subDay(30), now()]);
+        $qb = $qb->whereBetWeen('created_at', [now()->subDay(30), now()]);
+        $array =  $qb->get()->toArray();
+        shuffle($array);
+        $collections = new \Illuminate\Pagination\LengthAwarePaginator(
+            $array,
+            sizeof($array),
+            data_get($args, 'count'),
+            data_get($args, 'page')
+        );
 
-        return $qb;
-
+        return $collections;
     }
-
     /**
      * 推荐集合列表
      */
