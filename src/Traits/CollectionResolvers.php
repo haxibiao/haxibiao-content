@@ -213,7 +213,7 @@ trait CollectionResolvers
         //动态数量大于三的
         $qb = $qb->where('count_posts','>=',3);
         //按照合集创建时间排序
-        $qb = $qb->orderby('created_at','desc')
+        $qb = $qb->inRandomOrder()
             ->whereBetWeen('created_at', [now()->subDay(30), now()]);
 
         return $qb;
