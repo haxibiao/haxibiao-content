@@ -71,12 +71,8 @@ extend type Query {
   """
   随机推荐的一组集合
   """
-  randomCollections: [Collection]
-    @paginate(
-      defaultCount: 5
-      builder: "App\\Collection@resolveRandomCollections"
-    )
-
+  randomCollections:  CollectionPaginator 
+   @field(resolver: "App\\Collection@resolveRandomCollections")
     """
   推荐集合
   """
