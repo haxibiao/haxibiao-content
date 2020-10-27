@@ -200,9 +200,11 @@ trait CollectionResolvers
         if (checkUser()) {
             $user = getUser(false);
             //过滤掉自己 和 不喜欢用户的作品
-            $notLikIds   = $user->notLikes()->ByType('users')->get()->pluck('not_likable_id')->toArray();
-            $notLikIds[] = $user->id;
-            $qb          = $qb->whereNotIn('user_id', $notLikIds);
+            if(class_exists("App\NotLike")){
+                $notLikIds   = $user->notLikes()->ByType('users')->get()->pluck('not_likable_id')->toArray();
+                $notLikIds[] = $user->id;
+                $qb          = $qb->whereNotIn('user_id', $notLikIds);
+            }
 
             // //排除浏览过的视频->合集太少，暂时不排除已浏览过的数据
             // $visitVideoIds = Visit::ofType('collections')->ofUserId($user->id)->get()->pluck('visited_id');
