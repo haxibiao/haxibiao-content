@@ -176,11 +176,13 @@ class ArticleController extends Controller
             ->take(10)
             ->get();
 
-        // return view('article.show')
-        //     ->withArticle($article)
-        //     ->withData($data);
+        if('haxibiao' == config('app.name')){
+                return view('blog.details')->with(['article' => $article]);;
+            }
+         return view('article.show')
+            ->withArticle($article)
+            ->withData($data);
 
-        return view('blog.details')->with(['article' => $article]);;
     }
 
     /**
