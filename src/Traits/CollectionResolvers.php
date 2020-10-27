@@ -216,17 +216,11 @@ trait CollectionResolvers
         //动态数量大于三的
         $qb = $qb->where('count_posts','>=',3);
         //按照合集创建时间排序
-        $qb = $qb->whereBetWeen('created_at', [now()->subDay(30), now()]);
-        $array=  $qb->get()->toArray();
-        shuffle($array);
-        $collections = new \Illuminate\Pagination\LengthAwarePaginator(
-            $array, 
-            sizeof($array), 
-            data_get($args,'count'), 
-            data_get($args,'page')
-        );
+        $qb = $qb->inRandomOrder()
+            ->whereBetWeen('created_at', [now()->subDay(30), now()]);
 
-        return $collections;
+        return $qb;
+
     }
 
     /**
