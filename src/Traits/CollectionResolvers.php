@@ -2,15 +2,13 @@
 
 namespace Haxibiao\Content\Traits;
 
-use App\Post;
-use App\User;
+use App\Collection;
 use App\Image;
 use App\Visit;
-use App\Collection;
-use Illuminate\Support\Arr;
 use GraphQL\Type\Definition\ResolveInfo;
 use Haxibiao\Base\Exceptions\GQLException;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 trait CollectionResolvers
@@ -44,27 +42,27 @@ trait CollectionResolvers
      */
     public function resolveCreateCollection($rootValue, array $args, $context, $resolveInfo)
     {
-        $name = data_get($args, 'name');
-        $logo = data_get($args, 'logo');
+        $name            = data_get($args, 'name');
+        $logo            = data_get($args, 'logo');
         $collectableType = data_get($args, 'collectable_type');
-        $description = data_get($args, 'description', '');
-        $collectableIds    = data_get($args, 'collectable_ids');
+        $description     = data_get($args, 'description', '');
+        $collectableIds  = data_get($args, 'collectable_ids');
 
         if ($logo) {
             $image = Image::saveImage($logo);
-            $logo = $image->path;
+            $logo  = $image->path;
         } else {
             $logo = config('haxibiao-content.collection_default_logo');
         }
 
         $collection = static::firstOrCreate([
             'user_id' => getUser()->id,
-            'name' => $name,
+            'name'    => $name,
         ], [
             'description' => $description,
-            'logo' => $logo,
-            'type' => $collectableType,
-            'status' => Collection::STATUS_ONLINE
+            'logo'        => $logo,
+            'type'        => $collectableType,
+            'status'      => Collection::STATUS_ONLINE,
         ]);
         if ($collectableIds) {
             $collection->collect($collectableIds, $collectableType);
@@ -92,19 +90,19 @@ trait CollectionResolvers
     public function resolveUpdateCollection($rootValue, array $args, $context, $resolveInfo)
     {
         $collection_id = data_get($args, 'collection_id');
-        $collection = static::findOrFail($collection_id);
+        $collection    = static::findOrFail($collection_id);
 
         $logo = Arr::get($args, 'logo');
         if ($logo) {
             $image = Image::saveImage($logo);
-            $logo = $image->path;
+            $logo  = $image->path;
         } else {
             $logo = $collection->logo;
         }
         $collection->update([
-            'logo' => $logo,
-            'name' => Arr::get($args, 'name', $collection->name),
-            'type' => Arr::get($args, 'type', $collection->type),
+            'logo'        => $logo,
+            'name'        => Arr::get($args, 'name', $collection->name),
+            'type'        => Arr::get($args, 'type', $collection->type),
             'description' => Arr::get($args, 'description', $collection->description),
         ]);
         return $collection;
@@ -115,8 +113,8 @@ trait CollectionResolvers
      */
     public function resolveMoveInCollection($rootValue, array $args, $context, $resolveInfo)
     {
-        $collectionId = data_get($args, 'collection_id');
-        $collectableIds = data_get($args, 'collectable_ids');
+        $collectionId    = data_get($args, 'collection_id');
+        $collectableIds  = data_get($args, 'collectable_ids');
         $collectableType = data_get($args, 'collectable_type');
 
         $collection = static::find($collectionId);
@@ -133,8 +131,8 @@ trait CollectionResolvers
      */
     public function resolveMoveOutCollection($rootValue, array $args, $context, $resolveInfo)
     {
-        $collectionId = data_get($args, 'collection_id');
-        $collectableIds = data_get($args, 'collectable_ids');
+        $collectionId    = data_get($args, 'collection_id');
+        $collectableIds  = data_get($args, 'collectable_ids');
         $collectableType = data_get($args, 'collectable_type');
 
         $collection = static::find($collectionId);
@@ -156,7 +154,7 @@ trait CollectionResolvers
         $currentPage = data_get($args, 'page');
         $perPage     = data_get($args, 'count');
 
-        $qb = $rootValue->posts()->publish();
+        $qb    = $rootValue->posts()->publish();
         $total = $qb->count();
 
         if (in_array(
@@ -172,7 +170,7 @@ trait CollectionResolvers
             ->take($perPage)
             ->get();
 
-        $currentEpisode =  $perPage * ($currentPage - 1) + 1;
+        $currentEpisode = $perPage * ($currentPage - 1) + 1;
         foreach ($postList as $post) {
             $post->current_episode = $currentEpisode;
             $currentEpisode++;
@@ -216,12 +214,11 @@ trait CollectionResolvers
         //动态数量大于三的
         $qb = $qb->where('count_posts', '>=', 3);
         //按照合集创建时间排序
-        $qb = $qb->whereBetWeen('created_at', [now()->subDay(30), now()]);
-        $array =  $qb->get()->toArray();
-        shuffle($array);
+        $qb    = $qb->whereBetWeen('created_at', [now()->subDay(30), now()]);
+        $array = $qb->get();
         $collections = new \Illuminate\Pagination\LengthAwarePaginator(
-            $array,
-            sizeof($array),
+            $array->shuffle(),
+            count($array),
             data_get($args, 'count'),
             data_get($args, 'page')
         );
@@ -251,9 +248,9 @@ trait CollectionResolvers
         }
         $result = [];
         //构建返回结果
-        $result['topCover']            = Collection::getTopCover();
-        $result['topCollection']            = $topCollection;
-        $result['recommendCollectionsA']     = $recommendCollectionsA;
+        $result['topCover']              = Collection::getTopCover();
+        $result['topCollection']         = $topCollection;
+        $result['recommendCollectionsA'] = $recommendCollectionsA;
         $result['recommendCollectionsB'] = $recommendCollectionsB;
 
         return $result;
