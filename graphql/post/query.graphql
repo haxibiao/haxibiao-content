@@ -34,6 +34,7 @@ type Post {
   count_comments: Int
   review_id: String
   review_day: String
+  current_episode: Int
   is_ad: Int
 
   """
@@ -57,12 +58,14 @@ extend type Query {
   """
   动态广场
   """
-  publicPosts(user_id: Int): [Post!] @paginate(defaultCount: 10, builder: "App\\Post@resolvePublicPosts")
+  publicPosts(user_id: Int): [Post!]
+    @paginate(defaultCount: 10, builder: "App\\Post@resolvePublicPosts")
 
   """
   个人主页动态列表
   """
-  posts(user_id: Int!, keyword: String): [Post!] @paginate(builder: "App\\Post@resolvePosts", defaultCount: 10)
+  posts(user_id: Int!, keyword: String): [Post!]
+    @paginate(builder: "App\\Post@resolvePosts", defaultCount: 10)
 
   """
   分享post
@@ -90,7 +93,7 @@ extend type Query {
     limit: Int
   ): [Post] @field(resolver: "App\\Post@resolvePostsByTag")
 
-  postByVid(vid: String!):Post @field(resolver: "App\\Post@resolvePostByVid")
+  postByVid(vid: String!): Post @field(resolver: "App\\Post@resolvePostByVid")
 }
 
 enum PostTag {
