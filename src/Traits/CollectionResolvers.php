@@ -192,6 +192,9 @@ trait CollectionResolvers
      */
     public function resolveRandomCollections($rootValue, $args, $context, $resolveInfo)
     {
+        $currentPage = data_get($args, 'page');
+        $perPage     = data_get($args, 'count');
+
         //过滤掉推荐列表中的集合
         $qb = Collection::whereNull('sort_rank');
 
@@ -215,14 +218,18 @@ trait CollectionResolvers
         $qb = $qb->where('count_posts', '>=', 3);
         //按照合集创建时间排序
         $qb    = $qb->whereBetWeen('created_at', [now()->subDay(30), now()]);
-        $array = $qb->get();
-        $collections = new \Illuminate\Pagination\LengthAwarePaginator(
+
+        $array = $qb
+            ->skip(($currentPage * $perPage) - $perPage)
+            ->take($perPage)
+            ->get();
+
+            $collections = new \Illuminate\Pagination\LengthAwarePaginator(
             $array->shuffle(),
             count($array),
-            data_get($args, 'count'),
-            data_get($args, 'page')
+            $perPage,
+            $currentPage   
         );
-
         return $collections;
     }
     /**
