@@ -49,6 +49,7 @@ trait CanCollect
                 'sort_rank'          => $index,
                 'collection_name'   => $collection->name
             ];
+            $collection->updateCountPosts();
             $index++;
         }
         $this->collections()->sync($syncData, false);
@@ -66,6 +67,7 @@ trait CanCollect
                 'sort_rank'          => $index,
                 'collection_name'   => $collection->name
             ];
+            $collection->updateCountPosts();
             $index++;
         }
         $this->collections()->sync($syncData);
@@ -76,6 +78,10 @@ trait CanCollect
     public function uncollectivize($collections)
     {
         $this->collections()->detach($collections);
+        $collections    = Collection::byCollectionIds($collections)->get();
+        foreach ($collections as $collection){
+            $collection->updateCountPosts();
+        }
 
         return $this;
     }

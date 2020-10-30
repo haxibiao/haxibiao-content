@@ -797,6 +797,7 @@ trait PostRepo
                     'sort_rank' => data_get($mixInfo, 'statis.current_episode'),
                 ],
             ]);
+        $collection->updateCountPosts();
     }
 
     //个人主页动态

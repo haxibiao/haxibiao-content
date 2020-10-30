@@ -239,7 +239,7 @@ class Collection extends Model
     /**
      * 更新集数
      */
-    private function updateCountPosts(){
+    public function updateCountPosts(){
         if (!Schema::hasColumn('collections', 'count_posts')){
             return;
         }
