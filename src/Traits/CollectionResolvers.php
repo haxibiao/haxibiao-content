@@ -219,6 +219,7 @@ trait CollectionResolvers
         //按照合集创建时间排序
         $qb    = $qb->whereBetWeen('created_at', [now()->subDay(30), now()]);
 
+        $total=$qb->count();
         $array = $qb
             ->skip(($currentPage * $perPage) - $perPage)
             ->take($perPage)
@@ -226,7 +227,7 @@ trait CollectionResolvers
 
             $collections = new \Illuminate\Pagination\LengthAwarePaginator(
             $array->shuffle(),
-            count($array),
+            $total,
             $perPage,
             $currentPage   
         );
