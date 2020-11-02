@@ -4,11 +4,14 @@ namespace Haxibiao\Content\Traits;
 
 use App\Action;
 use App\Collection;
+use App\Comment;
 use App\Exceptions\GQLException;
 use App\Gold;
 use App\Image;
 use App\Spider;
+use App\User;
 use App\Visit;
+use Carbon\Carbon;
 use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Jobs\PublishNewPosts;
 use Haxibiao\Content\Post;
@@ -671,6 +674,11 @@ trait PostRepo
         if ($post) {
             $post->video_id = $spider->spider_id; //爬虫的类型spider_type="videos",这个video_id只有爬虫成功后才有...
             static::publishPost($post);
+
+            // 延迟发布评论
+            dispatch(function ()use ($post,$spider){
+                static::publishComment($post,$spider);
+            })->onQueue('default')->delay(now()->addHours(2));
         }
     }
 
@@ -725,6 +733,57 @@ trait PostRepo
             }
         }
     }
+
+    /**
+     * 关联评论
+     */
+    public static function  publishComment($post,$spider){
+        $dateList = create_date_array(10,now()->subHours(2),now());
+        // 获取随机时间
+        $commentList = data_get($spider,'data.comment.data.shortVideoCommentList.commentList',[]);
+        $userIds = User::where('role_id',User::VEST_STATUS)
+            ->pluck('id')
+            ->toArray();
+        $userIds = shuffle($userIds);
+        foreach ($commentList as $comment){
+            $likedCount = data_get($comment,'likedCount');
+            if($likedCount < 1000){
+                continue;
+            }
+            $content   = data_get($comment,'content');
+
+            $createAt = array_shift($dateList);
+            $comment                   = new Comment();
+            $comment->user_id          = array_shift($userIds);
+            $comment->commentable_type = 'posts';
+            $comment->commentable_id   = $post->id;
+            $comment->body             = $content;
+            $comment->created_at       = $createAt;
+            $comment->updated_at       = $createAt;
+            $comment->save(['timestamps'=>false]);
+
+            $i = 0;
+            foreach (data_get($comment,'subComments') as $subComments){
+                // 只抓取前三条回复
+                if( $i>=3 ){
+                    return;
+                }
+                $content    = data_get($subComments,'content');
+
+                $createAt = array_shift($dateList);
+                $comment                   = new Comment();
+                $comment->user_id          = array_shift($userIds);;
+                $comment->commentable_type = 'comments';
+                $comment->commentable_id   = $comment->id;
+                $comment->body             = $content;
+                $comment->created_at       = $createAt;
+                $comment->updated_at       = $createAt;
+                $comment->save(['timestamps'=>false]);
+                $i++;
+            }
+        }
+    }
+
 
     public static function extractTag($post)
     {
