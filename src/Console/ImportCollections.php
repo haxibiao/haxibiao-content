@@ -83,11 +83,10 @@ class ImportCollections extends Command
                         //创建collection
                         $intoCollection = self::copyModel($fromcollection, Collection::class,
                             null, $intoUser->id);
-                        //更新合集封面
-                        $intoCollection->logo = self::transferImage($fromcollection->logo);
-                        $intoCollection->saveDataOnly();
-
                     }
+                          //更新合集封面
+                          $intoCollection->logo = self::transferImage($fromcollection->getRawOriginal('logo'));
+                          $intoCollection->saveDataOnly();
 
                     $fromPosts = $fromcollection->posts;
                     //移除已经存在的视频数据
@@ -176,8 +175,6 @@ class ImportCollections extends Command
         $object_attributes = array_except($fromObject->getAttributes(), ['id', 'created_at', 'updated_at']);
         foreach ($object_attributes as $key=>$value) {
             if(self::isJsonCastable($key,$fromObject)){
-                // info($key);
-                // info($value);
                 $object_attributes[$key]=json_decode($value);
                 
             }
@@ -224,20 +221,20 @@ class ImportCollections extends Command
             }
 
             $randId = uniqid();
-            $cosPath = 'images/' . $randId . '.jpeg';
-            //网络路径图片
+            $extension=pathinfo($oldImagePath,PATHINFO_EXTENSION);
+            $cosPath = 'images/' . $randId . '.'.$extension;            //网络路径图片
             if (str_contains($oldImagePath, 'http')) {
-                Storage::cloud()->put($cosPath, @file_get_contents($oldImagePath));
+                Storage::cloud()->put($cosPath, file_get_contents($oldImagePath));
                 $newImagePath = Storage::cloud()->url($cosPath);
                 return $cosPath;
 
             }
             //处理绝对路径图片
             $COS_DOMAIN = config('haxibiao-content.origin_cos_domain');
-            $imagePrefix = ends_with($COS_DOMAIN, "/") ?: $COS_DOMAIN;
+            $imagePrefix = ends_with($COS_DOMAIN, "/") ?: $COS_DOMAIN."/";
             $completePath = $imagePrefix . $oldImagePath;
             //上传到cos
-            Storage::cloud()->put($cosPath, @file_get_contents($completePath));
+            Storage::cloud()->put($cosPath, file_get_contents($completePath));
             return $cosPath;
 
         } catch (\Exception $ex) {
