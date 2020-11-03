@@ -738,7 +738,7 @@ trait PostRepo
      * 关联评论
      */
     public static function  publishComment($post,$spider){
-        $dateList = create_date_array(10,now()->subHours(2),now());
+        $dateList = create_date_array(15,now()->subHours(2),now());
         // 获取随机时间
         $commentList = data_get($spider,'data.comment.data.shortVideoCommentList.commentList',[]);
         $userIds = User::where('role_id',User::VEST_STATUS)
@@ -751,11 +751,18 @@ trait PostRepo
             }
             $content   = data_get($comment,'content');
             $content = preg_replace('/\[.*?\]/','',$content);
+            $content = str_replace(['快手', '快看'], '', $content);
+            if(str_contains($content,'@')){
+                continue;
+            }
             $content = trim($content);
             if(!$content){
                 continue;
             }
             $createAt = array_shift($dateList);
+            if(!$createAt){
+                return ;
+            }
             $comment                   = new Comment();
             $comment->user_id          = array_shift($userIds);
             $comment->commentable_type = 'posts';
@@ -773,10 +780,17 @@ trait PostRepo
                 }
                 $content    = data_get($subComments,'content');
                 $content = preg_replace('/\[.*?\]/','',$content);
+                $content = str_replace(['快手', '快看'], '', $content);
+                if(str_contains($content,'@')){
+                    continue;
+                }
                 if(!$content){
                     continue;
                 }
                 $createAt = array_shift($dateList);
+                if(!$createAt){
+                    return ;
+                }
                 $comment                   = new Comment();
                 $comment->user_id          = array_shift($userIds);;
                 $comment->commentable_type = 'comments';
