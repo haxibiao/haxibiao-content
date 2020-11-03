@@ -59,8 +59,7 @@ trait CategoryAttrs
 
     public function getLogoUrlAttribute()
     {
-        $path = parse_url($this->logo, PHP_URL_PATH);
-        return !empty($path) ? cdnurl($path) : url(Category::LOGO_PATH);
+        return $this->logo;
     }
 
     public function getIconUrlAttribute()
