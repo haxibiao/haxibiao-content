@@ -744,14 +744,17 @@ trait PostRepo
         $userIds = User::where('role_id',User::VEST_STATUS)
             ->pluck('id')
             ->toArray();
-        $userIds = shuffle($userIds);
         foreach ($commentList as $comment){
             $likedCount = data_get($comment,'likedCount');
             if($likedCount < 1000){
                 continue;
             }
             $content   = data_get($comment,'content');
-
+            $content = preg_replace('/\[.*?\]/','',$content);
+            $content = trim($content);
+            if(!$content){
+                continue;
+            }
             $createAt = array_shift($dateList);
             $comment                   = new Comment();
             $comment->user_id          = array_shift($userIds);
@@ -769,7 +772,10 @@ trait PostRepo
                     return;
                 }
                 $content    = data_get($subComments,'content');
-
+                $content = preg_replace('/\[.*?\]/','',$content);
+                if(!$content){
+                    continue;
+                }
                 $createAt = array_shift($dateList);
                 $comment                   = new Comment();
                 $comment->user_id          = array_shift($userIds);;
