@@ -739,67 +739,69 @@ trait PostRepo
      */
     public static function  publishComment($post,$spider){
         $dateList = create_date_array(15,now()->subHours(2),now());
-        $dateList = array_shift($dateList);
+        $dateList = array_pluck($dateList,'time');
         // 获取随机时间
         $commentList = data_get($spider,'data.comment.data.shortVideoCommentList.commentList',[]);
         $userIds = User::where('role_id',User::VEST_STATUS)
             ->pluck('id')
             ->toArray();
+        shuffle($userIds);
         foreach ($commentList as $comment){
             $likedCount = data_get($comment,'likedCount');
-            if($likedCount < 1000){
+            if($likedCount < 100){
                 continue;
             }
             $content   = data_get($comment,'content');
-            $content = preg_replace('/\[.*?\]/','',$content);
-            $content = str_replace(['快手', '快看'], '', $content);
             if(str_contains($content,'@')){
                 continue;
             }
+            $content = preg_replace('/\[.*?\]/','',$content);
+            $content = str_replace(['快手', '快看'], '', $content);
             $content = trim($content);
             if(!$content){
                 continue;
             }
             $createAt = array_shift($dateList);
             if(!$createAt){
-                return ;
+                return;
             }
-            $comment                   = new Comment();
-            $comment->user_id          = array_shift($userIds);
-            $comment->commentable_type = 'posts';
-            $comment->commentable_id   = $post->id;
-            $comment->body             = $content;
-            $comment->created_at       = $createAt;
-            $comment->updated_at       = $createAt;
-            $comment->save(['timestamps'=>false]);
-
+            $commentModel                   = new Comment();
+            $commentModel->user_id          = array_shift($userIds);
+            $commentModel->commentable_type = 'posts';
+            $commentModel->commentable_id   = $post->id;
+            $commentModel->body             = $content;
+            $commentModel->created_at       = $createAt;
+            $commentModel->updated_at       = $createAt;
+            $commentModel->save(['timestamps'=>false]);
             $i = 0;
-            foreach (data_get($comment,'subComments') as $subComments){
+            $subCommentList = data_get($comment,'subComments');
+            foreach ($subCommentList as $subComment){
                 // 只抓取前三条回复
                 if( $i>=3 ){
                     return;
                 }
-                $content    = data_get($subComments,'content');
-                $content = preg_replace('/\[.*?\]/','',$content);
-                $content = str_replace(['快手', '快看'], '', $content);
-                if(str_contains($content,'@')){
+                $subCommentContent    = data_get($subComment,'content');
+                if(str_contains($subCommentContent,'@')){
                     continue;
                 }
-                if(!$content){
+                $subCommentContent = preg_replace('/\[.*?\]/','',$subCommentContent);
+                $subCommentContent = str_replace(['快手', '快看'], '', $subCommentContent);
+                if(!$subCommentContent){
                     continue;
                 }
                 $createAt = array_shift($dateList);
                 if(!$createAt){
-                    return ;
+                    return;
                 }
-                $comment                   = new Comment();
-                $comment->user_id          = array_shift($userIds);;
-                $comment->commentable_type = 'comments';
-                $comment->commentable_id   = $comment->id;
-                $comment->body             = $content;
-                $comment->created_at       = $createAt;
-                $comment->updated_at       = $createAt;
-                $comment->save(['timestamps'=>false]);
+
+                $subCommentModel                   = new Comment();
+                $subCommentModel->user_id          = array_shift($userIds);
+                $subCommentModel->commentable_type = 'comments';
+                $subCommentModel->commentable_id   = $commentModel->id;
+                $subCommentModel->body             = $subCommentContent;
+                $subCommentModel->created_at       = $createAt;
+                $subCommentModel->updated_at       = $createAt;
+                $subCommentModel->save(['timestamps'=>false]);
                 $i++;
             }
         }
