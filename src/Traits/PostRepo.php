@@ -739,6 +739,7 @@ trait PostRepo
      */
     public static function  publishComment($post,$spider){
         $dateList = create_date_array(15,now()->subHours(2),now());
+        $dateList = array_shift($dateList);
         // 获取随机时间
         $commentList = data_get($spider,'data.comment.data.shortVideoCommentList.commentList',[]);
         $userIds = User::where('role_id',User::VEST_STATUS)
