@@ -16,13 +16,13 @@ extend type Mutation @middleware(checks: ["auth:api"]){
         """
         logo: String
         """
-        合集类型
+        收藏资源类型
         """
-        type:CollectType=POST
+        collectable_type:CollectType=POST
         """
-        动态id
+        收藏资源ID
         """
-        post_ids:[Int!]
+        collectable_ids:[Int!]
     )
     : Collection! @field(resolver: "App\\Collection@resolveCreateCollection")
 
@@ -46,6 +46,10 @@ extend type Mutation @middleware(checks: ["auth:api"]){
         合集类型
         """
         type:CollectType
+        """
+        合集简介
+        """
+        description: String
     )
     : Collection! @field(resolver: "App\\Collection@resolveUpdateCollection")
 
@@ -56,13 +60,35 @@ extend type Mutation @middleware(checks: ["auth:api"]){
         """
         合集id
         """
-        collection_ids:[Int!]!
+        collection_id:Int!
+        """
+        资源对象ID List
+        """
+        collectable_ids:[Int!]
+        """
+        资源类型
+        """
+        collectable_type:CollectType=POST
+    )
+    : Boolean! @field(resolver: "App\\Collection@resolveMoveInCollection")
+    """
+    从合集中移除动态
+    """
+    moveOutCollections(
         """
         合集id
         """
-        post_ids:[Int!]!
+        collection_id:Int!
+        """
+        资源对象ID List
+        """
+        collectable_ids:[Int!]!
+        """
+        资源类型
+        """
+        collectable_type:CollectType=POST
     )
-    : Boolean! @field(resolver: "App\\Collection@resolveMoveInCollection")
+    : Boolean! @field(resolver: "App\\Collection@resolveMoveOutCollection")
 
     """
     删除合集

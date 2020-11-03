@@ -641,7 +641,7 @@ trait ArticleRepo
         $favorites = $this->favorites;
         foreach ($favorites as $favorite) {
             $favorite_action = $favorite->morphMany(\App\Action::class, 'actionable')->first();
-            if (favorite_action) {
+            if ($favorite_action) {
                 $favorite_action->status = $this->status;
                 $favorite_action->save(['timestamps' => false]);
             }

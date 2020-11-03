@@ -18,6 +18,18 @@
 5.  完成
 
 ### 更新日志
+**1.3**
+_Released on 2020-09-26_
+
+- 能创建合集，可以将动态归类到合集中
+- 能搜索合集，合集内能搜索动态 ([#f3d21](http://code.haxibiao.cn/packages/haxibiao-content/commit/f3d219fdddd8c725d3acab83203eea72e5d3ad0b))
+- 合集添加集数 ([#7358c8](http://code.haxibiao.cn/packages/haxibiao-content/commit/7358c8ab5bf1d34a87d36f4379a01116f3862d95), [#d86e3](http://code.haxibiao.cn/packages/haxibiao-content/commit/d86e3ce8a1c0cd4481635abdc8c29876839299a0))
+- 合集&视频&标签能查看真实的播放量 ([#58642](http://code.haxibiao.cn/packages/haxibiao-content/commit/58642d4d4d5c3745ef55db1ebaee32dc4b8e4192), [#36d27](http://code.haxibiao.cn/packages/haxibiao-content/commit/36d27b6172dbfad8f92ac1854e88f16b879d7dd5))
+- 能利用H5分享合集 ([#51186](http://code.haxibiao.cn/packages/haxibiao-content/commit/511867b748780f570a8663b9a67c574bc5ce6a85), [#286b5](http://code.haxibiao.cn/packages/haxibiao-content/commit/286b54d824a7d28fa4f48352d56d3dd5992053f9))
+- 采集抖音视频能分发到系统马甲号  ([#f0a15b0](http://code.haxibiao.cn/packages/haxibiao-content/commit/f0a15b0d92f1eb52a81d5ee82df7a735f0a78412), [#c6ae3](http://code.haxibiao.cn/packages/haxibiao-content/commit/c6ae3dc9e959ad0921be6128b724f418375957cf))
+- 能根据抖音合集信息生成合集 ([#3424a](http://code.haxibiao.cn/packages/haxibiao-content/commit/3424a831001270b3a9cb962cf7e9189c0a35db28), [#7988a](http://code.haxibiao.cn/packages/haxibiao-content/commit/7988a6e5af6108ec0e7737cf0c85da03c8bf54e2)) 
+- 移除冗余的任务奖励逻辑 ([#3e78f](http://code.haxibiao.cn/packages/haxibiao-content/commit/3e78f57f8e2c088c22840ac049259f98f8d1c111), [#c9a0bf](http://code.haxibiao.cn/packages/haxibiao-content/commit/c9a0bfee31b66b60669015fdf13f21e929a51379))
+
 **1.2**
 
 _Released on 2020-09-11_

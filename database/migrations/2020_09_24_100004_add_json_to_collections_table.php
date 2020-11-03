@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddSoftDeletesToCollectionsTable extends Migration
+class AddJsonToCollectionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,8 @@ class AddSoftDeletesToCollectionsTable extends Migration
     public function up()
     {
         Schema::table('collections', function (Blueprint $table) {
-            if (!Schema::hasColumn('collections','deleted_at')){
-                $table->softDeletes();
+            if (!Schema::hasColumn('collections','json')){
+                $table->json('json')->nullable()->comment('非结构化的数据，冗余一些额外信息')->after('logo');
             }
         });
     }

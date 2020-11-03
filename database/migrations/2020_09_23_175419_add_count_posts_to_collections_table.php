@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddSoftDeletesToCollectionsTable extends Migration
+class AddCountPostsToCollectionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,8 @@ class AddSoftDeletesToCollectionsTable extends Migration
     public function up()
     {
         Schema::table('collections', function (Blueprint $table) {
-            if (!Schema::hasColumn('collections','deleted_at')){
-                $table->softDeletes();
+            if (!Schema::hasColumn('collections','count_posts')){
+                $table->unsignedInteger('count_posts')->default(0)->comment('动态的个数');
             }
         });
     }

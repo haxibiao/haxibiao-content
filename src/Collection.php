@@ -2,18 +2,36 @@
 
 namespace Haxibiao\Content;
 
+use App\Visit;
 use Haxibiao\Content\Traits\CollectionResolvers;
+use Haxibiao\Helpers\Traits\PivotEventTrait;
 use Haxibiao\Helpers\Traits\Searchable;
+use Haxibiao\Content\Traits\BaseModel;
 use Illuminate\Database\Eloquent\Model;
-use Haxibiao\Sns\Traits\CanBeFollow;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Schema;
 
 class Collection extends Model
 {
     use CollectionResolvers;
-    use CanBeFollow;
     use Searchable;
     use SoftDeletes;
+    use BaseModel;
+
+
+    protected $table = 'collections';
+
+    /**
+     * 上架状态
+     */
+    const STATUS_ONLINE = 1;
+    /* 推荐集合 */
+    const RECOMMEND_COLLECTION = 2;
+    /* 置顶集合 */
+    const TOP_COLLECTION = 1;
+    //置顶合集图片
+    const TOP_COVER = 'storage/collection/top_cover.png';
 
     protected $searchable = [
         'columns' => [
@@ -22,7 +40,11 @@ class Collection extends Model
         ],
     ];
 
-    protected $guarded = [];
+    protected $casts = [
+        'json' => 'object',
+    ];
+
+    protected $guarded = ['api_token'];
 
     public static function boot()
     {
@@ -35,17 +57,20 @@ class Collection extends Model
         });
     }
 
-
-    //合集中的post
-    public function posts()
+    public function visits()
     {
-        return $this->collectable(\App\Post::class);
+        return $this->morphMany(Visit::class, 'visited');
+    }
+    public function user()
+    {
+        return $this->belongsTo(\App\User::class);
     }
 
-    //合集对象
     public function collectable($related)
     {
-        return $this->morphedByMany($related, 'collectable');
+        return $this->morphedByMany($related, 'collectable')
+            ->withTimestamps()
+            ->withPivot(['sort_rank']);
     }
 
     public function collectables()
@@ -53,14 +78,15 @@ class Collection extends Model
         return $this->hasMany(Collectable::class);
     }
 
-    public function user()
+    public function posts()
     {
-        return $this->belongsTo(\App\User::class);
+        return $this->collectable(\App\Post::class)->withTimestamps()
+            ->withPivot(['sort_rank']);
     }
 
     public function articles()
     {
-        return $this->hasMany(\App\Article::class);
+        return $this->collectable(\App\Article::class)->withTimestamps();
     }
 
     public function hasManyArticles()
@@ -75,13 +101,18 @@ class Collection extends Model
 
     public function getLogoAttribute()
     {
-        $path = empty($this->getRawOriginal('logo')) ? '/images/collection.png' : $this->getRawOriginal('logo');
-        if (file_exists(public_path($path))) {
-            return $path;
+        $defaultLogo = config('haxibiao-content.collection_default_logo', 'https://haxibiao-1251052432.cos.ap-guangzhou.myqcloud.com/images/collection.png');
+        $logo = $this->getRawOriginal('logo');
+        if (!$logo) {
+            return $defaultLogo;
         }
-        return env('APP_URL') . $path;
-    }
 
+        $isValidateUrl = filter_var($logo, FILTER_VALIDATE_URL);
+        if ($isValidateUrl) {
+            return $logo;
+        }
+        return \Storage::cloud()->url($logo);
+    }
 
     public function getImageAttribute()
     {
@@ -92,35 +123,127 @@ class Collection extends Model
         if ($localFileExist) {
             return env('LOCAL_APP_URL') . '/storage/' . $this->logo;
         }
-        return \Storage::disk('cosv5')->url($this->logo);
+
+        return \Storage::cloud()->url($this->logo);
     }
 
-    public static function  getCollectionByName($name, $user = null, $logo = null)
+    public function getCountPlaysAttribute()
     {
-        $collection = self::firstOrCreate(
-            [
-                'name' => $name
-            ],
-            [
-                'logo' => $logo,
-                'user_id' => $user ?? getUser()->id,
-                'type' => 'posts',
-                'status' => 1
-            ]
-        );
-
-        return $collection;
+        return numberToReadable(data_get($this,'count_views',0));
     }
-    //添加动态到合集中
-    public function collectByPostIds($post_ids)
-    {
 
-        $this->posts()->sync($post_ids, false);
+    public function scopeByCollectionIds($query, $collectionIds)
+    {
+        return $query->whereIn('id', $collectionIds);
     }
-    //添加动态到合集中
-    public function cancelCollectByPostIds($post_ids)
+    public function scopeTop($query)
+    {
+        return $query->where('sort_rank', self::TOP_COLLECTION);
+    }
+
+
+    public function getUpdatedToEpisodeAttribute()
+    {
+        return  $this->count_posts;
+    }
+
+    public function collect($collectableIds, $collectableType)
     {
 
-        $this->posts()->detach($post_ids, false);
+        $index = 1;
+
+        $modelStr = Relation::getMorphedModel($collectableType);
+        $modelIds = $modelStr::whereIn('id', $collectableIds)->get()->pluck('id')->toArray();
+        $modelIds  = array_flip($modelIds);
+
+        $syncData = [];
+        foreach ($collectableIds as $collectableId) {
+            // 跳过脏数据
+            if (!array_key_exists($collectableId, $modelIds)) {
+                continue;
+            }
+            $syncData[$collectableId] = [
+                'sort_rank'          => $index,
+                'collection_name'    => $this->name
+            ];
+            $index++;
+        }
+        $this->collectable($modelStr)
+            ->sync($syncData);
+
+        $this->updateCountPosts();
+
+        return $this;
+    }
+
+    public function uncollect($collectableIds, $collectableType)
+    {
+
+        $modelStr = Relation::getMorphedModel($collectableType);
+        $this->collectable($modelStr)
+            ->detach($collectableIds);
+
+        $this->updateCountPosts();
+
+        return $this;
+    }
+
+    public function recollect($collectableIds, $collectableType)
+    {
+
+        $modelStr = Relation::getMorphedModel($collectableType);
+        $modelIds = $modelStr::whereIn('id', $collectableIds)->get()->pluck('id')->toArray();
+        $modelIds  = array_flip($modelIds);
+
+        $maxSortRank = $this->collectable($modelStr)
+            ->get()
+            ->max('pivot.sort_rank') ?: 0;
+
+        $syncData = [];
+        foreach ($collectableIds as $collectableId) {
+            $maxSortRank++;
+
+            // 跳过脏数据
+            if (!array_key_exists($collectableId, $modelIds)) {
+                continue;
+            }
+            $syncData[$collectableId] = [
+                'sort_rank'          => $maxSortRank,
+                'collection_name'    => $this->name
+            ];
+        }
+        $this->collectable($modelStr)
+            ->sync($syncData, false);
+
+        $this->updateCountPosts();
+
+        return $this;
+    }
+
+    public static function getTopCover()
+    {
+        return \Storage::cloud()->url(self::TOP_COVER);
+    }
+
+    public static function setTopCover($file)
+    {
+        if ($file) {
+            //UploadedFile
+            $cover = self::TOP_COVER;
+            $imageStream = file_get_contents($file->getRealPath());
+            return \Storage::cloud()->put($cover, $imageStream);
+        }
+        return \Storage::cloud()->url(self::TOP_COVER);
+    }
+
+    /**
+     * 更新集数
+     */
+    public function updateCountPosts(){
+        if (!Schema::hasColumn('collections', 'count_posts')){
+            return;
+        }
+        $this->count_posts = $this->posts()->count();
+        $this->save();
     }
 }

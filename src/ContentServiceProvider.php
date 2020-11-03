@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Content;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
@@ -27,7 +28,8 @@ class ContentServiceProvider extends ServiceProvider
             Console\InstallCommand::class,
             Console\CategoryReFactoringCommand::class,
             Console\PostReFactoringCommand::class,
-            // FixContent::class,
+            Console\CollectionReFactoringCommand::class,
+            Console\StatisticVideoViewsCommand::class,
         ]);
     }
 
@@ -38,6 +40,15 @@ class ContentServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // 更新每日播放量
+        $enabled = config('media.enabled_statistics_video_views',false);
+        if($enabled){
+            $this->app->booted(function () {
+                $schedule = $this->app->make(Schedule::class);
+                $schedule->command('haxibiao:statistic:video_viewers')->dailyAt('2:30');;
+            });
+        }
+
         //安装时需要
         if ($this->app->runningInConsole()) {
             $this->loadMigrationsFrom($this->app->make('path.haxibiao-content.migrations'));
@@ -49,10 +60,6 @@ class ContentServiceProvider extends ServiceProvider
             //发布 graphql
             $this->publishes([
                 __DIR__ . '/../graphql/post' => base_path('graphql/post'),
-            ], 'content-graphql');
-
-            $this->publishes([
-                __DIR__ . '/../graphql/favorite' => base_path('graphql/favorite'),
             ], 'content-graphql');
 
             $this->publishes([

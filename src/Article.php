@@ -3,16 +3,18 @@
 namespace Haxibiao\Content;
 
 use App\Model;
+use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Traits\ArticleAttrs;
 use Haxibiao\Content\Traits\ArticleRepo;
 use Haxibiao\Content\Traits\ArticleResolvers;
+use Haxibiao\Content\Traits\CanCollect;
 use Haxibiao\Content\Traits\Categorizable;
 use Haxibiao\Media\Traits\WithImage;
 use Haxibiao\Media\Traits\WithMedia;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Haxibiao\Media\Image;
 
-class Article extends Model
+class Article extends Model implements Collectionable
 {
     use ArticleRepo;
     use ArticleResolvers;
@@ -21,8 +23,9 @@ class Article extends Model
     use Categorizable;
     use WithMedia;
     use WithImage;
+    use CanCollect;
 
-    protected $guarded = [];
+    protected $guarded = ['api_token'];
 
     protected static function boot()
     {
@@ -30,13 +33,13 @@ class Article extends Model
         static::observe(Observers\ArticleObserver::class);
     }
 
-    
+
     //提交状态
     const REFUSED_SUBMIT   = -1; //已拒绝
     const REVIEW_SUBMIT    = 0; //待审核
     const SUBMITTED_SUBMIT = 1; //已收录
 
-//  动态状态
+    //  动态状态
     const STATUS_REFUSED = -1;
     const STATUS_REVIEW  = 0;
     const STATUS_ONLINE  = 1;
@@ -73,12 +76,6 @@ class Article extends Model
     public function video()
     {
         return $this->belongsTo('App\Video');
-    }
-
-    //主文集
-    public function collection()
-    {
-        return $this->belongsTo('App\Collection');
     }
 
     public function favorites()

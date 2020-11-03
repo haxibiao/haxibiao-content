@@ -20,11 +20,11 @@ type Post {
   """
   图片
   """
-  images:[Image]
+  images: [Image]
   """
   分类
   """
-  categories:[Category]
+  categories: [Category]
   """
   -1删除，0草稿，1发布
   """
@@ -34,12 +34,14 @@ type Post {
   count_comments: Int
   review_id: String
   review_day: String
+  current_episode: Int
   is_ad: Int
 
   """
   发布时间（多久前）
   """
-  created_at: String @rename(attribute: "time_age") created_at: String @rename(attribute: "time_age")
+  created_at: String @rename(attribute: "time_age")
+  created_at: String @rename(attribute: "time_age")
 }
 
 extend type Query {
@@ -51,22 +53,18 @@ extend type Query {
   """
   学习视频列表（兼容token为游客的情况）
   """
-  recommendPosts: [Post!]
-    @field(resolver: "App\\Post@resolveRecommendPosts")
+  recommendPosts: [Post!] @field(resolver: "App\\Post@resolveRecommendPosts")
 
   """
   动态广场
   """
   publicPosts(user_id: Int): [Post!]
-    @paginate(
-      defaultCount: 10
-      builder: "App\\Post@resolvePublicPosts"
-    )
+    @paginate(defaultCount: 10, builder: "App\\Post@resolvePublicPosts")
 
   """
   个人主页动态列表
   """
-  posts(user_id: Int!): [Post!]
+  posts(user_id: Int!, keyword: String): [Post!]
     @paginate(builder: "App\\Post@resolvePosts", defaultCount: 10)
 
   """
@@ -94,8 +92,9 @@ extend type Query {
     """
     limit: Int
   ): [Post] @field(resolver: "App\\Post@resolvePostsByTag")
-}
 
+  postByVid(vid: String!): Post @field(resolver: "App\\Post@resolvePostByVid")
+}
 
 enum PostTag {
   """
@@ -107,4 +106,4 @@ enum PostTag {
   娱乐模块
   """
   PLAY @enum(value: 2)
-} 
+}

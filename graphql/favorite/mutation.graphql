@@ -1,3 +1,0 @@
-extend type Mutation {
-  toggleFavorited(id: Int!, type: String): Favorite! @field(resolver: "App\\Favorite@resolveToggleFavorite")
-}

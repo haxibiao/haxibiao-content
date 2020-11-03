@@ -4,11 +4,15 @@ namespace Haxibiao\Content\Traits;
 
 use App\Action;
 use App\Collection;
+use App\Comment;
 use App\Exceptions\GQLException;
 use App\Gold;
 use App\Image;
 use App\Spider;
+use App\User;
 use App\Visit;
+use Carbon\Carbon;
+use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Jobs\PublishNewPosts;
 use Haxibiao\Content\Post;
 use Haxibiao\Content\PostRecommend;
@@ -28,19 +32,26 @@ trait PostRepo
     //创建post（video和image），不处理issue问答创建了
     public function resolveCreateContent($root, array $args, $context, $info)
     {
-        if (BadWordUtils::check(Arr::get($args, 'body'))) {
-            throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+        if (in_array(config('app.name'), ['dongmeiwei'])) {
+            $islegal = app('SensitiveUtils')->islegal(Arr::get($args, 'body'));
+            if ($islegal) {
+                throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+            }
+        } else {
+            if (BadWordUtils::check(Arr::get($args, 'body'))) {
+                throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+            }
         }
         //参数格式化
         $inputs = [
-            'body'         => Arr::get($args, 'body'),
-            'category_ids' => Arr::get($args, 'category_ids', null),
-            'product_id'   => Arr::get($args, 'product_id', null),
-            'images'       => Arr::get($args, 'images', null),
-            'video_id'     => Arr::get($args, 'video_id', null),
-            'qcvod_fileid' => Arr::get($args, 'qcvod_fileid', null),
-            'share_link'   => data_get($args, 'share_link', null),
-            'collection_ids'   => data_get($args, 'collection_ids', null),
+            'body'           => Arr::get($args, 'body'),
+            'category_ids'   => Arr::get($args, 'category_ids', null),
+            'product_id'     => Arr::get($args, 'product_id', null),
+            'images'         => Arr::get($args, 'images', null),
+            'video_id'       => Arr::get($args, 'video_id', null),
+            'qcvod_fileid'   => Arr::get($args, 'qcvod_fileid', null),
+            'share_link'     => data_get($args, 'share_link', null),
+            'collection_ids' => data_get($args, 'collection_ids', null),
 
         ];
 
@@ -87,7 +98,13 @@ trait PostRepo
      */
     public static function createPost($inputs)
     {
-        info($inputs);
+        if (in_array(config('app.name'), ['dongmeiwei'])) {
+            $islegal = app('SensitiveUtils')->islegal(data_get($inputs, 'body'));
+            if ($islegal) {
+                throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+            }
+        }
+
         try {
             $user = getUser();
             if ($user->isBlack()) {
@@ -107,7 +124,7 @@ trait PostRepo
                 $videoInfo = QcloudUtils::getVideoInfo($qcvod_fileid);
                 throw_if(is_null($videoInfo), GQLException::class, '收藏失败,请稍后重试!');
 
-//                //精力点校验
+                //                //精力点校验
                 //                throw_if($user->ticket < 1, UserException::class, '分享视频失败,精力点不足,请补充精力点!');
 
                 $sourceVideoUrl = data_get($videoInfo, 'basicInfo.sourceVideoUrl');
@@ -186,10 +203,15 @@ trait PostRepo
                     $post->review_id  = static::makeNewReviewId();
                     $post->review_day = static::makeNewReviewDay();
                     $post->save();
-                    //默认添加抖音中的标签
-                    self::extractTag($post);
-                    //默认添加抖音中的合集
-                    self::extractCollect($post);
+                    if ('dongdianyi' != (config('app.name'))) {
+                        //默认添加抖音中的标签
+                        self::extractTag($post);
+
+                        if ($post instanceof Collectionable) {
+                            //默认添加抖音中的合集
+                            self::extractCollect($post);
+                        }
+                    }
                 }
                 //触发更新事件-扣除精力点
                 $spider->updated_at = now();
@@ -201,10 +223,11 @@ trait PostRepo
                         $videoInfo      = QcloudUtils::getVideoInfo($qcvod_fileid);
                         $defalutPath    = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
                         $sourceVideoUrl = Arr::get($videoInfo, 'basicInfo.sourceVideoUrl', $defalutPath);
-
-                        $video = Video::firstOrNew([
-                            'qcvod_fileid' => $qcvod_fileid,
+                        $video  = Video::firstOrNew([
+                            'hash' => hash_file('md5', $sourceVideoUrl),
                         ]);
+                        throw_if($video->exists, GQLException::class, '该视频已经被上传过啦，换一个试试');
+                        $video->qcvod_fileid = $qcvod_fileid;
                         $video->user_id = $user->id;
                         //$video->hash         = hash_file('md5',$sourceVideoUrl);
                         $video->path = $sourceVideoUrl;
@@ -212,14 +235,31 @@ trait PostRepo
                         $video->title = Str::limit($body, 50);
                         $video->save();
                         //创建post
-                        $post             = new static();
-                        $post->user_id    = $user->id;
-                        $post->video_id   = $video->id;
-                        $post->status     = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
+                        $post           = new static();
+                        $post->user_id  = $user->id;
+                        $post->video_id = $video->id;
+                        if ('dongdianyi' == (config('app.name'))) {
+                            $post->status = Post::PUBLISH_STATUS;
+                        } else {
+                            $post->status = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
+                        }
                         $post->content    = $body;
                         $post->review_id  = static::makeNewReviewId();
                         $post->review_day = static::makeNewReviewDay();
                         $post->save();
+
+//                        $chain = [];
+                        //                        if(config('haxibiao-content.enabled_video_share',false)){
+                        //                            // 如果视频大于video_threshold_size,不处理metadata
+                        //                            $fileSize = data_get($videoInfo,'metaData.size',null);
+                        //                            $flag     = $fileSize && $fileSize < config('haxibiao-content.video_threshold_size',100*1024*1024);
+                        //                            if( $flag){
+                        //                                $chain = [
+                        //                                    new VideoAddMetadata($video),// 修改视频的metadata信息
+                        //                                ];
+                        //                            }
+                        //                        }
+                        //                        ProcessVod::withChain($chain)->dispatch($video);
                         ProcessVod::dispatch($video);
 
                         // 记录用户操作
@@ -276,11 +316,11 @@ trait PostRepo
             }
 
             // Sync分类关系
-            if ($inputs['category_ids']) {
+            if ($inputs['category_ids'] ?? null) {
                 $post->categorize($inputs['category_ids']);
             }
-            if ($inputs['collection_ids']) {
-                $post->collectable($inputs['collection_ids']);
+            if ($inputs['collection_ids'] ?? null) {
+                $post->collectivize($inputs['collection_ids']);
             }
             app_track_event('发布', '发布Post动态');
             return $post;
@@ -620,8 +660,6 @@ trait PostRepo
             $post->user_id = $spider->user_id;
             if (!config('app.name') == 'yinxiangshipin') {
                 $post->content = Arr::get($spider->data, 'title', '');
-            } else {
-                $post->content = Arr::get($spider->data, 'title', '');
             }
             $post->status     = Post::PRIVARY_STATUS; //草稿，爬虫抓取中
             $post->created_at = now();
@@ -636,6 +674,11 @@ trait PostRepo
         if ($post) {
             $post->video_id = $spider->spider_id; //爬虫的类型spider_type="videos",这个video_id只有爬虫成功后才有...
             static::publishPost($post);
+
+            // 延迟发布评论
+            dispatch(function ()use ($post,$spider){
+                static::publishComment($post,$spider);
+            })->onQueue('default')->delay(now()->addHours(2));
         }
     }
 
@@ -644,9 +687,15 @@ trait PostRepo
      */
     public static function publishPost($post)
     {
-        self::extractTag($post);
+        if ('dongdianyi' != (config('app.name'))) {
+            self::extractTag($post);
+            self::extractCollect($post);
+        }
         $post->status = Post::PUBLISH_STATUS; //发布成功动态
 
+        if (config('app.name') == 'ablm') {
+            $post->tag_id = 2;
+        }
         // $post->review_id  = Post::makeNewReviewId(); //定时发布时决定，有定时任务处理一定数量或者时间后随机打乱
         // $post->review_day = Post::makeNewReviewDay();
         $post->save();
@@ -672,7 +721,11 @@ trait PostRepo
              */
             if (!in_array(config('app.name'), ['caohan', 'yinxiangshipin', 'ainicheng'])) {
                 //触发奖励
-                Gold::makeIncome($user, 10, '分享视频奖励');
+                if ($user->id == 2) {
+                    Gold::makeIncome($user, 6, '测试分享视频奖励');
+                } else {
+                    Gold::makeIncome($user, 10, '分享视频奖励');
+                }
             }
             //扣除精力-1
             if ($user->ticket > 0) {
@@ -680,6 +733,80 @@ trait PostRepo
             }
         }
     }
+
+    /**
+     * 关联评论
+     */
+    public static function  publishComment($post,$spider){
+        $dateList = create_date_array(15,now()->subHours(2),now());
+        $dateList = array_pluck($dateList,'time');
+        // 获取随机时间
+        $commentList = data_get($spider,'data.comment.data.shortVideoCommentList.commentList',[]);
+        $userIds = User::where('role_id',User::VEST_STATUS)
+            ->pluck('id')
+            ->toArray();
+        shuffle($userIds);
+        foreach ($commentList as $comment){
+            $likedCount = data_get($comment,'likedCount');
+            if($likedCount < 100){
+                continue;
+            }
+            $content   = data_get($comment,'content');
+            if(str_contains($content,'@')){
+                continue;
+            }
+            $content = preg_replace('/\[.*?\]/','',$content);
+            $content = str_replace(['快手', '快看'], '', $content);
+            $content = trim($content);
+            if(!$content){
+                continue;
+            }
+            $createAt = array_shift($dateList);
+            if(!$createAt){
+                return;
+            }
+            $commentModel                   = new Comment();
+            $commentModel->user_id          = array_shift($userIds);
+            $commentModel->commentable_type = 'posts';
+            $commentModel->commentable_id   = $post->id;
+            $commentModel->body             = $content;
+            $commentModel->created_at       = $createAt;
+            $commentModel->updated_at       = $createAt;
+            $commentModel->save(['timestamps'=>false]);
+            $i = 0;
+            $subCommentList = data_get($comment,'subComments');
+            foreach ($subCommentList as $subComment){
+                // 只抓取前三条回复
+                if( $i>=3 ){
+                    return;
+                }
+                $subCommentContent    = data_get($subComment,'content');
+                if(str_contains($subCommentContent,'@')){
+                    continue;
+                }
+                $subCommentContent = preg_replace('/\[.*?\]/','',$subCommentContent);
+                $subCommentContent = str_replace(['快手', '快看'], '', $subCommentContent);
+                if(!$subCommentContent){
+                    continue;
+                }
+                $createAt = array_shift($dateList);
+                if(!$createAt){
+                    return;
+                }
+
+                $subCommentModel                   = new Comment();
+                $subCommentModel->user_id          = array_shift($userIds);
+                $subCommentModel->commentable_type = 'comments';
+                $subCommentModel->commentable_id   = $commentModel->id;
+                $subCommentModel->body             = $subCommentContent;
+                $subCommentModel->created_at       = $createAt;
+                $subCommentModel->updated_at       = $createAt;
+                $subCommentModel->save(['timestamps'=>false]);
+                $i++;
+            }
+        }
+    }
+
 
     public static function extractTag($post)
     {
@@ -719,25 +846,50 @@ trait PostRepo
         if (!$spider) {
             return;
         }
-        $collections  = data_get($spider, 'data.raw.item_list.0.cha_list',[]);
-        if (!$collections) {
+        $mixInfo = data_get($spider, 'data.raw.item_list.0.mix_info');
+        if (!$mixInfo) {
             return;
         }
-        $collectionIds=[];
-        foreach ($collections as $collection) {
-            $collectionName = data_get($collection, 'cha_name');
-            $collectionByName = Collection::getCollectionByName($collectionName);
-            $collectionIds[]= $collectionByName->id;
+
+        $name       = data_get($mixInfo, 'mix_name');
+        $user_id    = checkUser() ? getUser()->id : $post->user_id;
+        $img        = data_get($mixInfo, 'cover_url.url_list.0');
+        $collection = Collection::firstOrNew([
+            'name'    => $name,
+            'user_id' => $user_id,
+        ]);
+        if (!$collection->exists) {
+            if ($img) {
+                $img = Image::saveImage($img);
+            }
+            $collection->forceFill([
+                'description' => data_get($mixInfo, 'desc') ?? "",
+                'logo'        => data_get($img, 'path'),
+                'type'        => 'posts',
+                'status'      => Collection::STATUS_ONLINE,
+                'json'        => [
+                    'mix_info' => $mixInfo,
+                ],
+            ])->save();
         }
-        // 合集
-        $post->collectable($collectionIds);
-        $post->save();
+
+        $collection->posts()
+            ->syncWithoutDetaching([
+                $post->id => [
+                    'sort_rank' => data_get($mixInfo, 'statis.current_episode'),
+                ],
+            ]);
+        $collection->updateCountPosts();
     }
 
     //个人主页动态
-    public static function posts($user_id)
+    public static function posts($user_id, $keyword = null)
     {
-        return static::latest('id')->publish()->where('user_id', $user_id);
+        $qb = static::latest('id')->publish()->where('user_id', $user_id);
+        if (!empty($keyword)) {
+            $qb = $qb->where('description', 'like', "%{$keyword}%");
+        }
+        return $qb;
     }
 
     //分享post链接
@@ -763,7 +915,8 @@ trait PostRepo
         $userBlockId    = [];
         $articleBlockId = [];
         $query          = static::publish()
-            ->orderBy('id', 'desc');
+            ->whereBetWeen('created_at', [today()->subDay(7), today()])
+            ->inRandomOrder();
         if (($user = getUser(false)) && class_exists("App\\UserBlock", true)) {
             $userBlockId    = \App\UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
             $articleBlockId = \App\UserBlock::select('article_block_id')->whereNotNull('article_block_id')->where('user_id', $user->id)->get();

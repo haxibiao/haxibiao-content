@@ -3,18 +3,19 @@
 namespace Haxibiao\Content;
 
 use App\Comment;
-use App\Image;
 use App\Like;
 use App\Model;
 use App\User;
 use App\Video;
 use Carbon\Carbon;
+use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Traits\CanCollect;
 use Haxibiao\Content\Traits\Categorizable;
 use Haxibiao\Content\Traits\PostAttrs;
 use Haxibiao\Content\Traits\PostOldPatch;
 use Haxibiao\Content\Traits\PostRepo;
 use Haxibiao\Content\Traits\PostResolvers;
+use Haxibiao\Media\Image;
 use Haxibiao\Media\Spider;
 use Haxibiao\Media\Traits\WithImage;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,7 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class Post extends Model
+class Post extends Model implements Collectionable
 {
     use SoftDeletes;
 
@@ -66,8 +67,11 @@ class Post extends Model
             //设置review_id 和 review_day
             $post->initReviewIdAndReviewDay();
 
-            // 公司用户展示权利交给马甲号
-            $post->transferToVest();
+        });
+        //更新时触发--方便保证spider中有相关数据
+        self::updating(function ($post) {
+          // 公司用户展示权利交给马甲号
+          $post->transferToVest();
         });
     }
 
@@ -323,16 +327,31 @@ class Post extends Model
             return;
         }
 
+        // 数据库不完整
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('posts', 'owner_id')) {
+            return;
+        }
+
+        // 有合集的抖音视频&&已经分配过马甲号 不分发马甲号
+        $spiderId = data_get($this,'spider_id');
+        if($spiderId){
+            $spider   = Spider::find($spiderId);
+            $mixInfo = data_get($spider,'data.raw.item_list.0.mix_info');
+            if($mixInfo && $this->owner_id){
+                $this->user_id = $this->owner_id;
+                return;
+            }
+            if($mixInfo){
+                return;
+            }
+        }
+
         // 普通用户不执行马甲逻辑
         $roleId = $user->role_id;
         if (!in_array($roleId, [User::EDITOR_STATUS, User::ADMIN_STATUS])) {
             return;
         }
 
-        // 数据库不完整
-        if (!\Illuminate\Support\Facades\Schema::hasColumn('posts', 'owner_id')) {
-            return;
-        }
         $userIds = User::where('role_id', User::VEST_STATUS)->pluck('id')->toArray();
         $userIds = array_merge($userIds, [$user->id]);
         $vestId  = array_random($userIds);

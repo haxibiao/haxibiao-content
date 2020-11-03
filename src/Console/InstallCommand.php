@@ -63,8 +63,8 @@ class InstallCommand extends Command
         $this->comment("复制 stubs ...");
         copy(__DIR__ . '/stubs/Post.stub', app_path('Post.php'));
         copy(__DIR__ . '/stubs/Article.stub', app_path('Article.php'));
-        copy(__DIR__ . '/stubs/Favorite.stub', app_path('Favorite.php'));
         copy(__DIR__ . '/stubs/PostRecommend.stub', app_path('PostRecommend.php'));
+        copy(__DIR__ . '/stubs/Collection.stub', app_path('Collection.php'));
 
         //FIXME: 暂时不强制同步App\Category，动静太大，可以在需要的场景用 不同namespace 下的 Category(区分 Content 和 Question包)
         // copy($this->resolveStubPath('/stubs/Category.stub'), app_path('Category.php'));

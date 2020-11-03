@@ -1,22 +1,85 @@
 type Collection {
   id: Int!
   name: String!
+  """
+  合集描述
+  """
   description: String!
-  logo: String @rename(attribute: "image")
+  """
+  合集播放量
+  """
+  count_views: String @rename(attribute: "count_plays")
+  """
+  封面图
+  """
+  logo: String
   status: Int
+  """
+  合集类型
+  """
   type: String
   count_articles: Int
   count_follows: Int
+  count_posts: Int
   followed: Int
   user: User!
   """
-  合集内的视频
+  最新的合集数
   """
-  posts: [Post]
+  updated_to_episode: Int
+  """
+  合集内的动态
+  """
+  posts(
+    count: Int = 10
+    page: Int = 1
+    order: PostOrderEnum = LATEST
+  ): PostPaginator @field(resolver: "App\\Collection@resolverPosts")
+}
+"""
+推荐集合列表
+"""
+type CollectionsList {
+  topCover: String
+  topCollection: Collection
+  recommendCollectionsA: [Collection!]
+  recommendCollectionsB: [Collection!]
 }
 
 extend type Query {
-  collections(user_id: Int! @eq): [Collection!] @paginate(defaultCount: 10)
-  collection(collection_id: Int!): Collection @field(resolver: "App\\Collection@resolveCollection")
-  shareCollection(collection_id: Int!): Collection @field(resolver: "App\\Collection@getShareLink")
+  """
+  某用户的合集
+  """
+  collections(user_id: Int!): [Collection!]
+    @paginate(defaultCount: 10, builder: "App\\Collection@resolveCollections")
+  collection(collection_id: Int!): Collection
+    @field(resolver: "App\\Collection@resolveCollection")
+
+  """
+  分享集合
+  """
+  shareCollection(collection_id: Int!): String
+    @field(resolver: "App\\Collection@getShareLink")
+  """
+  搜索集合
+  """
+  searchCollections(query: String!): [Collection]
+    @paginate(
+      defaultCount: 5
+      builder: "App\\Collection@resolveSearchCollections"
+    )
+  """
+  随机推荐的一组集合
+  """
+  randomCollections(
+    count: Int = 10
+    page: Int = 1
+    order: PostOrderEnum = LATEST
+  ): CollectionPaginator
+    @field(resolver: "App\\Collection@resolveRandomCollections")
+  """
+  推荐集合
+  """
+  recommendCollections: CollectionsList
+    @field(resolver: "App\\Collection@resolveRecommendCollections")
 }
