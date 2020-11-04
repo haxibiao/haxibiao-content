@@ -11,7 +11,6 @@ use App\Image;
 use App\Spider;
 use App\User;
 use App\Visit;
-use Carbon\Carbon;
 use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Jobs\PublishNewPosts;
 use Haxibiao\Content\Post;
@@ -82,7 +81,11 @@ trait PostRepo
 
         $tagNames = data_get($args, 'tag_names', []);
         if ($tagNames) {
-            $post->tagByNames($tagNames);
+            //答转tag表可能还有用，先不存标签
+            if (!env('APP_NAME') == "datizhuanqian") {
+                $post->tagByNames($tagNames);
+            }
+
             $post->save();
         }
 
@@ -223,12 +226,12 @@ trait PostRepo
                         $videoInfo      = QcloudUtils::getVideoInfo($qcvod_fileid);
                         $defalutPath    = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
                         $sourceVideoUrl = Arr::get($videoInfo, 'basicInfo.sourceVideoUrl', $defalutPath);
-                        $video  = Video::firstOrNew([
+                        $video          = Video::firstOrNew([
                             'hash' => hash_file('md5', $sourceVideoUrl),
                         ]);
                         throw_if($video->exists, GQLException::class, '该视频已经被上传过啦，换一个试试');
                         $video->qcvod_fileid = $qcvod_fileid;
-                        $video->user_id = $user->id;
+                        $video->user_id      = $user->id;
                         //$video->hash         = hash_file('md5',$sourceVideoUrl);
                         $video->path = $sourceVideoUrl;
                         // $video->cover = '...'; //TODO: 待王彬新 sdk 提供封面cdn url
@@ -676,8 +679,8 @@ trait PostRepo
             static::publishPost($post);
 
             // 延迟发布评论
-            dispatch(function ()use ($post,$spider){
-                static::publishComment($post,$spider);
+            dispatch(function () use ($post, $spider) {
+                static::publishComment($post, $spider);
             })->onQueue('default')->delay(now()->addHours(2));
         }
     }
@@ -737,32 +740,33 @@ trait PostRepo
     /**
      * 关联评论
      */
-    public static function  publishComment($post,$spider){
-        $dateList = create_date_array(15,now()->subHours(2),now());
-        $dateList = array_pluck($dateList,'time');
+    public static function publishComment($post, $spider)
+    {
+        $dateList = create_date_array(15, now()->subHours(2), now());
+        $dateList = array_pluck($dateList, 'time');
         // 获取随机时间
-        $commentList = data_get($spider,'data.comment.data.shortVideoCommentList.commentList',[]);
-        $userIds = User::where('role_id',User::VEST_STATUS)
+        $commentList = data_get($spider, 'data.comment.data.shortVideoCommentList.commentList', []);
+        $userIds     = User::where('role_id', User::VEST_STATUS)
             ->pluck('id')
             ->toArray();
         shuffle($userIds);
-        foreach ($commentList as $comment){
-            $likedCount = data_get($comment,'likedCount');
-            if($likedCount < 100){
+        foreach ($commentList as $comment) {
+            $likedCount = data_get($comment, 'likedCount');
+            if ($likedCount < 100) {
                 continue;
             }
-            $content   = data_get($comment,'content');
-            if(str_contains($content,'@')){
+            $content = data_get($comment, 'content');
+            if (str_contains($content, '@')) {
                 continue;
             }
-            $content = preg_replace('/\[.*?\]/','',$content);
+            $content = preg_replace('/\[.*?\]/', '', $content);
             $content = str_replace(['快手', '快看'], '', $content);
             $content = trim($content);
-            if(!$content){
+            if (!$content) {
                 continue;
             }
             $createAt = array_shift($dateList);
-            if(!$createAt){
+            if (!$createAt) {
                 return;
             }
             $commentModel                   = new Comment();
@@ -772,25 +776,25 @@ trait PostRepo
             $commentModel->body             = $content;
             $commentModel->created_at       = $createAt;
             $commentModel->updated_at       = $createAt;
-            $commentModel->save(['timestamps'=>false]);
-            $i = 0;
-            $subCommentList = data_get($comment,'subComments');
-            foreach ($subCommentList as $subComment){
+            $commentModel->save(['timestamps' => false]);
+            $i              = 0;
+            $subCommentList = data_get($comment, 'subComments');
+            foreach ($subCommentList as $subComment) {
                 // 只抓取前三条回复
-                if( $i>=3 ){
+                if ($i >= 3) {
                     return;
                 }
-                $subCommentContent    = data_get($subComment,'content');
-                if(str_contains($subCommentContent,'@')){
+                $subCommentContent = data_get($subComment, 'content');
+                if (str_contains($subCommentContent, '@')) {
                     continue;
                 }
-                $subCommentContent = preg_replace('/\[.*?\]/','',$subCommentContent);
+                $subCommentContent = preg_replace('/\[.*?\]/', '', $subCommentContent);
                 $subCommentContent = str_replace(['快手', '快看'], '', $subCommentContent);
-                if(!$subCommentContent){
+                if (!$subCommentContent) {
                     continue;
                 }
                 $createAt = array_shift($dateList);
-                if(!$createAt){
+                if (!$createAt) {
                     return;
                 }
 
@@ -801,12 +805,11 @@ trait PostRepo
                 $subCommentModel->body             = $subCommentContent;
                 $subCommentModel->created_at       = $createAt;
                 $subCommentModel->updated_at       = $createAt;
-                $subCommentModel->save(['timestamps'=>false]);
+                $subCommentModel->save(['timestamps' => false]);
                 $i++;
             }
         }
     }
-
 
     public static function extractTag($post)
     {
@@ -835,7 +838,11 @@ trait PostRepo
             $post->description = trim($description);
         }
         // 标签
-        $post->tagByNames($tagNames);
+        //答转tag表可能还有用，先不存标签
+        if (!env('APP_NAME') == "datizhuanqian") {
+            $post->tagByNames($tagNames);
+        }
+
         $post->save();
     }
 
