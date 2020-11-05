@@ -298,8 +298,10 @@ class Post extends Model implements Collectionable
         $new_num = $count + $temp_num;
 
         //赋值
-        $this->review_id  = str_replace("-", "", Carbon::today()->toDateString()) . substr($new_num, 1, 5);
-        $this->review_day = str_replace("-", "", Carbon::today()->toDateString());
+        if(is_null($this->review_id)){
+            $this->review_id  = str_replace("-", "", Carbon::today()->toDateString()) . substr($new_num, 1, 5);
+            $this->review_day = str_replace("-", "", Carbon::today()->toDateString());
+        }
     }
 
     public static function getStatuses()
