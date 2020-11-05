@@ -331,18 +331,21 @@ class Post extends Model implements Collectionable
         if (!\Illuminate\Support\Facades\Schema::hasColumn('posts', 'owner_id')) {
             return;
         }
-
-        // 有合集的抖音视频&&已经分配过马甲号 不分发马甲号
-        $spiderId = data_get($this,'spider_id');
-        if($spiderId){
-            $spider   = Spider::find($spiderId);
-            $mixInfo = data_get($spider,'data.raw.item_list.0.mix_info');
-            if($mixInfo && $this->owner_id){
-                $this->user_id = $this->owner_id;
-                return;
-            }
-            if($mixInfo){
-                return;
+        // 动态是否开启默认生成合集
+        $postOpenCollection = config('haxibiao-content.post_open_collection', true);
+        if($postOpenCollection){
+            // 有合集的抖音视频&&已经分配过马甲号 不分发马甲号
+            $spiderId = data_get($this,'spider_id');
+            if($spiderId){
+                $spider   = Spider::find($spiderId);
+                $mixInfo = data_get($spider,'data.raw.item_list.0.mix_info');
+                if($mixInfo && $this->owner_id){
+                    $this->user_id = $this->owner_id;
+                    return;
+                }
+                if($mixInfo){
+                    return;
+                }
             }
         }
 

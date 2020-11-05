@@ -31,6 +31,9 @@ return [
     // 动态是否开启马甲号分发
     'post_open_vest' => env('POST_OPEN_VEST', false),
 
+    // 马甲号的动态是否开启合集
+    'post_open_collection' => env('POST_OPEN_COLLECTION', true),
+
     // 合集默认封面图片
     'collection_default_logo' => 'http://haxibiao-1251052432.cos.ap-guangzhou.myqcloud.com/images/collection.png',
 

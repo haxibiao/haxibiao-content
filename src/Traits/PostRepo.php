@@ -209,10 +209,13 @@ trait PostRepo
                     if ('dongdianyi' != (config('app.name'))) {
                         //默认添加抖音中的标签
                         self::extractTag($post);
-
-                        if ($post instanceof Collectionable) {
-                            //默认添加抖音中的合集
-                            self::extractCollect($post);
+                        // 动态是否开启默认生成合集
+                        $postOpenCollection = config('haxibiao-content.post_open_collection', true);
+                        if($postOpenCollection){
+                            if ($post instanceof Collectionable) {
+                                //默认添加抖音中的合集
+                                self::extractCollect($post);
+                            }
                         }
                     }
                 }
@@ -692,7 +695,11 @@ trait PostRepo
     {
         if ('dongdianyi' != (config('app.name'))) {
             self::extractTag($post);
-            self::extractCollect($post);
+            // 动态是否开启默认生成合集
+            $postOpenCollection = config('haxibiao-content.post_open_collection', true);
+            if($postOpenCollection){
+                self::extractCollect($post);
+            }
         }
         $post->status = Post::PUBLISH_STATUS; //发布成功动态
 
