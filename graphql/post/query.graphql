@@ -64,7 +64,7 @@ extend type Query {
   """
   个人主页动态列表
   """
-  posts(user_id: Int!, keyword: String): [Post!]
+  posts(user_id: Int!,keyword: String,type:PostType=VIDEO): [Post!]
     @paginate(builder: "App\\Post@resolvePosts", defaultCount: 10)
 
   """

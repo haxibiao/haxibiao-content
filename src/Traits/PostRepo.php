@@ -897,9 +897,14 @@ trait PostRepo
     }
 
     //个人主页动态
-    public static function posts($user_id, $keyword = null)
+    public static function posts($user_id, $keyword = null,$type='VIDEO')
     {
-        $qb = static::latest('id')->publish()->where('user_id', $user_id);
+        $qb = static::latest('id')->publish()->where('user_id', $user_id)
+        ->when($type == 'VIDEO', function ($q) {
+            return $q->whereNotNull('video_id');
+        })->when($type == 'IMAGE', function ($q) {
+        return $q->whereNull('video_id');
+        });
         if (!empty($keyword)) {
             $qb = $qb->where('description', 'like', "%{$keyword}%");
         }
