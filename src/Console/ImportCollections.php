@@ -151,6 +151,7 @@ class ImportCollections extends Command
                     }
                     //同步post到collection中
                     $intoCollection->posts()->syncWithoutDetaching($post_ids);
+                    $intoCollection->updateCountPosts();
                     //事务提交
                     DB::commit();
                 } catch (\Exception $ex) {
