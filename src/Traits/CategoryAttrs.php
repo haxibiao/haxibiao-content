@@ -4,6 +4,7 @@ namespace Haxibiao\Content\Traits;
 
 use Haxibiao\Content\Category;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 trait CategoryAttrs
 {
@@ -59,7 +60,16 @@ trait CategoryAttrs
 
     public function getLogoUrlAttribute()
     {
-        return $this->logo;
+        $logo=$this->logo;
+        $defaultImage = config('haxibiao-content.collection_default_logo');
+        if(is_null($logo)){
+            return $defaultImage;
+        }
+        if(str_contains($logo,'http')){
+            return $logo;
+        }else{
+            return Storage::url($logo);
+        }
     }
 
     public function getIconUrlAttribute()
