@@ -68,7 +68,7 @@ trait CategoryAttrs
         if(str_contains($logo,'http')){
             return $logo;
         }else{
-            return Storage::url($logo);
+            return Storage::public()->url($logo);
         }
     }
 
