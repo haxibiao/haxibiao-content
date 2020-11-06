@@ -27,7 +27,7 @@ trait PostResolvers
 
     public function resolvePosts($root, $args, $context, $info)
     {
-        app_track_event("用户页", "视频动态");
+        app_track_event("用户页", "我发布的视频动态");
         $type  = data_get($args,'type');
         return static::posts($args['user_id'], data_get($args, 'keyword'),$type);
     }
