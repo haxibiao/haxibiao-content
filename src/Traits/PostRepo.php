@@ -2,28 +2,29 @@
 
 namespace Haxibiao\Content\Traits;
 
-use App\Action;
-use App\Collection;
-use App\Comment;
-use App\Exceptions\GQLException;
 use App\Gold;
-use App\Image;
-use App\Spider;
 use App\User;
+use App\Image;
 use App\Visit;
-use Haxibiao\Content\Constracts\Collectionable;
-use Haxibiao\Content\Jobs\PublishNewPosts;
-use Haxibiao\Content\Post;
-use Haxibiao\Content\PostRecommend;
-use Haxibiao\Helpers\BadWordUtils;
-use Haxibiao\Helpers\QcloudUtils;
-use Haxibiao\Media\Events\PostPublishSuccess;
-use Haxibiao\Media\Jobs\ProcessVod;
+use App\Action;
+use App\Spider;
+use App\Comment;
+use App\Collection;
 use Haxibiao\Media\Video;
+use Haxibiao\Content\Post;
 use Illuminate\Support\Arr;
+use Yansongda\Supports\Str;
+use App\Exceptions\GQLException;
+use Haxibiao\Helpers\QcloudUtils;
+use Haxibiao\Helpers\BadWordUtils;
+use Haxibiao\Content\PostRecommend;
+use Haxibiao\Media\Jobs\ProcessVod;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Yansongda\Supports\Str;
+use Haxibiao\Content\Jobs\PublishNewPosts;
+use Haxibiao\Helpers\Facades\SensitiveFacade;
+use Haxibiao\Media\Events\PostPublishSuccess;
+use Haxibiao\Content\Constracts\Collectionable;
 
 trait PostRepo
 {
@@ -31,8 +32,9 @@ trait PostRepo
     //创建post（video和image），不处理issue问答创建了
     public function resolveCreateContent($root, array $args, $context, $info)
     {
-        if (in_array(config('app.name'), ['dongmeiwei'])) {
-            $islegal = app('SensitiveUtils')->islegal(Arr::get($args, 'body'));
+
+        if (in_array(config('app.name'), ['dongmeiwei','yinxiangshipin','caohan'])) {
+            $islegal = SensitiveFacade::islegal(Arr::get($args, 'body'));
             if ($islegal) {
                 throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
             }
@@ -101,8 +103,8 @@ trait PostRepo
      */
     public static function createPost($inputs)
     {
-        if (in_array(config('app.name'), ['dongmeiwei'])) {
-            $islegal = app('SensitiveUtils')->islegal(data_get($inputs, 'body'));
+        if (in_array(config('app.name'), ['dongmeiwei','yinxiangshipin','caohan'])) {
+            $islegal = SensitiveFacade::islegal(data_get($inputs, 'body'));
             if ($islegal) {
                 throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
             }

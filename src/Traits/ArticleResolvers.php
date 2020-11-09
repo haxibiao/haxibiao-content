@@ -2,16 +2,17 @@
 
 namespace Haxibiao\Content\Traits;
 
+use App\Visit;
 use App\Article;
+use Haxibiao\Content\Post;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use App\Exceptions\GQLException;
 use App\Scopes\ArticleSubmitScope;
-use Haxibiao\Content\Post;
 use Haxibiao\Helpers\BadWordUtils;
-use App\Visit;
-use GraphQL\Type\Definition\ResolveInfo;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
+use GraphQL\Type\Definition\ResolveInfo;
+use Haxibiao\Helpers\Facades\SensitiveFacade;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 trait ArticleResolvers
@@ -54,8 +55,8 @@ trait ArticleResolvers
     }
     public function createContent($root, array $args, $context)
     {
-        if (in_array(config('app.name'), ['dongmeiwei'])){
-            $islegal = app('SensitiveUtils')->islegal(Arr::get($args, 'body'));
+        if (in_array(config('app.name'), ['dongmeiwei','yinxiangshipin','caohan'])){
+            $islegal =SensitiveFacade::islegal(Arr::get($args, 'body'));
             if ($islegal) {
                 throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
             }
@@ -349,7 +350,7 @@ trait ArticleResolvers
         $description = trim($description);
 
         if (in_array(config('app.name'), ['dongmeiwei'])){
-            $islegal = app('SensitiveUtils')->islegal(Arr::get($description, 'body'));
+            $islegal = SensitiveFacade::islegal(Arr::get($description, 'body'));
             if ($islegal) {
                 throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
             }
