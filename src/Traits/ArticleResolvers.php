@@ -55,7 +55,7 @@ trait ArticleResolvers
     }
     public function createContent($root, array $args, $context)
     {
-        if (in_array(config('app.name'), ['dongmeiwei','yinxiangshipin','caohan'])){
+        if (in_array(config('app.name'), ['dongmeiwei','yinxiangshipin','caohan','dianyintujie','diudie'])){
             $islegal =SensitiveFacade::islegal(Arr::get($args, 'body'));
             if ($islegal) {
                 throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
