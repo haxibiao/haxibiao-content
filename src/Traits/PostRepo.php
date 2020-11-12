@@ -936,7 +936,7 @@ trait PostRepo
         $userBlockId    = [];
         $articleBlockId = [];
         $query          = static::publish()
-            ->whereBetWeen('created_at', [today()->subDay(7), today()])
+            ->whereBetWeen('created_at', [now()->subDay(7), now()])
             ->inRandomOrder();
         if (!empty($query)){
             $query          = static::publish()->inRandomOrder();
