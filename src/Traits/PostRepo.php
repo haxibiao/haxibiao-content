@@ -829,7 +829,7 @@ trait PostRepo
         $tagNames    = [];
         $tagList     = data_get($spider, 'data.raw.item_list.0.text_extra', []);
         $shareTitle  = data_get($spider, 'data.raw.item_list.0.share_info.share_title');
-        $description = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音', '@DOU+小助手'], '', $shareTitle);
+        $description = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音', '@DOU+小助手','快手','#快手创作者服务中心',' @快手小助手','#快看'], '', $shareTitle);
         if (!$post->content) {
             $post->content = trim($description);
         }
