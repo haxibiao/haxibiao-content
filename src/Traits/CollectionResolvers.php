@@ -217,12 +217,13 @@ trait CollectionResolvers
         //动态数量大于三的
         $qb = $qb->where('count_posts', '>=', 3);
         //按照合集创建时间排序
-        $qb    = $qb->whereBetWeen('created_at', [now()->subDay(30), now()]);
+        $qb    = $qb->whereBetWeen('created_at', [now()->subDay(60), now()]);
 
         $total=$qb->count();
         $array = $qb
             ->skip(($currentPage * $perPage) - $perPage)
             ->take($perPage)
+            ->orderBy('created_at','desc')
             // ->inRandomOrder()
             ->get();
 
