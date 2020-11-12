@@ -59,7 +59,7 @@ class ImportCollections extends Command
 
     public function importCollect($origin = 'yxsp')
     {
-        Collection::on($origin)->has('posts')->where('count_posts', '>=', 3)->chunk(20, function ($collections) {
+        Collection::on($origin)->has('posts')->has('posts')->where('count_posts', '>=', 3)->chunk(20, function ($collections) {
             $this->info("import collections processing");
             foreach ($collections as $fromcollection) {
                 $this->info("import collections ".$fromcollection->name);
@@ -174,10 +174,16 @@ class ImportCollections extends Command
     public static function copyModel($fromObject, $toModel, $index = null, $user_id = null)
     {
         $object_attributes = array_except($fromObject->getAttributes(), ['id', 'created_at', 'updated_at']);
+       $object_attributes['status']=1;
+        $a=array_filter($object_attributes);
+        info($a);
         foreach ($object_attributes as $key=>$value) {
             if(self::isJsonCastable($key,$fromObject)){
                 $object_attributes[$key]=json_decode($value);
                 
+            }
+            if(is_null($value)){
+                unset($object_attributes[$key]);
             }
         }
         

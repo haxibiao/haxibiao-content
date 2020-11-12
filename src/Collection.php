@@ -3,14 +3,15 @@
 namespace Haxibiao\Content;
 
 use App\Visit;
-use Haxibiao\Content\Traits\CollectionResolvers;
-use Haxibiao\Helpers\Traits\PivotEventTrait;
-use Haxibiao\Helpers\Traits\Searchable;
+use Haxibiao\Base\Traits\ModelHelpers;
 use Haxibiao\Content\Traits\BaseModel;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Schema;
+use Haxibiao\Helpers\Traits\Searchable;
+use Illuminate\Database\Eloquent\Model;
+use Haxibiao\Helpers\Traits\PivotEventTrait;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Haxibiao\Content\Traits\CollectionResolvers;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class Collection extends Model
 {
@@ -246,4 +247,19 @@ class Collection extends Model
         $this->count_posts = $this->posts()->count();
         $this->save();
     }
+
+        //只保存数据，不更新时间
+        public function saveDataOnly()
+        {
+            //获取model里面的事件
+            $dispatcher = self::getEventDispatcher();
+    
+            //不触发事件
+            self::unsetEventDispatcher();
+            $this->timestamps = false;
+            $this->save();
+    
+            //启用事件
+            self::setEventDispatcher($dispatcher);
+        }
 }
