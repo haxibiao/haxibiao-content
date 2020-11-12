@@ -223,7 +223,7 @@ trait CollectionResolvers
         $array = $qb
             ->skip(($currentPage * $perPage) - $perPage)
             ->take($perPage)
-            ->inRandomOrder()
+            // ->inRandomOrder()
             ->get();
 
             $collections = new \Illuminate\Pagination\LengthAwarePaginator(
