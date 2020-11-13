@@ -21,7 +21,7 @@ class ImportCollections extends Command
      *
      * @var string
      */
-    protected $signature = 'import:collections {origin?}';
+    protected $signature = 'import:collections {origin?} {postCount?}';
 
     /**
      * The console command description.
@@ -48,18 +48,22 @@ class ImportCollections extends Command
     public function handle()
     {
         $origin = $this->argument('origin');
+        $postCount = $this->argument('postCount');
+
         $this->info("start import collections");
 
-        $this->importCollect($origin);
+        $this->importCollect($origin,$postCount);
 
         $this->info("finish import collections");
 
         return 1;
     }
 
-    public function importCollect($origin = 'yxsp')
+    public function importCollect($origin = 'yxsp',$postCount=3)
     {
-        Collection::on($origin)->has('posts')->has('posts')->where('count_posts', '>=', 3)->chunk(20, function ($collections) {
+        $origin= is_null($origin)?'yxsp':$origin;
+        $postCount= is_null($postCount)?3:$postCount;
+        Collection::on($origin)->has('posts')->where('count_posts', '>=', $postCount)->chunk(20, function ($collections) {
             $this->info("import collections processing");
             foreach ($collections as $fromcollection) {
                 $this->info("import collections ".$fromcollection->name);
@@ -68,7 +72,7 @@ class ImportCollections extends Command
                 try {
                     //新建user
                     $fromUser = $fromcollection->user;
-                    $user_attributes = array_except($fromUser->getAttributes(), ['id', 'created_at', 'updated_at', 'avatar']);
+                    $user_attributes = array_except($fromUser->getAttributes(), ['id', 'avatar']);
                     $intoUser = User::firstOrNew(
                         ['account' => $fromUser->account],
                         $user_attributes);
