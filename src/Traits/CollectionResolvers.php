@@ -216,6 +216,8 @@ trait CollectionResolvers
         }
         //动态数量大于三的
         $qb = $qb->where('count_posts', '>=', 3);
+        //过滤掉合集封面为默认封面的
+        $qb = $qb->where('logo', '!=', config('haxibiao-content.collection_default_logo'));
         //按照合集创建时间排序
         $qb    = $qb->whereBetWeen('created_at', [now()->subDay(60), now()]);
 
