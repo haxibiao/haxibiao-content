@@ -669,6 +669,10 @@ trait PostRepo
             if (!config('app.name') == 'yinxiangshipin') {
                 $post->content = Arr::get($spider->data, 'title', '');
             }
+            if (config('app.name') == 'datizhuanqian') {
+                $post->content     = $spider->title;
+                $post->description = $spider->title;
+            }
             $post->status     = Post::PRIVARY_STATUS; //草稿，爬虫抓取中
             $post->created_at = now();
             $post->save();
