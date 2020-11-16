@@ -585,7 +585,12 @@ trait PostRepo
             $qb_published = static::has('video')->with($withRelationList)->publish();
             $result       = $qb_published->latest('id')->skip(rand(1, 100))->take(20)->get();
             Visit::saveVisits($user, $result, 'posts');
-            return $result;
+            //增加广告展示
+            $mixPosts = $posts;
+            if (adIsOpened()) {
+                $mixPosts = static::mixPosts($result);
+            }
+            return $mixPosts;
         }
 
         //用户和当前这堆视频动态的 喜欢状态（是否已喜欢过，更新post->liked）
@@ -598,6 +603,7 @@ trait PostRepo
 
         //4.更新指针
         $postRecommend->updateCursor($posts);
+
 
         //混合广告视频
         $mixPosts = $posts;
