@@ -1,6 +1,6 @@
 <?php
 
-namespace Haxibiao\Content;
+namespace Haxibiao\Content\Traits;
 
 use App\Model;
 
