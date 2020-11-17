@@ -2,29 +2,29 @@
 
 namespace Haxibiao\Content\Traits;
 
-use App\Gold;
-use App\User;
-use App\Image;
-use App\Visit;
 use App\Action;
-use App\Spider;
-use App\Comment;
 use App\Collection;
-use Haxibiao\Media\Video;
-use Haxibiao\Content\Post;
-use Illuminate\Support\Arr;
-use Yansongda\Supports\Str;
+use App\Comment;
 use App\Exceptions\GQLException;
-use Haxibiao\Helpers\QcloudUtils;
-use Haxibiao\Helpers\BadWordUtils;
+use App\Gold;
+use App\Image;
+use App\Spider;
+use App\User;
+use App\Visit;
+use Haxibiao\Content\Constracts\Collectionable;
+use Haxibiao\Content\Jobs\PublishNewPosts;
+use Haxibiao\Content\Post;
 use Haxibiao\Content\PostRecommend;
+use Haxibiao\Helpers\BadWordUtils;
+use Haxibiao\Helpers\Facades\SensitiveFacade;
+use Haxibiao\Helpers\QcloudUtils;
+use Haxibiao\Media\Events\PostPublishSuccess;
 use Haxibiao\Media\Jobs\ProcessVod;
+use Haxibiao\Media\Video;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Haxibiao\Content\Jobs\PublishNewPosts;
-use Haxibiao\Helpers\Facades\SensitiveFacade;
-use Haxibiao\Media\Events\PostPublishSuccess;
-use Haxibiao\Content\Constracts\Collectionable;
+use Yansongda\Supports\Str;
 
 trait PostRepo
 {
@@ -33,7 +33,7 @@ trait PostRepo
     public function resolveCreateContent($root, array $args, $context, $info)
     {
 
-        if (in_array(config('app.name'), ['dongmeiwei','yinxiangshipin','caohan'])) {
+        if (in_array(config('app.name'), ['dongmeiwei', 'yinxiangshipin', 'caohan'])) {
             $islegal = SensitiveFacade::islegal(Arr::get($args, 'body'));
             if ($islegal) {
                 throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
@@ -103,7 +103,7 @@ trait PostRepo
      */
     public static function createPost($inputs)
     {
-        if (in_array(config('app.name'), ['dongmeiwei','yinxiangshipin','caohan'])) {
+        if (in_array(config('app.name'), ['dongmeiwei', 'yinxiangshipin', 'caohan'])) {
             $islegal = SensitiveFacade::islegal(data_get($inputs, 'body'));
             if ($islegal) {
                 throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
@@ -213,7 +213,7 @@ trait PostRepo
                         self::extractTag($post);
                         // 动态是否开启默认生成合集
                         $postOpenCollection = config('haxibiao-content.post_open_collection', true);
-                        if($postOpenCollection){
+                        if ($postOpenCollection) {
                             if ($post instanceof Collectionable) {
                                 //默认添加抖音中的合集
                                 self::extractCollect($post);
@@ -550,6 +550,11 @@ trait PostRepo
         if (class_exists("App\NotLike")) {
             $notLikIds = $user->notLikes()->ByType('users')->get()->pluck('not_likable_id')->toArray();
         }
+        if (class_exists('App\UserBlock')) {
+            $blockIds  = $user->userBlock()->pluck('user_block_id')->toArray();
+            $notLikIds = array_unique(array_merge($notLikIds, $blockIds));
+        }
+
         $notLikIds[] = $user->id; //默认不喜欢刷到自己的视频动态
         $qb          = $qb->whereNotIn('user_id', $notLikIds);
 
@@ -603,7 +608,6 @@ trait PostRepo
 
         //4.更新指针
         $postRecommend->updateCursor($posts);
-
 
         //混合广告视频
         $mixPosts = $posts;
@@ -709,7 +713,7 @@ trait PostRepo
             self::extractTag($post);
             // 动态是否开启默认生成合集
             $postOpenCollection = config('haxibiao-content.post_open_collection', true);
-            if($postOpenCollection){
+            if ($postOpenCollection) {
                 self::extractCollect($post);
             }
         }
@@ -839,7 +843,7 @@ trait PostRepo
         $tagNames    = [];
         $tagList     = data_get($spider, 'data.raw.item_list.0.text_extra', []);
         $shareTitle  = data_get($spider, 'data.raw.item_list.0.share_info.share_title');
-        $description = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音', '@DOU+小助手','快手','#快手创作者服务中心',' @快手小助手','#快看'], '', $shareTitle);
+        $description = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音', '@DOU+小助手', '快手', '#快手创作者服务中心', ' @快手小助手', '#快看'], '', $shareTitle);
         if (!$post->content) {
             $post->content = trim($description);
         }
@@ -909,13 +913,13 @@ trait PostRepo
     }
 
     //个人主页动态
-    public static function posts($user_id, $keyword = null,$type='VIDEO')
+    public static function posts($user_id, $keyword = null, $type = 'VIDEO')
     {
         $qb = static::latest('id')->publish()->where('user_id', $user_id)
-        ->when($type == 'VIDEO', function ($q) {
-            return $q->whereNotNull('video_id');
-        })->when($type == 'IMAGE', function ($q) {
-        return $q->whereNull('video_id');
+            ->when($type == 'VIDEO', function ($q) {
+                return $q->whereNotNull('video_id');
+            })->when($type == 'IMAGE', function ($q) {
+            return $q->whereNull('video_id');
         });
         if (!empty($keyword)) {
             $qb = $qb->where('description', 'like', "%{$keyword}%");
@@ -948,8 +952,8 @@ trait PostRepo
         $query          = static::publish()
             ->whereBetWeen('created_at', [now()->subDay(7), now()])
             ->inRandomOrder();
-        if (empty($query)){
-            $query          = static::publish()->inRandomOrder();
+        if (empty($query)) {
+            $query = static::publish()->inRandomOrder();
         }
         if (($user = getUser(false)) && class_exists("App\\UserBlock", true)) {
             $userBlockId    = \App\UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
