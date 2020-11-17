@@ -952,7 +952,7 @@ trait PostRepo
         $query          = static::publish()
             ->whereBetWeen('created_at', [now()->subDay(7), now()])
             ->inRandomOrder();
-        if (empty($query)) {
+        if ($query) {
             $query = static::publish()->inRandomOrder();
         }
         if (($user = getUser(false)) && class_exists("App\\UserBlock", true)) {
