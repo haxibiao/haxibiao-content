@@ -235,6 +235,18 @@ trait CollectionResolvers
             $perPage,
             $currentPage   
         );
+
+        // 兜底方案
+        if($qb->count() < 5) {
+            $array = Collection::whereNull('sort_rank')->get();
+            $collections = new \Illuminate\Pagination\LengthAwarePaginator(
+                $array->shuffle(),
+                $total,
+                $perPage,
+                $currentPage);
+            return $collections;
+        }
+
         return $collections;
     }
     /**
