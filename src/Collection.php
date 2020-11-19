@@ -223,6 +223,16 @@ class Collection extends Model
 
     public static function getTopCover()
     {
+       $update_time= \Storage::lastModified(self::TOP_COVER);
+       $interval=ceil((time()-$update_time)/86400);
+
+      //如果今天更新过，则拷贝一份新的更新名字
+        if($interval<=1){
+            $newCover='storage/collection/top_cover'.time().'png';
+            \Storage::copy(self::TOP_COVER, $newCover);            
+             return \Storage::cloud()->url($newCover);
+        }
+       //修改名字，以便前端能及时更新图片
         return \Storage::cloud()->url(self::TOP_COVER);
     }
 
