@@ -235,18 +235,6 @@ trait CollectionResolvers
             $perPage,
             $currentPage   
         );
-
-        // 兜底方案
-        if($qb->count() < 5) {
-            $array = Collection::whereNull('sort_rank')->get();
-            $collections = new \Illuminate\Pagination\LengthAwarePaginator(
-                $array->shuffle(),
-                $total,
-                $perPage,
-                $currentPage);
-            return $collections;
-        }
-
         return $collections;
     }
     /**
@@ -260,16 +248,13 @@ trait CollectionResolvers
 
         $qb = Collection::where('sort_rank', '>=', Collection::RECOMMEND_COLLECTION)
             ->orderby('sort_rank', 'asc');
-        $recommendCollectionsA = $qb->take(3)->get();
+        $recommendCollectionsA = $qb->take(3)->skip(0)->get();
         $recommendCollectionsB = $qb->take(3)->skip(3)->get();
 
         //降低rank值，减少出现的概率
-        foreach ($recommendCollectionsA as $collectionA) {
-            $collectionA->increment('sort_rank');
-        }
-        foreach ($recommendCollectionsB as $collectionB) {
-            $collectionB->increment('sort_rank');
-        }
+        Collection::whereIn('id',$recommendCollectionsA->pluck('id') )
+        ->whereIn('id',$recommendCollectionsB->pluck('id') )
+        ->increment('sort_rank');
         $result = [];
         //构建返回结果
         $result['topCover']              = Collection::getTopCover();
