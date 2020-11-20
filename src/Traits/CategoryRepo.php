@@ -3,7 +3,7 @@
 namespace Haxibiao\Content\Traits;
 
 use Haxibiao\Content\Category;
-use Haxibiao\Helpers\QcloudUtils;
+use Haxibiao\Helpers\utils\QcloudUtils;
 use Illuminate\Support\Facades\DB;
 
 trait CategoryRepo

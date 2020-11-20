@@ -9,7 +9,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use App\Exceptions\GQLException;
 use App\Scopes\ArticleSubmitScope;
-use Haxibiao\Helpers\BadWordUtils;
+use Haxibiao\Helpers\utils\BadWordUtils;
 use Illuminate\Support\Facades\Log;
 use GraphQL\Type\Definition\ResolveInfo;
 use Haxibiao\Helpers\Facades\SensitiveFacade;
