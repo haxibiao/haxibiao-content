@@ -227,7 +227,7 @@ class Collection extends Model
        $interval=ceil((time()-$update_time));
 
       //如果今天更新过，则拷贝一份新的更新名字
-        if($interval<=500){
+        if($interval<=100){
             $newCover='storage/collection/top_cover'.time().'.png';
             \Storage::cloud()->copy(self::TOP_COVER, $newCover);            
              return \Storage::cloud()->url($newCover);
