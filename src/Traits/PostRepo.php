@@ -443,8 +443,9 @@ trait PostRepo
             $offset = $offset == 0 ? mt_rand(0, 50) : $offset;
             $qb     = $qb->skip($offset);
         }
-        //获取数据
-        $posts = $qb->get();
+       //获取数据
+       $posts = $qb->whereNotNull('content')->get();
+
 
         if ($hasLogin) {
             //喜欢状态
