@@ -145,7 +145,7 @@ class Collection extends Model
 
     public function getUpdatedToEpisodeAttribute()
     {
-        return  $this->count_posts;
+        return  $this->posts()->count();
     }
 
     public function collect($collectableIds, $collectableType)
