@@ -444,7 +444,7 @@ trait PostRepo
             $qb     = $qb->skip($offset);
         }
        //获取数据
-       $posts = $qb->whereNotNull('content')->get();
+      $posts = $qb->get();
 
 
         if ($hasLogin) {
@@ -553,7 +553,7 @@ trait PostRepo
         }
         if (class_exists('App\UserBlock')) {
             $blockIds  = $user->userBlock()->pluck('user_block_id')->toArray();
-            $notLikIds = array_unique(array_merge($notLikIds, $blockIds));
+            $notLikIds = array_unique(array_filter(array_merge($notLikIds, $blockIds)));
         }
 
         $notLikIds[] = $user->id; //默认不喜欢刷到自己的视频动态
@@ -592,7 +592,7 @@ trait PostRepo
             $result       = $qb_published->latest('id')->skip(rand(1, 100))->take(20)->get();
             Visit::saveVisits($user, $result, 'posts');
             //增加广告展示
-            $mixPosts = $posts;
+            $mixPosts = $result;
             if (adIsOpened()) {
                 $mixPosts = static::mixPosts($result);
             }
@@ -634,6 +634,7 @@ trait PostRepo
         rsort($userReviewIds);
         $userReviewIdsByDay = [];
         //FIXME: UserAttr(userReviewIdsByDay) = 返回用户刷过的每天的指针记录的数组
+
         foreach ($userReviewIds as $userDayReviewId) {
             $reviewDay = substr($userDayReviewId, 0, 8);
             //生成数组
