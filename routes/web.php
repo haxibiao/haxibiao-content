@@ -36,11 +36,10 @@ Route::get('/share/collection/{id}', CollectionController::class . '@shareCollec
 /**
  * 问答
  */
-
+Route::post('/question/updateBackground', IssueController::class . '@add')->name('question.updateBackground');
 Route::resource('/question', IssueController::class);
 Route::resource('/answer', SolutionController::class);
 Route::get('/categories-for-question', IssueController::class . '@categories');
 Route::get('/question-bonused', IssueController::class . '@bonused');
-Route::post('/question-add', IssueController::class . '@add')->name('question.add');
 //TODO 这个里面还有梗,注意这个category的匹配顺序
 //Route::get('/{name_en}', CategoryController::class.'@name_en')->where('name_en', '(?!nova).*');

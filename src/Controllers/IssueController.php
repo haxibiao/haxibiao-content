@@ -23,7 +23,7 @@ class IssueController extends Controller
 
     public function add()
     {
-        $question             = Issue::findOrFail(request('question_id'));
+        $question             = Issue::findOrFail(request('issue_id'));
         $add                  = "\r\n\r\n" . now() . '补充：' . "\r\n" . request('answer');
         $question->background = $question->background . $add;
         $question->save();
