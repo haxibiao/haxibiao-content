@@ -1,6 +1,7 @@
 <?php
 
 namespace Haxibiao\Content\Traits;
+
 use App\User;
 use Illuminate\Support\Str;
 
@@ -9,7 +10,7 @@ trait IssueAttrs
 
     public function getImageUrlsAttribute()
     {
-        $urls= $this->images()->pluck('path')->map(function ($url) {
+        $urls = $this->images()->pluck('path')->map(function ($url) {
             if (isset($url)) {
                 if (Str::contains($url, 'http')) {
                     return $url;
@@ -39,18 +40,5 @@ trait IssueAttrs
     {
         return $this->images->first();
     }
-    public function getImage1Attribute()
-    {
-        return $this->images->first();
-    }
 
-    public function getImage2Attribute()
-    {
-        return $this->images->first();
-    }
-
-    public function getImage3Attribute()
-    {
-        return $this->images->first();
-    }
 }
