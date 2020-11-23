@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Content\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Issue;
 use App\IssueInvite;
 use App\Notifications\QuestionBonused;
@@ -11,8 +12,6 @@ use App\Solution;
 use App\Transaction;
 use App\User;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 
 class IssueController extends Controller
 {
@@ -29,23 +28,11 @@ class IssueController extends Controller
     //问题可以邀请用户列表,七天内只能邀请一次
     public function questionUninvited(Request $request, $issue_id)
     {
-        $user = $request->user();
-        //获取当前七天前邀请的用户
-        $inviteIds = $user->issueInvites()->where('issue_id', $issue_id)
-            ->whereRaw('DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= date(updated_at)')
-            ->pluck('invite_user_id')->toArray();
-        //获取当前关注的用户 并排除七天内邀请过的用户
-        $followUserIds = $user->followingUsers->whereNotIn('followed_id', $inviteIds)->pluck('followed_id')->toArray();
-
-        $users = [];
-        if ($followUserIds) {
-            $users = User::whereIn('id', $followUserIds)->get();
-            foreach ($users as $user) {
-                $user->fillForJs();
-                $user->invited = 0;
-            }
+        $users = User::latest('updated_at')->take(10)->get();
+        foreach ($users as $user) {
+            $user->fillForJs();
+            $user->invited = 0;
         }
-
         return $users;
     }
 
@@ -57,7 +44,7 @@ class IssueController extends Controller
         if ($invite_user) {
             $invite = IssueInvite::firstOrNew([
                 'user_id'        => $user->id,
-                'issue_id'    => $qid,
+                'issue_id'       => $qid,
                 'invite_user_id' => $invite_uid,
             ]);
             //避免重复发消息
@@ -93,7 +80,7 @@ class IssueController extends Controller
             }
 
             $issue->resolution_ids = implode($resolution_ids, ',');
-            $issue->closed       = true;
+            $issue->closed         = true;
             $issue->save();
 
             //选中的回答者分奖金，发消息
