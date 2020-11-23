@@ -79,7 +79,7 @@ class IssueController extends Controller
                 }
             }
 
-            $issue->resolution_ids = implode($resolution_ids, ',');
+            $issue->resolution_ids = implode(',', $resolution_ids);
             $issue->closed         = true;
             $issue->save();
 
@@ -88,17 +88,16 @@ class IssueController extends Controller
             foreach ($issue->selectedAnswers() as $answer) {
                 $answer->bonus = $bonus_each;
                 $answer->save();
-
-                //到账
-                Transaction::create([
-                    'user_id' => $answer->user->id,
-                    'type'    => '付费回答奖励',
-                    'log'     => $issue->link() . '选中了您的回答',
-                    'amount'  => $bonus_each,
-                    'status'  => '已到账',
-                    'balance' => $answer->user->balance + $bonus_each,
-                ]);
-
+                if ($issue->bonus && $issue->bonus > 0) {
+                    //到账
+                    Transaction::create([
+                        'user_id' => $answer->user->id,
+                        'type'    => '付费回答奖励',
+                        'amount'  => $bonus_each,
+                        'status'  => '已到账',
+                        'balance' => $answer->user->balance + $bonus_each,
+                    ]);
+                }
                 //消息
                 $answer->user->notify(new QuestionBonused($issue->user, $issue));
             }
