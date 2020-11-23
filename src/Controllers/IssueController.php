@@ -6,7 +6,6 @@ use App\Issue;
 use App\Jobs\BonusAnswers;
 use App\Notifications\QuestionBonused;
 use App\Transaction;
-
 use Haxibiao\Content\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -41,7 +40,7 @@ class IssueController extends Controller
             ->where('bonus', '>', 0);
         $questions  = $qb->paginate(10);
         $categories = Category::where('count_questions', '>', 0)->orderBy('updated_at', 'desc')->take(7)->get();
-        $hot = [];
+        $hot        = [];
         return view('question.index')
             ->withCategory($category)
             ->withCategories($categories)
@@ -91,8 +90,8 @@ class IssueController extends Controller
      */
     public function store(Request $request)
     {
-        $user            = $request->user();
-        $issue        = new Issue($request->all());
+        $user  = $request->user();
+        $issue = new Issue($request->all());
         //付费问题
         $issue->save();
         if (request()->is_pay) {
