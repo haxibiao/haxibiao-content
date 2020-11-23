@@ -188,6 +188,13 @@ trait CollectionResolvers
     }
 
     /**
+     * 搜索合集
+     */
+    public function resolveTypeCollections($rootValue, $args, $context, $resolveInfo)
+    {
+        return Collection::where('status', Collection::STATUS_ONLINE)->where('type', $args['type']);
+    }
+    /**
      * 随机推荐的一组集合
      */
     public function resolveRandomCollections($rootValue, $args, $context, $resolveInfo)
@@ -219,21 +226,21 @@ trait CollectionResolvers
         //过滤掉合集封面为默认封面的
         $qb = $qb->where('logo', '!=', config('haxibiao-content.collection_default_logo'));
         //按照合集创建时间排序
-        $qb    = $qb->whereBetWeen('created_at', [now()->subDay(60), now()]);
+        $qb = $qb->whereBetWeen('created_at', [now()->subDay(60), now()]);
 
-        $total=$qb->count();
+        $total = $qb->count();
         $array = $qb
             ->skip(($currentPage * $perPage) - $perPage)
             ->take($perPage)
-            ->orderBy('created_at','desc')
+            ->orderBy('created_at', 'desc')
             // ->inRandomOrder()
             ->get();
 
-            $collections = new \Illuminate\Pagination\LengthAwarePaginator(
+        $collections = new \Illuminate\Pagination\LengthAwarePaginator(
             $array->shuffle(),
             $total,
             $perPage,
-            $currentPage   
+            $currentPage
         );
         return $collections;
     }
@@ -252,9 +259,9 @@ trait CollectionResolvers
         $recommendCollectionsB = $qb->take(3)->skip(3)->get();
 
         //降低rank值，减少出现的概率
-        Collection::whereIn('id',$recommendCollectionsA->pluck('id') )
-        ->whereIn('id',$recommendCollectionsB->pluck('id') )
-        ->increment('sort_rank');
+        Collection::whereIn('id', $recommendCollectionsA->pluck('id'))
+            ->whereIn('id', $recommendCollectionsB->pluck('id'))
+            ->increment('sort_rank');
         $result = [];
         //构建返回结果
         $result['topCover']              = Collection::getTopCover();

@@ -82,4 +82,23 @@ extend type Query {
   """
   recommendCollections: CollectionsList
     @field(resolver: "App\\Collection@resolveRecommendCollections")
+
+      typeCollections(type: CollectionEnum): [Collection]
+    @paginate(
+      defaultCount: 5
+      builder: "App\\Collection@resolveTypeCollections"
+    )
+    
 }
+
+
+enum IssueColumn {
+  HOT @enum(value: "count_answers")
+  LASTEST @enum(value: "created_at")
+}
+enum CollectionEnum {
+  POST @enum(value: "psots")
+  ARTICLE @enum(value: "articles")
+  AREA @enum(value: "areas")
+}
+
