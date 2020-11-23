@@ -559,6 +559,11 @@ trait PostRepo
         $notLikIds[] = $user->id; //默认不喜欢刷到自己的视频动态
         $qb          = $qb->whereNotIn('user_id', $notLikIds);
 
+        if(in_array(config('app.name'),['yinxiangshipin'])){
+            $vestIds  = User::whereIn('role_id', [User::VEST_STATUS,User::EDITOR_STATUS])->pluck('id')->toArray();
+            $qb = $qb->whereIn('user_id', $vestIds);
+        }
+
         $postRecommend = PostRecommend::firstOrCreate(['user_id' => $user->id]);
         //2.找出指针：最新，随机 每个用户的推荐视频推荐表，就是日刷指针记录表，找到最近未刷完的指针（指针含日期和review_id）
         $reviewId  = static::getNextReviewId($postRecommend->day_review_ids, $maxReviewIdInDays);
