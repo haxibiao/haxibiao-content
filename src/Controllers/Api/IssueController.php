@@ -170,10 +170,10 @@ class IssueController extends Controller
 
     public function deleteAnswer(Request $request, $id)
     {
-        $solution         = Solution::findOrFail($id);
-        $solution->status = -1;
+        $solution             = Solution::findOrFail($id);
+        $solution->status     = -1;
+        $solution->deleted_at = now();
         $solution->save();
-        $solution->deleted = 1;
         return $solution;
     }
     public function delete(Request $request, $id)
