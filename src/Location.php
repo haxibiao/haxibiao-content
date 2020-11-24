@@ -2,16 +2,20 @@
 
 namespace Haxibiao\Content;
 
-use Haxibiao\Content\Traits\LocationRepo;
 use Illuminate\Database\Eloquent\Model;
+use Haxibiao\Content\Traits\LocationRepo;
+use Haxibiao\Content\Traits\LocationResolvers;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Location extends Model
 {
+    use LocationResolvers;
     use LocationRepo;
     //
     protected $fillable = [
         'address',
         'description',
+        'district',
         'latitude',
         'longitude',
         'geo_code',
@@ -20,5 +24,9 @@ class Location extends Model
     public function post()
     {
         return $this->belongsTo(\App\Post::class);
+    }
+    public function located(): MorphTo
+    {
+        return $this->morphTo();
     }
 }

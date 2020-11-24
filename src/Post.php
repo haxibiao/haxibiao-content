@@ -87,11 +87,12 @@ class Post extends Model implements Collectionable
     //定位功能
     public function location()
     {
-        return $this->hasOne(Location::class, 'post_id');
+        return $this->morphMany(Location::class, 'located');
     }
+
     public function getLocationDescAttribute()
     {
-        return $this->location->description;
+        return $this->location->last()->description;
     }
 
     public function spider(): BelongsTo

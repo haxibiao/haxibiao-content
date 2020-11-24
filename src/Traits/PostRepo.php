@@ -223,7 +223,7 @@ trait PostRepo
                     }
                     //添加定位信息
                     if (in_array(config('app.name'), ['dongwaimao']) && !empty(data_get($inputs, 'location'))) {
-                        \App\Location::storeLocation(data_get($inputs, 'location'), $post->id);
+                        \App\Location::storeLocation(data_get($inputs, 'location'), 'posts',$post->id);
                     }
                 }
                 //触发更新事件-扣除精力点
@@ -262,7 +262,7 @@ trait PostRepo
                         $post->save();
                         //添加定位信息
                         if (in_array(config('app.name'), ['dongwaimao']) && !empty(data_get($inputs, 'location'))) {
-                            \App\Location::storeLocation(data_get($inputs, 'location'), $post->id);
+                            \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
 
                         }
 
@@ -311,7 +311,7 @@ trait PostRepo
                         $post->save();
                         //添加定位信息
                         if (in_array(config('app.name'), ['dongwaimao']) && !empty(data_get($inputs, 'location'))) {
-                            \App\Location::storeLocation(data_get($inputs, 'location'), $post->id);
+                            \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
 
                         }
                     }
@@ -325,7 +325,7 @@ trait PostRepo
 
                     //添加定位信息
                     if (in_array(config('app.name'), ['dongwaimao']) && !empty(data_get($inputs, 'location'))) {
-                        \App\Location::storeLocation(data_get($inputs, 'location'), $post->id);
+                        \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
                     }
 
                     if ($images) {
