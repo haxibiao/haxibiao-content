@@ -223,6 +223,7 @@ class IssueController extends Controller
         //注释原因：issue中无status字段
         //$issue->status = -1;
         $issue->save();
+
         if ($issue->bonus > 0) {
             if ($issue->answered_ids) {
                 $issue->message = "您的问题已删除,并且已结账";
@@ -233,7 +234,7 @@ class IssueController extends Controller
         } else {
             $issue->message = "您的问题已删除";
         }
-        $issue->deleted = 1;
+        $issue->delete();
         return $issue;
     }
 
