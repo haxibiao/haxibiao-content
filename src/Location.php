@@ -21,6 +21,11 @@ class Location extends Model
         'geo_code',
         'post_id',
     ];
+
+    //地球半径系数
+    const EARTH_RADIUS = 6370.996;
+    const PI = 3.1415926;
+    
     public function post()
     {
         return $this->belongsTo(\App\Post::class);
