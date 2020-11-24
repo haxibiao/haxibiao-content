@@ -15,8 +15,10 @@ trait CollectionResolvers
 {
     public function resolveCollections($rootValue, array $args, $context, $resolveInfo)
     {
-        return static::where('user_id', data_get($args, 'user_id'))->where('name', 'like', '%' . ($args['keyword'] ?? '') . '%')
+        $collections = static::where('user_id', data_get($args, 'user_id'))->where('name', 'like', '%' . ($args['keyword'] ?? '') . '%')
             ->orderByDesc('updated_at');
+        app_track_event('用户页','我的合集','用户:'.data_get($args, 'user_id'));
+        return $collections;
     }
 
     //分享合集url
@@ -67,13 +69,14 @@ trait CollectionResolvers
         if ($collectableIds) {
             $collection->collect($collectableIds, $collectableType);
         }
+        app_track_event('合集玩法','创建合集','合集名:'.data_get($args, 'name'));
         return $collection;
     }
 
     public function resolveCollection($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
         $collection_id = Arr::get($args, 'collection_id');
-        app_track_event('合集玩法', '查看合集内视频', $collection_id);
+        app_track_event('合集玩法', '查看合集内视频', '合集id:'.$collection_id);
         if (checkUser()) {
             //添加集合浏览记录
             $user = getUser();
@@ -105,6 +108,7 @@ trait CollectionResolvers
             'type'        => Arr::get($args, 'type', $collection->type),
             'description' => Arr::get($args, 'description', $collection->description),
         ]);
+        app_track_event('合集玩法','修改合集','合集id:'.$collection_id);
         return $collection;
     }
 
@@ -123,6 +127,7 @@ trait CollectionResolvers
         }
 
         $collection->recollect($collectableIds, $collectableType);
+        app_track_event('合集玩法','添加资源对象至合集');
         return true;
     }
 
@@ -141,6 +146,7 @@ trait CollectionResolvers
         }
 
         $collection->uncollect($collectableIds, $collectableType);
+        app_track_event('合集玩法','移除合集中的资源对象');
         return true;
     }
 
