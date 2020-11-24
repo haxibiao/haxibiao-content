@@ -34,8 +34,7 @@ class IssueController extends Controller
     public function bonused()
     {
         $category = null;
-        $qb       = Issue::with('latestAnswer.article')
-            ->orderBy('closed')
+        $qb       = Issue::orderBy('closed')
             ->orderBy('id', 'desc')
             ->where('bonus', '>', 0);
         $questions  = $qb->paginate(10);
