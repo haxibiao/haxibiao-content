@@ -26,6 +26,14 @@ type Post {
   """
   categories: [Category]
   """
+    定位信息
+  """
+  location_desc:String
+    """
+    位置对象
+  """
+  location:Location
+  """
   -1删除，0草稿，1发布
   """
   status: Int
