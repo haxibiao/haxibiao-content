@@ -24,14 +24,14 @@ input LocationInfo {
   """
     区域
   """
-  district:String!
+  district:String
   """
     经度
   """
-  longitude:Float!
+  longitude:Float
   """
     纬度
   """
-  latitude:Float!
+  latitude:Float
 
 }
