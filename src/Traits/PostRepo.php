@@ -53,6 +53,7 @@ trait PostRepo
             'qcvod_fileid'   => Arr::get($args, 'qcvod_fileid', null),
             'share_link'     => data_get($args, 'share_link', null),
             'collection_ids' => data_get($args, 'collection_ids', null),
+            'location' => data_get($args, 'location', null),
 
         ];
 
@@ -220,6 +221,10 @@ trait PostRepo
                             }
                         }
                     }
+                    //添加定位信息
+                    if (in_array(config('app.name'),['dongwaimao'])&&!empty(data_get($inputs, 'location'))) {
+                        \App\Location::storeLocation(data_get($inputs, 'location'),$post->id);
+                    }
                 }
                 //触发更新事件-扣除精力点
                 $spider->updated_at = now();
@@ -255,6 +260,11 @@ trait PostRepo
                         $post->review_id  = static::makeNewReviewId();
                         $post->review_day = static::makeNewReviewDay();
                         $post->save();
+                        //添加定位信息
+                        if (in_array(config('app.name'),['dongwaimao'])&&!empty(data_get($inputs, 'location'))) {
+                        \App\Location::storeLocation(data_get($inputs, 'location'),$post->id);
+
+                        }
 
 //                        $chain = [];
                         //                        if(config('haxibiao-content.enabled_video_share',false)){
@@ -299,6 +309,11 @@ trait PostRepo
                         }
 
                         $post->save();
+                        //添加定位信息
+                    if (in_array(config('app.name'),['dongwaimao'])&&!empty(data_get($inputs, 'location'))) {
+                        \App\Location::storeLocation(data_get($inputs, 'location'),$post->id);
+
+                    }
                     }
                 } else {
                     //带图片
