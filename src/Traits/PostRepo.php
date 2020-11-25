@@ -594,6 +594,10 @@ trait PostRepo
             }
 
             $qb_published = static::has('video')->with($withRelationList)->publish();
+            if(in_array(config('app.name'),['yinxiangshipin'])){
+                $vestIds  = User::whereIn('role_id', [User::VEST_STATUS,User::EDITOR_STATUS])->pluck('id')->toArray();
+                $qb_published  = $qb_published->whereIn('user_id', $vestIds);
+            }
             $result       = $qb_published->latest('id')->skip(rand(1, 100))->take(20)->get();
             Visit::saveVisits($user, $result, 'posts');
             //增加广告展示
