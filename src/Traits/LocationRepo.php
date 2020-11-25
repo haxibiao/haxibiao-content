@@ -3,7 +3,6 @@
 namespace Haxibiao\Content\Traits;
 
 use App\Location;
-use App\Post;
 use Illuminate\Support\Facades\DB;
 use Sk\Geohash\Geohash;
 
@@ -22,7 +21,7 @@ trait LocationRepo
         return $location;
     }
 
-    public static function getNearbyPosts($user)
+    public static function getNearbyPostIds($user)
     {
         if (empty($user->location)) {
             return null;
@@ -30,20 +29,20 @@ trait LocationRepo
         $longitude = $user->location->longitude;
         $latitude = $user->location->latitude;
         if ($longitude && $latitude) {
-            DB::enableQueryLog();
-             Location::select(DB::raw('ACOS(SIN(' . $latitude . ' *' . Location::PI . ' / 180) * SIN(latitude * ' . Location::PI . ' / 180) +
+            return Location::select(DB::raw('*,ACOS(SIN(' . $latitude . ' *' . Location::PI . ' / 180) * SIN(latitude * ' . Location::PI . ' / 180) +
             COS( ' . $latitude . ' * ' . Location::PI . ' / 180) *
             COS(latitude * ' . Location::PI . ' / 180) *
             COS(' . $longitude . ' * ' . Location::PI . ' / 180 - longitude * ' . Location::PI . ' / 180))* ' . Location::EARTH_RADIUS . '
             as distance '))
                 ->where('located_type', 'posts')
-                //50公里内都算附近
-                ->where(DB::raw('distance'),'<','50000')
+            //50公里内都算附近
+                ->having(DB::raw('distance'), '<', '50000')
                 ->orderBy(DB::raw('distance'))
                 ->take(20)
-                ->get();
-                dd(DB::getQueryLog());
-        }else{
+                ->get()
+                ->pluck('located_id')
+                ->toArray();
+        } else {
             return null;
         }
 
