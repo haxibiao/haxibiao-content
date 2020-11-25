@@ -18,6 +18,12 @@
 5.  完成
 
 ### 更新日志
+_Released on 2020-11-24_
+
+- 添加位置功能-对象Location
+- 需要执行`composer require saikiran/geohash`
+- 在手动发布视频时，前端需要传入Location包含位置信息和经纬度信息
+
 **1.3**
 _Released on 2020-09-26_
 

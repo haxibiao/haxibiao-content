@@ -3,15 +3,15 @@
 namespace Haxibiao\Content;
 
 use App\Model;
-
-
 use Haxibiao\Content\Traits\SolutionAttrs;
 use Haxibiao\Content\Traits\SolutionResolvers;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Solution extends Model
 {
     use SolutionResolvers;
     use SolutionAttrs;
+    use SoftDeletes;
 
     protected $guarded = [];
 
@@ -60,7 +60,7 @@ class Solution extends Model
             //回答不够文字，如果有关联文章，取文章的正文...
             if ($this->article) {
                 $more_text = str_limit(strip_tags($this->article->body), 200 - strlen($text));
-                $text = $text . $more_text;
+                $text      = $text . $more_text;
             }
         }
         return $text;
@@ -74,7 +74,6 @@ class Solution extends Model
     {
         return $this->morphMany(\App\Comment::class, 'commentable');
     }
-
 
     public function images()
     {

@@ -15,7 +15,6 @@ use Haxibiao\Content\Traits\PostAttrs;
 use Haxibiao\Content\Traits\PostOldPatch;
 use Haxibiao\Content\Traits\PostRepo;
 use Haxibiao\Content\Traits\PostResolvers;
-use Haxibiao\Media\Image;
 use Haxibiao\Media\Spider;
 use Haxibiao\Media\Traits\WithImage;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -70,8 +69,8 @@ class Post extends Model implements Collectionable
         });
         //更新时触发--方便保证spider中有相关数据
         self::updating(function ($post) {
-          // 公司用户展示权利交给马甲号
-          $post->transferToVest();
+            // 公司用户展示权利交给马甲号
+            $post->transferToVest();
         });
     }
 
@@ -83,6 +82,21 @@ class Post extends Model implements Collectionable
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    //定位功能
+    public function locations(): MorphMany
+    {
+        return $this->morphMany(Location::class, 'located');
+    }
+
+    public function getLocationAttribute()
+    {
+        return $this->locations->last();
+    }
+    public function getLocationDescAttribute()
+    {
+        return $this->locations->last()?$this->locations->last()->description:null;
     }
 
     public function spider(): BelongsTo
@@ -134,8 +148,8 @@ class Post extends Model implements Collectionable
     {
         $content = $this->content;
         if (!empty($content)) {
-            $content           = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音小助手', '抖音', '@DOU+小助手','快手','#快手创作者服务中心',' @快手小助手','#快看'], '', $content);
-            $this->content     = $content;
+            $content       = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音小助手', '抖音', '@DOU+小助手', '快手', '#快手创作者服务中心', ' @快手小助手', '#快看'], '', $content);
+            $this->content = $content;
             if (!$this->description) {
                 $this->description = $content;
             }
@@ -298,7 +312,7 @@ class Post extends Model implements Collectionable
         $new_num = $count + $temp_num;
 
         //赋值
-        if(is_null($this->review_id)){
+        if (is_null($this->review_id)) {
             $this->review_id  = str_replace("-", "", Carbon::today()->toDateString()) . substr($new_num, 1, 5);
             $this->review_day = str_replace("-", "", Carbon::today()->toDateString());
         }
@@ -318,7 +332,7 @@ class Post extends Model implements Collectionable
      */
     public function transferToVest()
     {
-        $user = User::find($this->user_id);
+        $user    = User::find($this->user_id);
         $ownerId = data_get($this, 'owner_id');
         if (empty($user) || !empty($ownerId)) {
             return;
@@ -335,17 +349,17 @@ class Post extends Model implements Collectionable
         }
         // 动态是否开启默认生成合集
         $postOpenCollection = config('haxibiao-content.post_open_collection', true);
-        if($postOpenCollection){
+        if ($postOpenCollection) {
             // 有合集的抖音视频&&已经分配过马甲号 不分发马甲号
-            $spiderId = data_get($this,'spider_id');
-            if($spiderId){
-                $spider   = Spider::find($spiderId);
-                $mixInfo = data_get($spider,'data.raw.item_list.0.mix_info');
-                if($mixInfo && $this->owner_id){
+            $spiderId = data_get($this, 'spider_id');
+            if ($spiderId) {
+                $spider  = Spider::find($spiderId);
+                $mixInfo = data_get($spider, 'data.raw.item_list.0.mix_info');
+                if ($mixInfo && $this->owner_id) {
                     $this->user_id = $this->owner_id;
                     return;
                 }
-                if($mixInfo){
+                if ($mixInfo) {
                     return;
                 }
             }

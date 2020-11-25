@@ -31,6 +31,11 @@ extend type Mutation @middleware(checks: ["auth:api"]) {
     category_ids: [Int!]
 
     """
+    定位信息
+    """
+    location: LocationInfo
+    
+    """
     图片链接
     """
     images: [String!]

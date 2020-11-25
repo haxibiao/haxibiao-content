@@ -170,10 +170,10 @@ class IssueController extends Controller
 
     public function deleteAnswer(Request $request, $id)
     {
-        $solution         = Solution::findOrFail($id);
-        $solution->status = -1;
+        $solution             = Solution::findOrFail($id);
+        $solution->status     = -1;
+        $solution->deleted_at = now();
         $solution->save();
-        $solution->deleted = 1;
         return $solution;
     }
     public function delete(Request $request, $id)
@@ -223,6 +223,7 @@ class IssueController extends Controller
         //注释原因：issue中无status字段
         //$issue->status = -1;
         $issue->save();
+
         if ($issue->bonus > 0) {
             if ($issue->answered_ids) {
                 $issue->message = "您的问题已删除,并且已结账";
@@ -233,7 +234,7 @@ class IssueController extends Controller
         } else {
             $issue->message = "您的问题已删除";
         }
-        $issue->deleted = 1;
+        $issue->delete();
         return $issue;
     }
 

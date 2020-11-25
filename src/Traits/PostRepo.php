@@ -53,6 +53,7 @@ trait PostRepo
             'qcvod_fileid'   => Arr::get($args, 'qcvod_fileid', null),
             'share_link'     => data_get($args, 'share_link', null),
             'collection_ids' => data_get($args, 'collection_ids', null),
+            'location'       => data_get($args, 'location', null),
 
         ];
 
@@ -220,6 +221,10 @@ trait PostRepo
                             }
                         }
                     }
+                    //添加定位信息
+                    if (in_array(config('app.name'), ['dongwaimao']) && !empty(data_get($inputs, 'location'))) {
+                        \App\Location::storeLocation(data_get($inputs, 'location'), 'posts',$post->id);
+                    }
                 }
                 //触发更新事件-扣除精力点
                 $spider->updated_at = now();
@@ -255,6 +260,11 @@ trait PostRepo
                         $post->review_id  = static::makeNewReviewId();
                         $post->review_day = static::makeNewReviewDay();
                         $post->save();
+                        //添加定位信息
+                        if (in_array(config('app.name'), ['dongwaimao']) && !empty(data_get($inputs, 'location'))) {
+                            \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
+
+                        }
 
 //                        $chain = [];
                         //                        if(config('haxibiao-content.enabled_video_share',false)){
@@ -299,6 +309,11 @@ trait PostRepo
                         }
 
                         $post->save();
+                        //添加定位信息
+                        if (in_array(config('app.name'), ['dongwaimao']) && !empty(data_get($inputs, 'location'))) {
+                            \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
+
+                        }
                     }
                 } else {
                     //带图片
@@ -307,6 +322,11 @@ trait PostRepo
                     $post->user_id = $user->id;
                     $post->status  = Post::PUBLISH_STATUS;
                     $post->save();
+
+                    //添加定位信息
+                    if (in_array(config('app.name'), ['dongwaimao']) && !empty(data_get($inputs, 'location'))) {
+                        \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
+                    }
 
                     if ($images) {
                         $imageIds = [];
@@ -443,9 +463,8 @@ trait PostRepo
             $offset = $offset == 0 ? mt_rand(0, 50) : $offset;
             $qb     = $qb->skip($offset);
         }
-       //获取数据
-      $posts = $qb->get();
-
+        //获取数据
+        $posts = $qb->get();
 
         if ($hasLogin) {
             //喜欢状态
@@ -559,9 +578,9 @@ trait PostRepo
         $notLikIds[] = $user->id; //默认不喜欢刷到自己的视频动态
         $qb          = $qb->whereNotIn('user_id', $notLikIds);
 
-        if(in_array(config('app.name'),['yinxiangshipin'])){
-            $vestIds  = User::whereIn('role_id', [User::VEST_STATUS,User::EDITOR_STATUS])->pluck('id')->toArray();
-            $qb = $qb->whereIn('user_id', $vestIds);
+        if (in_array(config('app.name'), ['yinxiangshipin'])) {
+            $vestIds = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
+            $qb      = $qb->whereIn('user_id', $vestIds);
         }
 
         $postRecommend = PostRecommend::firstOrCreate(['user_id' => $user->id]);
