@@ -11,11 +11,11 @@ trait LocationRepo
 
     public static function storeLocation(array $locationInfo, $located_type, $located_id)
     {
-        $location = Location::create($locationInfo);
-        $geohash = new Geohash();
-        $geoCode = $geohash->encode(data_get($locationInfo, 'latitude'), data_get($locationInfo, 'longitude'), 12);
-        $location->geo_code = $geoCode;
-        $location->located_id = $located_id;
+        $location               = Location::create($locationInfo);
+        $geohash                = new Geohash();
+        $geoCode                = $geohash->encode(data_get($locationInfo, 'latitude'), data_get($locationInfo, 'longitude'), 12);
+        $location->geo_code     = $geoCode;
+        $location->located_id   = $located_id;
         $location->located_type = $located_type;
         $location->save();
         return $location;
@@ -24,10 +24,10 @@ trait LocationRepo
     public static function getNearbyPostIds($user)
     {
         if (empty($user->location)) {
-            return null;
+            return [];
         }
         $longitude = $user->location->longitude;
-        $latitude = $user->location->latitude;
+        $latitude  = $user->location->latitude;
         if ($longitude && $latitude) {
             return Location::select(DB::raw('*,ACOS(SIN(' . $latitude . ' *' . Location::PI . ' / 180) * SIN(latitude * ' . Location::PI . ' / 180) +
             COS( ' . $latitude . ' * ' . Location::PI . ' / 180) *
@@ -43,7 +43,7 @@ trait LocationRepo
                 ->pluck('located_id')
                 ->toArray();
         } else {
-            return null;
+            return [];
         }
 
     }
