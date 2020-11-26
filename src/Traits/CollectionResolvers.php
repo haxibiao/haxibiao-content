@@ -81,7 +81,6 @@ trait CollectionResolvers
             //添加集合浏览记录
             $user = getUser();
             Visit::createVisit($user->id, $collection_id, 'collections');
-            $user->reviewTasksByClass('Custom');
         }
 
         return static::findOrFail($collection_id);
