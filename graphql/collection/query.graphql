@@ -83,7 +83,7 @@ extend type Query {
   recommendCollections: CollectionsList
     @field(resolver: "App\\Collection@resolveRecommendCollections")
 
-      typeCollections(type: CollectionEnum): [Collection]
+  typeCollections(user_id:Int!,type: CollectionEnum): [Collection]
     @paginate(
       defaultCount: 5
       builder: "App\\Collection@resolveTypeCollections"
