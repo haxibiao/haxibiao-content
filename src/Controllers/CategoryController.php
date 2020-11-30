@@ -230,7 +230,7 @@ class CategoryController extends Controller
         $data['commented'] = $articles;
 
         //作品
-        $qb = $category->articles()
+        $qb = $category->publishedWorks()
             ->with('user')->with('category')
             ->orderBy('pivot_created_at', 'desc');
         $articles = smartPager($qb, 10);

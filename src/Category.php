@@ -107,7 +107,7 @@ class Category extends Model
 
         return $this->categorized(\App\Article::class)
             ->where('articles.status', '>', 0)
-            ->wherePivot('submit', '已收录')
+            ->wherePivot('submit', '1')
             ->withPivot('submit')
             ->withTimestamps();
     }
