@@ -230,10 +230,11 @@ class CategoryController extends Controller
         $data['commented'] = $articles;
 
         //作品
-        $qb = $category->publishedWorks()
+        $qb = $category->articles()
             ->with('user')->with('category')
             ->orderBy('pivot_created_at', 'desc');
         $articles = smartPager($qb, 10);
+
         if (ajaxOrDebug() && $request->get('works')) {
             foreach ($articles as $article) {
                 $article->fillForJs();
@@ -242,6 +243,8 @@ class CategoryController extends Controller
             return $articles;
         }
         $data['works'] = $articles;
+
+
 
         //热门文章
         $qb = $category->publishedWorks()
