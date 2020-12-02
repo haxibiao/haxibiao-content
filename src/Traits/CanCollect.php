@@ -21,6 +21,7 @@ trait CanCollect
     public function collections(): MorphToMany
     {
         return $this->morphToMany(\App\Collection::class, 'collectable')
+            ->orderBy('type')
             ->withPivot(['id', 'collection_name','sort_rank'])
             ->withTimestamps();
     }
