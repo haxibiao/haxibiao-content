@@ -36,7 +36,7 @@ trait PostAttrs
             $longitude2 = $this->location->longitude;
             $latitude2= $this->location->latitude;
             if ($longitude1 && $latitude1&&$longitude2 && $latitude2) {
-                $distance= Location::getDistance($longitude1 , $latitude1,$longitude2 , $latitude2);
+                $distance= Location::getDistance($longitude1 , $latitude1,$longitude2 , $latitude2,1);
                 return numberToReadable($distance).'m';
             }
         } else {
