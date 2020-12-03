@@ -3,10 +3,12 @@
 namespace Haxibiao\Content\Traits;
 
 use App\Action;
+use App\AppConfig;
 use App\Collection;
 use App\Comment;
 use App\Exceptions\GQLException;
 use App\Gold;
+use App\Helpers\AppHelper;
 use App\Image;
 use App\Spider;
 use App\User;
@@ -223,7 +225,7 @@ trait PostRepo
                     }
                     //添加定位信息
                     if (in_array(config('app.name'), ['dongwaimao']) && !empty(data_get($inputs, 'location'))) {
-                        \App\Location::storeLocation(data_get($inputs, 'location'), 'posts',$post->id);
+                        \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
                     }
                 }
                 //触发更新事件-扣除精力点
@@ -505,14 +507,51 @@ trait PostRepo
             $mixPosts[] = $post;
             if ($index % 4 == 0) {
                 //每隔4个插入一个广告
-                $adPost        = clone $post;
-                $adPost->id    = random_str(7);
-                $adPost->is_ad = true;
-                $mixPosts[]    = $adPost;
+                $adPost             = clone $post;
+                $adPost->id         = random_str(7);
+                $adPost->is_ad      = true;
+                $adPost->ad_type1dd = Post::diyAdShow() ?? "tt";
+                $mixPosts[]         = $adPost;
             }
         }
 
         return $mixPosts;
+    }
+
+    //内部广告展示
+    public static function diyAdShow()
+    {
+        if (in_array(env('APP_NAME'), ['datizhuanqian'])) {
+            //nova配置的内部广告展示权重
+            $adConfigs = AppConfig::where('group', '广告权重')->where(function ($query) {
+                $query->where('version', '>=', AppHelper::version()->getVersion())->orWhere('version', null);
+            })->pluck('value', 'name')->toArray();
+
+            //返回根据权重随机的广告类型
+            return Post::countWeight($adConfigs);
+        }
+
+    }
+
+    //传入一个数组，根据其key对应的value返回有权重的随机数
+    public static function countWeight($data)
+    {
+        if (count($data) < 1) {
+            return;
+        }
+        // 权重数值越高，被返回的概率越大
+        $weight = 0;
+        $temp   = array();
+        foreach ($data as $key => $value) {
+            $weight += $value;
+            for ($i = 0; $i < $value; $i++) {
+                $temp[] = $key; //放大数组
+            }
+        }
+
+        $int    = mt_rand(0, $weight - 1); //获取一个随机数
+        $result = $temp[$int];
+        return $result;
     }
 
     public static function likedPosts($user, $posts)
@@ -613,11 +652,11 @@ trait PostRepo
             }
 
             $qb_published = static::has('video')->with($withRelationList)->publish();
-            if(in_array(config('app.name'),['yinxiangshipin'])){
-                $vestIds  = User::whereIn('role_id', [User::VEST_STATUS,User::EDITOR_STATUS])->pluck('id')->toArray();
-                $qb_published  = $qb_published->whereIn('user_id', $vestIds);
+            if (in_array(config('app.name'), ['yinxiangshipin'])) {
+                $vestIds      = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
+                $qb_published = $qb_published->whereIn('user_id', $vestIds);
             }
-            $result       = $qb_published->latest('id')->skip(rand(1, 100))->take(20)->get();
+            $result = $qb_published->latest('id')->skip(rand(1, 100))->take(20)->get();
             Visit::saveVisits($user, $result, 'posts');
             //增加广告展示
             $mixPosts = $result;

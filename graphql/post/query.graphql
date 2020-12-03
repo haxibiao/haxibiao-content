@@ -44,6 +44,10 @@ type Post {
   review_day: String
   current_episode: Int
   is_ad: Int
+  """
+  广告类型
+  """
+  ad_type: String
 
   """
   发布时间（多久前）
