@@ -66,6 +66,7 @@ class IssueController extends Controller
         $hot        = Issue::with('latestResolution.article')
             ->whereNotNull('image1')
             ->orderBy('hits', 'desc')
+            ->inRandomOrder()
             ->take(3)
             ->get();
         return view('question.index')
