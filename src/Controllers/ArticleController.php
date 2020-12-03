@@ -140,6 +140,11 @@ class ArticleController extends Controller
      */
     public function show($id)
     {
+        if(!is_numeric($id)){
+            if($id == 'disclaimer'){
+                return view('disclaimer');
+            }
+        }
         //此处id为中文代表slug,且$id不会是create.
         $article = Article::with(['user', 'category', 'tags', 'images'])
             ->where(function ($query) use ($id) {
