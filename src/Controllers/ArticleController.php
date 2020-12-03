@@ -141,7 +141,7 @@ class ArticleController extends Controller
     public function show($id)
     {
         if(!is_numeric($id)){
-            if($id == 'disclaimer'){
+            if($id == 'question'){
                 return view('disclaimer');
             }
         }
