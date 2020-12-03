@@ -94,17 +94,7 @@ class Issue extends Model
             return $image_url;
         }
         //没有，只好用问题里的图片
-        if (!empty($this->image_url)) {
-            //多用於列表，都用小圖
-            $image_url = $this->image_url;
-            $image     = Image::where('path', $image_url)->first();
-            if ($image) {
-                $image_url = $image->thumbnail;
-            }
-            info($image_url);
-            return $image_url;
-        }
-        return null;
+        return data_get($this,'image1',null);
     }
 
     public function link()
