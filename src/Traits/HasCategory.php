@@ -35,14 +35,14 @@ trait HasCategory
         return $this->hasMany($this->categorizableModel(), 'user_id', 'id')->where('type', 'article');
     }
 
-    public function hasCategories()
-    {
-        return $this->hasMany($this->categorizableModel(), 'user_id', 'id')->where('type', 'diagrams')->where('status','1');
-    }
-
     public function newReuqestCategories()
     {
         return $this->adminCategories()->orderBy('new_requests', 'desc')->orderBy('updated_at', 'desc');
+    }
+
+    public function hasCategories()
+    {
+        return $this->hasMany($this->categorizableModel(), 'user_id', 'id')->where('type', 'diagrams')->where('status','1');
     }
 
     public function getCountCategoriesAttribute()
