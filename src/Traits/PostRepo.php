@@ -224,7 +224,7 @@ trait PostRepo
                         }
                     }
                     //添加定位信息
-                    if (in_array(config('app.name'), ['dongwaimao']) && !empty(data_get($inputs, 'location'))) {
+                    if (in_array(config('app.name'), ['dongwaimao', 'jinlinle']) && !empty(data_get($inputs, 'location'))) {
                         \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
                     }
                 }
@@ -263,7 +263,7 @@ trait PostRepo
                         $post->review_day = static::makeNewReviewDay();
                         $post->save();
                         //添加定位信息
-                        if (in_array(config('app.name'), ['dongwaimao']) && !empty(data_get($inputs, 'location'))) {
+                        if (in_array(config('app.name'), ['dongwaimao', 'jinlinle']) && !empty(data_get($inputs, 'location'))) {
                             \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
 
                         }
@@ -312,7 +312,7 @@ trait PostRepo
 
                         $post->save();
                         //添加定位信息
-                        if (in_array(config('app.name'), ['dongwaimao']) && !empty(data_get($inputs, 'location'))) {
+                        if (in_array(config('app.name'), ['dongwaimao', 'jinlinle']) && !empty(data_get($inputs, 'location'))) {
                             \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
 
                         }
@@ -326,7 +326,7 @@ trait PostRepo
                     $post->save();
 
                     //添加定位信息
-                    if (in_array(config('app.name'), ['dongwaimao']) && !empty(data_get($inputs, 'location'))) {
+                    if (in_array(config('app.name'), ['dongwaimao', 'jinlinle']) && !empty(data_get($inputs, 'location'))) {
                         \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
                     }
 
