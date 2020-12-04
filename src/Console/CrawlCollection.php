@@ -10,6 +10,7 @@ use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use App\Exceptions\GQLException;
 use Illuminate\Support\Facades\Auth;
+use Haxibiao\Media\Jobs\MediaProcess;
 use Illuminate\Support\Facades\Storage;
 
 class CrawlCollection extends Command
@@ -121,16 +122,17 @@ class CrawlCollection extends Command
             $postIds = [];
             for ($cursor = 0, $count = 15; $hasMore; $cursor++) {
                 $crawlUrl = sprintf(self::VIDEOS_URL, $mixId, $cursor, $count);
+                info($crawlUrl);
                 $videoData = self::getRequestData($crawlUrl);
                 $hasMore = (bool) data_get($videoData, 'has_more', 0);
 
                 $videos = data_get($videoData, 'aweme_list');
+
                 foreach ($videos as $video) {
                     info("开始爬取视频 " . data_get($video, 'desc'));
                     $created = date('Y-m-d H:i:s', data_get($video, 'create_time'));
                     $shareUrl = data_get($video, 'share_info.share_url');
-                    //提前创建对应的爬虫对象
-                    $spider = Spider::firstOrNew(['source_url' => $shareUrl]);
+                    $spider = Spider::has('video')->firstOrNew(['source_url' => $shareUrl]);
                     $spider->user_id = $vestUser->id;
                     $spider->spider_type = 'videos';
                     $spider->saveDataOnly();
@@ -139,24 +141,26 @@ class CrawlCollection extends Command
                     $post->status = Post::PRIVARY_STATUS;
                     $post->created_at = $created;
                     $post->user_id = $vestUser->id;
+                    $shareTitle = data_get($video, 'share_info.share_title');
+                    $post->content = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音', 'dou', 'Dou', 'DOU', '抖音助手'], '', $shareTitle);
+                    $post->description = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音', 'dou', 'Dou', 'DOU', '抖音助手'], '', $shareTitle);
+
                     $reviewDay = $post->created_at->format('Ymd');
                     $reviewId = Post::makeNewReviewId($reviewDay);
                     $post->review_id = $reviewId;
                     $post->review_day = $reviewDay;
                     $post->save();
-                    $postIds[] = $post->id;
+                    //将视频归入合集中
+                    $postIds[$post->id] =  ['sort_rank' => data_get($video, 'mix_info.statis.current_episode')];
 
                     //登录
                     Auth::login($vestUser);
                     try {
-                        //爬取对应的
-                        $spider->resolveShareLink(null, ['share_link' => $shareUrl], null, null);
+                        //爬取对应的数据
+                        dispatch(new MediaProcess($spider->id));               
                     } catch (\Exception $ex) {
-                        $info=$ex->getMessage();
-                        if(!$info=="正在重新采集中,请稍后再看!"){
-                            info("异常信息".$info);
-                            throw $ex;
-                        }
+                        $info = $ex->getMessage();
+                            info("异常信息" . $info);
                     }
 
                 }
@@ -164,9 +168,10 @@ class CrawlCollection extends Command
 
             //将视频归入合集中
             $collection = $collections[$mixId];
-            $collection->posts()->syncWithoutDetaching($postIds);
+            $collection->posts()->sync($postIds);
+
             $collection->updateCountPosts();
-            info($collection->name."爬取完毕");
+            info($collection->name . "爬取完毕");
         }
 
     }
@@ -192,7 +197,7 @@ class CrawlCollection extends Command
                     'mix_info' => $mixInfo,
                 ]]
         );
-        
+
         return $collection;
     }
 
