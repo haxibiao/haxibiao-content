@@ -512,11 +512,11 @@ trait PostRepo
             $mixPosts[] = $post;
             if ($index % 4 == 0) {
                 //每隔4个插入一个广告
-                $adPost             = clone $post;
-                $adPost->id         = random_str(7);
-                $adPost->is_ad      = true;
-                $adPost->ad_type1dd = Post::diyAdShow() ?? "tt";
-                $mixPosts[]         = $adPost;
+                $adPost          = clone $post;
+                $adPost->id      = random_str(7);
+                $adPost->is_ad   = true;
+                $adPost->ad_type = Post::diyAdShow() ?? "tt";
+                $mixPosts[]      = $adPost;
             }
         }
 
