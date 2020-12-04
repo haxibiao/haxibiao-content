@@ -59,11 +59,14 @@ class CategoryController extends Controller
 
     public function page(Request $request)
     {
-        $categories = Category::orderBy('updated_at', 'desc')->paginate(7);
+        $categories = Category::orderBy('updated_at', 'desc')
+            ->where('status','1')
+            ->where('is_official','0')
+            ->paginate(7);
         if ($request->get('index')) {
             $stick_categories = get_stick_categories();
             $top_count        = 7 - count($stick_categories);
-            $categories       = Category::orderBy('is_official', 'desc')
+            $categories       = Category::where('is_official','0')
                 ->where('count', '>=', 0)
                 ->where('status', '>=', 0)
                 ->orderBy('updated_at', 'desc')
