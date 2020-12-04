@@ -80,7 +80,10 @@ class CrawlCollection extends Command
             $collectionData = self::getRequestData($crawlUrl);
             $hasMore = (bool) data_get($collectionData, 'has_more', 0);
             $mixInfos = data_get($collectionData, 'mix_infos', null);
-            throw_if(empty($mixInfos), GQLException::class, '未找到该用户的合集!');
+            if(empty($mixInfos)){
+                info('未找到该用户的合集!');
+                return;
+            }
 
             $collections = [];
             $mixIds = [];
@@ -208,7 +211,7 @@ class CrawlCollection extends Command
         $completePath = Storage::cloud()->url($path);
         // 从文件中读取数据到PHP变量
         $json_string = file_get_contents($completePath);
-
+        
         // 用参数true把JSON字符串强制转成PHP数组
         $data = json_decode($json_string, true);
         return $data;
