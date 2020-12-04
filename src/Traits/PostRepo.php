@@ -55,6 +55,7 @@ trait PostRepo
             'qcvod_fileid'   => Arr::get($args, 'qcvod_fileid', null),
             'share_link'     => data_get($args, 'share_link', null),
             'collection_ids' => data_get($args, 'collection_ids', null),
+            'community_id'   => data_get($args, 'community_id', null),
             'location'       => data_get($args, 'location', null),
 
         ];
@@ -352,6 +353,10 @@ trait PostRepo
             if ($inputs['collection_ids'] ?? null) {
                 $post->collectivize($inputs['collection_ids']);
             }
+            if ($inputs['community_id'] ?? null) {
+                $post->communities()->sync($inputs['community_id'], false);
+            }
+
             app_track_event('发布', '发布Post动态');
             return $post;
         } catch (\Exception $ex) {
