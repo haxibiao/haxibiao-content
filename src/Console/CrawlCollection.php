@@ -1,16 +1,16 @@
 <?php
 
-namespace Haxibiao\Content\Console;
+namespace App\Console\Commands;
 
-use App\Post;
-use App\User;
-use App\Spider;
 use App\Collection;
-use GuzzleHttp\Client;
-use Illuminate\Console\Command;
 use App\Exceptions\GQLException;
-use Illuminate\Support\Facades\Auth;
+use App\Post;
+use App\Spider;
+use App\User;
+use GuzzleHttp\Client;
 use Haxibiao\Media\Jobs\MediaProcess;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class CrawlCollection extends Command
@@ -74,15 +74,17 @@ class CrawlCollection extends Command
         }
 
         $hasMore = true;
-        for ($cursor = 0, $count = 15; $hasMore; $cursor++) {
+        for ($cursor = 0, $count = 15; $hasMore;) {
             $crawlUrl = sprintf(self::COLLECTIONS_URL, $user_id, $cursor, $count);
+            info($crawlUrl);
             //获取用户所有的合集信息
             $collectionData = self::getRequestData($crawlUrl);
             $hasMore = (bool) data_get($collectionData, 'has_more', 0);
+            $cursor = data_get($collectionData, 'cursor', 0);
             $mixInfos = data_get($collectionData, 'mix_infos', null);
-            if(empty($mixInfos)){
+            if (empty($mixInfos)) {
                 info('未找到该用户的合集!');
-                return;
+                continue;
             }
 
             $collections = [];
@@ -154,16 +156,16 @@ class CrawlCollection extends Command
                     $post->review_day = $reviewDay;
                     $post->save();
                     //将视频归入合集中
-                    $postIds[$post->id] =  ['sort_rank' => data_get($video, 'mix_info.statis.current_episode')];
+                    $postIds[$post->id] = ['sort_rank' => data_get($video, 'mix_info.statis.current_episode')];
 
                     //登录
                     Auth::login($vestUser);
                     try {
                         //爬取对应的数据
-                        dispatch(new MediaProcess($spider->id));               
+                        dispatch(new MediaProcess($spider->id));
                     } catch (\Exception $ex) {
                         $info = $ex->getMessage();
-                            info("异常信息" . $info);
+                        info("异常信息" . $info);
                     }
 
                 }
@@ -211,7 +213,7 @@ class CrawlCollection extends Command
         $completePath = Storage::cloud()->url($path);
         // 从文件中读取数据到PHP变量
         $json_string = file_get_contents($completePath);
-        
+
         // 用参数true把JSON字符串强制转成PHP数组
         $data = json_decode($json_string, true);
         return $data;
