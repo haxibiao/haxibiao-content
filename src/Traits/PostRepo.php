@@ -527,7 +527,7 @@ trait PostRepo
     {
         if (in_array(env('APP_NAME'), ['datizhuanqian'])) {
             $version = \App\Helpers\AppHelper::version();
-            if (!empty($version) && !$version->gte('3.6.0')) {
+            if (!empty($version) && $version->gte('3.6.0')) {
                 //nova配置的内部广告展示权重
                 $adConfigs = AppConfig::where('group', '广告权重')->pluck('value', 'name')->toArray();
 
