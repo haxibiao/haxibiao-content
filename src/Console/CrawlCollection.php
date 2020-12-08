@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace Haxibiao\Content\Console;
 
 use App\Collection;
 use App\Exceptions\GQLException;

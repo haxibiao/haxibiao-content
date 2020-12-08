@@ -622,7 +622,7 @@ trait PostRepo
         $notLikIds[] = $user->id; //默认不喜欢刷到自己的视频动态
         $qb          = $qb->whereNotIn('user_id', $notLikIds);
 
-        if (in_array(config('app.name'), ['yinxiangshipin'])) {
+        if (in_array(config('app.name'), ['yinxiangshipin','caohan'])) {
             $vestIds = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
             $qb      = $qb->whereIn('user_id', $vestIds);
         }
