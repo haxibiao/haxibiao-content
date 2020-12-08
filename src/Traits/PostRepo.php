@@ -527,7 +527,7 @@ trait PostRepo
     {
         if (in_array(env('APP_NAME'), ['datizhuanqian'])) {
             $version = \App\Helpers\AppHelper::version()->getVersion();
-            if (!$version->gte('3.6.0')) {
+            if ($version && !$version->gte('3.6.0')) {
                 //nova配置的内部广告展示权重
                 $adConfigs = AppConfig::where('group', '广告权重')->pluck('value', 'name')->toArray();
 
@@ -624,7 +624,7 @@ trait PostRepo
         $notLikIds[] = $user->id; //默认不喜欢刷到自己的视频动态
         $qb          = $qb->whereNotIn('user_id', $notLikIds);
 
-        if (in_array(config('app.name'), ['yinxiangshipin','caohan'])) {
+        if (in_array(config('app.name'), ['yinxiangshipin', 'caohan'])) {
             $vestIds = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
             $qb      = $qb->whereIn('user_id', $vestIds);
         }
@@ -841,7 +841,7 @@ trait PostRepo
      */
     public static function publishComment($post, $spider)
     {
-        $dateList = create_date_array(now()->subHours(2), now(),15);
+        $dateList = create_date_array(now()->subHours(2), now(), 15);
         $dateList = array_pluck($dateList, 'time');
         // 获取随机时间
         $commentList = data_get($spider, 'data.comment.data.shortVideoCommentList.commentList', []);
