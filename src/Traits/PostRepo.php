@@ -8,7 +8,6 @@ use App\Collection;
 use App\Comment;
 use App\Exceptions\GQLException;
 use App\Gold;
-use App\Helpers\AppHelper;
 use App\Image;
 use App\Spider;
 use App\User;
@@ -527,13 +526,14 @@ trait PostRepo
     public static function diyAdShow()
     {
         if (in_array(env('APP_NAME'), ['datizhuanqian'])) {
-            //nova配置的内部广告展示权重
-            $adConfigs = AppConfig::where('group', '广告权重')->where(function ($query) {
-                $query->where('version', '>=', AppHelper::version()->getVersion())->orWhere('version', null);
-            })->pluck('value', 'name')->toArray();
+            $version = \App\Helpers\AppHelper::version()->getVersion();
+            if (!$version->gte('3.6.0')) {
+                //nova配置的内部广告展示权重
+                $adConfigs = AppConfig::where('group', '广告权重')->pluck('value', 'name')->toArray();
 
-            //返回根据权重随机的广告类型
-            return Post::countWeight($adConfigs);
+                //返回根据权重随机的广告类型
+                return Post::countWeight($adConfigs);
+            }
         }
 
     }
@@ -541,19 +541,21 @@ trait PostRepo
     //传入一个数组，根据其key对应的value返回有权重的随机数
     public static function countWeight($data)
     {
+
         if (count($data) < 1) {
             return;
         }
         // 权重数值越高，被返回的概率越大
         $weight = 0;
         $temp   = array();
+        \info("bbbb");
         foreach ($data as $key => $value) {
             $weight += $value;
             for ($i = 0; $i < $value; $i++) {
                 $temp[] = $key; //放大数组
             }
         }
-
+        \info("aaa");
         $int    = mt_rand(0, $weight - 1); //获取一个随机数
         $result = $temp[$int];
         return $result;
