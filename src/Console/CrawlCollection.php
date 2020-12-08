@@ -74,6 +74,8 @@ class CrawlCollection extends Command
         }
 
         $hasMore = true;
+        $collections = [];
+        $mixIds = [];
         for ($cursor = 0, $count = 15; $hasMore;) {
             $crawlUrl = sprintf(self::COLLECTIONS_URL, $user_id, $cursor, $count);
             info($crawlUrl);
@@ -86,9 +88,6 @@ class CrawlCollection extends Command
                 info('未找到该用户的合集!');
                 continue;
             }
-
-            $collections = [];
-            $mixIds = [];
 
             //未指定爬取合集的情况，爬取该用户下的所有合集
             if (empty($collectionsName)) {
@@ -125,11 +124,13 @@ class CrawlCollection extends Command
         foreach ($mixIds as $mixId) {
             $hasMore = true;
             $postIds = [];
-            for ($cursor = 0, $count = 15; $hasMore; $cursor++) {
+            for ($cursor = 0, $count = 15; $hasMore; ) {
                 $crawlUrl = sprintf(self::VIDEOS_URL, $mixId, $cursor, $count);
                 info($crawlUrl);
                 $videoData = self::getRequestData($crawlUrl);
                 $hasMore = (bool) data_get($videoData, 'has_more', 0);
+                $cursor = data_get($collectionData, 'cursor', 0);
+
 
                 $videos = data_get($videoData, 'aweme_list');
 
