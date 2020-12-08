@@ -839,7 +839,7 @@ trait PostRepo
      */
     public static function publishComment($post, $spider)
     {
-        $dateList = create_date_array(15, now()->subHours(2), now());
+        $dateList = create_date_array(now()->subHours(2), now(),15);
         $dateList = array_pluck($dateList, 'time');
         // 获取随机时间
         $commentList = data_get($spider, 'data.comment.data.shortVideoCommentList.commentList', []);
