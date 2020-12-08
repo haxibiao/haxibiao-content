@@ -514,7 +514,7 @@ trait PostRepo
                 $adPost          = clone $post;
                 $adPost->id      = random_str(7);
                 $adPost->is_ad   = true;
-                $adPost->ad_type = Post::diyAdShow() ?? "tt";
+                $adPost->ad_type = "tt";
                 $mixPosts[]      = $adPost;
             }
         }
