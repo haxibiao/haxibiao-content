@@ -129,7 +129,8 @@ class CrawlCollection extends Command
                 info($crawlUrl);
                 $videoData = self::getRequestData($crawlUrl);
                 $hasMore = (bool) data_get($videoData, 'has_more', 0);
-                $cursor = data_get($collectionData, 'cursor', 0);
+                $cursor = data_get($videoData, 'cursor', 0);
+
 
 
                 $videos = data_get($videoData, 'aweme_list');
