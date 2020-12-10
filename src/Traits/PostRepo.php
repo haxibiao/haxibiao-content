@@ -532,33 +532,10 @@ trait PostRepo
                 $adConfigs = AppConfig::where('group', '广告权重')->pluck('value', 'name')->toArray();
 
                 //返回根据权重随机的广告类型
-                return Post::countWeight($adConfigs);
+                return countWeight($adConfigs);
             }
         }
         return "tt";
-    }
-
-    //传入一个数组，根据其key对应的value返回有权重的随机数
-    public static function countWeight($data)
-    {
-
-        if (count($data) < 1) {
-            return;
-        }
-        // 权重数值越高，被返回的概率越大
-        $weight = 0;
-        $temp   = array();
-
-        foreach ($data as $key => $value) {
-            $weight += $value;
-            for ($i = 0; $i < $value; $i++) {
-                $temp[] = $key; //放大数组
-            }
-        }
-
-        $int    = mt_rand(0, $weight - 1); //获取一个随机数
-        $result = $temp[$int];
-        return $result;
     }
 
     public static function likedPosts($user, $posts)
