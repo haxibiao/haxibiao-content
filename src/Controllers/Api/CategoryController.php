@@ -5,6 +5,7 @@ namespace Haxibiao\Content\Controllers\Api;
 use App\Article;
 use App\Notifications\ArticleApproved;
 use App\Category;
+use Haxibiao\Content\Categorized;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -107,13 +108,10 @@ class CategoryController extends Controller
     {
         $user     = $request->user();
         $articles = [];
-
-        foreach ($user->adminCategories as $category) {
-            $new_request_articles = $category->newRequestArticles()
-                ->with('user')
-                ->get();
-                dd($new_request_articles);
-            foreach ($new_request_articles as $article) {
+        $categorizeds = Categorized::where('submit','待审核')->pluck('categorized_id');
+        foreach ($categorizeds as $categorized) {
+            $categories = Article::where('id',$categorized)->with('user')->get();
+            foreach ($categories as $article) {
                 $articles[] = $article;
             }
         }

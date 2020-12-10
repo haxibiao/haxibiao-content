@@ -100,14 +100,14 @@ class Category extends Model
         if (config('app.name') == 'haxibiao') {
             return $this->belongsToMany('App\Article')
                 ->where('articles.status', '>', 0)
-                ->wherePivot('submit', '已收录')
+                ->wherePivot('submit', ['已收录',1])
                 ->withPivot('submit')
                 ->withTimestamps();
         }
 
         return $this->categorized(\App\Article::class)
             ->where('articles.status', '>', 0)
-            ->wherePivot('submit', '1')
+            ->wherePivotIn('submit', ['已收录',1])
             ->withPivot('submit')
             ->withTimestamps();
     }
