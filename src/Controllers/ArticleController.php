@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
-
 class ArticleController extends Controller
 {
     public function __construct()
@@ -93,7 +92,7 @@ class ArticleController extends Controller
     public function store(ArticleRequest $request)
     {
         $user = $request->user();
-        if (!Str::contains($user->email, ['@haxibiao.com','@haxifang.cn'])) {
+        if (!Str::contains($user->email, ['@haxibiao.com', '@haxifang.cn'])) {
             abort(403, '您无权发布文章');
         }
         if ($slug = $request->slug) {
@@ -140,8 +139,8 @@ class ArticleController extends Controller
      */
     public function show($id)
     {
-        if(!is_numeric($id)){
-            if($id == 'question'){
+        if (!is_numeric($id)) {
+            if ($id == 'question') {
                 return view('disclaimer');
             }
         }
@@ -181,10 +180,10 @@ class ArticleController extends Controller
             ->take(10)
             ->get();
 
-        if('haxibiao' == config('app.name')){
-                return view('blog.details')->with(['article' => $article]);;
-            }
-         return view('article.show')
+        if (in_array(config('app.name'), ['haxibiao', 'dongdaima'])) {
+            return view('blog.details')->with(['article' => $article]);
+        }
+        return view('article.show')
             ->withArticle($article)
             ->withData($data);
 
@@ -226,7 +225,7 @@ class ArticleController extends Controller
         if ($slug = $request->slug) {
             $validator = Validator::make(
                 $request->input(),
-                ['slug' => 'unique:articles,slug,' . $article->id] //校验时忽略当前文章
+                ['slug' => 'unique:articles,slug,' . $article->id]//校验时忽略当前文章
             );
             if ($validator->fails()) {
                 dd('当前slug已被使用');
@@ -238,7 +237,7 @@ class ArticleController extends Controller
 
         $article->update([
             "title" => $request->title,
-            "body" => $request->body
+            "body"  => $request->body,
         ]);
         $article->edited_at   = \Carbon\Carbon::now();
         $article->count_words = ceil(strlen(strip_tags($article->body)) / 2);
@@ -318,21 +317,20 @@ class ArticleController extends Controller
         $article->tags()->sync($tag_ids);
     }
 
-
     public function shareVideo($id)
     {
         $post = Post::findOrFail($id);
         if (empty($post->video)) {
-            return  view(
+            return view(
                 'errors.404',
                 ['data' => "您分享的视频好像不存在呢(。・＿・。)ﾉ"]
             );
         }
         return view('share.shareVideo', [
-            'post' => $post,
+            'post'    => $post,
             'article' => $post,
-            'video' => $post->video,
-            'user' => $post->user,
+            'video'   => $post->video,
+            'user'    => $post->user,
         ]);
     }
 }
