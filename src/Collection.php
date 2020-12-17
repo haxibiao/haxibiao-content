@@ -227,13 +227,17 @@ class Collection extends Model
        $interval=ceil((time()-$update_time));
 
       //如果今天更新过，则拷贝一份新的更新名字
-        if($interval<=100){
-            $newCover='storage/collection/top_cover'.time().'.png';
+      $newCover='storage/collection/new_top_cover.png';
+        if($interval<=1000){
             \Storage::cloud()->copy(self::TOP_COVER, $newCover);            
              return \Storage::cloud()->url($newCover);
         }
-       //修改名字，以便前端能及时更新图片
-        return \Storage::cloud()->url(self::TOP_COVER);
+        //如果在规定时间内没有访问更新后的图片，更新缓存
+        if(mt_rand(1, 100)>50){
+            return \Storage::cloud()->url($newCover);
+        }else{
+            return \Storage::cloud()->url(self::TOP_COVER);
+        }
     }
 
     public static function setTopCover($file)
