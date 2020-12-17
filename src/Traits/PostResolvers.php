@@ -6,6 +6,7 @@ use App\Follow;
 use App\Video;
 use Haxibiao\Content\Post;
 use Illuminate\Support\Arr;
+use App\Visit;
 
 trait PostResolvers
 {
@@ -28,6 +29,16 @@ trait PostResolvers
     public function resolvePosts($root, $args, $context, $info)
     {
         app_track_event("用户页", "我发布的视频动态");
+        if(checkUser())
+        {
+           $visited = Visit::create([
+               'visited_type' => 'users',
+               'visited_id' => data_get($args,'user_id'),
+               'user_id' => getUser()->id,
+               'created_at'   => now(),
+               'updated_at'   => now(),
+           ]);
+        }
         $type  = data_get($args,'type');
         return static::posts($args['user_id'], data_get($args, 'keyword'),$type);
     }
@@ -38,6 +49,16 @@ trait PostResolvers
     public function resolvePublicPosts($root, $args, $context, $info)
     {
         app_track_event("首页", "访问动态广场");
+        if(checkUser())
+        {
+           $visited = Visit::create([
+               'visited_type' => 'publicPosts',
+               'visited_id' => 'publicPosts',
+               'user_id' => getUser()->id,
+               'created_at'   => now(),
+               'updated_at'   => now(),
+           ]);
+        }
         return static::publicPosts($args['user_id'] ?? null);
     }
 
