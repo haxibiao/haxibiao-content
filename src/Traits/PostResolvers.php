@@ -50,6 +50,18 @@ trait PostResolvers
         return static::publicPosts($args['user_id'] ?? null);
     }
 
+    public static function addVisits($user,$visitedId,$visitedType)
+    {
+        $visited = [
+            'visited_type' => $visitedType,
+            'visited_id'   => $visitedId,
+            'user_id'      => $user,
+            'created_at'   => now(),
+            'updated_at'   => now(),
+        ];
+        return Visit::insert($visited);
+    }
+
     /**
      * 分享视频
      */
