@@ -31,7 +31,13 @@ trait PostResolvers
         app_track_event("用户页", "我发布的视频动态");
         if(checkUser())
         {
-            Visit::addVisits(getUser()->id, data_get($args,'user_id'), 'users');
+           $visited = Visit::create([
+               'visited_type' => 'users',
+               'visited_id' => data_get($args,'user_id'),
+               'user_id' => getUser()->id,
+               'created_at'   => now(),
+               'updated_at'   => now(),
+           ]);
         }
         $type  = data_get($args,'type');
         return static::posts($args['user_id'], data_get($args, 'keyword'),$type);
@@ -45,21 +51,15 @@ trait PostResolvers
         app_track_event("首页", "访问动态广场");
         if(checkUser())
         {
-            Visit::addVisits(getUser()->id,'访问动态广场', 'publicPosts');
+           $visited = Visit::create([
+               'visited_type' => 'publicPosts',
+               'visited_id' => 'publicPosts',
+               'user_id' => getUser()->id,
+               'created_at'   => now(),
+               'updated_at'   => now(),
+           ]);
         }
         return static::publicPosts($args['user_id'] ?? null);
-    }
-
-    public static function addVisits($user,$visitedId,$visitedType)
-    {
-        $visited = [
-            'visited_type' => $visitedType,
-            'visited_id'   => $visitedId,
-            'user_id'      => $user,
-            'created_at'   => now(),
-            'updated_at'   => now(),
-        ];
-        return Visit::insert($visited);
     }
 
     /**
