@@ -49,15 +49,17 @@ trait PostResolvers
     public function resolvePublicPosts($root, $args, $context, $info)
     {
         app_track_event("首页", "访问动态广场");
-        if(checkUser())
-        {
-           $visited = Visit::create([
-               'visited_type' => 'publicPosts',
-               'visited_id' => 'publicPosts',
-               'user_id' => getUser()->id,
-               'created_at'   => now(),
-               'updated_at'   => now(),
-           ]);
+        if (in_array(config('app.name'), ['dongmeiwei'])) {
+            if(checkUser())
+            {
+               $visited = Visit::create([
+                   'visited_type' => 'publicPosts',
+                   'visited_id' => 'publicPosts',
+                   'user_id' => getUser()->id,
+                   'created_at'   => now(),
+                   'updated_at'   => now(),
+               ]);
+            }
         }
         return static::publicPosts($args['user_id'] ?? null);
     }
