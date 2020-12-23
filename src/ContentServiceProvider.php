@@ -30,6 +30,8 @@ class ContentServiceProvider extends ServiceProvider
             Console\PostReFactoringCommand::class,
             Console\CollectionReFactoringCommand::class,
             Console\StatisticVideoViewsCommand::class,
+            Console\CrawlCollection::class,
+            
         ]);
     }
 
