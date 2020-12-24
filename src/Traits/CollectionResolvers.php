@@ -260,6 +260,19 @@ trait CollectionResolvers
 
     public function resolveRecommendCollections($rootValue, $args, $context, $resolveInfo)
     {
+        if (in_array(config('app.name'), ['dianyintujie'])) {
+            $qb = Collection::where('sort_rank', '>=', Collection::RECOMMEND_COLLECTION)
+            ->orderby('sort_rank', 'asc');
+            $recommendCollectionsA = $qb->take(6)->skip(0)->get();
+            $recommendCollectionsB = $qb->take(6)->skip(6)->get();
+            //降低rank值，减少出现的概率
+            Collection::whereIn('id', $recommendCollectionsA->pluck('id'))
+                    ->whereIn('id', $recommendCollectionsB->pluck('id'))
+                    ->increment('sort_rank');
+            $result['recommendCollectionsA'] = $recommendCollectionsA;
+            $result['recommendCollectionsB'] = $recommendCollectionsB;
+            return $result;
+        }
         //置顶的合集
         $topCollection = Collection::top()->first();
 
