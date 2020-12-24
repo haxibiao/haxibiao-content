@@ -15,6 +15,12 @@ class ContentServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        //帮助函数
+        $src_path = __DIR__;
+        foreach (glob($src_path . '/helpers/*.php') as $filename) {
+            require_once $filename;
+        }
+
         $this->bindPathsInContainer();
 
         $this->registerMorphMap();
@@ -31,7 +37,7 @@ class ContentServiceProvider extends ServiceProvider
             Console\CollectionReFactoringCommand::class,
             Console\StatisticVideoViewsCommand::class,
             Console\CrawlCollection::class,
-            
+
         ]);
     }
 
@@ -43,8 +49,8 @@ class ContentServiceProvider extends ServiceProvider
     public function boot()
     {
         // 更新每日播放量
-        $enabled = config('media.enabled_statistics_video_views',false);
-        if($enabled){
+        $enabled = config('media.enabled_statistics_video_views', false);
+        if ($enabled) {
             $this->app->booted(function () {
                 $schedule = $this->app->make(Schedule::class);
                 $schedule->command('haxibiao:statistic:video_viewers')->dailyAt('2:30');;
@@ -87,9 +93,9 @@ class ContentServiceProvider extends ServiceProvider
 
             //发布 resoucre
             $this->publishes([
-                __DIR__ . '/../resources/css'  => base_path('public/css'),
-                __DIR__ . '/../resources/images'  => base_path('public/images'),
-                __DIR__ . '/../resources/js'  => base_path('public/js'),
+                __DIR__ . '/../resources/css'    => base_path('public/css'),
+                __DIR__ . '/../resources/images' => base_path('public/images'),
+                __DIR__ . '/../resources/js'     => base_path('public/js'),
                 __DIR__ . '/../resources/views'  => base_path('resources/views'),
             ], 'content-resources');
         }
@@ -123,7 +129,7 @@ class ContentServiceProvider extends ServiceProvider
             'categories' => config('haxibiao-content.models.category'),
             'articles'   => config('haxibiao-content.models.article'),
             'posts'      => config('haxibiao-content.models.post'),
-            'issues'      => config('haxibiao-content.models.issue'),
+            'issues'     => config('haxibiao-content.models.issue'),
         ]);
     }
 
