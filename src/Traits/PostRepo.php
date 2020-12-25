@@ -265,10 +265,9 @@ trait PostRepo
                         //添加定位信息
                         if (in_array(config('app.name'), ['dongwaimao', 'jinlinle']) && !empty(data_get($inputs, 'location'))) {
                             \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
-
                         }
 
-//                        $chain = [];
+                        //                        $chain = [];
                         //                        if(config('haxibiao-content.enabled_video_share',false)){
                         //                            // 如果视频大于video_threshold_size,不处理metadata
                         //                            $fileSize = data_get($videoInfo,'metaData.size',null);
@@ -314,7 +313,6 @@ trait PostRepo
                         //添加定位信息
                         if (in_array(config('app.name'), ['dongwaimao', 'jinlinle']) && !empty(data_get($inputs, 'location'))) {
                             \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
-
                         }
                     }
                 } else {
@@ -783,7 +781,7 @@ trait PostRepo
         //超过100个动态或者已经有1个小时未归档了，自动发布.
         $canPublished = static::where('review_day', 0)
             ->where('created_at', '<=', now()->subHour())->exists()
-        || static::where('review_day', 0)->count() >= 100;
+            || static::where('review_day', 0)->count() >= 100;
 
         if ($canPublished) {
             dispatch_now(new PublishNewPosts);
@@ -972,8 +970,8 @@ trait PostRepo
             ->when($type == 'VIDEO', function ($q) {
                 return $q->whereNotNull('video_id');
             })->when($type == 'IMAGE', function ($q) {
-            return $q->whereNull('video_id');
-        });
+                return $q->whereNull('video_id');
+            });
         if (!empty($keyword)) {
             $qb = $qb->where('description', 'like', "%{$keyword}%");
         }
@@ -1002,26 +1000,31 @@ trait PostRepo
         //排除用户拉黑（屏蔽）的用户发布的视频,排除拉黑（不感兴趣）的动态
         $userBlockId    = [];
         $articleBlockId = [];
-        $query          = static::publish()
-            ->whereBetWeen('created_at', [now()->subDay(7), now()])
-            ->inRandomOrder();
-        if ($query) {
-            $query = static::publish()->inRandomOrder();
-        }
-        if (($user = getUser(false)) && class_exists("App\\UserBlock", true)) {
-            $userBlockId    = \App\UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
-            $articleBlockId = \App\UserBlock::select('article_block_id')->whereNotNull('article_block_id')->where('user_id', $user->id)->get();
+        if (in_array(config('app.name'), ['dianyintujie'])) {
+            $query = static::publish()->has('collectable');
+            return $query;
+        } else {
+            $query          = static::publish()
+                ->whereBetWeen('created_at', [now()->subDay(7), now()])
+                ->inRandomOrder();
+            if ($query) {
+                $query = static::publish()->inRandomOrder();
+            }
+            if (($user = getUser(false)) && class_exists("App\\UserBlock", true)) {
+                $userBlockId    = \App\UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
+                $articleBlockId = \App\UserBlock::select('article_block_id')->whereNotNull('article_block_id')->where('user_id', $user->id)->get();
 
-            if ($userBlockId) {
-                $query->whereNotIn('user_id', $userBlockId);
+                if ($userBlockId) {
+                    $query->whereNotIn('user_id', $userBlockId);
+                }
+                if ($articleBlockId) {
+                    $query->whereNotIn('id', $articleBlockId);
+                }
             }
-            if ($articleBlockId) {
-                $query->whereNotIn('id', $articleBlockId);
+            if ($user_id) {
+                $query->where("user_id", $user_id);
             }
+            return $query;
         }
-        if ($user_id) {
-            $query->where("user_id", $user_id);
-        }
-        return $query;
     }
 }
