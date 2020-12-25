@@ -8,15 +8,15 @@ use App\Category;
 use App\Exceptions\GQLException;
 use App\Exceptions\UserException;
 use App\Gold;
+use App\Image;
 use App\Ip;
 use App\Issue;
 use App\Jobs\AwardResolution;
-use Carbon\Carbon;
-use App\Image;
 use App\Notifications\ReceiveAward;
 use App\Tag;
 use App\Video;
 use App\Visit;
+use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use Haxibiao\Media\Jobs\ProcessVod;
@@ -48,8 +48,8 @@ trait ArticleRepo
                 throw new GQLException('发布失败,你以被禁言');
             }
             //带视频动态
-            if ($inputs['video_id'] || $inputs['qcvod_fileid'] ) {
-                if($inputs['video_id']){
+            if ($inputs['video_id'] || $inputs['qcvod_fileid']) {
+                if ($inputs['video_id']) {
                     $video   = Video::findOrFail($inputs['video_id']);
                     $article = $video->article;
                     if (!$article) {
@@ -64,7 +64,7 @@ trait ArticleRepo
                     $article->save();
                 } else {
                     $qcvod_fileid = $inputs['qcvod_fileid'];
-                    $video = Video::firstOrNew([
+                    $video        = Video::firstOrNew([
                         'qcvod_fileid' => $qcvod_fileid,
                     ]);
                     $video->user_id = $user->id;
@@ -100,7 +100,7 @@ trait ArticleRepo
                 if ($inputs['images']) {
                     $imageIds = [];
                     foreach ($inputs['images'] as $image) {
-                        $model = Image::saveImage($image);
+                        $model      = Image::saveImage($image);
                         $imageIds[] = $model->id;
                     }
                     $article->images()->sync($imageIds);
@@ -128,7 +128,7 @@ trait ArticleRepo
             Ip::createIpRecord('articles', $article->id, $article->user->id);
 
             DB::commit();
-            app_track_event('用户',"发布动态");
+            app_track_event('用户', "发布动态");
             return $article;
         } catch (\Exception $ex) {
             if ($ex->getCode() == 0) {
@@ -163,7 +163,7 @@ trait ArticleRepo
                 if ($todayPublishVideoNum == 10) {
                     throw new UserException('每天只能发布10个视频动态!');
                 }
-                if($inputs['video_id'] != null){
+                if ($inputs['video_id'] != null) {
                     $video = Video::findOrFail($inputs['video_id']);
 
                     //不能发布同一个视频（一模一样的视频）
@@ -181,14 +181,14 @@ trait ArticleRepo
                     $article->description = $body;
                     $article->title       = $body;
                     //新创建的视频动态需要审核
-                    $article->submit   = Article::REVIEW_SUBMIT;
-                    $article->issue_id = $issue->id;
-                    $article->review_id   = Article::makeNewReviewId();
-                    $article->type     = 'issue';
+                    $article->submit    = Article::REVIEW_SUBMIT;
+                    $article->issue_id  = $issue->id;
+                    $article->review_id = Article::makeNewReviewId();
+                    $article->type      = 'issue';
                     $article->save();
-                } else if($inputs['qcvod_fileid'] != null){
+                } else if ($inputs['qcvod_fileid'] != null) {
                     $qcvod_fileid = $inputs['qcvod_fileid'];
-                    $video = Video::firstOrNew([
+                    $video        = Video::firstOrNew([
                         'qcvod_fileid' => $qcvod_fileid,
                     ]);
                     //这个地方需要做成异步
@@ -241,7 +241,6 @@ trait ArticleRepo
                 $issue->gold = $inputs['gold'];
                 $issue->save();
 
-
                 if (!empty($article)) {
                     //带图问答不用审核，直接触发奖励
                     if ($article->type == 'issue' && is_null($article->video_id)) {
@@ -276,7 +275,7 @@ trait ArticleRepo
                 }
             }
             DB::commit();
-            app_track_event('用户',"发布问答");
+            app_track_event('用户', "发布问答");
             return $article;
         } catch (\Exception $ex) {
             DB::rollBack();
@@ -314,11 +313,11 @@ trait ArticleRepo
             $this->category->fillForJs();
         }
 
-        $this->description   = $this->summary;
+        $this->description = $this->summary;
 
         if ($this->video) {
-            $this->duration = gmdate('i:s', $this->video->duration);
-            $this->cover = $this->video->cover_url;
+            $this->duration     = gmdate('i:s', $this->video->duration);
+            $this->cover        = $this->video->cover_url;
             $this->video->cover = $this->video->cover_url;
         }
     }
@@ -511,19 +510,8 @@ trait ArticleRepo
      */
     public function recordBrowserHistory()
     {
-        if (isMobile()) {
-            $this->hits_mobile = $this->hits_mobile + 1;
-        }
-        if (isPhone()) {
-            $this->hits_phone = $this->hits_phone + 1;
-        }
-        if (match('micromessenger')) {
-            $this->hits_wechat = $this->hits_wechat + 1;
-        }
         //增加点击量
-        if (isRobot()) {
-            $this->hits_robot = $this->hits_robot + 1;
-        } else {
+        if (!isRobot()) {
             //非爬虫请求才统计热度
             $this->hits = $this->hits + 1;
             //记录浏览历史
@@ -537,10 +525,10 @@ trait ArticleRepo
                 ]);
                 $visit->save();
             }
+            $this->timestamps = false;
+            $this->save();
+            $this->timestamps = true;
         }
-        $this->timestamps = false;
-        $this->save();
-        $this->timestamps = true;
     }
 
     /**
@@ -803,9 +791,9 @@ trait ArticleRepo
         $category = $this->createHotCategory();
 
         //发布article
-        $this->type     = 'video';
-        $this->video_id = data_get($video, 'id');
-        $this->cover_path   = data_get($video, 'cover');
+        $this->type       = 'video';
+        $this->video_id   = data_get($video, 'id');
+        $this->cover_path = data_get($video, 'cover');
         $this->setStatus(Article::STATUS_ONLINE);
         $this->category_id = data_get($category, 'id');
         $this->review_id   = Article::makeNewReviewId();
