@@ -30,7 +30,37 @@ class InstallCommand extends Command
     public function handle()
     {
         $this->info('强制发布资源');
+        $this->vendorPublish();
 
+        $this->comment("复制 stubs ...");
+        $this->copyStubs();
+
+        //FIXME: 暂时不强制同步App\Category，动静太大，可以在需要的场景用 不同namespace 下的 Category(区分 Content 和 Question包)
+        // copy($this->resolveStubPath('/stubs/Category.stub'), app_path('Category.php'));
+
+        $this->comment('迁移数据库变化...');
+        $this->call('migrate');
+    }
+
+    public function copyStubs()
+    {
+        //复制所有app stubs
+        foreach (glob(__DIR__ . '/stubs/*.stub') as $filepath) {
+            $filename = basename($filepath);
+            copy($filepath, app_path(str_replace(".stub", ".php", $filename)));
+        }
+        //复制所有nova stubs
+        if (!is_dir(app_path('Nova'))) {
+            mkdir(app_path('Nova'));
+        }
+        foreach (glob(__DIR__ . '/stubs/Nova/*.stub') as $filepath) {
+            $filename = basename($filepath);
+            copy($filepath, app_path('Nova/' . str_replace(".stub", ".php", $filename)));
+        }
+    }
+
+    public function vendorPublish()
+    {
         $this->call('vendor:publish', [
             '--tag'   => 'content-config',
             '--force' => true,
@@ -59,17 +89,5 @@ class InstallCommand extends Command
             '--tag'   => 'content-resources',
             '--force' => true,
         ]);
-
-        $this->comment("复制 stubs ...");
-        copy(__DIR__ . '/stubs/Post.stub', app_path('Post.php'));
-        copy(__DIR__ . '/stubs/Article.stub', app_path('Article.php'));
-        copy(__DIR__ . '/stubs/PostRecommend.stub', app_path('PostRecommend.php'));
-        copy(__DIR__ . '/stubs/Collection.stub', app_path('Collection.php'));
-
-        //FIXME: 暂时不强制同步App\Category，动静太大，可以在需要的场景用 不同namespace 下的 Category(区分 Content 和 Question包)
-        // copy($this->resolveStubPath('/stubs/Category.stub'), app_path('Category.php'));
-
-        $this->comment('迁移数据库变化...');
-        $this->call('migrate');
     }
 }

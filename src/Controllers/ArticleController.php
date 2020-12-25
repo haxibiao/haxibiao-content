@@ -156,10 +156,13 @@ class ArticleController extends Controller
             return redirect('/video/' . $article->video_id);
         }
 
-        //draft article logic ....
-        if ($article->status < 1) {
-            if (!canEdit($article)) {
-                return abort(404);
+        //SEO站群暂时不care草稿状态内容 ?
+        // if (!config('cms.multi_domains'))
+        {
+            if ($article->status < 1) {
+                if (!canEdit($article)) {
+                    return abort(404);
+                }
             }
         }
 

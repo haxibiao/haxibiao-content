@@ -6,6 +6,16 @@ use Haxibiao\Content\Location;
 
 trait PostAttrs
 {
+    public function getUrlAttribute()
+    {
+        $path = '/%s/%d';
+        if ($this->type == 'video') {
+            return sprintf($path, $this->type, $this->video_id);
+        }
+        $path = sprintf($path, 'post', $this->id);
+        return url($path);
+    }
+
     public function getTimeAgeAttribute()
     {
         return time_ago($this->created_at);
@@ -29,15 +39,15 @@ trait PostAttrs
 
     public function getDistanceAttribute()
     {
-        if (checkUser()&&!empty(getUser(false)->location)&&!empty($this->location)) {
-            $user = getUser();
+        if (checkUser() && !empty(getUser(false)->location) && !empty($this->location)) {
+            $user       = getUser();
             $longitude1 = $user->location->longitude;
-            $latitude1 = $user->location->latitude;
+            $latitude1  = $user->location->latitude;
             $longitude2 = $this->location->longitude;
-            $latitude2= $this->location->latitude;
-            if ($longitude1 && $latitude1&&$longitude2 && $latitude2) {
-                $distance= Location::getDistance($longitude1 , $latitude1,$longitude2 , $latitude2,1);
-                return numberToReadable($distance).'m';
+            $latitude2  = $this->location->latitude;
+            if ($longitude1 && $latitude1 && $longitude2 && $latitude2) {
+                $distance = Location::getDistance($longitude1, $latitude1, $longitude2, $latitude2, 1);
+                return numberToReadable($distance) . 'm';
             }
         } else {
             return null;
