@@ -2,18 +2,16 @@
 
 namespace Haxibiao\Content;
 
-use Haxibiao\Content\Traits\BaseModel;
+use Haxibiao\Base\Model;
 use Haxibiao\Content\Traits\CategoryAttrs;
 use Haxibiao\Content\Traits\CategoryRepo;
 use Haxibiao\Content\Traits\CategoryResolvers;
-use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
     use CategoryResolvers;
     use CategoryAttrs;
     use CategoryRepo;
-    use BaseModel;
 
     const LOGO_PATH = '/images/category.logo.jpg';
 
@@ -100,14 +98,14 @@ class Category extends Model
         if (config('app.name') == 'haxibiao') {
             return $this->belongsToMany('App\Article')
                 ->where('articles.status', '>', 0)
-                ->wherePivot('submit', ['已收录',1])
+                ->wherePivot('submit', ['已收录', 1])
                 ->withPivot('submit')
                 ->withTimestamps();
         }
 
         return $this->categorized(\App\Article::class)
             ->where('articles.status', '>', 0)
-            ->wherePivotIn('submit', ['已收录',1])
+            ->wherePivotIn('submit', ['已收录', 1])
             ->withPivot('submit')
             ->withTimestamps();
     }

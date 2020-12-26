@@ -3,23 +3,19 @@
 namespace Haxibiao\Content;
 
 use App\Visit;
-use Haxibiao\Base\Traits\ModelHelpers;
-use Haxibiao\Content\Traits\BaseModel;
-use Illuminate\Support\Facades\Schema;
-use Haxibiao\Helpers\Traits\Searchable;
-use Illuminate\Database\Eloquent\Model;
-use Haxibiao\Helpers\Traits\PivotEventTrait;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Haxibiao\Base\Model;
 use Haxibiao\Content\Traits\CollectionResolvers;
+use Haxibiao\Helpers\Traits\Searchable;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 class Collection extends Model
 {
     use CollectionResolvers;
     use Searchable;
     use SoftDeletes;
-    use BaseModel;
-
 
     protected $table = 'collections';
 
@@ -36,7 +32,7 @@ class Collection extends Model
 
     protected $searchable = [
         'columns' => [
-            'collections.name' => 1,
+            'collections.name'        => 1,
             'collections.description' => 1,
         ],
     ];
@@ -103,7 +99,7 @@ class Collection extends Model
     public function getLogoAttribute()
     {
         $defaultLogo = config('haxibiao-content.collection_default_logo', 'https://haxibiao-1251052432.cos.ap-guangzhou.myqcloud.com/images/collection.png');
-        $logo = $this->getRawOriginal('logo');
+        $logo        = $this->getRawOriginal('logo');
         if (!$logo) {
             return $defaultLogo;
         }
@@ -112,7 +108,7 @@ class Collection extends Model
         if ($isValidateUrl) {
             return $logo;
         }
-        return \Storage::cloud()->url($logo);
+        return Storage::cloud()->url($logo);
     }
 
     public function getImageAttribute()
@@ -120,17 +116,17 @@ class Collection extends Model
         if (starts_with($this->logo, 'http')) {
             return $this->logo;
         }
-        $localFileExist = !is_prod() && \Storage::disk('public')->exists($this->logo);
+        $localFileExist = !is_prod() && Storage::disk('public')->exists($this->logo);
         if ($localFileExist) {
             return env('LOCAL_APP_URL') . '/storage/' . $this->logo;
         }
 
-        return \Storage::cloud()->url($this->logo);
+        return Storage::cloud()->url($this->logo);
     }
 
     public function getCountPlaysAttribute()
     {
-        return numberToReadable(data_get($this,'count_views',0));
+        return numberToReadable(data_get($this, 'count_views', 0));
     }
 
     public function scopeByCollectionIds($query, $collectionIds)
@@ -142,10 +138,9 @@ class Collection extends Model
         return $query->where('sort_rank', self::TOP_COLLECTION);
     }
 
-
     public function getUpdatedToEpisodeAttribute()
     {
-        return  $this->posts()->count();
+        return $this->posts()->count();
     }
 
     public function collect($collectableIds, $collectableType)
@@ -155,7 +150,7 @@ class Collection extends Model
 
         $modelStr = Relation::getMorphedModel($collectableType);
         $modelIds = $modelStr::whereIn('id', $collectableIds)->get()->pluck('id')->toArray();
-        $modelIds  = array_flip($modelIds);
+        $modelIds = array_flip($modelIds);
 
         $syncData = [];
         foreach ($collectableIds as $collectableId) {
@@ -164,8 +159,8 @@ class Collection extends Model
                 continue;
             }
             $syncData[$collectableId] = [
-                'sort_rank'          => $index,
-                'collection_name'    => $this->name
+                'sort_rank'       => $index,
+                'collection_name' => $this->name,
             ];
             $index++;
         }
@@ -194,7 +189,7 @@ class Collection extends Model
 
         $modelStr = Relation::getMorphedModel($collectableType);
         $modelIds = $modelStr::whereIn('id', $collectableIds)->get()->pluck('id')->toArray();
-        $modelIds  = array_flip($modelIds);
+        $modelIds = array_flip($modelIds);
 
         $maxSortRank = $this->collectable($modelStr)
             ->get()
@@ -209,8 +204,8 @@ class Collection extends Model
                 continue;
             }
             $syncData[$collectableId] = [
-                'sort_rank'          => $maxSortRank,
-                'collection_name'    => $this->name
+                'sort_rank'       => $maxSortRank,
+                'collection_name' => $this->name,
             ];
         }
         $this->collectable($modelStr)
@@ -223,20 +218,20 @@ class Collection extends Model
 
     public static function getTopCover()
     {
-       $update_time= \Storage::cloud()->lastModified(self::TOP_COVER);
-       $interval=ceil((time()-$update_time));
+        $update_time = Storage::cloud()->lastModified(self::TOP_COVER);
+        $interval    = ceil((time() - $update_time));
 
-      //如果今天更新过，则拷贝一份新的更新名字
-      $newCover='storage/collection/new_top_cover.png';
-        if($interval<=1000){
-            \Storage::cloud()->copy(self::TOP_COVER, $newCover);            
-             return \Storage::cloud()->url($newCover);
+        //如果今天更新过，则拷贝一份新的更新名字
+        $newCover = 'storage/collection/new_top_cover.png';
+        if ($interval <= 1000) {
+            Storage::cloud()->copy(self::TOP_COVER, $newCover);
+            return Storage::cloud()->url($newCover);
         }
         //如果在规定时间内没有访问更新后的图片，更新缓存
-        if(mt_rand(1, 100)>50){
-            return \Storage::cloud()->url($newCover);
-        }else{
-            return \Storage::cloud()->url(self::TOP_COVER);
+        if (mt_rand(1, 100) > 50) {
+            return Storage::cloud()->url($newCover);
+        } else {
+            return Storage::cloud()->url(self::TOP_COVER);
         }
     }
 
@@ -244,36 +239,22 @@ class Collection extends Model
     {
         if ($file) {
             //UploadedFile
-            $cover = self::TOP_COVER;
+            $cover       = self::TOP_COVER;
             $imageStream = file_get_contents($file->getRealPath());
-            return \Storage::cloud()->put($cover, $imageStream);
+            return Storage::cloud()->put($cover, $imageStream);
         }
-        return \Storage::cloud()->url(self::TOP_COVER);
+        return Storage::cloud()->url(self::TOP_COVER);
     }
 
     /**
      * 更新集数
      */
-    public function updateCountPosts(){
-        if (!Schema::hasColumn('collections', 'count_posts')){
+    public function updateCountPosts()
+    {
+        if (!Schema::hasColumn('collections', 'count_posts')) {
             return;
         }
         $this->count_posts = $this->posts()->count();
         $this->save();
     }
-
-        //只保存数据，不更新时间
-        public function saveDataOnly()
-        {
-            //获取model里面的事件
-            $dispatcher = self::getEventDispatcher();
-    
-            //不触发事件
-            self::unsetEventDispatcher();
-            $this->timestamps = false;
-            $this->save();
-    
-            //启用事件
-            self::setEventDispatcher($dispatcher);
-        }
 }
