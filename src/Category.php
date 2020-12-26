@@ -2,7 +2,7 @@
 
 namespace Haxibiao\Content;
 
-use Haxibiao\Base\Model;
+use App\Model;
 use Haxibiao\Content\Traits\CategoryAttrs;
 use Haxibiao\Content\Traits\CategoryRepo;
 use Haxibiao\Content\Traits\CategoryResolvers;
