@@ -2,8 +2,8 @@
 
 namespace App;
 
-use Haxibiao\Content\Issue as HxbIssue;
+use Haxibiao\Content\Issue as BaseIssue;
 
-class Issue extends HxbIssue
+class Issue extends BaseIssue
 {
 }

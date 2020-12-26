@@ -79,17 +79,7 @@ class ContentServiceProvider extends ServiceProvider
                 __DIR__ . '/Nova' => base_path('app/Nova'),
             ], 'content-nova');
 
-            //发布 tests
-            $this->publishes([
-                __DIR__ . '/../tests/Feature/GraphQL/Post'         => base_path('tests/Feature/GraphQL/Post'),
-                __DIR__ . '/../tests/Feature/GraphQL/PostTest.php' => base_path('tests/Feature/GraphQL/PostTest.php'),
-            ], 'content-tests');
-
-            //发布 factories
-            $this->publishes([
-                __DIR__ . '/../database/factories/PostFactory.php'  => base_path('database/factories/PostFactory.php'),
-                __DIR__ . '/../database/factories/VideoFactory.php' => base_path('database/factories/VideoFactory.php'),
-            ], 'content-factories');
+            //不发布tests代码，可以直接在包下UT
 
             //发布 resoucre
             $this->publishes([

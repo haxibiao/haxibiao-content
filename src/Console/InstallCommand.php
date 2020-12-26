@@ -76,16 +76,6 @@ class InstallCommand extends Command
         ]);
 
         $this->call('vendor:publish', [
-            '--tag'   => 'content-tests',
-            '--force' => true,
-        ]);
-
-        $this->call('vendor:publish', [
-            '--tag'   => 'content-factories',
-            '--force' => true,
-        ]);
-
-        $this->call('vendor:publish', [
             '--tag'   => 'content-resources',
             '--force' => true,
         ]);
