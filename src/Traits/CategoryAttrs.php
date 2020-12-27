@@ -2,7 +2,6 @@
 
 namespace Haxibiao\Content\Traits;
 
-use Haxibiao\Content\Category;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -45,6 +44,11 @@ trait CategoryAttrs
         return empty($this->description) ? '这专题管理很懒，一点介绍都没留下...' : $this->description;
     }
 
+    public function getUrlAttribute()
+    {
+        return '/category/' . $this->id;
+    }
+
     public function link()
     {
         return '<a href="/category/' . $this->id . '">' . $this->name . '</a>';
@@ -60,14 +64,14 @@ trait CategoryAttrs
 
     public function getLogoUrlAttribute()
     {
-        $logo=$this->logo;
+        $logo         = $this->logo;
         $defaultImage = config('haxibiao-content.collection_default_logo');
-        if(is_null($logo)){
+        if (is_null($logo)) {
             return $defaultImage;
         }
-        if(str_contains($logo,'http')){
+        if (str_contains($logo, 'http')) {
             return $logo;
-        }else{
+        } else {
             return Storage::cloud()->url($logo);
         }
     }

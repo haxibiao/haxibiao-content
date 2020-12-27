@@ -7,6 +7,10 @@ use Illuminate\Support\Str;
 
 trait IssueAttrs
 {
+    public function getUrlAttribute()
+    {
+        return '/question/' . $this->id;
+    }
 
     public function getImageUrlsAttribute()
     {
@@ -22,6 +26,7 @@ trait IssueAttrs
         });
         return $urls;
     }
+
     public function getImageCoverAttribute()
     {
         $image_url = $this->image_urls->first();
