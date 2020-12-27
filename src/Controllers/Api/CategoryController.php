@@ -3,8 +3,8 @@
 namespace Haxibiao\Content\Controllers\Api;
 
 use App\Article;
-use App\Notifications\ArticleApproved;
 use App\Category;
+use App\Notifications\ArticleApproved;
 use Haxibiao\Content\Categorized;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -61,13 +61,13 @@ class CategoryController extends Controller
     public function page(Request $request)
     {
         $categories = Category::orderBy('updated_at', 'desc')
-            ->where('status','1')
-            ->where('is_official','0')
+            ->where('status', '1')
+            ->where('is_official', '0')
             ->paginate(7);
         if ($request->get('index')) {
             $stick_categories = get_stick_categories();
             $top_count        = 7 - count($stick_categories);
-            $categories       = Category::where('is_official','0')
+            $categories       = Category::where('is_official', '0')
                 ->where('count', '>=', 0)
                 ->where('status', '>=', 0)
                 ->orderBy('updated_at', 'desc')
@@ -100,17 +100,17 @@ class CategoryController extends Controller
     {
         $user = $request->user();
         //获取我所有被投过稿的专题
-        $category = Category::where('user_id',$user->id)->whereNotNull('new_request_title')->get();
+        $category = Category::where('user_id', $user->id)->whereNotNull('new_request_title')->get();
         return $category;
     }
 
     public function pendingArticles(Request $request)
     {
-        $user     = $request->user();
-        $articles = [];
-        $categorizeds = Categorized::where('submit','待审核')->pluck('categorized_id');
+        $user         = $request->user();
+        $articles     = [];
+        $categorizeds = Categorized::where('submit', '待审核')->pluck('categorized_id');
         foreach ($categorizeds as $categorized) {
-            $categories = Article::where('id',$categorized)->with('user')->get();
+            $categories = Article::where('id', $categorized)->with('user')->get();
             foreach ($categories as $article) {
                 $articles[] = $article;
             }
@@ -132,7 +132,6 @@ class CategoryController extends Controller
         $query    = $user->articles();
         if (request('q')) {
             $query = $query->where('title', 'like', '%' . request('q') . '%');
-            dd($query);
         }
         $articles = $query->paginate(10);
         foreach ($articles as $article) {
@@ -160,7 +159,7 @@ class CategoryController extends Controller
 
         //将文章投稿进专题
         $query = $article->allCategories()->wherePivot('category_id', $cid);
-        
+
         //已经投过稿
         if ($query->count()) {
             $pivot         = $query->first()->pivot;
@@ -198,7 +197,7 @@ class CategoryController extends Controller
 
             //TODO::如果后面撤回了，这个标题也留这了
             $category->new_request_title = $article->title;
-           
+
             //更新单个专题上的新请求数
             $category->new_requests = $category->requestedInMonthArticles()->wherePivot('submit', '待审核')->count();
             $category->save();

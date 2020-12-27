@@ -10,6 +10,7 @@ trait CategoryRepo
 {
     public function fillForJs()
     {
+        $this->url         = $this->url;
         $this->logo        = $this->logoUrl;
         $this->description = $this->description();
     }
