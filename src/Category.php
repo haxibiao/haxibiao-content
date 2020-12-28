@@ -146,4 +146,8 @@ class Category extends Model
     {
         return $this->morphedByMany($related, 'categorized');
     }
+
+    public function related(){
+        return $this->hasMany(Categorized::class);
+    }
 }
