@@ -99,7 +99,7 @@ trait ArticleAttrs
 
         //为空返回默认图片
         if (empty($cover_url)) {
-            if($this->type == 'article'){
+            if ($this->type == 'article') {
                 return null;
             }
             return url("/images/cover.png");
@@ -126,7 +126,8 @@ trait ArticleAttrs
     public function getFavoritedAttribute()
     {
         if ($user = getUser(false)) {
-            return $favorite = $user->favoritedArticles()->where('faved_id', $this->id)->count() > 0;
+            $column          = in_array(config('app.name'), ['datizhuanqian', 'dazhuan']) ? 'favorable_id' : 'faved_id';
+            return $favorite = $user->favoritedArticles()->where($column, $this->id)->count() > 0;
         }
         return false;
     }
@@ -134,6 +135,7 @@ trait ArticleAttrs
     public function getFavoritedIdAttribute()
     {
         if ($user = getUser(false)) {
+            $column   = in_array(config('app.name'), ['datizhuanqian', 'dazhuan']) ? 'favorable_id' : 'faved_id';
             $favorite = $user->favoritedArticles()->where('faved_id', $this->id)->first();
             return $favorite ? $favorite->id : 0;
         }
@@ -168,7 +170,7 @@ trait ArticleAttrs
             return 0;
         }
         $issue = $this->issue;
-        if($issue){
+        if ($issue) {
             return $issue->gold;
         }
         return 0;
@@ -198,7 +200,8 @@ trait ArticleAttrs
         return $this->resoureTypeCN() . '<a href=' . $this->url . '>《' . $title . '》</a>';
     }
 
-    public function getCountLikesAttribute(){
+    public function getCountLikesAttribute()
+    {
         return $this->likes()->count();
     }
 }
