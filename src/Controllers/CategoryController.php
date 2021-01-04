@@ -27,8 +27,7 @@ class CategoryController extends Controller
     /**
     专题管理列表
      */
-    function list(Request $request)
-    {
+    function list(Request $request) {
         $qb               = Category::where('status', '>=', 0)->orderBy('id', 'desc');
         $data['keywords'] = '';
         if ($request->get('q')) {
@@ -87,7 +86,7 @@ class CategoryController extends Controller
         }
 
         //推荐
-        $categories = $qb->where('status',1)->where('parent_id', 0)->paginate(12);
+        $categories = $qb->where('status', 1)->where('parent_id', 0)->paginate(12);
         if (ajaxOrDebug() && request('recommend')) {
             foreach ($categories as $category) {
                 $category->followed = $category->isFollowed();
@@ -107,7 +106,7 @@ class CategoryController extends Controller
             ->groupBy('category_id')
             ->get()->toArray();
         $categories = Category::whereIn('id', $articles)
-            ->where('status',1)
+            ->where('status', 1)
             ->where('parent_id', 0)
             ->paginate(24);
         if (ajaxOrDebug() && request('hot')) {
@@ -245,8 +244,6 @@ class CategoryController extends Controller
         }
         $data['works'] = $articles;
 
-
-
         //热门文章
         $qb = $category->publishedWorks()
             ->with('user')->with('category')
@@ -282,8 +279,13 @@ class CategoryController extends Controller
         //记录日志
         $category->recordBrowserHistory();
 
+        $questions = [];
+        if (class_exists("\App\Question")) {
+            $questions = \App\Question::where('category_id', $category->id)->paginate(9);
+        }
         return view('category.show')
             ->withCategory($category)
+            ->with("questions", $questions)
             ->withData($data);
     }
 
