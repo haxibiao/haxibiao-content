@@ -14,8 +14,8 @@ class AddJsonToCollectionsTable extends Migration
     public function up()
     {
         Schema::table('collections', function (Blueprint $table) {
-            if (!Schema::hasColumn('collections','json')){
-                $table->json('json')->nullable()->comment('非结构化的数据，冗余一些额外信息')->after('logo');
+            if (!Schema::hasColumn('collections', 'json')) {
+                $table->json('json')->nullable()->comment('非结构化的数据，冗余一些额外信息');
             }
         });
     }
