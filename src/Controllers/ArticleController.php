@@ -139,17 +139,16 @@ class ArticleController extends Controller
      */
     public function show($id)
     {
-        if (!is_numeric($id)) {
-            if ($id == 'question') {
-                return view('disclaimer');
-            }
-        }
+//        if (!is_numeric($id)) {
+//            if ($id == 'question') {
+//                return view('disclaimer');
+//            }
+//        }
         //此处id为中文代表slug,且$id不会是create.
-        $article = Article::with(['user', 'category', 'tags', 'images'])
-            ->where(function ($query) use ($id) {
-                is_numeric($id) ? $query->whereId($id) : $query->whereSlug($id);
-            })
-            ->firstOrFail();
+        $article = Article::where(function ($query) use ($id) {
+            is_numeric($id) ? $query->whereId($id) : $query->whereSlug($id);
+        })->firstOrFail();
+        $article->load(['user', 'categories']);
 
         //type is video redirect
         if ($article->video_id) {
