@@ -2,7 +2,6 @@
 
 namespace Haxibiao\Content\Nova;
 
-use App\Nova\Actions\Article\UpdatePost;
 use App\Nova\Resource;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
@@ -11,11 +10,10 @@ use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Textarea;
 
-class Post extends Resource
+class Article extends Resource
 {
-    //public static $title = 'description';
 
-    public static $model = 'App\\Post';
+    public static $model = 'App\\Article';
 
     public static $group = '内容管理';
 
@@ -26,18 +24,18 @@ class Post extends Resource
     public static $with = ['user', 'video'];
     public static function label()
     {
-        return "动态";
+        return "文章";
     }
 
     public function fields(Request $request)
     {
         return [
             ID::make()->sortable(),
-            Textarea::make('文章内容', 'content')->rules('required')->hideFromIndex(),
+            Textarea::make('标题', 'title')->rules('required')->hideFromIndex(),
             BelongsTo::make('作者', 'user', 'App\Nova\User')->exceptOnForms(),
             BelongsTo::make('视频', 'video', Video::class)->exceptOnForms(),
             Text::make('描述', 'description')->exceptOnForms(),
-            Text::make('热度', 'hot')->exceptOnForms(),
+            Text::make('热度', 'hits')->exceptOnForms(),
             Text::make('点赞', 'count_likes')->exceptOnForms(),
             Text::make('评论', 'count_comments')->exceptOnForms(),
             Select::make('状态', 'status')->options([
@@ -52,19 +50,6 @@ class Post extends Resource
                 }
                 return '';
             })->asHtml(),
-
-            // File::make('上传视频', 'video_id')->onlyOnForms()->store(
-            //     function (Request $request, $model) {
-            //         $file      = $request->file('video_id');
-            //         $validator = Validator::make($request->all(), [
-            //             'video' => 'mimetypes:video/avi,video/mp4,video/mpeg,video/quicktime',
-            //         ]);
-            //         if ($validator->fails()) {
-            //             return '视频格式有问题';
-            //         }
-            //         return \App\Video::uploadNovaVod($file);
-            //     }
-            // ),
         ];
     }
 
@@ -75,9 +60,7 @@ class Post extends Resource
 
     public function filters(Request $request)
     {
-        return [
-            // new Filters\Post\PostStatusType,
-        ];
+        return [];
     }
 
     public function lenses(Request $request)
@@ -87,8 +70,6 @@ class Post extends Resource
 
     public function actions(Request $request)
     {
-        return [
-            new UpdatePost,
-        ];
+        return [];
     }
 }
