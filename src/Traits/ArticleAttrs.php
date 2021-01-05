@@ -3,7 +3,6 @@
 namespace Haxibiao\Content\Traits;
 
 use App\Category;
-use Illuminate\Support\Str;
 
 trait ArticleAttrs
 {
@@ -87,27 +86,27 @@ trait ArticleAttrs
     }
 
     //统一的文章封面逻辑，创建/更新时自动维护字段为path=（image中的一张或video的cover）
-    //获取时自动返回full uri
     public function getCoverAttribute()
     {
         $cover_url = $this->cover_path;
 
-        //有cos地址的直接返回
-        if (Str::contains($cover_url, 'cos') || Str::contains($cover_url, 'http')) {
-            return $cover_url;
-        }
+        //有cos地址的不直接返回，需要兼容cos的https地址，直接走cdnurl函数修复
+        // if (Str::contains($cover_url, 'cos') || Str::contains($cover_url, 'http')) {
+        //     return $cover_url;
+        // }
 
         //为空返回默认图片
         if (empty($cover_url)) {
             if ($this->type == 'article') {
+                //返回null兼容has_image 等旧文章系统attrs的判断
                 return null;
             }
             return url("/images/cover.png");
         }
 
-        //TODO: 剩余的保存fullurl的，需要修复为path, 同步image, video的　disk变化
+        //强制返回cdn全url，兼容多端
         $path = parse_url($cover_url, PHP_URL_PATH);
-        return \Storage::cloud()->url($path);
+        return cdnurl($path);
     }
 
     public function getVideoUrlAttribute()
