@@ -139,11 +139,11 @@ class ArticleController extends Controller
      */
     public function show($id)
     {
-//        if (!is_numeric($id)) {
-//            if ($id == 'question') {
-//                return view('disclaimer');
-//            }
-//        }
+        if (!is_numeric($id)) {
+            if ($id == 'question') {
+                return view('disclaimer');
+            }
+        }
         //此处id为中文代表slug,且$id不会是create.
         $article = Article::where(function ($query) use ($id) {
             is_numeric($id) ? $query->whereId($id) : $query->whereSlug($id);
