@@ -88,25 +88,30 @@ trait ArticleAttrs
     //统一的文章封面逻辑，创建/更新时自动维护字段为path=（image中的一张或video的cover）
     public function getCoverAttribute()
     {
-        $cover_url = $this->cover_path;
+        if (in_array(config('app.name'), ['dongmeiwei'])) {
+            $coverPath = $this->cover_path;
+            return $coverPath;
+        }else{
+            $cover_url = $this->cover_path;
 
-        //有cos地址的不直接返回，需要兼容cos的https地址，直接走cdnurl函数修复
-        // if (Str::contains($cover_url, 'cos') || Str::contains($cover_url, 'http')) {
-        //     return $cover_url;
-        // }
-
-        //为空返回默认图片
-        if (empty($cover_url)) {
-            if ($this->type == 'article') {
-                //返回null兼容has_image 等旧文章系统attrs的判断
-                return null;
+            //有cos地址的不直接返回，需要兼容cos的https地址，直接走cdnurl函数修复
+            // if (Str::contains($cover_url, 'cos') || Str::contains($cover_url, 'http')) {
+            //     return $cover_url;
+            // }
+    
+            //为空返回默认图片
+            if (empty($cover_url)) {
+                if ($this->type == 'article') {
+                    //返回null兼容has_image 等旧文章系统attrs的判断
+                    return null;
+                }
+                return url("/images/cover.png");
             }
-            return url("/images/cover.png");
+    
+            //强制返回cdn全url，兼容多端
+            $path = parse_url($cover_url, PHP_URL_PATH);
+            return cdnurl($path);
         }
-
-        //强制返回cdn全url，兼容多端
-        $path = parse_url($cover_url, PHP_URL_PATH);
-        return cdnurl($path);
     }
 
     public function getVideoUrlAttribute()
