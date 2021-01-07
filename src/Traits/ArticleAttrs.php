@@ -41,7 +41,7 @@ trait ArticleAttrs
             return sprintf($path, $this->type, $this->video_id);
         }
         $path = sprintf($path, 'article', $this->id);
-        return url($path);
+        return seo_url($path);
     }
 
     public function hasImage()
