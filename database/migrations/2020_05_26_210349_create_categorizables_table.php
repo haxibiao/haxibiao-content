@@ -2,9 +2,10 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Grammars\RenameColumn;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCategorizedsTable extends Migration
+class CreateCategorizablesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,13 +15,21 @@ class CreateCategorizedsTable extends Migration
     public function up()
     {
         if (Schema::hasTable('categorizeds')) {
+            Schema::rename('categorizeds', 'categorizables');
+            //重构旧的表结构
+            Schema::table('categorizables', function (Blueprint $table) {
+                if (Schema::hasColumn('categorizables', 'categorized_type')) {
+                    $table->renameColumn('categorized_type', 'categorizable_type');
+                    $table->renameColumn('categorized_id', 'categorizable_id');
+                }
+            });
             return;
         }
 
-        Schema::create('categorizeds', function (Blueprint $table) {
+        Schema::create('categorizables', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('category_id');
-            $table->morphs('categorized');
+            $table->morphs('categorizable');
             $table->string('submit')->nullable()->index()->comment('投稿状态：待审核，已收录，已拒绝');
             $table->timestamps();
         });
@@ -33,6 +42,7 @@ class CreateCategorizedsTable extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('categorizeds');
         Schema::dropIfExists('categorizables');
     }
 }

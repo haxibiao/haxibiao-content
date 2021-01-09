@@ -2,37 +2,36 @@
 
 namespace Haxibiao\Content\Traits;
 
-use Haxibiao\Content\Category;
+use App\Category;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
-trait Categorizable
+/**
+ * content with category 用于内容归类
+ */
+trait WithCategory
 {
-    private function categorizableModel(): string
-    {
-        return config('haxibiao-content.models.category');
-    }
 
     public function category()
     {
-        return $this->belongsTo($this->categorizableModel(), 'category_id');
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function allCategories()
     {
-        return $this->morphToMany($this->categorizableModel(), 'categorized')
+        return $this->morphToMany(Category::class, 'categorizable')
             ->withPivot(['id', 'submit'])
             ->withTimestamps();
     }
 
     public function hasCategories()
     {
-        return $this->morphToMany($this->categorizableModel(), 'categorized');
+        return $this->morphToMany(Category::class, 'categorizable');
     }
 
     public function categories(): MorphToMany
     {
-        return $this->morphToMany($this->categorizableModel(), 'categorized')
+        return $this->morphToMany(Category::class, 'categorizable')
             ->withPivot(['id', 'submit'])
             ->withTimestamps();
     }

@@ -4,8 +4,10 @@ namespace Haxibiao\Content;
 
 use App\Model;
 use App\Visit;
+use Haxibiao\Cms\Traits\PlayWithCms;
 use Haxibiao\Content\Traits\CollectionResolvers;
 use Haxibiao\Helpers\Traits\Searchable;
+use Haxibiao\Sns\Traits\CanBeFollow;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Schema;
@@ -16,6 +18,8 @@ class Collection extends Model
     use CollectionResolvers;
     use Searchable;
     use SoftDeletes;
+    use CanBeFollow;
+    use PlayWithCms;
 
     protected $table = 'collections';
 
@@ -256,5 +260,19 @@ class Collection extends Model
         }
         $this->count_posts = $this->posts()->count();
         $this->save();
+    }
+
+    /**
+     * 上传合集封面
+     */
+    public function saveDownloadImage($file)
+    {
+        if ($file) {
+            $cover   = '/collect' . $this->id . '_' . time() . '.png';
+            $cosDisk = Storage::cloud();
+            $cosDisk->put($cover, \file_get_contents($file->path()));
+
+            return Storage::cloud()->url($cover);
+        }
     }
 }

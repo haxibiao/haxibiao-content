@@ -108,14 +108,6 @@ trait ArticleAttrs
         return $this->video ? $this->video->url : null;
     }
 
-    public function getLikedAttribute()
-    {
-        if ($user = getUser(false)) {
-            return $like = $user->likedArticles()->where('likable_id', $this->id)->count() > 0;
-        }
-        return false;
-    }
-
     public function getFavoritedAttribute()
     {
         if ($user = getUser(false)) {
@@ -131,15 +123,6 @@ trait ArticleAttrs
             $column   = in_array(config('app.name'), ['datizhuanqian', 'dazhuan']) ? 'favorable_id' : 'faved_id';
             $favorite = $user->favoritedArticles()->where('faved_id', $this->id)->first();
             return $favorite ? $favorite->id : 0;
-        }
-        return 0;
-    }
-
-    public function getLikedIdAttribute()
-    {
-        if ($user = getUser(false)) {
-            $like = $user->likedArticles()->where('likable_id', $this->id)->first();
-            return $like ? $like->id : 0;
         }
         return 0;
     }

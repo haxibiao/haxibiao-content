@@ -1,16 +1,17 @@
 <?php
 
 namespace Haxibiao\Content\Traits;
+
+use App\User;
 use App\Visit;
 use Illuminate\Support\Str;
-use App\User;
 
 trait SolutionAttrs
 {
 
     public function getImageUrlsAttribute()
     {
-        $urls= $this->images()->pluck('path')->map(function ($url) {
+        $urls = $this->images()->pluck('path')->map(function ($url) {
             if (isset($url)) {
                 if (Str::contains($url, 'http')) {
                     return $url;
@@ -35,15 +36,8 @@ trait SolutionAttrs
 
     }
 
-    public function getLikedAttribute()
-    {
-        if ($user = getUser(false)) {
-            return $like = $user->likedSolutions()->where('likable_id', $this->id)->count() > 0;
-        }
-        return false;
-    }
     public function getCountVisitsAttribute()
     {
-        return  Visit::where('visited_id',$this->id)->where('visited_type','solutions')->count();
+        return Visit::where('visited_id', $this->id)->where('visited_type', 'solutions')->count();
     }
 }

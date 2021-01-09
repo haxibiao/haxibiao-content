@@ -52,13 +52,13 @@ class Category extends Model
 
     public function videoArticles()
     {
-        return $this->categorized(\App\Article::class)
+        return $this->categorizable(\App\Article::class)
             ->where('articles.type', 'video');
     }
 
     public function articles()
     {
-        return $this->categorized(\App\Article::class)
+        return $this->categorizable(\App\Article::class)
             ->withPivot('submit')
             ->withTimestamps()
             ->orderBy('pivot_updated_at', 'desc')
@@ -79,13 +79,13 @@ class Category extends Model
 
     public function containedVideoPosts()
     {
-        return $this->categorized(\App\Article::class)
+        return $this->categorizable(\App\Article::class)
             ->where('articles.type', 'video');
     }
 
     public function requestedInMonthArticles()
     {
-        return $this->categorized(\App\Article::class)
+        return $this->categorizable(\App\Article::class)
             ->wherePivot('created_at', '>', \Carbon\Carbon::now()->addDays(-90))
             ->withPivot('submit', 'created_at')
             ->withTimestamps()
@@ -103,7 +103,7 @@ class Category extends Model
                 ->withTimestamps();
         }
 
-        return $this->categorized(\App\Article::class)
+        return $this->categorizable(\App\Article::class)
             ->where('articles.status', '>', 0)
             ->wherePivotIn('submit', ['已收录', 1])
             ->withPivot('submit')
@@ -134,7 +134,7 @@ class Category extends Model
 
     public function issues()
     {
-        return $this->categorized(\App\Issue::class);
+        return $this->categorizable(\App\Issue::class);
     }
 
     public function follows()
@@ -142,12 +142,13 @@ class Category extends Model
         return $this->morphMany(\App\Follow::class, 'followed');
     }
 
-    public function categorized($related)
+    public function categorizable($related)
     {
-        return $this->morphedByMany($related, 'categorized');
+        return $this->morphedByMany($related, 'categorizable');
     }
 
-    public function related(){
-        return $this->hasMany(Categorized::class);
+    public function related()
+    {
+        return $this->hasMany(Categorizable::class);
     }
 }

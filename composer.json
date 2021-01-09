@@ -1,51 +1,52 @@
 {
-  "name": "haxibiao/content",
-  "type": "library",
-  "require": {
-    "php": ">=7.0",
-    "haxibiao/helpers": "*",
-    "Haxibiao/Base": "*",
-    "haxibiao/config": "*",
-    "haxibiao/matomo": "*",
-    "haxibiao/media": "*"
-  },
-  "autoload": {
-    "psr-4": {
-      "Haxibiao\\Content\\": "src/"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Haxibiao\\Content\\Tests\\": "tests/"
-    }
-  },
-  "repositories": {
-    "helpers": {
-      "type": "vcs",
-      "url": "http://code.haxibiao.cn/packages/haxibiao-helpers.git"
+    "name": "haxibiao/content",
+    "type": "library",
+    "require": {
+        "php": ">=7.3",
+        "haxibiao/helpers": "*",
+        "haxibiao/config": "*",
+        "haxibiao/matomo": "*",
+        "Haxibiao/cms": "*",
+        "Haxibiao/sns": "*",
+        "haxibiao/media": "*"
     },
-    "base": {
-      "type": "vcs",
-      "url": "http://code.haxibiao.cn/packages/haxibiao-base.git"
+    "autoload": {
+        "psr-4": {
+            "Haxibiao\\Content\\": "src/"
+        }
     },
-    "config": {
-      "type": "vcs",
-      "url": "http://code.haxibiao.cn/packages/haxibiao-config.git"
+    "autoload-dev": {
+        "psr-4": {
+            "Haxibiao\\Content\\Tests\\": "tests/"
+        }
     },
-    "matomo": {
-      "type": "vcs",
-      "url": "http://code.haxibiao.cn/packages/haxibiao-matomo.git"
+    "repositories": {
+        "helpers": {
+            "type": "vcs",
+            "url": "http://code.haxibiao.cn/packages/haxibiao-helpers.git"
+        },
+        "base": {
+            "type": "vcs",
+            "url": "http://code.haxibiao.cn/packages/haxibiao-base.git"
+        },
+        "config": {
+            "type": "vcs",
+            "url": "http://code.haxibiao.cn/packages/haxibiao-config.git"
+        },
+        "matomo": {
+            "type": "vcs",
+            "url": "http://code.haxibiao.cn/packages/haxibiao-matomo.git"
+        },
+        "media": {
+            "type": "vcs",
+            "url": "http://code.haxibiao.cn/packages/haxibiao-media.git"
+        }
     },
-    "media": {
-      "type": "vcs",
-      "url": "http://code.haxibiao.cn/packages/haxibiao-media.git"
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Haxibiao\\Content\\ContentServiceProvider"
+            ]
+        }
     }
-  },
-  "extra": {
-    "laravel": {
-      "providers": [
-        "Haxibiao\\Content\\ContentServiceProvider"
-      ]
-    }
-  }
 }

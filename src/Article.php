@@ -3,16 +3,18 @@
 namespace Haxibiao\Content;
 
 use App\Model;
+use Haxibiao\Cms\Traits\PlayWithCms;
 use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Traits\ArticleAttrs;
 use Haxibiao\Content\Traits\ArticleRepo;
 use Haxibiao\Content\Traits\ArticleResolvers;
 use Haxibiao\Content\Traits\CanCollect;
-use Haxibiao\Content\Traits\Categorizable;
-use Haxibiao\Media\Traits\WithImage;
-use Haxibiao\Media\Traits\WithMedia;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Haxibiao\Content\Traits\WithCategory;
 use Haxibiao\Media\Image;
+use Haxibiao\Media\Traits\UseMedia;
+use Haxibiao\Media\Traits\WithImage;
+use Haxibiao\Sns\Traits\WithSns;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Article extends Model implements Collectionable
 {
@@ -20,10 +22,12 @@ class Article extends Model implements Collectionable
     use ArticleResolvers;
     use ArticleAttrs;
     use SoftDeletes;
-    use Categorizable;
-    use WithMedia;
+    use WithCategory;
+    use UseMedia;
     use WithImage;
     use CanCollect;
+    use PlayWithCms;
+    use WithSns;
 
     protected $guarded = ['api_token'];
 
@@ -32,7 +36,6 @@ class Article extends Model implements Collectionable
         parent::boot();
         static::observe(Observers\ArticleObserver::class);
     }
-
 
     //提交状态
     const REFUSED_SUBMIT   = -1; //已拒绝

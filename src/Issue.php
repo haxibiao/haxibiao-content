@@ -3,9 +3,10 @@
 namespace Haxibiao\Content;
 
 use App\Model;
-use Haxibiao\Content\Traits\Categorizable;
+use Haxibiao\Cms\Traits\PlayWithCms;
 use Haxibiao\Content\Traits\IssueAttrs;
 use Haxibiao\Content\Traits\IssueResolvers;
+use Haxibiao\Content\Traits\WithCategory;
 use Haxibiao\Media\Image;
 use Haxibiao\Media\Traits\WithImage;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -16,7 +17,8 @@ class Issue extends Model
     use IssueAttrs;
     use SoftDeletes;
     use WithImage;
-    use Categorizable;
+    use WithCategory;
+    use PlayWithCms;
 
     protected $guarded = [];
 
@@ -25,7 +27,8 @@ class Issue extends Model
         return 'issues';
     }
 
-    public function article(){
+    public function article()
+    {
         return $this->hasOne(\App\Article::class);
     }
 
@@ -77,7 +80,7 @@ class Issue extends Model
         $answers = [];
         if (!empty($this->resolution_ids)) {
             $resolution_ids = explode(',', $this->resolution_ids);
-            $answers    = $this->resolutions()->whereIn('id', $resolution_ids)->get();
+            $answers        = $this->resolutions()->whereIn('id', $resolution_ids)->get();
         }
         return $answers;
     }
@@ -94,7 +97,7 @@ class Issue extends Model
             return $image_url;
         }
         //没有，只好用问题里的图片
-        return data_get($this,'image1',null);
+        return data_get($this, 'image1', null);
     }
 
     public function link()

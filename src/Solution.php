@@ -5,6 +5,7 @@ namespace Haxibiao\Content;
 use App\Model;
 use Haxibiao\Content\Traits\SolutionAttrs;
 use Haxibiao\Content\Traits\SolutionResolvers;
+use Haxibiao\Sns\Traits\WithSns;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Solution extends Model
@@ -12,6 +13,7 @@ class Solution extends Model
     use SolutionResolvers;
     use SolutionAttrs;
     use SoftDeletes;
+    use WithSns;
 
     protected $guarded = [];
 

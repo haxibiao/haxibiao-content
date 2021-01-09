@@ -2,29 +2,28 @@
 
 namespace Haxibiao\Content\Traits;
 
+use App\Article;
 
-trait HasArticle
+/**
+ * 用户使用文章系统
+ */
+trait UseArticle
 {
-    public function articleModel(): string
-    {
-        return config('haxibiao-content.models.article');
-    }
-
     public function articles()
     {
-        return $this->hasMany($this->articleModel())
+        return $this->hasMany(Article::class)
             ->where('status', '>', 0)
             ->exclude(['body', 'json']);
     }
 
     public function removedArticles()
     {
-        return $this->hasMany($this->articleModel())->where('status', -1);
+        return $this->hasMany(Article::class)->where('status', -1);
     }
 
     public function allArticles()
     {
-        return $this->hasMany($this->articleModel())
+        return $this->hasMany(Article::class)
             ->exclude(['body', 'json']);
     }
 
@@ -45,12 +44,12 @@ trait HasArticle
 
     public function videoArticles()
     {
-        return $this->hasMany($this->articleModel())
+        return $this->hasMany(Article::class)
             ->where('articles.type', 'video');
     }
 
     public function drafts()
     {
-        return $this->hasMany($this->articleModel())->where('status', 0);
+        return $this->hasMany(Article::class)->where('status', 0);
     }
 }

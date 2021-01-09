@@ -8,15 +8,17 @@ use App\Model;
 use App\User;
 use App\Video;
 use Carbon\Carbon;
+use Haxibiao\Cms\Traits\PlayWithCms;
 use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Traits\CanCollect;
-use Haxibiao\Content\Traits\Categorizable;
 use Haxibiao\Content\Traits\PostAttrs;
 use Haxibiao\Content\Traits\PostOldPatch;
 use Haxibiao\Content\Traits\PostRepo;
 use Haxibiao\Content\Traits\PostResolvers;
+use Haxibiao\Content\Traits\WithCategory;
 use Haxibiao\Media\Spider;
 use Haxibiao\Media\Traits\WithImage;
+use Haxibiao\Sns\Traits\WithSns;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -26,14 +28,15 @@ use Illuminate\Support\Str;
 class Post extends Model implements Collectionable
 {
     use SoftDeletes;
-
     use PostRepo;
     use PostAttrs;
     use PostResolvers;
     use WithImage;
-    use Categorizable;
+    use WithCategory;
     use CanCollect;
     use PostOldPatch;
+    use PlayWithCms;
+    use WithSns;
 
     public function getMorphClass()
     {
@@ -96,7 +99,7 @@ class Post extends Model implements Collectionable
     }
     public function getLocationDescAttribute()
     {
-        return $this->locations->last()?$this->locations->last()->description:null;
+        return $this->locations->last() ? $this->locations->last()->description : null;
     }
 
     public function spider(): BelongsTo

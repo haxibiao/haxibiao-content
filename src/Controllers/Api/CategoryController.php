@@ -5,7 +5,6 @@ namespace Haxibiao\Content\Controllers\Api;
 use App\Article;
 use App\Category;
 use App\Notifications\ArticleApproved;
-use Haxibiao\Content\Categorized;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -106,16 +105,13 @@ class CategoryController extends Controller
 
     public function pendingArticles(Request $request)
     {
-        $user         = $request->user();
-        $articles     = [];
-        $categorizeds = Categorized::where('submit', '待审核')->pluck('categorized_id');
-        foreach ($categorizeds as $categorized) {
-            $categories = Article::where('id', $categorized)->with('user')->get();
-            foreach ($categories as $article) {
-                $articles[] = $article;
-            }
-        }
-        return $articles;
+        $user = $request->user();
+        //FIXME: 这里应该UseCategory里的关系
+        // $categorizable_ids = Categorizable::where('submit', '待审核')->pluck('categorizable_id');
+        // foreach ($categorizable_ids as $categorizable_id) {
+        //     return Article::where('id', $categorizable_id)->with('user')->get();
+        // }
+        return collect([]);
     }
 
     public function requestedArticles(Request $request, $cid)
@@ -207,13 +203,16 @@ class CategoryController extends Controller
         return $article;
     }
 
+    /**
+     * 专题收录
+     */
     public function addCategory(Request $request, $aid, $cid)
     {
         $user     = $request->user();
         $article  = Article::findOrFail($aid);
         $category = Category::findOrFail($cid);
 
-        $query = $category->articles()->wherePivot('categorized_id', $aid);
+        $query = $category->articles()->wherePivot('categorizable_id', $aid);
         if ($query->count()) {
             $pivot         = $query->first()->pivot;
             $pivot->submit = $pivot->submit == '已收录' ? '已移除' : '已收录';
@@ -311,11 +310,12 @@ class CategoryController extends Controller
         return $data;
     }
 
+    //审核投稿
     public function approveCategory(Request $request, $cid, $aid)
     {
         $category = Category::findOrFail($cid);
 
-        $article = $category->articles()->where('categorized_id', $aid)->firstOrFail();
+        $article = $category->articles()->where('categorizable_id', $aid)->firstOrFail();
 
         //清除缓存
         foreach ($category->admins as $admin) {

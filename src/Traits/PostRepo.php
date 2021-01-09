@@ -536,20 +536,6 @@ trait PostRepo
         return "tt";
     }
 
-    public static function likedPosts($user, $posts)
-    {
-        $postIds = $posts->pluck('id');
-        if (count($postIds) > 0) {
-            $likedIds = $user->likedTableIds('posts', $postIds);
-            //更改liked状态
-            $posts->each(function ($post) use ($likedIds) {
-                $post->liked = $likedIds->contains($post->id);
-            });
-        }
-
-        return $posts;
-    }
-
     public static function followedPostsUsers($user, $posts)
     {
         $userIds = $posts->pluck('user_id');
@@ -635,13 +621,13 @@ trait PostRepo
 
             $qb_published = static::has('video')->with($withRelationList)->publish();
             if (in_array(config('app.name'), ['yinxiangshipin'])) {
-                $vestIds      = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
+                $vestIds       = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
                 $visitVideoIds = Visit::ofType('posts')
-                ->ofUserId($user->id)
-                ->get()
-                ->pluck('visited_id');
-                $qb_published = $qb_published->whereIn('user_id', $vestIds)            
-                ->whereNotIn('id', $visitVideoIds);
+                    ->ofUserId($user->id)
+                    ->get()
+                    ->pluck('visited_id');
+                $qb_published = $qb_published->whereIn('user_id', $vestIds)
+                    ->whereNotIn('id', $visitVideoIds);
             }
             $result = $qb_published->latest('id')->skip(rand(1, 100))->take(20)->get();
             Visit::saveVisits($user, $result, 'posts');
@@ -786,7 +772,7 @@ trait PostRepo
         //超过100个动态或者已经有1个小时未归档了，自动发布.
         $canPublished = static::where('review_day', 0)
             ->where('created_at', '<=', now()->subHour())->exists()
-            || static::where('review_day', 0)->count() >= 100;
+        || static::where('review_day', 0)->count() >= 100;
 
         if ($canPublished) {
             dispatch_now(new PublishNewPosts);
@@ -975,8 +961,8 @@ trait PostRepo
             ->when($type == 'VIDEO', function ($q) {
                 return $q->whereNotNull('video_id');
             })->when($type == 'IMAGE', function ($q) {
-                return $q->whereNull('video_id');
-            });
+            return $q->whereNull('video_id');
+        });
         if (!empty($keyword)) {
             $qb = $qb->where('description', 'like', "%{$keyword}%");
         }
@@ -1023,7 +1009,7 @@ trait PostRepo
             }
             return $query;
         } else {
-            $query          = static::publish()
+            $query = static::publish()
                 ->whereBetWeen('created_at', [now()->subDay(7), now()])
                 ->inRandomOrder();
             if ($query) {

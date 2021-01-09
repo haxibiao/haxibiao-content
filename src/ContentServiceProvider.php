@@ -26,8 +26,8 @@ class ContentServiceProvider extends ServiceProvider
         $this->registerMorphMap();
 
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/haxibiao-content.php',
-            'haxibiao-content'
+            __DIR__ . '/../config/content.php',
+            'content'
         );
 
         $this->commands([
@@ -62,7 +62,7 @@ class ContentServiceProvider extends ServiceProvider
             $this->loadMigrationsFrom($this->app->make('path.haxibiao-content.migrations'));
 
             $this->publishes([
-                __DIR__ . '/../config/haxibiao-content.php' => config_path('haxibiao-content.php'),
+                __DIR__ . '/../config/content.php' => config_path('content.php'),
             ], 'content-config');
 
             //发布 graphql
@@ -116,10 +116,10 @@ class ContentServiceProvider extends ServiceProvider
     protected function registerMorphMap()
     {
         $this->morphMap([
-            'categories' => config('haxibiao-content.models.category'),
-            'articles'   => config('haxibiao-content.models.article'),
-            'posts'      => config('haxibiao-content.models.post'),
-            'issues'     => config('haxibiao-content.models.issue'),
+            'categories' => \App\Category::class,
+            'articles'   => \App\Article::class,
+            'posts'      => \App\Posts::class,
+            'issues'     => \App\Issue::class,
         ]);
     }
 

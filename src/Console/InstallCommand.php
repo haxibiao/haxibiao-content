@@ -13,7 +13,7 @@ class InstallCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'content:install';
+    protected $signature = 'content:install {--force : 强制全新安装}';
 
     /**
      * The Console command description.
@@ -29,55 +29,40 @@ class InstallCommand extends Command
      */
     public function handle()
     {
-        $this->info('强制发布资源');
-        $this->vendorPublish();
+        $force = $this->option('force');
+        $this->info('发布资源文件 ...');
+        $this->vendorPublish($force);
 
-        $this->comment("复制 stubs ...");
-        $this->copyStubs();
+        $this->comment("复制stubs代码 ...");
+        copyStubs(__DIR__, $force);
 
-        //FIXME: 暂时不强制同步App\Category，动静太大，可以在需要的场景用 不同namespace 下的 Category(区分 Content 和 Question包)
-        // copy($this->resolveStubPath('/stubs/Category.stub'), app_path('Category.php'));
+        //FIXME: 为啥不敢install的时候提供 App/Category 基于 Haxibiao\Content\Category?
+        // 新答题产品里的category字段有差别，haxibiao/question里通过migrate修复结构
+        // 通过playWithQuestion补充即可，重构question包时，先兼容并基于content系统
 
         $this->comment('迁移数据库变化...');
         $this->call('migrate');
     }
 
-    public function copyStubs()
-    {
-        //复制所有app stubs
-        foreach (glob(__DIR__ . '/stubs/*.stub') as $filepath) {
-            $filename = basename($filepath);
-            copy($filepath, app_path(str_replace(".stub", ".php", $filename)));
-        }
-        //复制所有nova stubs
-        if (!is_dir(app_path('Nova'))) {
-            mkdir(app_path('Nova'));
-        }
-        foreach (glob(__DIR__ . '/stubs/Nova/*.stub') as $filepath) {
-            $filename = basename($filepath);
-            copy($filepath, app_path('Nova/' . str_replace(".stub", ".php", $filename)));
-        }
-    }
-
-    public function vendorPublish()
+    public function vendorPublish($force = false)
     {
         $this->call('vendor:publish', [
             '--tag'   => 'content-config',
-            '--force' => true,
+            '--force' => $force,
         ]);
         $this->call('vendor:publish', [
             '--tag'   => 'content-graphql',
-            '--force' => true,
+            '--force' => $force,
         ]);
 
         $this->call('vendor:publish', [
             '--tag'   => 'content-nova',
-            '--force' => true,
+            '--force' => $force,
         ]);
 
         $this->call('vendor:publish', [
             '--tag'   => 'content-resources',
-            '--force' => true,
+            '--force' => $force,
         ]);
     }
 }
