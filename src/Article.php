@@ -11,8 +11,8 @@ use Haxibiao\Content\Traits\ArticleResolvers;
 use Haxibiao\Content\Traits\CanCollect;
 use Haxibiao\Content\Traits\WithCategory;
 use Haxibiao\Media\Image;
-use Haxibiao\Media\Traits\UseMedia;
 use Haxibiao\Media\Traits\WithImage;
+use Haxibiao\Media\Traits\WithMedia;
 use Haxibiao\Sns\Traits\WithSns;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -23,7 +23,7 @@ class Article extends Model implements Collectionable
     use ArticleAttrs;
     use SoftDeletes;
     use WithCategory;
-    use UseMedia;
+    use WithMedia;
     use WithImage;
     use CanCollect;
     use PlayWithCms;
