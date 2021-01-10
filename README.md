@@ -70,7 +70,7 @@ _Released on 2020-09-01_
 -   修复部分 GQL 语法错误,以及函数命名不规范的问题
 -   package 中模型加入\$guarded 属性，兼容填充数据时字段不一致问题
 -   Post 中加上了 PostOldPatch Trait 解决工厂 Article Post 的兼容问题,并修复了事件通知
--   为方便工厂系项目集成,加入数据修复脚本 `CategoryReFactoringCommand` 与 `PostReFactoringCommand`完成数据修复
+-   为方便工厂系项目集成,加入数据修复脚本 `RefactorCategorizable` 与 `PostReFactoringCommand`完成数据修复
 -   剔除冗余的失效路由代码,完成 API 与 GQL 的测试用例补充
 
 ### 如何完成更新？

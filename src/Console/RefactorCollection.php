@@ -10,9 +10,9 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CollectionReFactoringCommand extends Command
+class RefactorCollection extends Command
 {
-    protected $signature = 'haxibiao:collection:refactoring';
+    protected $signature = 'refactor:collection';
 
     protected $description = '重新构建collection,可重复执行';
 

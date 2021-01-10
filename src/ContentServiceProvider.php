@@ -32,9 +32,9 @@ class ContentServiceProvider extends ServiceProvider
 
         $this->commands([
             Console\InstallCommand::class,
-            Console\CategoryReFactoringCommand::class,
-            Console\PostReFactoringCommand::class,
-            Console\CollectionReFactoringCommand::class,
+            Console\RefactorCategorizable::class,
+            Console\RefactorPost::class,
+            Console\RefactorCollection::class,
             Console\StatisticVideoViewsCommand::class,
             Console\CrawlCollection::class,
 
