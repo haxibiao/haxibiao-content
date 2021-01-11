@@ -36,6 +36,10 @@ class InstallCommand extends Command
         $this->comment("复制stubs代码 ...");
         copyStubs(__DIR__, $force);
 
+        if(!file_exists(app_path('Tag.php'))){
+            copy(__DIR__ . '/stubs/Tag.stub', app_path('Tag.php'));
+        }
+
         //FIXME: 为啥不敢install的时候提供 App/Category 基于 Haxibiao\Content\Category?
         // 新答题产品里的category字段有差别，haxibiao/question里通过migrate修复结构
         // 通过playWithQuestion补充即可，重构question包时，先兼容并基于content系统
@@ -53,6 +57,9 @@ class InstallCommand extends Command
         $this->call('vendor:publish', [
             '--tag'   => 'content-graphql',
             '--force' => $force,
+        ]);
+        $this->call('vendor:publish', [
+            '--tag'   => 'tag-graphql',
         ]);
 
         $this->call('vendor:publish', [

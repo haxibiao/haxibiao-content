@@ -1,0 +1,81 @@
+type Tag {
+  id: Int!
+  """
+  标签名
+  """
+  name: String!
+  """
+  标签被引用的次数
+  """
+  count: Int
+  """
+  动态总数
+  """
+  count_posts:Int
+  """
+  播放总数
+  """
+  count_plays:String @rename(attribute: "count_views")
+  """
+  播放总数
+  """
+  count_views:String
+  """
+  动态
+  """
+  posts(
+    visibility:TagVisibilityEnum=self,
+    order:PostOrderEnum
+  ):[Post] @paginate(defaultCount: 5, builder: "App\\Tag@resolverPosts")
+  """
+  创建时间
+  """
+  created_at: DateTime!
+  """
+  更新时间
+  """
+  updated_at: DateTime!
+}
+
+extend type Query {
+  """
+  标签详情
+  """
+  tag(id: Int! @eq): Tag @find(model: "App\\Tag")
+
+  tags(filter: TagFilter):[Tag]
+    @paginate(defaultCount: 5, builder: "App\\Tag@resolveTags")
+
+  searchTags(query: String!):[Tag]
+    @paginate(defaultCount: 5, builder: "App\\Tag@resolveSearchTags")
+}
+
+enum  TagVisibilityEnum{
+  """
+  所有人
+  """
+  all
+  """
+  自己
+  """
+  self
+}
+
+
+enum TagFilter {
+  """
+  热门标签
+  """
+  HOT
+}
+
+enum PostOrderEnum{
+  """
+  热门
+  """
+  HOT
+  """
+  最新
+  """
+  LATEST
+}
