@@ -6,8 +6,8 @@
         "haxibiao/helpers": "*",
         "haxibiao/config": "*",
         "haxibiao/matomo": "*",
-        "Haxibiao/cms": "*",
-        "Haxibiao/sns": "*",
+        "haxibiao/cms": "*",
+        "haxibiao/sns": "*",
         "haxibiao/media": "*"
     },
     "autoload": {
@@ -20,28 +20,7 @@
             "Haxibiao\\Content\\Tests\\": "tests/"
         }
     },
-    "repositories": {
-        "helpers": {
-            "type": "vcs",
-            "url": "https://github.com/haxibiao/haxibiao-helpers.git"
-        },
-        "base": {
-            "type": "vcs",
-            "url": "https://github.com/haxibiao/haxibiao-base.git"
-        },
-        "config": {
-            "type": "vcs",
-            "url": "https://github.com/haxibiao/haxibiao-config.git"
-        },
-        "matomo": {
-            "type": "vcs",
-            "url": "https://github.com/haxibiao/haxibiao-matomo.git"
-        },
-        "media": {
-            "type": "vcs",
-            "url": "https://github.com/haxibiao/haxibiao-media.git"
-        }
-    },
+    "repositories": {},
     "extra": {
         "laravel": {
             "providers": [
