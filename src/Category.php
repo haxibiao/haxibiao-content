@@ -17,6 +17,8 @@ class Category extends Model
 
     protected $guarded = [];
 
+    protected $table = 'categories';
+
     private function categorizableModel(): string
     {
         return config('haxibiao-content.models.category');
@@ -144,7 +146,7 @@ class Category extends Model
 
     public function categorizable($related)
     {
-        return $this->morphedByMany($related, 'categorizable');
+        return $this->morphedByMany($related, 'categorizable','categorizables','category_id');
     }
 
     public function related()

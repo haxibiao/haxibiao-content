@@ -31,6 +31,8 @@ class Article extends Model implements Collectionable
 
     protected $guarded = ['api_token'];
 
+    protected $table = 'articles';
+
     protected static function boot()
     {
         parent::boot();

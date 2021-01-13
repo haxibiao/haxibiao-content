@@ -45,6 +45,8 @@ class Post extends Model implements Collectionable
 
     protected $guarded = [];
 
+    protected $table = 'posts';
+
     const PUBLISH_STATUS = 1;
     const PRIVARY_STATUS = 0;
     const DELETED_STATUS = -1;
