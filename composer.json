@@ -23,23 +23,23 @@
     "repositories": {
         "helpers": {
             "type": "vcs",
-            "url": "http://code.haxibiao.cn/packages/haxibiao-helpers.git"
+            "url": "https://github.com/haxibiao/haxibiao-helpers.git"
         },
         "base": {
             "type": "vcs",
-            "url": "http://code.haxibiao.cn/packages/haxibiao-base.git"
+            "url": "https://github.com/haxibiao/haxibiao-base.git"
         },
         "config": {
             "type": "vcs",
-            "url": "http://code.haxibiao.cn/packages/haxibiao-config.git"
+            "url": "https://github.com/haxibiao/haxibiao-config.git"
         },
         "matomo": {
             "type": "vcs",
-            "url": "http://code.haxibiao.cn/packages/haxibiao-matomo.git"
+            "url": "https://github.com/haxibiao/haxibiao-matomo.git"
         },
         "media": {
             "type": "vcs",
-            "url": "http://code.haxibiao.cn/packages/haxibiao-media.git"
+            "url": "https://github.com/haxibiao/haxibiao-media.git"
         }
     },
     "extra": {
