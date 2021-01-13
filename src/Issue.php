@@ -2,7 +2,7 @@
 
 namespace Haxibiao\Content;
 
-use Haxibiao\Base\Model;
+use Haxibiao\Breeze\Model;
 use Haxibiao\Cms\Traits\PlayWithCms;
 use Haxibiao\Content\Traits\IssueAttrs;
 use Haxibiao\Content\Traits\IssueResolvers;

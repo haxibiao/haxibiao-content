@@ -2,7 +2,7 @@
 
 namespace Haxibiao\Content;
 
-use Haxibiao\Base\Model;
+use Haxibiao\Breeze\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 

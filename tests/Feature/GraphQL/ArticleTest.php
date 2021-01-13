@@ -2,11 +2,10 @@
 
 namespace Tests\Feature\GraphQL;
 
-use App\User;
 use App\Article;
-use Haxibiao\Base\GraphQLTestCase;
+use App\User;
+use Haxibiao\Breeze\GraphQLTestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-
 
 class ArticleTest extends GraphQLTestCase
 {
@@ -23,7 +22,7 @@ class ArticleTest extends GraphQLTestCase
 
         $this->article = factory(Article::class)->create([
             'title'   => "XXX",
-            'user_id'  => $this->user->id,
+            'user_id' => $this->user->id,
         ]);
     }
 
@@ -34,12 +33,12 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testFollowedArticleQuery()
     {
-        $query = file_get_contents(__DIR__ . '/Article/Query/followedArticleQuery.gql');
+        $query     = file_get_contents(__DIR__ . '/Article/Query/followedArticleQuery.gql');
         $variables = [
             'user_id' => $this->user->id,
-            'type'    => 'users'
+            'type'    => 'users',
         ];
-        $this->runGQL($query,$variables);
+        $this->runGQL($query, $variables);
     }
 
     /**
@@ -49,8 +48,8 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testArticleQuery()
     {
-        $query = file_get_contents(__DIR__ . '/Article/Query/articleQuery.gql');
-        $articles = Article::inRandomOrder()->first();
+        $query     = file_get_contents(__DIR__ . '/Article/Query/articleQuery.gql');
+        $articles  = Article::inRandomOrder()->first();
         $variables = [
             'id' => $articles->id,
         ];
@@ -64,12 +63,12 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testRecommendArticlesQuery()
     {
-        $query = file_get_contents(__DIR__ . '/Article/Query/recommendArticlesQuery.gql');
+        $query     = file_get_contents(__DIR__ . '/Article/Query/recommendArticlesQuery.gql');
         $variables = [
             'count' => 1,
-            'page' => 1,
+            'page'  => 1,
         ];
-        $this->runGuestGQL($query,$variables);
+        $this->runGuestGQL($query, $variables);
     }
 
     /**
@@ -79,8 +78,8 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testRecipesArticleQuery()
     {
-        $query = file_get_contents(__DIR__ . '/Article/Query/recipesArticleQuery.gql');
-        $user = User::inRandomOrder()->first();
+        $query     = file_get_contents(__DIR__ . '/Article/Query/recipesArticleQuery.gql');
+        $user      = User::inRandomOrder()->first();
         $variables = [
             'user_id' => $user->id,
             'page'    => 1,
@@ -95,19 +94,19 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testRecommendTodayQuery()
     {
-        $query = file_get_contents(__DIR__ . '/Article/Query/recommendTodayQuery.gql');
-        $article = Article::where('type', 'article')->inRandomOrder()->first();
+        $query     = file_get_contents(__DIR__ . '/Article/Query/recommendTodayQuery.gql');
+        $article   = Article::where('type', 'article')->inRandomOrder()->first();
         $variables = [
             'show_time' => '2020-07-29',
-            'type' => 'article'
+            'type'      => 'article',
         ];
-        $this->runGuestGQL($query,$variables);
+        $this->runGuestGQL($query, $variables);
 
-        $article = Article::where('type','recipe')->inRandomOrder()->first();
+        $article   = Article::where('type', 'recipe')->inRandomOrder()->first();
         $variables = [
-            'type' => 'recipe'
+            'type' => 'recipe',
         ];
-        $this->runGuestGQL($query,$variables);
+        $this->runGuestGQL($query, $variables);
     }
 
     /**
@@ -116,16 +115,16 @@ class ArticleTest extends GraphQLTestCase
      * @group article
      */
 //    public function testCreateArticleMutation()
-//    {
-//        $token   = $this->user->api_token;
-//        $query   = file_get_contents(__DIR__ . '/Article/Mutation/createArticleMutation.gql');
-//        $variables = [
-//            'title' => "测试创建食谱",
-//            'description' => "测试创建食谱",
-//            'type' => 'RECIPE',
-//        ];
-//        $this->runGuestGQL($query,$variables,$this->getRandomUserHeaders());
-//    }
+    //    {
+    //        $token   = $this->user->api_token;
+    //        $query   = file_get_contents(__DIR__ . '/Article/Mutation/createArticleMutation.gql');
+    //        $variables = [
+    //            'title' => "测试创建食谱",
+    //            'description' => "测试创建食谱",
+    //            'type' => 'RECIPE',
+    //        ];
+    //        $this->runGuestGQL($query,$variables,$this->getRandomUserHeaders());
+    //    }
 
     /**
      * 菜谱打分
@@ -134,15 +133,15 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testCreateScoreMutation()
     {
-        $query   = file_get_contents(__DIR__ . '/Article/Mutation/createScoreMutation.gql');
-        $headers = $this->getRandomUserHeaders();
-        $score = Article::where('type','recipe')->inRandomOrder()->first();
+        $query     = file_get_contents(__DIR__ . '/Article/Mutation/createScoreMutation.gql');
+        $headers   = $this->getRandomUserHeaders();
+        $score     = Article::where('type', 'recipe')->inRandomOrder()->first();
         $variables = [
-            'scoreable_id' => $score->id,
+            'scoreable_id'   => $score->id,
             'scoreable_type' => 'articles',
-            'score'         => '99',
+            'score'          => '99',
         ];
-        $this->runGuestGQL($query,$variables,$headers);
+        $this->runGuestGQL($query, $variables, $headers);
 
     }
 
@@ -153,8 +152,8 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testDeleteArticleMutation()
     {
-        $query = file_get_contents(__DIR__ . '/Article/Mutation/deleteArticleMutation.gql');
-        $variables      = [
+        $query     = file_get_contents(__DIR__ . '/Article/Mutation/deleteArticleMutation.gql');
+        $variables = [
             "id" => $this->article->id,
         ];
         $this->runGuestGQL($query, $variables, $this->getRandomUserHeaders());

@@ -6,7 +6,7 @@ use App\Collection;
 use App\Image;
 use App\Visit;
 use GraphQL\Type\Definition\ResolveInfo;
-use Haxibiao\Base\Exceptions\GQLException;
+use Haxibiao\Breeze\Exceptions\GQLException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
@@ -234,7 +234,7 @@ trait CollectionResolvers
         $qb = $qb->where('count_posts', '>=', 3);
         //过滤掉合集封面为默认封面的
         $qb = $qb->whereNotNull('logo')
-                 ->where('logo', '!=', config('haxibiao-content.collection_default_logo'));
+            ->where('logo', '!=', config('haxibiao-content.collection_default_logo'));
         //按照合集创建时间排序
         $qb = $qb->whereBetWeen('created_at', [now()->subDay(60), now()]);
 
@@ -262,13 +262,13 @@ trait CollectionResolvers
     {
         if (in_array(config('app.name'), ['dianyintujie'])) {
             $qb = Collection::where('sort_rank', '>=', Collection::RECOMMEND_COLLECTION)
-            ->orderby('sort_rank', 'asc');
+                ->orderby('sort_rank', 'asc');
             $recommendCollectionsA = $qb->take(6)->skip(0)->get();
             $recommendCollectionsB = $qb->take(6)->skip(6)->get();
             //降低rank值，减少出现的概率
             Collection::whereIn('id', $recommendCollectionsA->pluck('id'))
-                    ->whereIn('id', $recommendCollectionsB->pluck('id'))
-                    ->increment('sort_rank');
+                ->whereIn('id', $recommendCollectionsB->pluck('id'))
+                ->increment('sort_rank');
             $result['recommendCollectionsA'] = $recommendCollectionsA;
             $result['recommendCollectionsB'] = $recommendCollectionsB;
             return $result;

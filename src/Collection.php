@@ -3,7 +3,7 @@
 namespace Haxibiao\Content;
 
 use App\Visit;
-use Haxibiao\Base\Model;
+use Haxibiao\Breeze\Model;
 use Haxibiao\Cms\Traits\PlayWithCms;
 use Haxibiao\Content\Traits\CollectionResolvers;
 use Haxibiao\Helpers\Traits\Searchable;
