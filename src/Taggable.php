@@ -2,7 +2,7 @@
 
 namespace Haxibiao\Content;
 
-use App\Model;
+use Haxibiao\Base\Model;
 
 class Taggable extends Model
 {

@@ -2,7 +2,7 @@
 
 namespace Haxibiao\Content;
 
-use App\Model;
+use Haxibiao\Base\Model;
 use Haxibiao\Content\Traits\CategoryAttrs;
 use Haxibiao\Content\Traits\CategoryRepo;
 use Haxibiao\Content\Traits\CategoryResolvers;
@@ -146,7 +146,7 @@ class Category extends Model
 
     public function categorizable($related)
     {
-        return $this->morphedByMany($related, 'categorizable','categorizables','category_id');
+        return $this->morphedByMany($related, 'categorizable', 'categorizables', 'category_id');
     }
 
     public function related()

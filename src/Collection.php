@@ -2,8 +2,8 @@
 
 namespace Haxibiao\Content;
 
-use App\Model;
 use App\Visit;
+use Haxibiao\Base\Model;
 use Haxibiao\Cms\Traits\PlayWithCms;
 use Haxibiao\Content\Traits\CollectionResolvers;
 use Haxibiao\Helpers\Traits\Searchable;

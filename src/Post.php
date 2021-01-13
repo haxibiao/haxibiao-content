@@ -4,10 +4,10 @@ namespace Haxibiao\Content;
 
 use App\Comment;
 use App\Like;
-use App\Model;
 use App\User;
 use App\Video;
 use Carbon\Carbon;
+use Haxibiao\Base\Model;
 use Haxibiao\Cms\Traits\PlayWithCms;
 use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Traits\CanCollect;

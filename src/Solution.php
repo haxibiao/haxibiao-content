@@ -2,7 +2,7 @@
 
 namespace Haxibiao\Content;
 
-use App\Model;
+use Haxibiao\Base\Model;
 use Haxibiao\Content\Traits\SolutionAttrs;
 use Haxibiao\Content\Traits\SolutionResolvers;
 use Haxibiao\Sns\Traits\WithSns;

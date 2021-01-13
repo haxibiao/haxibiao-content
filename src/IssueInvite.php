@@ -2,7 +2,7 @@
 
 namespace Haxibiao\Content;
 
-use App\Model;
+use Haxibiao\Base\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class IssueInvite extends Model
