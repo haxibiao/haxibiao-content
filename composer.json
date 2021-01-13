@@ -1,6 +1,14 @@
 {
     "name": "haxibiao/content",
+    "description": "哈希表内容系统",
     "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "ivan",
+            "email": "ivan@haxibiao.com"
+        }
+    ],
     "require": {
         "php": ">=7.3",
         "haxibiao/helpers": "*",
