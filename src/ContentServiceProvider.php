@@ -118,7 +118,7 @@ class ContentServiceProvider extends ServiceProvider
         $this->morphMap([
             'categories' => \App\Category::class,
             'articles'   => \App\Article::class,
-            'posts'      => \App\Posts::class,
+            'posts'      => \App\Post::class,
             'issues'     => \App\Issue::class,
         ]);
     }
