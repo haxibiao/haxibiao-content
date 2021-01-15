@@ -86,7 +86,7 @@ class ContentServiceProvider extends ServiceProvider
                 __DIR__ . '/../resources/css'    => base_path('public/css'),
                 __DIR__ . '/../resources/images' => base_path('public/images'),
                 __DIR__ . '/../resources/js'     => base_path('public/js'),
-                __DIR__ . '/../resources/views'  => base_path('resources/views'),
+                // __DIR__ . '/../resources/views'  => base_path('resources/views'),
             ], 'content-resources');
         }
 
