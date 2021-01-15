@@ -11,6 +11,7 @@
     ],
     "require": {
         "php": ">=7.3",
+        "nuwave/lighthouse": "^4.10",
         "haxibiao/helpers": "*",
         "haxibiao/config": "*",
         "haxibiao/matomo": "*",
