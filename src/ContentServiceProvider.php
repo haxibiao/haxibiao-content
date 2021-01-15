@@ -67,11 +67,15 @@ class ContentServiceProvider extends ServiceProvider
 
             //发布 graphql
             $this->publishes([
-                __DIR__ . '/../graphql/category'   => base_path('graphql/category'),
-                __DIR__ . '/../graphql/collection' => base_path('graphql/collection'),
-                __DIR__ . '/../graphql/tag'        => base_path('graphql/tag'),
-                __DIR__ . '/../graphql/article'    => base_path('graphql/article'),
-                __DIR__ . '/../graphql/post'       => base_path('graphql/post'),
+                __DIR__ . '/../graphql/category'    => base_path('graphql/category'),
+                __DIR__ . '/../graphql/collection'  => base_path('graphql/collection'),
+                __DIR__ . '/../graphql/tag'         => base_path('graphql/tag'),
+                __DIR__ . '/../graphql/article'     => base_path('graphql/article'),
+                __DIR__ . '/../graphql/post'        => base_path('graphql/post'),
+                __DIR__ . '/../graphql/issue'       => base_path('graphql/issue'),
+                __DIR__ . '/../graphql/issueInvite' => base_path('graphql/issueInvite'),
+                __DIR__ . '/../graphql/location'    => base_path('graphql/location'),
+                __DIR__ . '/../graphql/solution'    => base_path('graphql/solution'),
             ], 'content-graphql');
 
             // 发布 Nova

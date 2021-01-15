@@ -30,15 +30,12 @@ class InstallCommand extends Command
     public function handle()
     {
         $force = $this->option('force');
-        $this->info('发布资源文件 ...');
+
+        $this->info('发布资源 ...');
         $this->vendorPublish($force);
 
-        $this->comment("复制stubs代码 ...");
+        $this->comment("复制 stubs ...");
         copyStubs(__DIR__, $force);
-
-        if(!file_exists(app_path('Tag.php'))){
-            copy(__DIR__ . '/stubs/Tag.stub', app_path('Tag.php'));
-        }
 
         //FIXME: 为啥不敢install的时候提供 App/Category 基于 Haxibiao\Content\Category?
         // 新答题产品里的category字段有差别，haxibiao/question里通过migrate修复结构
@@ -59,7 +56,7 @@ class InstallCommand extends Command
             '--force' => $force,
         ]);
         $this->call('vendor:publish', [
-            '--tag'   => 'tag-graphql',
+            '--tag' => 'tag-graphql',
         ]);
 
         $this->call('vendor:publish', [
