@@ -13,6 +13,9 @@ trait UseContent
     use UseCategory;
     use UseArticle;
 
+    //use UseTag; //CanTag
+    //use UseCollection //CanCollect
+
     //with post
     public function posts(): HasMany
     {

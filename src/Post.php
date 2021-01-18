@@ -16,6 +16,7 @@ use Haxibiao\Content\Traits\PostOldPatch;
 use Haxibiao\Content\Traits\PostRepo;
 use Haxibiao\Content\Traits\PostResolvers;
 use Haxibiao\Content\Traits\WithCategory;
+use Haxibiao\Media\Image;
 use Haxibiao\Media\Spider;
 use Haxibiao\Media\Traits\WithImage;
 use Haxibiao\Sns\Traits\WithSns;
@@ -124,10 +125,10 @@ class Post extends Model implements Collectionable
         return $this->morphMany(Like::class, 'likable');
     }
 
-    //    public function images()
-    //    {
-    //        return $this->morphToMany(Image::class, 'imageable','imageable')->withTimestamps();
-    //    }
+    public function images()
+    {
+        return $this->morphToMany(Image::class, 'imageable', 'imageable')->withTimestamps();
+    }
 
     public function favorite()
     {

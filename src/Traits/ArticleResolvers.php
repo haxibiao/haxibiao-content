@@ -266,7 +266,6 @@ trait ArticleResolvers
      * @param $resolveInfo
      * @return void
      * @throws GQLException
-     * @throws \App\Exceptions\UnregisteredException
      * @author zengdawei
      */
     public function resolveDouyinVideo($rootValue, array $args, $context, $resolveInfo)

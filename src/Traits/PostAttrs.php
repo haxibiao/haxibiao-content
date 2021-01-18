@@ -23,7 +23,7 @@ trait PostAttrs
 
     public function getCoverAttribute()
     {
-        return $this->video ? $this->video->cover : "";
+        return $this->video ? $this->video->cover_url : null;
     }
 
     //use Likeable
