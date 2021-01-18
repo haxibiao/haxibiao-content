@@ -2,11 +2,6 @@
 
 declare (strict_types = 1);
 
-use Haxibiao\Content\Controllers\ArticleController;
-use Haxibiao\Content\Controllers\CategoryController;
-use Haxibiao\Content\Controllers\CollectionController;
-use Haxibiao\Content\Controllers\IssueController;
-use Haxibiao\Content\Controllers\SolutionController;
 use Illuminate\Contracts\Routing\Registrar as RouteRegisterContract;
 use Illuminate\Support\Facades\Route;
 
@@ -15,31 +10,35 @@ use Illuminate\Support\Facades\Route;
  */
 Route::group(['prefix' => 'category'], function (RouteRegisterContract $route) {
     //管理专题
-    Route::get('/list', CategoryController::class . '@list');
+    Route::get('/list', 'CategoryController@list');
 });
 
-Route::resource('/category', CategoryController::class);
+Route::resource('/category', 'CategoryController');
 
 /**
  * Article
  */
 //动态
-Route::post('/post/new', ArticleController::class . '@storePost');
+Route::post('/post/new', 'ArticleController@storePost');
 //文章
-Route::get('/drafts', ArticleController::class . '@drafts');
-Route::resource('/article', ArticleController::class);
+Route::get('/drafts', 'ArticleController@drafts');
+Route::resource('/article', 'ArticleController');
 //因为APP二维码分享用了 /post/{id}
-Route::resource('/post', ArticleController::class);
-Route::any('/share/post/{id}', ArticleController::class . '@shareVideo');
+Route::resource('/post', 'ArticleController');
+Route::any('/share/post/{id}', 'ArticleController@shareVideo');
 
-Route::get('/share/collection/{id}', CollectionController::class . '@shareCollection');
+Route::get('/share/collection/{id}', 'CollectionController@shareCollection');
 /**
  * 问答
  */
-Route::post('/question/updateBackground', IssueController::class . '@add')->name('question.updateBackground');
-Route::resource('/question', IssueController::class);
-Route::resource('/answer', SolutionController::class);
-Route::get('/categories-for-question', IssueController::class . '@categories');
-Route::get('/question-bonused', IssueController::class . '@bonused');
+Route::post('/question/updateBackground', 'IssueController@add')->name('question.updateBackground');
+Route::resource('/question', 'IssueController');
+Route::resource('/answer', 'SolutionController');
+Route::get('/categories-for-question', 'IssueController@categories');
+Route::get('/question-bonused', 'IssueController@bonused');
+
+//创作
+Route::middleware('auth')->get('/write', 'ArticleController@write');
+
 //TODO 这个里面还有梗,注意这个category的匹配顺序
 //Route::get('/{name_en}', CategoryController::class.'@name_en')->where('name_en', '(?!nova).*');

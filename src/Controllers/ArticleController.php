@@ -21,6 +21,14 @@ class ArticleController extends Controller
     }
 
     /**
+     * 创作编辑器
+     */
+    public function write()
+    {
+        return view('write');
+    }
+
+    /**
      * @Desc     发布一篇动态
      * @DateTime 2018-07-20
      * @param    Request    $request [description]
