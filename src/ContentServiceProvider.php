@@ -2,6 +2,13 @@
 
 namespace Haxibiao\Content;
 
+use Haxibiao\Content\Console\CrawlCollection;
+use Haxibiao\Content\Console\FixContent;
+use Haxibiao\Content\Console\InstallCommand;
+use Haxibiao\Content\Console\RefactorCategorizable;
+use Haxibiao\Content\Console\RefactorCollection;
+use Haxibiao\Content\Console\RefactorPost;
+use Haxibiao\Content\Console\StatisticVideoViewsCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
@@ -31,12 +38,13 @@ class ContentServiceProvider extends ServiceProvider
         );
 
         $this->commands([
-            Console\InstallCommand::class,
-            Console\RefactorCategorizable::class,
-            Console\RefactorPost::class,
-            Console\RefactorCollection::class,
-            Console\StatisticVideoViewsCommand::class,
-            Console\CrawlCollection::class,
+            InstallCommand::class,
+            RefactorCategorizable::class,
+            RefactorPost::class,
+            RefactorCollection::class,
+            StatisticVideoViewsCommand::class,
+            CrawlCollection::class,
+            FixContent::class,
 
         ]);
     }

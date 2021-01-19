@@ -2,7 +2,10 @@
 
 namespace Haxibiao\Content\Console;
 
+use Haxibiao\Breeze\User;
+use Haxibiao\Content\Post;
 use Haxibiao\Media\Spider;
+use Haxibiao\Media\Video;
 use Illuminate\Console\Command;
 
 class FixContent extends Command
@@ -17,6 +20,52 @@ class FixContent extends Command
             return $this->$table();
         }
         $this->error('请提供需要修复的table');
+
+    }
+
+    public function videos()
+    {
+        $this->info("把video sync过来配文 封面 和播放地址正常的视频发布成动态到马甲号下");
+
+        $qb = Video::orderBy('id');
+        //新同步过来的未发布的
+        $qb = $qb->where('id', '>', Post::max('video_id') ?? 0);
+
+        $qb->chunk(100, function ($videos) {
+            foreach ($videos as $video) {
+
+                $post = Post::firstOrNew([
+                    'video_id' => $video->id,
+                ]);
+
+                if ($post->id) {
+                    continue;
+                }
+
+                //随机一个编辑账户做马甲
+                $editor = User::role(User::EDITOR_STATUS)->inRandomOrder()->first();
+
+                //同步对应的post
+                $review_id  = Post::makeNewReviewId();
+                $review_day = Post::makeNewReviewDay();
+                $postFields = [
+                    'user_id'     => $editor ? $editor->id : 1,
+                    'content'     => $video->title,
+                    'description' => $video->title,
+                    'video_id'    => $video->id,
+                    'review_id'   => $review_id,
+                    'review_day'  => $review_day,
+                    'status'      => 1,
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ];
+                $post->forceFill(
+                    $postFields
+                )->saveDataOnly();
+
+                $this->info("发布动态 $post->id $post->video_id $post->content $post->cover");
+            }
+        });
 
     }
 
