@@ -5,11 +5,7 @@ namespace Haxibiao\Content\Traits;
 use App\Action;
 use App\Article;
 use App\Category;
-use App\Exceptions\GQLException;
-use App\Exceptions\UserException;
-use App\Gold;
 use App\Image;
-use App\Ip;
 use App\Issue;
 use App\Jobs\AwardResolution;
 use App\Notifications\ReceiveAward;
@@ -19,11 +15,17 @@ use App\Visit;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
+use Haxibiao\Breeze\Exceptions\GQLException;
+use Haxibiao\Breeze\Exceptions\UserException;
+use Haxibiao\Breeze\Ip;
 use Haxibiao\Media\Jobs\ProcessVod;
+use Haxibiao\Sns\Tip;
+use Haxibiao\Wallet\Gold;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 trait ArticleRepo
@@ -480,7 +482,7 @@ trait ArticleRepo
             'tipable_type' => 'articles',
         ];
 
-        $tip = \App\Tip::firstOrNew($data);
+        $tip = Tip::firstOrNew($data);
         //$tip->amount  = $tip->amount + $amount;
         $tip->amount  = $amount;
         $tip->message = $message; //tips:: 当上多次，总计了总量，留言只保留最后一句，之前的应该通过通知发给用户了
@@ -730,15 +732,15 @@ trait ArticleRepo
 
             try {
                 //本地存一份用于截图
-                \Storage::disk('public')->put($cosPath, file_get_contents($url));
+                Storage::disk('public')->put($cosPath, file_get_contents($url));
                 $video->disk = 'local'; //先标记为成功保存到本地
 
                 $video->path = $cosPath;
                 $video->save();
 
                 //同步上传到cos
-                $cosDisk = \Storage::cloud();
-                $cosDisk->put($cosPath, \Storage::disk('public')->get($cosPath));
+                $cosDisk = Storage::cloud();
+                $cosDisk->put($cosPath, Storage::disk('public')->get($cosPath));
                 $video->disk = 'cos';
                 $video->save();
 
@@ -756,7 +758,7 @@ trait ArticleRepo
                 return Article::find($this->id);
 
             } catch (\Exception $ex) {
-                \Log::error("video save exception" . $ex->getMessage());
+                Log::error("video save exception" . $ex->getMessage());
             }
 
         }

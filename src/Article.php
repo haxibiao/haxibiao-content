@@ -13,6 +13,10 @@ use Haxibiao\Content\Traits\WithCategory;
 use Haxibiao\Media\Image;
 use Haxibiao\Media\Traits\WithImage;
 use Haxibiao\Media\Traits\WithMedia;
+use Haxibiao\Sns\Comment;
+use Haxibiao\Sns\Favorite;
+use Haxibiao\Sns\Like;
+use Haxibiao\Sns\Tip;
 use Haxibiao\Sns\Traits\WithSns;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -85,17 +89,17 @@ class Article extends Model implements Collectionable
 
     public function favorites()
     {
-        return $this->morphMany(\App\Favorite::class, 'faved');
+        return $this->morphMany(Favorite::class, 'faved');
     }
 
     public function comments()
     {
-        return $this->morphMany(\App\Comment::class, 'commentable');
+        return $this->morphMany(Comment::class, 'commentable');
     }
 
     public function likes()
     {
-        return $this->morphMany(\App\Like::class, 'likable');
+        return $this->morphMany(Like::class, 'likable');
     }
 
     public function tags()
@@ -105,7 +109,7 @@ class Article extends Model implements Collectionable
 
     public function tips()
     {
-        return $this->morphMany(\App\Tip::class, 'tipable');
+        return $this->morphMany(Tip::class, 'tipable');
     }
 
     public function relatedVideoPostsQuery()
