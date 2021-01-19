@@ -395,12 +395,10 @@ class CategoryController extends Controller
     public function getCategoryVideos($category_id)
     {
         $video_id = request()->get('video_id');
-
         $num = request()->get('num') ? request()->get('num') : 10;
 
         $data = Category::findOrFail($category_id)
             ->videoPosts()
-            ->whereStatus(1)
             ->where('video_id', '!=', $video_id)
             ->paginate($num);
         foreach ($data as $article) {
