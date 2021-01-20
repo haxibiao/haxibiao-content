@@ -3,8 +3,6 @@
 namespace Haxibiao\Content\Traits;
 
 use App\Collection;
-
-use App\Tag;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 trait CanCollect
@@ -12,7 +10,7 @@ trait CanCollect
 
     public static function bootCanCollect()
     {
-        static::deleting(function($model) {
+        static::deleting(function ($model) {
             $collectionIds = $model->collections()->get()->pluck('id');
             $model->uncollectivize($collectionIds);
         });
@@ -22,7 +20,7 @@ trait CanCollect
     {
         return $this->morphToMany(\App\Collection::class, 'collectable')
             ->orderBy('type')
-            ->withPivot(['id', 'collection_name','sort_rank'])
+            ->withPivot(['id', 'collection_name', 'sort_rank'])
             ->withTimestamps();
     }
 
@@ -40,15 +38,18 @@ trait CanCollect
         return $this->belongsTo(\App\Collection::class, 'collection_id');
     }
 
-    public function collectivize($collections)
+    /**
+     * 内容增加到几个合集
+     */
+    public function collectivize($collection_ids)
     {
-        $syncData       = [];
-        $collections    = Collection::byCollectionIds($collections)->get();
-        $index = 1;
-        foreach ($collections as $collection){
+        $syncData    = [];
+        $collections = Collection::byCollectionIds($collection_ids)->get();
+        $index       = 1;
+        foreach ($collections as $collection) {
             $syncData[$collection->id] = [
-                'sort_rank'          => $index,
-                'collection_name'   => $collection->name
+                'sort_rank'       => $index,
+                'collection_name' => $collection->name,
             ];
             $collection->updateCountPosts();
             $index++;
@@ -58,15 +59,18 @@ trait CanCollect
         return $this;
     }
 
-    public function recollectivize($collections = [])
+    /**
+     * 内容强制刷新为当前几个合集，丢掉以前的合集关联
+     */
+    public function recollectivize($collection_ids = [])
     {
-        $syncData       = [];
-        $collections    = Collection::byCollectionIds($collections)->get();
-        $index = 1;
-        foreach ($collections as $collection){
+        $syncData    = [];
+        $collections = Collection::byCollectionIds($collection_ids)->get();
+        $index       = 1;
+        foreach ($collections as $collection) {
             $syncData[$collection->id] = [
-                'sort_rank'          => $index,
-                'collection_name'   => $collection->name
+                'sort_rank'       => $index,
+                'collection_name' => $collection->name,
             ];
             $collection->updateCountPosts();
             $index++;
@@ -79,27 +83,28 @@ trait CanCollect
     public function uncollectivize($collections)
     {
         $this->collections()->detach($collections);
-        $collections    = Collection::byCollectionIds($collections)->get();
-        foreach ($collections as $collection){
+        $collections = Collection::byCollectionIds($collections)->get();
+        foreach ($collections as $collection) {
             $collection->updateCountPosts();
         }
 
         return $this;
     }
 
-    public function getCurrentEpisodeAttribute(){
+    public function getCurrentEpisodeAttribute()
+    {
         $collection = $this->collections()
             ->latest()->first();
-        if(!$collection){
+        if (!$collection) {
             return null;
         }
-        $results = $collection->posts()->orderBy('collectables.sort_rank','asc')->get();
-        $index = 1;
-        foreach ($results as $result){
-            if(data_get($result,'pivot.collectable_id') == $this->id){
+        $results = $collection->posts()->orderBy('collectables.sort_rank', 'asc')->get();
+        $index   = 1;
+        foreach ($results as $result) {
+            if (data_get($result, 'pivot.collectable_id') == $this->id) {
                 return $index;
             }
-            $index ++;
+            $index++;
         }
         return null;
     }

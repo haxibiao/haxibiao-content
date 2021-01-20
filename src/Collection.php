@@ -147,6 +147,9 @@ class Collection extends Model
         return $this->posts()->count();
     }
 
+    /**
+     * 合集收录内容
+     */
     public function collect($collectableIds, $collectableType)
     {
 

@@ -3,6 +3,7 @@
 namespace Haxibiao\Content\Console;
 
 use Haxibiao\Breeze\User;
+use Haxibiao\Content\Collection;
 use Haxibiao\Content\Post;
 use Haxibiao\Media\Spider;
 use Haxibiao\Media\Video;
@@ -10,7 +11,7 @@ use Illuminate\Console\Command;
 
 class FixContent extends Command
 {
-    protected $signature = 'fix:content {table}';
+    protected $signature = 'fix:content {table} {--force} {--start= : 开始位置id}';
 
     protected $description = '修复数据';
 
@@ -28,17 +29,24 @@ class FixContent extends Command
         $this->info("把video sync过来配文 封面 和播放地址正常的视频发布成动态到马甲号下");
 
         $qb = Video::orderBy('id');
+
         //新同步过来的未发布的
-        $qb = $qb->where('id', '>', Post::max('video_id') ?? 0);
+        if (!$this->option('force')) {
+            $qb = $qb->where('id', '>=', Post::max('video_id') ?? 0);
+        }
+        if ($start = $this->option('start')) {
+            $qb = $qb->where('id', '>=', $start);
+        }
 
         $qb->chunk(100, function ($videos) {
             foreach ($videos as $video) {
+                $this->info("视频 $video->id $video->title $video->cover");
 
                 $post = Post::firstOrNew([
                     'video_id' => $video->id,
                 ]);
 
-                if ($post->id) {
+                if ($post->id && !$this->option('force')) {
                     continue;
                 }
 
@@ -49,7 +57,7 @@ class FixContent extends Command
                 $review_id  = Post::makeNewReviewId();
                 $review_day = Post::makeNewReviewDay();
                 $postFields = [
-                    'user_id'     => $editor ? $editor->id : 1,
+                    'user_id'     => $editor ? $editor->id : 1, //马甲编辑用户
                     'content'     => $video->title,
                     'description' => $video->title,
                     'video_id'    => $video->id,
@@ -62,6 +70,21 @@ class FixContent extends Command
                 $post->forceFill(
                     $postFields
                 )->saveDataOnly();
+
+                //合集
+                if ($video->collection_key) {
+                    $collection = Collection::firstOrNew([
+                        'collection_key' => $video->collection_key,
+                    ]);
+                    $collection->user_id = $editor ? $editor->id : 1; //马甲编辑用户
+                    $collection->name    = $video->collection;
+                    $collection->logo    = $video->cover_url;
+                    $collection->save();
+
+                    //合集收录视频动态
+                    $collection->collect([$post->id], 'posts');
+                    $this->comment(" - 合集 $collection->id $collection->name  收录成功 封面：$collection->logo");
+                }
 
                 $this->info("发布动态 $post->id $post->video_id $post->content $post->cover");
             }
