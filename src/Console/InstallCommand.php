@@ -55,9 +55,6 @@ class InstallCommand extends Command
             '--tag'   => 'content-graphql',
             '--force' => $force,
         ]);
-        $this->call('vendor:publish', [
-            '--tag' => 'tag-graphql',
-        ]);
 
         $this->call('vendor:publish', [
             '--tag'   => 'content-nova',

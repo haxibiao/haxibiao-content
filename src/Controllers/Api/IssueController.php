@@ -5,12 +5,12 @@ namespace Haxibiao\Content\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Issue;
 use App\IssueInvite;
-use App\Notifications\QuestionBonused;
-use App\Notifications\QuestionDelete;
-use App\Notifications\QuestionInvited;
 use App\Solution;
 use App\Transaction;
 use App\User;
+use Haxibiao\Breeze\Notifications\QuestionBonused;
+use Haxibiao\Breeze\Notifications\QuestionDelete;
+use Haxibiao\Breeze\Notifications\QuestionInvited;
 use Illuminate\Http\Request;
 
 class IssueController extends Controller

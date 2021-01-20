@@ -3,8 +3,8 @@
 namespace Haxibiao\Content\Controllers;
 
 use App\Image;
-use App\Notifications\QuestionAnswered;
 use App\Solution;
+use Haxibiao\Breeze\Notifications\QuestionAnswered;
 use Illuminate\Http\Request;
 
 class SolutionController extends Controller

@@ -8,7 +8,6 @@ use App\Category;
 use App\Image;
 use App\Issue;
 use App\Jobs\AwardResolution;
-use App\Notifications\ReceiveAward;
 use App\Tag;
 use App\Video;
 use App\Visit;
@@ -18,6 +17,7 @@ use GuzzleHttp\Client;
 use Haxibiao\Breeze\Exceptions\GQLException;
 use Haxibiao\Breeze\Exceptions\UserException;
 use Haxibiao\Breeze\Ip;
+use Haxibiao\Breeze\Notifications\ReceiveAward;
 use Haxibiao\Media\Jobs\ProcessVod;
 use Haxibiao\Sns\Tip;
 use Haxibiao\Wallet\Gold;
@@ -500,7 +500,7 @@ trait ArticleRepo
         $this->save();
 
         //赞赏消息提醒
-        $this->user->notify(new \App\Notifications\ArticleTiped($this, $user, $tip));
+        $this->user->notify(new \Haxibiao\Breeze\Notifications\ArticleTiped($this, $user, $tip));
 
         return $tip;
     }

@@ -4,7 +4,7 @@ namespace Haxibiao\Content\Controllers\Api;
 
 use App\Article;
 use App\Category;
-use App\Notifications\ArticleApproved;
+use Haxibiao\Breeze\Notifications\ArticleApproved;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -395,7 +395,7 @@ class CategoryController extends Controller
     public function getCategoryVideos($category_id)
     {
         $video_id = request()->get('video_id');
-        $num = request()->get('num') ? request()->get('num') : 10;
+        $num      = request()->get('num') ? request()->get('num') : 10;
 
         $data = Category::findOrFail($category_id)
             ->videoPosts()
