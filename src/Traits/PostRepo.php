@@ -622,12 +622,14 @@ trait PostRepo
             $qb_published = static::has('video')->with($withRelationList)->publish();
             if (in_array(config('app.name'), ['yinxiangshipin'])) {
                 $vestIds       = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
-                $visitVideoIds = Visit::ofType('posts')
-                    ->ofUserId($user->id)
-                    ->get()
-                    ->pluck('visited_id');
                 $qb_published = $qb_published->whereIn('user_id', $vestIds)
-                    ->whereNotIn('id', $visitVideoIds);
+                     ->whereNotExists(function ($query)use($user){
+                    $query->from('visits')
+                        ->whereRaw('posts.id = visits.visited_id')
+                        ->where('visited_type', 'posts')
+                        ->where('user_id',$user->id)
+                        ;
+                });
             }
             $result = $qb_published->latest('id')->skip(rand(1, 100))->take(20)->get();
             Visit::saveVisits($user, $result, 'posts');
