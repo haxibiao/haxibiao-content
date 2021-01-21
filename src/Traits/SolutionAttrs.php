@@ -2,7 +2,6 @@
 
 namespace Haxibiao\Content\Traits;
 
-use App\User;
 use App\Visit;
 use Illuminate\Support\Str;
 
@@ -18,7 +17,7 @@ trait SolutionAttrs
                 }
                 return cdnurl($url);
             }
-            return cdnurl(User::AVATAR_DEFAULT);
+            return url("/images/cover.png");
 
         });
         return $urls;
@@ -32,7 +31,7 @@ trait SolutionAttrs
             return cdnurl($this->image_url);
         }
         // 避免前端取不到数据
-        return cdnurl(User::AVATAR_DEFAULT);
+        return url("/images/cover.png");
 
     }
 
