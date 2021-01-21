@@ -2,8 +2,8 @@
 
 namespace Haxibiao\Content;
 
-use App\Traits\NovelAttrs;
 use Haxibiao\Breeze\Model as BreezeModel;
+use Haxibiao\Content\Traits\NovelAttrs as TraitsNovelAttrs;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -11,7 +11,7 @@ class Novel extends BreezeModel
 {
     protected $guarded = [];
     use HasFactory;
-    use NovelAttrs;
+    use TraitsNovelAttrs;
 
     public const STATUS_CRAWL_DONE = 2;
     public const STATUS_WATING     = 0;
