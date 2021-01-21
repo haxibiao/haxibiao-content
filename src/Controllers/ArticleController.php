@@ -10,7 +10,6 @@ use Haxibiao\Content\Requests\ArticleRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class ArticleController extends Controller
 {
@@ -99,9 +98,7 @@ class ArticleController extends Controller
     public function store(ArticleRequest $request)
     {
         $user = $request->user();
-        if (!Str::contains($user->email, ['@haxibiao.com', '@haxifang.cn'])) {
-            abort(403, '您无权发布文章');
-        }
+
         if ($slug = $request->slug) {
             $validator = Validator::make(
                 $request->input(),
@@ -132,9 +129,9 @@ class ArticleController extends Controller
         //images
         $article->saveRelatedImagesFromBody();
 
-        if (!empty($article->slug)) {
-            return redirect()->to('/article/' . $article->slug);
-        }
+        // if (!empty($article->slug)) {
+        //     return redirect()->to('/article/' . $article->slug);
+        // }
         return redirect()->to('/article/' . $article->id);
     }
 
