@@ -16,6 +16,7 @@
         "haxibiao/config": "*",
         "haxibiao/matomo": "*",
         "haxibiao/cms": "*",
+        "haxibiao/question": "*",
         "haxibiao/sns": "*",
         "haxibiao/media": "*"
     },
