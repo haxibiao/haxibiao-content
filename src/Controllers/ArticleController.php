@@ -17,7 +17,6 @@ class ArticleController extends Controller
     public function __construct()
     {
         $this->middleware('auth')->except('show', 'shareVideo');
-        $this->middleware('auth.editor')->except('index', 'show', 'storePost', 'edit', 'destroy', 'shareVideo'); //编辑自己的文章的时候，无需编辑身份
     }
 
     /**

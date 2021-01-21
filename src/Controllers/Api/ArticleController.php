@@ -16,7 +16,6 @@ class ArticleController extends Controller
     public function __construct()
     {
         $this->middleware('auth')->except('show', 'shareVideo');
-        $this->middleware('auth.editor')->except('index', 'show', 'storePost', 'edit', 'destroy', 'shareVideo'); //编辑自己的文章的时候，无需编辑身份
     }
 
     /**
@@ -215,7 +214,7 @@ class ArticleController extends Controller
         if ($slug = $request->slug) {
             $validator = Validator::make(
                 $request->input(),
-                ['slug' => 'unique:articles,slug,' . $article->id] //校验时忽略当前文章
+                ['slug' => 'unique:articles,slug,' . $article->id]//校验时忽略当前文章
             );
             if ($validator->fails()) {
                 dd('当前slug已被使用');
@@ -304,15 +303,14 @@ class ArticleController extends Controller
         $article->tags()->sync($tag_ids);
     }
 
-
     public function shareVideo($id)
     {
         $article = Article::findOrFail($id);
 
         return view('share.shareVideo', [
             'article' => $article,
-            'video' => $article->video,
-            'user' => $article->user,
+            'video'   => $article->video,
+            'user'    => $article->user,
         ]);
     }
 }
