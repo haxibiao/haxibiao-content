@@ -166,12 +166,12 @@ trait PostRepo
                     $duration = data_get($result, 'raw.raw.item_list.0.video.duration', 0);
 
                     $video->json = [
-                        'cover'          => Storage::cloud()->url($imagePath),
+                        'cover'          => cdnurl($imagePath),
                         'width'          => $width,
                         'height'         => $height,
                         'duration'       => intval($duration / 1000),
                         'sourceVideoUrl' => $sourceVideoUrl,
-                        'dynamic_cover'  => Storage::cloud()->url($dynamicCoverPath),
+                        'dynamic_cover'  => cdnurl($dynamicCoverPath),
                         'share_link'     => $dyUrl,
                     ];
                     $video->status = Video::TRANSCODE_STATUS;
@@ -621,15 +621,15 @@ trait PostRepo
 
             $qb_published = static::has('video')->with($withRelationList)->publish();
             if (in_array(config('app.name'), ['yinxiangshipin'])) {
-                $vestIds       = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
+                $vestIds      = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
                 $qb_published = $qb_published->whereIn('user_id', $vestIds)
-                     ->whereNotExists(function ($query)use($user){
-                    $query->from('visits')
-                        ->whereRaw('posts.id = visits.visited_id')
-                        ->where('visited_type', 'posts')
-                        ->where('user_id',$user->id)
+                    ->whereNotExists(function ($query) use ($user) {
+                        $query->from('visits')
+                            ->whereRaw('posts.id = visits.visited_id')
+                            ->where('visited_type', 'posts')
+                            ->where('user_id', $user->id)
                         ;
-                });
+                    });
             }
             $result = $qb_published->latest('id')->skip(rand(1, 100))->take(20)->get();
             Visit::saveVisits($user, $result, 'posts');

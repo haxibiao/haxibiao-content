@@ -20,7 +20,8 @@ class CreateCollectionsTable extends Migration
                 $table->integer('status')->default(1)->index(); // 0 private 1 public
                 $table->string('type')->default('article')->index(); // faved...
                 $table->string('name');
-                $table->string('description');
+                $table->string('description')->nullable()->comment('合集描述');
+
                 $table->string('logo')->nullable();
                 $table->json('json')->nullable()->comment('非结构化的数据，冗余一些额外信息');
                 //集合排序字段

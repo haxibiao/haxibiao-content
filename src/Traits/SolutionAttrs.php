@@ -16,9 +16,9 @@ trait SolutionAttrs
                 if (Str::contains($url, 'http')) {
                     return $url;
                 }
-                return \Storage::cloud()->url($url);
+                return cdnurl($url);
             }
-            return \Storage::cloud()->url(User::AVATAR_DEFAULT);
+            return cdnurl(User::AVATAR_DEFAULT);
 
         });
         return $urls;
@@ -29,10 +29,10 @@ trait SolutionAttrs
             if (Str::contains($this->image_url, 'http')) {
                 return $this->image_url;
             }
-            return \Storage::cloud()->url($this->image_url);
+            return cdnurl($this->image_url);
         }
         // 避免前端取不到数据
-        return \Storage::cloud()->url(User::AVATAR_DEFAULT);
+        return cdnurl(User::AVATAR_DEFAULT);
 
     }
 

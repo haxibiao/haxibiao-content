@@ -47,33 +47,33 @@ class ImportCollections extends Command
      */
     public function handle()
     {
-        $origin = $this->argument('origin');
+        $origin    = $this->argument('origin');
         $postCount = $this->argument('postCount');
 
         $this->info("start import collections");
 
-        $this->importCollect($origin,$postCount);
+        $this->importCollect($origin, $postCount);
 
         $this->info("finish import collections");
 
         return 1;
     }
 
-    public function importCollect($origin = 'yxsp',$postCount=3)
+    public function importCollect($origin = 'yxsp', $postCount = 3)
     {
-        $origin= is_null($origin)?'yxsp':$origin;
-        $postCount= is_null($postCount)?3:$postCount;
+        $origin    = is_null($origin) ? 'yxsp' : $origin;
+        $postCount = is_null($postCount) ? 3 : $postCount;
         Collection::on($origin)->has('posts')->where('count_posts', '>=', $postCount)->chunk(20, function ($collections) {
             $this->info("import collections processing");
             foreach ($collections as $fromcollection) {
-                $this->info("import collections ".$fromcollection->name);
+                $this->info("import collections " . $fromcollection->name);
                 //开启数据库事务
                 DB::beginTransaction();
                 try {
                     //新建user
-                    $fromUser = $fromcollection->user;
+                    $fromUser        = $fromcollection->user;
                     $user_attributes = array_except($fromUser->getAttributes(), ['id', 'avatar']);
-                    $intoUser = User::firstOrNew(
+                    $intoUser        = User::firstOrNew(
                         ['account' => $fromUser->account],
                         $user_attributes);
                     //更新头像
@@ -88,15 +88,15 @@ class ImportCollections extends Command
                         $intoCollection = self::copyModel($fromcollection, Collection::class,
                             null, $intoUser->id);
                     }
-                          //更新合集封面
-                          $intoCollection->logo = self::transferImage($fromcollection->getRawOriginal('logo'));
-                          $intoCollection->saveDataOnly();
+                    //更新合集封面
+                    $intoCollection->logo = self::transferImage($fromcollection->getRawOriginal('logo'));
+                    $intoCollection->saveDataOnly();
 
                     $fromPosts = $fromcollection->posts;
                     //移除已经存在的视频数据
                     $fromPosts->filter(function ($post) {
                         $video = $post->video;
-                        return $video||!(bool) (Video::where('hash', $video->hash))->first();
+                        return $video || !(bool) (Video::where('hash', $video->hash))->first();
                     });
 
                     $post_ids = [];
@@ -104,7 +104,7 @@ class ImportCollections extends Command
                     foreach ($fromcollection->posts as $fromPost) {
 
                         //导入post数据
-                        $intoPost = self::copyModel($fromPost, Post::class, 'description', $intoUser->id);
+                        $intoPost   = self::copyModel($fromPost, Post::class, 'description', $intoUser->id);
                         $post_ids[] = $intoPost->id;
 
                         //导入video数据
@@ -116,7 +116,7 @@ class ImportCollections extends Command
 
                         //导入spider数据
                         $fromSpider = $fromPost->spider;
-                        if($fromSpider){
+                        if ($fromSpider) {
                             $intoSpider = self::copyModel($fromSpider, Spider::class, 'source_url', $intoUser->id);
                             //更新spider的spider_id
                             $intoSpider->spider_id = $intoVideo->id;
@@ -126,7 +126,7 @@ class ImportCollections extends Command
                         //导入image数据
                         $image_ids = [];
                         foreach ($fromPost->images as $fromImage) {
-                            $intoImage = self::copyModel($fromImage, Image::class, 'hash', $intoUser->id);
+                            $intoImage       = self::copyModel($fromImage, Image::class, 'hash', $intoUser->id);
                             $fromImage->path = self::transferImage($fromImage->path);
                             $fromImage->saveDataOnly();
                             $image_ids[] = $intoImage->id;
@@ -137,18 +137,18 @@ class ImportCollections extends Command
                         //导入tag数据
                         $tag_ids = [];
                         foreach ($fromPost->tags as $fromTag) {
-                            $intoTag = self::copyModel($fromTag, Tag::class, 'name', $intoUser->id);
+                            $intoTag   = self::copyModel($fromTag, Tag::class, 'name', $intoUser->id);
                             $tag_ids[] = $intoTag->id;
                         }
                         //更新taggable
                         $intoPost->tags()->syncWithoutDetaching($tag_ids);
 
                         //更新post的user_id,video_id,spider_id
-                        $intoPost->review_id = Post::makeNewReviewId();
+                        $intoPost->review_id  = Post::makeNewReviewId();
                         $intoPost->review_day = Post::makeNewReviewDay();
-                        $intoPost->video_id = $intoVideo->id;
-                        $intoPost->user_id = $intoUser->id;
-                        $intoPost->spider_id = $intoSpider->id;
+                        $intoPost->video_id   = $intoVideo->id;
+                        $intoPost->user_id    = $intoUser->id;
+                        $intoPost->spider_id  = $intoSpider->id;
 
                         $intoPost->saveDataOnly();
 
@@ -177,20 +177,20 @@ class ImportCollections extends Command
      */
     public static function copyModel($fromObject, $toModel, $index = null, $user_id = null)
     {
-        $object_attributes = array_except($fromObject->getAttributes(), ['id', 'created_at', 'updated_at']);
-       $object_attributes['status']=1;
-        $a=array_filter($object_attributes);
+        $object_attributes           = array_except($fromObject->getAttributes(), ['id', 'created_at', 'updated_at']);
+        $object_attributes['status'] = 1;
+        $a                           = array_filter($object_attributes);
         info($a);
-        foreach ($object_attributes as $key=>$value) {
-            if(self::isJsonCastable($key,$fromObject)){
-                $object_attributes[$key]=json_decode($value);
-                
+        foreach ($object_attributes as $key => $value) {
+            if (self::isJsonCastable($key, $fromObject)) {
+                $object_attributes[$key] = json_decode($value);
+
             }
-            if(is_null($value)){
+            if (is_null($value)) {
                 unset($object_attributes[$key]);
             }
         }
-        
+
         if ($index) {
             $newObject = $toModel::firstOrNew(
                 [$index => $fromObject->$index],
@@ -205,14 +205,13 @@ class ImportCollections extends Command
         return $newObject;
     }
 
-
     /**
      * Determine whether a value is JSON castable for inbound manipulation.
      *
      * @param  string  $key
      * @return bool
      */
-    public static function isJsonCastable($key,$model)
+    public static function isJsonCastable($key, $model)
     {
         return $model->hasCast($key, ['array', 'json', 'object', 'collection']);
     }
@@ -231,18 +230,18 @@ class ImportCollections extends Command
                 return $defaultImage;
             }
 
-            $randId = uniqid();
-            $extension=pathinfo($oldImagePath,PATHINFO_EXTENSION);
-            $cosPath = 'images/' . $randId . '.'.$extension;            //网络路径图片
+            $randId    = uniqid();
+            $extension = pathinfo($oldImagePath, PATHINFO_EXTENSION);
+            $cosPath   = 'images/' . $randId . '.' . $extension; //网络路径图片
             if (str_contains($oldImagePath, 'http')) {
                 Storage::cloud()->put($cosPath, file_get_contents($oldImagePath));
-                $newImagePath = Storage::cloud()->url($cosPath);
+                $newImagePath = cdnurl($cosPath);
                 return $cosPath;
 
             }
             //处理绝对路径图片
-            $COS_DOMAIN = config('haxibiao-content.origin_cos_domain');
-            $imagePrefix = ends_with($COS_DOMAIN, "/") ?: $COS_DOMAIN."/";
+            $COS_DOMAIN   = config('haxibiao-content.origin_cos_domain');
+            $imagePrefix  = ends_with($COS_DOMAIN, "/") ?: $COS_DOMAIN . "/";
             $completePath = $imagePrefix . $oldImagePath;
             //上传到cos
             Storage::cloud()->put($cosPath, file_get_contents($completePath));

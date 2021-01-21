@@ -112,7 +112,7 @@ class Collection extends Model
         if ($isValidateUrl) {
             return $logo;
         }
-        return Storage::cloud()->url($logo);
+        return cdnurl($logo);
     }
 
     public function getImageAttribute()
@@ -125,7 +125,7 @@ class Collection extends Model
             return env('LOCAL_APP_URL') . '/storage/' . $this->logo;
         }
 
-        return Storage::cloud()->url($this->logo);
+        return cdnurl($this->logo);
     }
 
     public function getCountPlaysAttribute()
@@ -232,13 +232,13 @@ class Collection extends Model
         $newCover = 'storage/collection/new_top_cover.png';
         if ($interval <= 1000) {
             Storage::cloud()->copy(self::TOP_COVER, $newCover);
-            return Storage::cloud()->url($newCover);
+            return cdnurl($newCover);
         }
         //如果在规定时间内没有访问更新后的图片，更新缓存
         if (mt_rand(1, 100) > 50) {
-            return Storage::cloud()->url($newCover);
+            return cdnurl($newCover);
         } else {
-            return Storage::cloud()->url(self::TOP_COVER);
+            return cdnurl(self::TOP_COVER);
         }
     }
 
@@ -250,7 +250,7 @@ class Collection extends Model
             $imageStream = file_get_contents($file->getRealPath());
             return Storage::cloud()->put($cover, $imageStream);
         }
-        return Storage::cloud()->url(self::TOP_COVER);
+        return cdnurl(self::TOP_COVER);
     }
 
     /**
@@ -275,7 +275,7 @@ class Collection extends Model
             $cosDisk = Storage::cloud();
             $cosDisk->put($cover, \file_get_contents($file->path()));
 
-            return Storage::cloud()->url($cover);
+            return cdnurl($cover);
         }
     }
 }

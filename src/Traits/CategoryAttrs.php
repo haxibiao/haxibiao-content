@@ -3,7 +3,6 @@
 namespace Haxibiao\Content\Traits;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 trait CategoryAttrs
 {
@@ -72,7 +71,7 @@ trait CategoryAttrs
         if (str_contains($logo, 'http')) {
             return $logo;
         } else {
-            return Storage::cloud()->url($logo);
+            return cdnurl($logo);
         }
     }
 
