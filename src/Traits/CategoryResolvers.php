@@ -21,7 +21,7 @@ trait CategoryResolvers
         return $category->authors();
     }
 
-    public function resolveCategories($root, array $args, $context)
+    public function resolveCategories($root, $args, $context, $info)
     {
         $filter = $args['filter'] ?? 'hot';
         //TODO 紧急兼容其它站点老数据问题
