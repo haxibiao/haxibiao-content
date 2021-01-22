@@ -2,14 +2,40 @@
 
 namespace Haxibiao\Content\Traits;
 
-use App\Follow;
-use App\Video;
-use Haxibiao\Content\Post;
-use Illuminate\Support\Arr;
 use App\Visit;
+use Haxibiao\Sns\Follow;
+use Haxibiao\Media\Video;
+use Haxibiao\Content\Post;
+use Haxibiao\Media\Series;
+use Illuminate\Support\Arr;
+use Haxibiao\Content\Jobs\MakeMp4ByM3U8;
 
 trait PostResolvers
 {
+
+    public static function MakePostByMovie($rootValue, array $args, $context, $resolveInfo)
+    {
+        $series_id = $args['series_id'];
+        $startSec = $args['startSec'];
+        $endSec = $args['endSec'];
+        $title = $args['title'] ?? '';
+
+
+        $series    = Series::find($series_id);
+        $second    = $endSec - $startSec;
+        $startTime = gmstrftime('%H:%M:%S', $startSec);
+        $video     = Video::create([]);
+        $post      = Post::create([
+            'video_id' => $video->id,
+            'title'    => $title,
+            'status'   => Post::DELETED_STATUS,
+            'user_id'  => 1,
+        ]);
+        dispatch_now(new MakeMp4ByM3U8($video, $series, $startTime, $second));
+        return $post;
+    }
+
+
     public function resolvePostByVid($rootValue, array $args, $context, $resolveInfo)
     {
         $videoIds = Video::where('vid', data_get($args, 'vid'))->get()
@@ -29,18 +55,17 @@ trait PostResolvers
     public function resolvePosts($root, $args, $context, $info)
     {
         app_track_event("用户页", "我发布的视频动态");
-        if(checkUser())
-        {
-           $visited = Visit::create([
-               'visited_type' => 'users',
-               'visited_id' => data_get($args,'user_id'),
-               'user_id' => getUser()->id,
-               'created_at'   => now(),
-               'updated_at'   => now(),
-           ]);
+        if (checkUser()) {
+            $visited = Visit::create([
+                'visited_type' => 'users',
+                'visited_id' => data_get($args, 'user_id'),
+                'user_id' => getUser()->id,
+                'created_at'   => now(),
+                'updated_at'   => now(),
+            ]);
         }
-        $type  = data_get($args,'type');
-        return static::posts($args['user_id'], data_get($args, 'keyword'),$type);
+        $type  = data_get($args, 'type');
+        return static::posts($args['user_id'], data_get($args, 'keyword'), $type);
     }
 
     /**
@@ -50,15 +75,14 @@ trait PostResolvers
     {
         app_track_event("首页", "访问动态广场");
         if (in_array(config('app.name'), ['dongmeiwei'])) {
-            if(checkUser())
-            {
-               $visited = Visit::create([
-                   'visited_type' => 'publicPosts',
-                   'visited_id' => 'publicPosts',
-                   'user_id' => getUser()->id,
-                   'created_at'   => now(),
-                   'updated_at'   => now(),
-               ]);
+            if (checkUser()) {
+                $visited = Visit::create([
+                    'visited_type' => 'publicPosts',
+                    'visited_id' => 'publicPosts',
+                    'user_id' => getUser()->id,
+                    'created_at'   => now(),
+                    'updated_at'   => now(),
+                ]);
             }
         }
         return static::publicPosts($args['user_id'] ?? null);

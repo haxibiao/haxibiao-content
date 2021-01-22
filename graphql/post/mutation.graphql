@@ -1,43 +1,53 @@
 extend type Mutation @guard {
-    createPostContent(
-        """
-        正文
-        """
-        body: String!
+  createPostContent(
+    """
+    正文
+    """
+    body: String!
 
-        """
-        图片链接
-        """
-        image_urls: [String!]
+    """
+    图片链接
+    """
+    image_urls: [String!]
 
-        """
-        视频ID
-        """
-        video_id: Int
+    """
+    视频ID
+    """
+    video_id: Int
 
-        """
-        商品ID（关联article）
-        """
-        product_id: Int
+    """
+    商品ID（关联article）
+    """
+    product_id: Int
 
-        """
-        视频文件ID
-        """
-        qcvod_fileid: String
+    """
+    视频文件ID
+    """
+    qcvod_fileid: String
 
-        """
-        分类ID
-        """
-        category_ids: [Int!]
+    """
+    分类ID
+    """
+    category_ids: [Int!]
 
-        """
-        定位信息
-        """
-        location: LocationInfo
+    """
+    定位信息
+    """
+    location: LocationInfo
 
-        """
-        图片链接
-        """
-        images: [String!]
-    ): Post! @field(resolver: "App\\Post@resolveCreateContent")
+    """
+    图片链接
+    """
+    images: [String!]
+  ): Post! @field(resolver: "App\\Post@resolveCreateContent")
+
+  """
+  通过电影创建动态
+  """
+  MakePostByMovie(
+    series_id: Int!
+    startSec: Int
+    endSec: Int
+    title: String
+  ): Post @field(resolver: "App\\Post@MakePostByMovie")
 }
