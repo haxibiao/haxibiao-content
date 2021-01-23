@@ -142,7 +142,7 @@ class Category extends QuestionCategory
 
     public function follows()
     {
-        return $this->morphMany(\App\Follow::class, 'followed');
+        return $this->morphMany(\App\Follow::class, 'followable');
     }
 
     public function categorizable($related)

@@ -2,11 +2,27 @@
 
 namespace Haxibiao\Content\Traits;
 
-use App\Tag;
+use Haxibiao\Content\Tag;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
-trait CanBeTaged
+trait Taggable
 {
+    public function userTags()
+    {
+        return $this->hasMany(Tag::class);
+    }
+
+    public function tags(): MorphToMany
+    {
+        return $this->morphToMany(Tag::class, 'taggable')
+            ->withTimestamps();
+    }
+
+    public function resovleUserTags($root, array $args, $context)
+    {
+        return $root->userTags();
+    }
+
     protected $pendingTags = [];
 
     public static function bootCanBeTaged()
@@ -25,12 +41,6 @@ trait CanBeTaged
                 $model->untagByNames();
             }
         });
-    }
-
-    public function tags(): MorphToMany
-    {
-        return $this->morphToMany(\App\Tag::class, 'taggable')
-            ->withTimestamps();
     }
 
     public function taggable()
@@ -63,8 +73,8 @@ trait CanBeTaged
      */
     public function retagByIds($tags = [])
     {
-        $syncData   = [];
-        $tags       = Tag::byTagIds($tags)->get();
+        $syncData = [];
+        $tags     = Tag::byTagIds($tags)->get();
         foreach ($tags as $tag) {
             $syncData[$tag->id] = [
                 'user_id'  => $this->user_id,
@@ -95,8 +105,8 @@ trait CanBeTaged
      */
     public function tagByIds($tags)
     {
-        $syncData   = [];
-        $tags       = Tag::byTagIds($tags)->get();
+        $syncData = [];
+        $tags     = Tag::byTagIds($tags)->get();
         foreach ($tags as $tag) {
             $syncData[$tag->id] = [
                 'user_id'  => $this->user_id,
@@ -165,7 +175,7 @@ trait CanBeTaged
         if (!is_array($tagNames)) {
             $tagNames = func_get_args();
         }
-        $tagNames = $this->makeTagArray($tagNames);
+        $tagNames        = $this->makeTagArray($tagNames);
         $currentTagNames = $this->tagNames();
 
         $deletions = array_diff($currentTagNames, $tagNames);
@@ -190,7 +200,7 @@ trait CanBeTaged
 
     private function addTagByName($tagName)
     {
-        $tag = \App\Tag::query()->where('name', $tagName)
+        $tag = Tag::query()->where('name', $tagName)
             ->first();
 
         // 如果Tag存在，不需要创建
@@ -203,21 +213,21 @@ trait CanBeTaged
                 $this->tags()->attach([
                     $tag->id => [
                         'user_id'  => $this->user_id,
-                        'tag_name' => $tagName
-                    ]
+                        'tag_name' => $tagName,
+                    ],
                 ]);
             }
             // 如果Tag不存在，创建一个Tag并且关联到当前对象
         } else {
-            $tag = new \App\Tag();
+            $tag       = new \App\Tag();
             $tag->name = $tagName;
             $tag->save();
 
             $this->tags()->attach([
                 $tag->id => [
-                    'user_id' => $this->user_id,
-                    'tag_name' => $tagName
-                ]
+                    'user_id'  => $this->user_id,
+                    'tag_name' => $tagName,
+                ],
             ]);
         }
         $tag->incrementCount(1);

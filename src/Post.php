@@ -8,14 +8,14 @@ use App\User;
 use App\Video;
 use Carbon\Carbon;
 use Haxibiao\Breeze\Model;
-use Haxibiao\Cms\Traits\PlayWithCms;
+use Haxibiao\Cms\Traits\WithCms;
 use Haxibiao\Content\Constracts\Collectionable;
-use Haxibiao\Content\Traits\CanCollect;
+use Haxibiao\Content\Traits\Categorizable;
+use Haxibiao\Content\Traits\Collectable;
 use Haxibiao\Content\Traits\PostAttrs;
 use Haxibiao\Content\Traits\PostOldPatch;
 use Haxibiao\Content\Traits\PostRepo;
 use Haxibiao\Content\Traits\PostResolvers;
-use Haxibiao\Content\Traits\WithCategory;
 use Haxibiao\Media\Image;
 use Haxibiao\Media\Spider;
 use Haxibiao\Media\Traits\WithImage;
@@ -33,10 +33,10 @@ class Post extends Model implements Collectionable
     use PostAttrs;
     use PostResolvers;
     use WithImage;
-    use WithCategory;
-    use CanCollect;
+    use Categorizable;
+    use Collectable;
     use PostOldPatch;
-    use PlayWithCms;
+    use WithCms;
     use WithSns;
 
     public function getMorphClass()

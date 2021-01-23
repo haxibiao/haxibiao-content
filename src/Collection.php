@@ -4,10 +4,10 @@ namespace Haxibiao\Content;
 
 use App\Visit;
 use Haxibiao\Breeze\Model;
-use Haxibiao\Cms\Traits\PlayWithCms;
+use Haxibiao\Cms\Traits\WithCms;
 use Haxibiao\Content\Traits\CollectionResolvers;
 use Haxibiao\Helpers\Traits\Searchable;
-use Haxibiao\Sns\Traits\CanBeFollow;
+use Haxibiao\Sns\Traits\Followable;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Schema;
@@ -18,8 +18,8 @@ class Collection extends Model
     use CollectionResolvers;
     use Searchable;
     use SoftDeletes;
-    use CanBeFollow;
-    use PlayWithCms;
+    use Followable;
+    use WithCms;
 
     protected $table = 'collections';
 

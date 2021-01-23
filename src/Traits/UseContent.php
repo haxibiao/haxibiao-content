@@ -10,13 +10,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 trait UseContent
 {
-    use UseCategory;
+    use Categorizable;
+    use Taggable;
+    use Collectable;
+
     use UseArticle;
-
-    //use UseTag; //CanTag
-    //use UseCollection //CanCollect
-
-    //with post
+    //Use Post
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);

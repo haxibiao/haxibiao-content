@@ -2,13 +2,13 @@
 
 namespace Haxibiao\Content\Traits;
 
-use App\Collection;
+use Haxibiao\Content\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
-trait CanCollect
+trait Collectable
 {
 
-    public static function bootCanCollect()
+    public static function bootCollectable()
     {
         static::deleting(function ($model) {
             $collectionIds = $model->collections()->get()->pluck('id');
@@ -18,7 +18,7 @@ trait CanCollect
 
     public function collections(): MorphToMany
     {
-        return $this->morphToMany(\App\Collection::class, 'collectable')
+        return $this->morphToMany(Collection::class, 'collectable')
             ->orderBy('type')
             ->withPivot(['id', 'collection_name', 'sort_rank'])
             ->withTimestamps();
@@ -35,7 +35,7 @@ trait CanCollect
      */
     public function collection()
     {
-        return $this->belongsTo(\App\Collection::class, 'collection_id');
+        return $this->belongsTo(Collection::class, 'collection_id');
     }
 
     /**

@@ -574,7 +574,7 @@ trait PostRepo
         //1.过滤 过滤掉自己 和 不喜欢用户的作品
         //FIXME: 答妹等喜欢还没notlike表的
         $notLikIds = [];
-        if (class_exists("App\NotLike")) {
+        if (class_exists("App\Dislike")) {
             $notLikIds = $user->notLikes()->ByType('users')->get()->pluck('not_likable_id')->toArray();
         }
         if (class_exists('App\UserBlock')) {

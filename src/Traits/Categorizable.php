@@ -3,15 +3,63 @@
 namespace Haxibiao\Content\Traits;
 
 use App\Category;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
- * content with category 用于内容归类
+ * 分类能力
  */
-trait WithCategory
+trait Categorizable
 {
 
+    /**
+     * 加入过的专题
+     */
+    public function belongsToCategories()
+    {
+        return $this->belongsToMany(Category::class);
+    }
+
+    public function adminCategories()
+    {
+        return $this->belongsToMany(Category::class)->where('type', 'article')->wherePivot('is_admin', 1);
+    }
+
+    public function requestCategories()
+    {
+        return $this->belongsToMany(Category::class)->wherePivot('approved', 0);
+    }
+
+    public function joinCategories()
+    {
+        return $this->belongsToMany(Category::class)->wherePivot('approved', 1);
+    }
+
+    public function hasManyCategories()
+    {
+        return $this->hasMany(Category::class, 'user_id', 'id')->where('type', 'article');
+    }
+
+    public function newReuqestCategories()
+    {
+        return $this->adminCategories()->orderBy('new_requests', 'desc')->orderBy('updated_at', 'desc');
+    }
+
+    //用户的图解专题
+    public function diagramCategories()
+    {
+        return $this->hasMany(Category::class, 'user_id', 'id')
+            ->where('type', 'diagrams')
+            ->where('status', '1');
+    }
+
+    public function getCountCategoriesAttribute()
+    {
+        return $this->categories()->count() ?? 0;
+    }
+
+    /**
+     *  == 用于内容归类
+     */
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id');
@@ -24,6 +72,7 @@ trait WithCategory
             ->withTimestamps();
     }
 
+    //FIXME: 冗余categories()
     public function hasCategories()
     {
         return $this->morphToMany(Category::class, 'categorizable');

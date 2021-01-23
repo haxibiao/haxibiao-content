@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\GraphQL;
+namespace Haxibiao\Content\Tests\Feature\GraphQL;
 
 use App\Article;
 use App\User;
@@ -16,14 +16,8 @@ class ArticleTest extends GraphQLTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = factory(User::class)->create([
-            'api_token' => str_random(60),
-        ]);
-
-        $this->article = factory(Article::class)->create([
-            'title'   => "XXX",
-            'user_id' => $this->user->id,
-        ]);
+        $this->user    = User::where('id', '<', 100)->inRandomOrder()->get();
+        $this->article = Article::where('id', '<', 100)->inRandomOrder()->get();
     }
 
     /**

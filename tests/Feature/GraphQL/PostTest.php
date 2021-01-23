@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\GraphQL;
+namespace Haxibiao\Content\Tests\Feature\GraphQL;
 
 use App\User;
 use Haxibiao\Breeze\GraphQLTestCase;
@@ -20,17 +20,9 @@ class PostTest extends GraphQLTestCase
     {
         parent::setUp();
 
-        $this->user = factory(User::class)->create();
-
-        $this->video = factory(Video::class)->create([
-            'user_id' => $this->user->id,
-        ]);
-
-        $this->post = factory(Post::class)->create([
-            'user_id'  => $this->user->id,
-            'video_id' => $this->video->id,
-        ]);
-
+        $this->user  = User::where('id', '<', 100)->inRandomOrder()->get();
+        $this->post  = Post::where('id', '<', 100)->inRandomOrder()->get();
+        $this->video = Video::where('id', '<', 100)->inRandomOrder()->get();
     }
 
     /**

@@ -3,15 +3,14 @@
 namespace Haxibiao\Content;
 
 use Haxibiao\Breeze\Model;
-use Haxibiao\Cms\Traits\PlayWithCms;
+use Haxibiao\Cms\Traits\WithCms;
 use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Traits\ArticleAttrs;
 use Haxibiao\Content\Traits\ArticleRepo;
 use Haxibiao\Content\Traits\ArticleResolvers;
-use Haxibiao\Content\Traits\CanCollect;
-use Haxibiao\Content\Traits\WithCategory;
+use Haxibiao\Content\Traits\Categorizable;
+use Haxibiao\Content\Traits\Collectable;
 use Haxibiao\Media\Image;
-use Haxibiao\Media\Traits\WithImage;
 use Haxibiao\Media\Traits\WithMedia;
 use Haxibiao\Sns\Comment;
 use Haxibiao\Sns\Favorite;
@@ -26,11 +25,10 @@ class Article extends Model implements Collectionable
     use ArticleResolvers;
     use ArticleAttrs;
     use SoftDeletes;
-    use WithCategory;
+    use Categorizable;
+    use Collectable;
     use WithMedia;
-    use WithImage;
-    use CanCollect;
-    use PlayWithCms;
+    use WithCms;
     use WithSns;
 
     protected $guarded = ['api_token'];

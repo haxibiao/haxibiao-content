@@ -1,14 +1,19 @@
 # haxibiao/content
 
-> haxibiao/content 是内容管理系统,主要包含了:
+## haxibiao/content 是内容管理系统,主要包含了:
 
-- Category - Categorizable - 分类
-- Tag - Taggable - 标签
-- Collection - Collectable - 合集 (短视频动态合集，小说连载，漫画连载)
+### 内容
+
 - Article - 文章 (长图文，小说，漫画)
 - Post - 动态 (短视频，短图文)
 - Issue - 问题（付费）
 - Solution - 解决方案
+
+### 特性
+
+- Category - Categorizable(内容/用户的) - 分类
+- Tag - Taggable(内容/用户的) - 标签
+- Collection - Collectable(内容/用户的) - 合集 (短视频动态合集，小说连载，漫画连载)
 
 ## 主要依赖
 
@@ -88,11 +93,11 @@ _Released on 2020-09-01_
  namespace App;
 
  use Illuminate\Database\Eloquent\Model;
- use \Haxibiao\Content\Traits\WithCategory;
+ use \Haxibiao\Content\Traits\Categorizable;
 
  class Article extends Model
  {
- 	use WithCategory;
+ 	use Categorizable;
 
  }
 ```
