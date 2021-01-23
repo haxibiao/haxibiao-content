@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 trait Taggable
 {
-    public function userTags()
+    public function hasTags()
     {
         return $this->hasMany(Tag::class);
     }
@@ -20,7 +20,7 @@ trait Taggable
 
     public function resovleUserTags($root, array $args, $context)
     {
-        return $root->userTags();
+        return $root->hasTags();
     }
 
     protected $pendingTags = [];

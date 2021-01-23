@@ -452,7 +452,7 @@ trait PostRepo
         //存在用户
         if ($hasLogin) {
             //过滤掉自己 和 不喜欢用户的作品
-            $notLikIds   = $user->notLikes()->ByType('users')->get()->pluck('not_likable_id')->toArray();
+            $notLikIds   = $user->dislikes()->ByType('users')->get()->pluck('dislikeable_id')->toArray();
             $notLikIds[] = $user->id;
             $qb          = $qb->whereNotIn('user_id', $notLikIds);
 
@@ -575,7 +575,7 @@ trait PostRepo
         //FIXME: 答妹等喜欢还没notlike表的
         $notLikIds = [];
         if (class_exists("App\Dislike")) {
-            $notLikIds = $user->notLikes()->ByType('users')->get()->pluck('not_likable_id')->toArray();
+            $notLikIds = $user->dislikes()->ByType('users')->get()->pluck('dislikeable_id')->toArray();
         }
         if (class_exists('App\UserBlock')) {
             $blockIds  = $user->userBlock()->pluck('user_block_id')->toArray();

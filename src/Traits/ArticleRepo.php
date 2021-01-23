@@ -438,18 +438,6 @@ trait ArticleRepo
         $this->save();
     }
 
-    public function reports()
-    {
-        $json = json_decode($this->json, true);
-        if (empty($json)) {
-            $json = [];
-        }
-        $reports = [];
-        if (isset($json['reports'])) {
-            $reports = $json['reports'];
-        }
-        return $reports;
-    }
     /**
      * @Desc     该文章是否被当前登录的用户收藏，如果用户没有登录将返回false
      *

@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 trait Collectable
 {
 
+    /**
+     * 监听内容删除事件自动移除合集关系
+     */
     public static function bootCollectable()
     {
         static::deleting(function ($model) {
@@ -16,6 +19,17 @@ trait Collectable
         });
     }
 
+    /**
+     * 用户的合集
+     */
+    public function hasCollections()
+    {
+        return $this->hasMany(Collection::class);
+    }
+
+    /**
+     * 内容的合集
+     */
     public function collections(): MorphToMany
     {
         return $this->morphToMany(Collection::class, 'collectable')

@@ -15,7 +15,6 @@ use Haxibiao\Media\Traits\WithMedia;
 use Haxibiao\Sns\Comment;
 use Haxibiao\Sns\Favorite;
 use Haxibiao\Sns\Like;
-use Haxibiao\Sns\Tip;
 use Haxibiao\Sns\Traits\WithSns;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -103,11 +102,6 @@ class Article extends Model implements Collectionable
     public function tags()
     {
         return $this->morphToMany('App\Tag', 'taggable');
-    }
-
-    public function tips()
-    {
-        return $this->morphMany(Tip::class, 'tipable');
     }
 
     public function relatedVideoPostsQuery()
