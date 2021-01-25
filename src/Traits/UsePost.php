@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Content\Traits;
 
+use App\Post;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 trait UsePost
