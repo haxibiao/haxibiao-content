@@ -120,11 +120,6 @@ class Post extends Model implements Collectionable
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-    public function likes(): MorphMany
-    {
-        return $this->morphMany(Like::class, 'likable');
-    }
-
     public function images()
     {
         return $this->morphToMany(Image::class, 'imageable', 'imageable')->withTimestamps();

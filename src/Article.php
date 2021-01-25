@@ -94,11 +94,6 @@ class Article extends Model implements Collectionable
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-    public function likes()
-    {
-        return $this->morphMany(Like::class, 'likable');
-    }
-
     public function tags()
     {
         return $this->morphToMany('App\Tag', 'taggable');
