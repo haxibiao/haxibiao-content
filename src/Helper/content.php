@@ -44,14 +44,14 @@ function indexTopCategories($top = 7)
 
         //获取所有关注的专题
         $all_follow_category_ids = \DB::table('follows')->where('user_id', $user->id)
-            ->where('followed_type', 'categories')
-            ->whereNotIn('follows.followed_id', $stick_categorie_ids)
+            ->where('followable_type', 'categories')
+            ->whereNotIn('follows.followable_id', $stick_categorie_ids)
             ->whereExists(function ($query) {
                 return $query->from('categories')
-                    ->whereRaw('categories.id = follows.followed_id')
+                    ->whereRaw('categories.id = follows.followable_id')
                     ->where('categories.status', '>=', 0)
                     ->where('categories.is_official', 0);
-            })->take($top_count)->pluck('followed_id')->toArray();
+            })->take($top_count)->pluck('followable_id')->toArray();
         $category_ids = array_merge($stick_categorie_ids, $all_follow_category_ids);
 
         //置顶专题加上关注的专题都不够$top个时获取官方大专题
