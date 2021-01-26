@@ -4,10 +4,12 @@ namespace Haxibiao\Content\Traits;
 
 use App\Visit;
 use Haxibiao\Sns\Follow;
+use Haxibiao\Breeze\User;
 use Haxibiao\Media\Video;
 use Haxibiao\Content\Post;
 use Haxibiao\Media\Series;
 use Illuminate\Support\Arr;
+use Haxibiao\Content\Collection;
 use Haxibiao\Content\Jobs\MakeMp4ByM3U8;
 
 trait PostResolvers
@@ -173,5 +175,35 @@ trait PostResolvers
         return static::query()
             ->whereIn('user_id', $followedUserIds)
             ->orderByDesc('created_at');
+    }
+
+        
+    /**
+     * postWithMovies 关联电影的视频刷
+     * @return void
+     */
+    public function postWithMovies($rootValue, array $args, $context, $resolveInfo){
+        //关联电影不多，先不充一批影视资源的电影
+        $vestIds = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
+        $collections=Collection::whereIn('user_id',$vestIds)
+                ->where('created_at','>','2020-12-18 09:18:55')
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        foreach($collections as $collection){
+            $collectionPosts[]=$collection->posts()->inRandomOrder()->first();
+        }
+        $recommendeds = Post::whereExists(
+            function ($query) {
+                return $query->from('link_movie')
+                ->whereRaw('link_movie.linked_id = posts.id')
+                ->where('linked_type', 'posts');
+            })
+            ->inRandomOrder()
+            ->take(10)
+            ->get();
+            $recommendeds=$recommendeds->merge($collectionPosts);
+
+        return  $recommendeds;
     }
 }

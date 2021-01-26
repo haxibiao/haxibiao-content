@@ -105,6 +105,10 @@ extend type Query {
     ): [Post] @field(resolver: "App\\Post@resolvePostsByTag")
 
     postByVid(vid: String!): Post @field(resolver: "App\\Post@resolvePostByVid")
+    """
+    获取关联了电影的post列表
+    """
+    postWithMovies:[Post] @field(resolver: "App\\Post@postWithMovies")
 }
 
 enum PostTag {
