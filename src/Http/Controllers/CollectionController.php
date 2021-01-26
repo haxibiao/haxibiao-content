@@ -1,6 +1,6 @@
 <?php
 
-namespace Haxibiao\Content\Controllers;
+namespace Haxibiao\Content\Http\Controllers;
 
 use Haxibiao\Content\Collection;
 use Illuminate\Routing\Controller;

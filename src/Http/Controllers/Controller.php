@@ -1,6 +1,6 @@
 <?php
 
-namespace Haxibiao\Content\Controllers;
+namespace Haxibiao\Content\Http\Controllers;
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;

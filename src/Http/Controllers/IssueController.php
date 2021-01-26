@@ -1,6 +1,6 @@
 <?php
 
-namespace Haxibiao\Content\Controllers;
+namespace Haxibiao\Content\Http\Controllers;
 
 use App\Issue;
 use App\Jobs\BonusAnswers;
