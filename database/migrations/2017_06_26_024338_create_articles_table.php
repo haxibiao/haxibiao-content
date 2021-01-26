@@ -51,6 +51,7 @@ class CreateArticlesTable extends Migration
 
             $table->integer('count_replies')->default(0);
             $table->integer('count_favorites')->default(0);
+            $table->integer('count_follows')->default(0);
             $table->integer('count_shares')->default(0);
             $table->integer('count_tips')->default(0);
             $table->integer('count_likes')->default(0)->index();

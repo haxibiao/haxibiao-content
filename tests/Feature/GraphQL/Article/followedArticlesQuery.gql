@@ -1,17 +1,9 @@
-#我的发布
-query myArticlesQuery($user_id: Int, $status: ArticleStatus, $category_id: Int, $page: Int, $count: Int) {
-    articles(
-        submit: ALL
-        user_id: $user_id
-        status: $status
-        category_id: $category_id
-        page: $page
-        count: $count
-        orderBy: [{ field: "id", order: DESC }]
-    ) {
+# 关注的用户动态
+query followedArticlesQuery($page: Int, $user_id: Int!) {
+    followedArticles(user_id: $user_id,  page: $page) {
         paginatorInfo {
-            hasMorePages
             currentPage
+            hasMorePages
         }
         data {
             id
@@ -22,17 +14,14 @@ query myArticlesQuery($user_id: Int, $status: ArticleStatus, $category_id: Int, 
             cover
             hits
             count_likes
-            count_replies
+            count_comments
             count_tips
             liked
-            submit
-            remark
-            answered_status
-            question_reward
             user {
                 avatar
                 name
                 id
+                followed_status
             }
             categories {
                 id
