@@ -1,6 +1,6 @@
 <?php
 
-namespace Haxibiao\Content\Controllers\Api;
+namespace Haxibiao\Content\Http\Api;
 
 use App\Article;
 use App\Category;

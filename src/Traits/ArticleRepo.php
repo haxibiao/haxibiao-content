@@ -694,7 +694,7 @@ trait ArticleRepo
      * 根据抖音视频信息 转存到 公司的cos
      * FIXME  待 article 与 video 模块重构后，这也需要变化
      * @param array $info
-     * @return void
+     * @return Article
      * @author zengdawei
      */
     public function parseDouyinLink(array $info)

@@ -2,8 +2,8 @@
 
 namespace Haxibiao\Content\Tests\Feature\Api;
 
-use App\Article;
-use App\User;
+use Haxibiao\Breeze\User;
+use Haxibiao\Content\Article;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
@@ -11,59 +11,83 @@ class ApiArticleTest extends TestCase
 {
     use DatabaseTransactions;
 
+    /**
+     * @group article
+     */
     public function testIndex()
     {
-
-        $user = \App\User::inRandomOrder()->first();
+        $user     = User::latest('id')->first();
         $response = $this->actingAs($user)->get("/api/article");
         $response->assertStatus(200);
     }
 
+    /**
+     * @group article
+     */
+    public function testStore()
+    {
+        $user           = User::role(User::EDITOR_STATUS)->first();
+        $article        = new Article;
+        $article->title = 'testTitle';
+        $article->body  = 'testtesttesttesttesttest';
+        $data           = $article->toArray();
+
+        $response = $this->actingAs($user)->post("/api/article/create", $data, [
+            "Authorization" => "Bearer " . $user->api_token,
+        ]);
+        //api创建文章后201 （created）
+        // $response->assertStatus(201);
+        $response->assertCreated();
+    }
+
+    /**
+     * @group article
+     */
     public function testShow()
     {
-        $article = \App\Article::orderBy('id', 'desc')->where('status', '>', 0)->take(10)->get()->random();
-        $id = $article->id;
+        //先创建文章
+        $this->testStore();
+        //再获取
+        $article  = Article::latest('id')->first();
+        $id       = $article->id;
         $response = $this->get("/api/article/{$id}");
         $response->assertStatus($article->video_id ? 302 : 200);
     }
 
-
-    public function testStore()
-    {
-        $user = User::where('role_id', User::EDITOR_STATUS)->first();
-        $article = \App\Article::inRandomOrder()->first();
-        $article->id = null;
-        $article->title = 'testTitle';
-        $article->body = 'testtesttesttesttesttest';
-        $data = $article->toArray();
-
-        $response = $this->actingAs($user)->post("/api/article/create", $data, [
-            "Authorization" => "Bearer " . $user->api_token
-        ]);
-        $response->assertStatus(str_contains(data_get($user, 'email', ''), '@haxibiao.com') ? 302 : 403);
-    }
-
-
+    /**
+     * @group article
+     */
     public function testUpdate()
     {
-        $user = User::where('role_id', User::EDITOR_STATUS)->first();
-        $id = \App\Article::inRandomOrder()->first()->id;
-        $article = \App\Article::inRandomOrder()->first();
-        $article->id = null;
-        $data = $article->toArray();
+        $user = User::role(User::EDITOR_STATUS)->first();
+        //先创建文章
+        $this->testStore();
 
-        $response = $this->actingAs($user)->put("/api/article/{$id}/update", $data, [
-            "Authorization" => "Bearer " . $user->api_token
+        $article        = Article::latest('id')->first();
+        $article->title = $article->title . "[$user->name 编辑]";
+        $data           = $article->toArray();
+
+        $response = $this->actingAs($user)->put("/api/article/{$article->id}/update", $data, [
+            "Authorization" => "Bearer " . $user->api_token,
         ]);
-        $response->assertStatus(302);
+        $response->assertStatus(200);
+        $response->assertJson([
+            'title' => $article->title,
+        ]);
     }
 
+    /**
+     * @group article
+     */
     public function testDestroy()
     {
-        $id = \App\Article::inRandomOrder()->first()->id;
-        $user = \App\User::inRandomOrder()->first();
-        $response = $this->actingAs($user)->call('GET', "/api/article/{$id}/destroy"
+        //先创建
+        $this->testStore();
+        $article = Article::latest('id')->first();
+        //小编有权限
+        $user     = User::role(User::EDITOR_STATUS)->first();
+        $response = $this->actingAs($user)->call('GET', "/api/article/{$article->id}/destroy"
             , ['api_token' => $user->api_token]);
-        $response->assertStatus(302);
+        $response->assertStatus(200);
     }
 }

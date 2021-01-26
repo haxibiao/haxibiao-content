@@ -14,12 +14,12 @@ use Haxibiao\Media\Image;
 use Haxibiao\Media\Traits\WithMedia;
 use Haxibiao\Sns\Comment;
 use Haxibiao\Sns\Favorite;
-use Haxibiao\Sns\Like;
 use Haxibiao\Sns\Traits\WithSns;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Article extends Model implements Collectionable
 {
+
     use ArticleRepo;
     use ArticleResolvers;
     use ArticleAttrs;
