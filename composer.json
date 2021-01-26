@@ -29,7 +29,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Haxibiao\\Content\\Tests\\": "tests/"
+            "Haxibiao\\Content\\Tests\\": "tests/",
+            "Database\\Factories\\": "database/factories/"
         }
     },
     "repositories": {},

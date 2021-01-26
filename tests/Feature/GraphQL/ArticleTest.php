@@ -3,7 +3,6 @@
 namespace Haxibiao\Content\Tests\Feature\GraphQL;
 
 use App\Article;
-use App\Post;
 use App\User;
 use Haxibiao\Breeze\GraphQLTestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -23,7 +22,9 @@ class ArticleTest extends GraphQLTestCase
     {
         parent::setUp();
         $this->user = User::where('id', '<', 100)->inRandomOrder()->first();
-        $this->article = Article::where('id', '<', 100)->inRandomOrder()->first();
+        //先确保创建了文章
+        Article::factory()->count(1)->create();
+        $this->article = Article::latest('id')->first();
     }
 
     /**
@@ -33,10 +34,10 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testFollowedArticleQuery()
     {
-        $query = file_get_contents(__DIR__ . '/article/followedArticlesQuery.gql');
+        $query     = file_get_contents(__DIR__ . '/article/followedArticlesQuery.gql');
         $variables = [
             'user_id' => $this->user->id,
-            'type' => 'users',
+            'type'    => 'users',
         ];
         $this->runGQL($query, $variables);
     }
@@ -48,12 +49,12 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testArticleQuery()
     {
-        $query = file_get_contents(__DIR__ . '/article/articleQuery.gql');
-        $articles = Article::inRandomOrder()->first();
+        $query     = file_get_contents(__DIR__ . '/article/articleQuery.gql');
+        $article   = Article::latest('id')->first();
         $variables = [
-            'id' => $articles->id,
+            'id' => $article->id,
         ];
-        $this->runGQL($query, $variables);
+        $response = $this->runGQL($query, $variables);
     }
 
     /**
@@ -84,13 +85,13 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testUserFavoriteArticlesQuery()
     {
-        $user = User::find(1);
+        $user  = User::find(1);
         $query = file_get_contents(__DIR__ . '/article/userFavoriteArticlesQuery.gql');
 
-        $token = $user->api_token;
+        $token   = $user->api_token;
         $headers = [
             'Authorization' => 'Bearer ' . $token,
-            'Accept' => 'application/json',
+            'Accept'        => 'application/json',
         ];
         $variables = [
             'type' => "ARTICLE",
@@ -103,11 +104,11 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testRecommendVideosQuery()
     {
-        $token = User::find(1)->api_token;
-        $query = file_get_contents(__DIR__ . '/article/recommendVideosQuery.gql');
+        $token   = User::find(1)->api_token;
+        $query   = file_get_contents(__DIR__ . '/article/recommendVideosQuery.gql');
         $headers = [
             'Authorization' => 'Bearer ' . $token,
-            'Accept' => 'application/json',
+            'Accept'        => 'application/json',
         ];
         $this->startGraphQL($query, [], $headers);
         $this->startGraphQL($query, [], []);
@@ -119,11 +120,11 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testShareQuery()
     {
-        $token = User::find(1)->api_token;
-        $query = file_get_contents(__DIR__ . '/article/shareQuery.gql');
+        $token   = User::find(1)->api_token;
+        $query   = file_get_contents(__DIR__ . '/article/shareQuery.gql');
         $headers = [
             'Authorization' => 'Bearer ' . $token,
-            'Accept' => 'application/json',
+            'Accept'        => 'application/json',
         ];
         $variables = [
             'id' => $this->article->id,
@@ -138,14 +139,13 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testRecommendArticlesQuery()
     {
-        $query = file_get_contents(__DIR__ . '/article/recommendArticlesQuery.gql');
+        $query     = file_get_contents(__DIR__ . '/article/recommendArticlesQuery.gql');
         $variables = [
             'count' => 1,
-            'page' => 1,
+            'page'  => 1,
         ];
         $this->runGuestGQL($query, $variables);
     }
-
 
     //todo fix :ut错误
     /**

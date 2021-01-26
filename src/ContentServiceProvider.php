@@ -7,6 +7,7 @@ use Haxibiao\Content\Console\FixContent;
 use Haxibiao\Content\Console\InstallCommand;
 use Haxibiao\Content\Console\NovelPush;
 use Haxibiao\Content\Console\NovelSync;
+use Haxibiao\Content\Console\PublishCommand;
 use Haxibiao\Content\Console\RefactorCategorizable;
 use Haxibiao\Content\Console\RefactorCollection;
 use Haxibiao\Content\Console\RefactorPost;
@@ -41,6 +42,7 @@ class ContentServiceProvider extends ServiceProvider
 
         $this->commands([
             InstallCommand::class,
+            PublishCommand::class,
             NovelPush::class,
             NovelSync::class,
             RefactorCategorizable::class,
@@ -49,7 +51,6 @@ class ContentServiceProvider extends ServiceProvider
             StatisticVideoViewsCommand::class,
             CrawlCollection::class,
             FixContent::class,
-
         ]);
     }
 

@@ -67,9 +67,9 @@ extend type Query {
         @deprecated(reason: "该接口已废弃，请使用recommendPosts")
 
     """
-    查询动态详情请使用post，文章详情暂时绕道
+    文章详情
     """
-    article(id: Int! @eq): Article @find(model: "App\\Post")
+    article(id: Int! @eq): Article @find(model: "App\\Article")
 
     """
     获取推荐文章

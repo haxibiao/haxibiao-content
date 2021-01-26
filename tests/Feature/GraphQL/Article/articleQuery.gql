@@ -32,12 +32,12 @@ query articleQuery($id: Int!) {
                 rotate
             }
         }
-         # images {
-            #     id
-            #     url
-            #     width
-            #     height
-            # }
+        images {
+            id
+            url
+            width
+            height
+        }
         categories {
             id
             name
