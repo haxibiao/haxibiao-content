@@ -27,6 +27,7 @@ Route::resource('/article', 'ArticleController');
 Route::resource('/post', 'ArticleController');
 Route::any('/share/post/{id}', 'ArticleController@shareVideo');
 
+Route::resource('/collection', 'CollectionController');
 Route::get('/share/collection/{id}', 'CollectionController@shareCollection');
 /**
  * 问答
