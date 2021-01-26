@@ -11,7 +11,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 class ArticleTest extends GraphQLTestCase
 {
     /**
-     * article->image 字段查询错误，待修复
+     * todo: article->image 字段查询错误，待修复
      */
 
     use DatabaseTransactions;
@@ -147,7 +147,7 @@ class ArticleTest extends GraphQLTestCase
     }
 
 
-    //to fix :ut错误
+    //todo fix :ut错误
     /**
      * @group  article
      * @group testDeleteArticleMutation

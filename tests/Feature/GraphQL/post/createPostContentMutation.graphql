@@ -1,0 +1,110 @@
+#import "./postFragment.graphql"
+#import "../collection/collectionFragment.graphql"
+
+# 发布动态
+# body: 文字描述
+# images: 图片base64
+# video_id: 视频ID
+# category_ids: 专题ID
+# tag_names: 标签名
+# qcvod_fileid: 腾讯云上传成功后的视频ID
+# $share_link: 复制的视频分享链接
+# type: 内容的类型
+mutation createPostContent(
+    $body: String!
+    $images: [String!]
+    $video_id: Int
+    $qcvod_fileid: String
+    $tag_names: [String]
+    $share_link: String
+    $collection_ids: [Int!]
+) {
+    createPostContent(
+        body: $body
+        images: $images
+        video_id: $video_id
+        qcvod_fileid: $qcvod_fileid
+        tag_names: $tag_names
+        share_link: $share_link
+        collection_ids: $collection_ids
+    ) {
+        {
+    id
+    spider {
+        id
+    }
+    content
+    description
+    status
+    liked
+    count_visits
+    count_likes
+    count_comments
+    review_id
+    review_day
+    is_ad
+    created_at
+    current_episode
+    user {
+        id
+        name
+        avatar
+        followed_status
+        gender
+        age
+        introduction
+    }
+    tags {
+        data {
+            id
+            name
+        }
+    }
+    images {
+        id
+        url
+        width
+        height
+    }
+    video {
+        id
+        url
+        cover
+        dynamic_cover
+        duration
+        width
+        height
+    }
+    movies {
+        id
+        name
+        introduction
+        cover
+    }
+}
+
+        collections {
+            id
+    logo
+    name
+    description
+    count_articles
+    count_follows
+    count_posts
+    count_views
+    updated_to_episode
+    followed
+    user {
+        id
+        name
+        avatar
+    }
+    movies {
+        id
+        name
+        introduction
+        cover
+    }
+        }
+    }
+}

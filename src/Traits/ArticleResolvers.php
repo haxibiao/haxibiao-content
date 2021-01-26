@@ -147,7 +147,6 @@ trait ArticleResolvers
         ResolveInfo $resolveInfo
     ) {
         //TODO: 关注的文集，人的文章还没加入...
-        // dd($qb->get());
         $user     = \App\User::findOrFail($args['user_id']);
         $cate_ids = $user->followingCategories()->pluck('followable_id');
         $qb       = self::whereIn('category_id', $cate_ids);
