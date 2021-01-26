@@ -1,0 +1,25 @@
+# 标签详情
+query tagQuery($id:Int!){
+  tag(id:$id){
+    id
+    name
+    count
+    count_posts
+    posts{
+      paginatorInfo{
+        hasMorePages
+        currentPage
+        total
+      }data{
+        id
+        description
+        video{
+          id
+          url
+          cover
+          cover_url
+        }
+      }
+    }
+  }
+}
