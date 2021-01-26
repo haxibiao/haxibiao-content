@@ -190,6 +190,7 @@ trait PostResolvers
                 ->inRandomOrder()
                 ->take(10)
                 ->get();
+        $collectionPosts=[];
         foreach($collections as $collection){
             $collectionPosts[]=$collection->posts()->inRandomOrder()->first();
         }
@@ -202,8 +203,7 @@ trait PostResolvers
             ->inRandomOrder()
             ->take(10)
             ->get();
-            $recommendeds=$recommendeds->merge($collectionPosts);
 
-        return  $recommendeds;
+        return  $recommendeds?$recommendeds->merge($collectionPosts):$collectionPosts;
     }
 }
