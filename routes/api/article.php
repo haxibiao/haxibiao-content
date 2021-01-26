@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 //文章 api
 Route::get('/article', 'ArticleController@index');
+Route::get('/articles', 'ArticleController@index');
 Route::get('/article/{id}', 'ArticleController@show');
 Route::get('/article/{id}/likes', 'ArticleController@likes');
 
