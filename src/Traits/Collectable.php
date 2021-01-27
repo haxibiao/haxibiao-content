@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 trait Collectable
 {
-
     /**
      * 监听内容删除事件自动移除合集关系
      */

@@ -7,6 +7,26 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 trait Taggable
 {
+
+    protected $pendingTags = [];
+
+    public static function bootTaggable()
+    {
+        static::created(function ($model) {
+            if (count($model->pendingTags) > 0) {
+                $model->tagByNames($model->queuedTags);
+                $model->pendingTags = [];
+            }
+        });
+
+        static::deleting(function ($model) {
+            // 强制删除时移除标签关系
+            if ($model->forceDeleting) {
+                $model->untagByNames();
+            }
+        });
+    }
+
     public function hasTags()
     {
         return $this->hasMany(Tag::class);
@@ -21,26 +41,6 @@ trait Taggable
     public function resovleUserTags($root, array $args, $context)
     {
         return $root->hasTags();
-    }
-
-    protected $pendingTags = [];
-
-    public static function bootCanBeTaged()
-    {
-        static::created(function ($model) {
-            if (count($model->pendingTags) > 0) {
-                $model->tagByNames($model->queuedTags);
-
-                $model->pendingTags = [];
-            }
-        });
-
-        static::deleting(function ($model) {
-            // 强制删除时移除标签关系
-            if ($model->forceDeleting) {
-                $model->untagByNames();
-            }
-        });
     }
 
     public function taggable()
