@@ -1,0 +1,23 @@
+# 编辑动态
+# {
+#   "post_id": 1,
+#   "content": '这是动态详情',
+#   "description": '动态描述',
+#   "tag_names": ['战争','历史']
+# }
+mutation makePostByMovieMutation(   
+    $series_id: Int!
+    $startSec: Int
+    $endSec: Int
+    $title: String) {
+    makePostByMovie(
+    series_id:  $series_id
+    startSec: $startSec
+    endSec: $endSec
+    title: $title) {
+        id
+        content
+        description
+    }
+}
+

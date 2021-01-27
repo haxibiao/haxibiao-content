@@ -15,6 +15,7 @@ use Haxibiao\Content\Traits\PostAttrs;
 use Haxibiao\Content\Traits\PostOldPatch;
 use Haxibiao\Content\Traits\PostRepo;
 use Haxibiao\Content\Traits\PostResolvers;
+use Haxibiao\Content\Traits\Taggable;
 use Haxibiao\Media\Image;
 use Haxibiao\Media\Spider;
 use Haxibiao\Media\Traits\WithImage;
@@ -39,6 +40,7 @@ class Post extends Model implements Collectionable
     use PostOldPatch;
     use WithCms;
     use WithSns;
+    use Taggable;
 
     public function getMorphClass()
     {

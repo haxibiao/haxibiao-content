@@ -50,4 +50,22 @@ extend type Mutation @guard {
     endSec: Int
     title: String
   ): Post @field(resolver: "App\\Post@MakePostByMovie")
+   updatePost(
+    """
+    动态ID
+    """
+    post_id: Int!
+    """
+    正文
+    """
+    content: String
+    """
+    正文
+    """
+    description: String,
+    """
+    标签名
+    """
+    tag_names: [String]
+  ): Post! @field(resolver: "App\\Post@resolveUpdatePost")
 }

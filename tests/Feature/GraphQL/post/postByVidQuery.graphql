@@ -1,9 +1,9 @@
 #import "./postFragment.graphql"
 #import "../collection/collectionFragment.graphql"
 
-query postByVid($id: String!) {
-    postByVid(vid: $id) {
-        {
+query postByVid($vid: String!) {
+    postByVid(vid: $vid) {
+        
     id
     spider {
         id
@@ -12,7 +12,6 @@ query postByVid($id: String!) {
     description
     status
     liked
-    count_visits
     count_likes
     count_comments
     review_id
@@ -29,12 +28,7 @@ query postByVid($id: String!) {
         age
         introduction
     }
-    tags {
-        data {
-            id
-            name
-        }
-    }
+
     images {
         id
         url
@@ -56,9 +50,7 @@ query postByVid($id: String!) {
         introduction
         cover
     }
-}
-
-        collections {
+     collections {
             id
     logo
     name
@@ -81,5 +73,8 @@ query postByVid($id: String!) {
         cover
     }
         }
-    }
 }
+
+       
+    }
+

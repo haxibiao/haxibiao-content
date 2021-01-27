@@ -10,11 +10,5 @@ mutation updatePostMutation($id: Int!, $content: String, $description: String, $
         id
         content
         description
-        tags {
-            data {
-                id
-                name
-            }
-        }
     }
 }

@@ -89,6 +89,20 @@ class PostTest extends GraphQLTestCase
 
     /**
      * @group  post
+     * @group  testPostByVidQuery
+     */
+    public function testPostByVidQuery()
+    {
+        $query = file_get_contents(__DIR__ . '/post/postByVidQuery.graphql');
+        $headers = [];
+        $variables = [
+            'vid' => $this->video->vid?:'v0200f060000bs4pa76ob758ea45jsrg',
+        ];
+        $this->startGraphQL($query, $variables, $headers);
+    }
+
+    /**
+     * @group  post
      * @group  testShareNewPostQuery
      */
     public function testShareNewPostQuery()
@@ -102,7 +116,6 @@ class PostTest extends GraphQLTestCase
         $this->startGraphQL($query, $variables, $headers);
     }
 
-    //todo ut 测试到这里，以下未测试
     /**
      * ========================================================================
      * ============================Mutation=======================++===========
@@ -155,7 +168,7 @@ class PostTest extends GraphQLTestCase
         //确保后面UT不重复
         Spider::where('source_url', 'https://v.douyin.com/vruTta/')->delete();
         $user = User::where("ticket", ">", 10)->first();
-        $query = file_get_contents(__DIR__ . '/post/ResolveDouyinVideoMutation.graphql');
+        $query = file_get_contents(__DIR__ . '/post/resolveDouyinVideoMutation.graphql');
         $variables = [
             'share_link' => "#在抖音，记录美好生活#美元如何全球褥羊毛？经济危机下，2万亿救市的深层动力，你怎么看？#经济 #教育#云上大课堂 #抖音小助手 https://v.douyin.com/vruTta/ 复制此链接，打开【抖音短视频】，直接观看视频！",
         ];
@@ -175,6 +188,7 @@ class PostTest extends GraphQLTestCase
     {
         $token = User::find(1)->api_token;
         $post = Post::find(2);
+        info($post->user_id);
         $query = file_get_contents(__DIR__ . '/post/UpdatePostMutation.graphql');
         $headers = [
             'Authorization' => 'Bearer ' . $token,
@@ -189,24 +203,25 @@ class PostTest extends GraphQLTestCase
         $this->startGraphQL($query, $variables, $headers);
     }
 
-    /**
-     * @group  post
-     * @group  testDeletePost
-     */
-    public function testDeletePost()
-    {
-        $token = User::find(1)->api_token;
-        $post = Post::find(2);
-        $query = file_get_contents(__DIR__ . '/post/DeletePostMutation.graphql');
-        $headers = [
-            'Authorization' => 'Bearer ' . $token,
-            'Accept' => 'application/json',
-        ];
-        $variables = [
-            'id' => $post->id,
-        ];
-        $this->startGraphQL($query, $variables, $headers);
-    }
+    //todo MakePostByMovie方法的逻辑还没写完
+
+    // /**
+    //  * @group  post
+    //  * @group  testMakePostByMovie
+    //  */
+    // public function testMakePostByMovie()
+    // {
+    //     $token = User::find(1)->api_token;
+    //     $post = Post::find(2);
+    //     $query = file_get_contents(__DIR__ . '/post/makePostByMovieMutation.graphql');
+    //     $headers = [
+    //         'Authorization' => 'Bearer ' . $token,
+    //         'Accept' => 'application/json',
+    //     ];
+    //     $variables = [
+    //     ];
+    //     $this->startGraphQL($query, $variables, $headers);
+    // }
 
     protected function tearDown(): void
     {
