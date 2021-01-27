@@ -1,29 +1,42 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+namespace Database\Factories;
 
-use Faker\Generator as Faker;
 use Haxibiao\Content\Post;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-$factory->define(Post::class, function (Faker $faker) {
+class PostFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = Post::class;
 
-    static $user_id;
-    static $video_id;
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
+        return [
+            // 作者
+            'user_id'     => rand(1, 3),
 
-    return [
-        // 作者
-        'user_id'     => $user_id,
+            // 视频ID
+            'video_id'    => null,
 
-        // 视频ID
-        'video_id'    => $video_id,
+            // 描述
+            'description' => '测试的动态的配文',
 
-        // 描述
-        'description' => $faker->text('30'),
+            // 内容
+            'content'     => '测试动态的长篇正文',
 
-        // 内容
-        'content'     => $faker->text,
+            // 状态
+            'status'      => Post::PUBLISH_STATUS,
+        ];
 
-        // 状态
-        'status'      => Post::PUBLISH_STATUS,
-    ];
-});
+    }
+}

@@ -3,7 +3,6 @@
 namespace Haxibiao\Content;
 
 use App\Comment;
-use App\Like;
 use App\User;
 use App\Video;
 use Carbon\Carbon;
@@ -20,6 +19,7 @@ use Haxibiao\Media\Image;
 use Haxibiao\Media\Spider;
 use Haxibiao\Media\Traits\WithImage;
 use Haxibiao\Sns\Traits\WithSns;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -28,6 +28,7 @@ use Illuminate\Support\Str;
 
 class Post extends Model implements Collectionable
 {
+    use HasFactory;
     use SoftDeletes;
     use PostRepo;
     use PostAttrs;
