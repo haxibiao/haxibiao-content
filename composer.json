@@ -28,10 +28,11 @@
         }
     },
     "autoload-dev": {
-        "psr-4": {
-            "Haxibiao\\Content\\Tests\\": "tests/",
-            "Database\\Factories\\": "database/factories/"
-        }
+        "classmap": [
+            "database/factories/",
+            "database/seeder/",
+            "tests/"
+        ]
     },
     "repositories": {},
     "extra": {
