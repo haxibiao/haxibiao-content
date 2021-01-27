@@ -1,6 +1,6 @@
 #问答
-query searchIssue($query: String!, $page: Int, $count: Int) {
-    searchIssue(query: $query, page: $page, count: $count) {
+query searchIssue($query: String!, $page: Int) {
+    searchIssue(query: $query, page: $page) {
         paginatorInfo {
             hasMorePages
             currentPage

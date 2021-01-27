@@ -12,12 +12,13 @@ class IssueTest extends GraphQLTestCase
     use DatabaseTransactions;
 
     protected $user;
+    protected $issue;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->user = User::inRandomorder()->first();
-
+        $this->issue = Issue::inRandomorder()->first();
     }
 
     /**
@@ -26,11 +27,12 @@ class IssueTest extends GraphQLTestCase
      * @return void
      */
     /**
+     * @group issue
      * @group testCreateIssueMutation
      */
     public function testCreateIssueMutation()
     {
-        $query     = file_get_contents(__DIR__ . '/Issue/Mutation/createIssueMutation.gql');
+        $query     = file_get_contents(__DIR__ . '/Issue/createIssueMutation.gql');
         $base64    = $this->getBase64ImageString();
         $headers   = $this->getRandomUserHeaders();
         $variables = [
@@ -51,28 +53,28 @@ class IssueTest extends GraphQLTestCase
     }
 
     /**
+     * @group issue
      * @group testSearchIssue
      */
     public function testSearchIssue()
     {
 
-        $query     = file_get_contents(__DIR__ . '/Issue/Query/searchIssueQuery.gql');
+        $query     = file_get_contents(__DIR__ . '/Issue/searchIssueQuery.gql');
         $headers   = $this->getRandomUserHeaders();
-        $issue     = Issue::inRandomorder()->first();
         $variables = [
-            'query' => str_limit($issue->title, 5),
+            'query' => str_limit($this->issue->title, 5),
         ];
         $this->runGuestGQL($query, $variables, $headers);
     }
 
     /**
+     * @group issue
      * @group testIssuesQuery
      */
     public function testIssuesQuery()
     {
 
-        $query = file_get_contents(__DIR__ . '/Issue/Query/issuesQuery.gql');
-
+        $query = file_get_contents(__DIR__ . '/Issue/issuesQuery.gql');
         $variables = [
             'orderBy' => [
                 [
@@ -88,25 +90,46 @@ class IssueTest extends GraphQLTestCase
 
     }
     /**
+     * @group issue
      * @group testDeleteIssueMutation
      */
     public function testDeleteIssueMutation()
     {
-        $query   = file_get_contents(__DIR__ . '/Issue/Mutation/deleteIssue.gql');
-        $user    = User::inRandomorder()->first();
-        $token   = $user->api_token;
+        $query   = file_get_contents(__DIR__ . '/Issue/deleteIssueMutation.gql');
+        $token   = $this->user->api_token;
         $headers = [
             'Authorization' => 'Bearer ' . $token,
             'Accept'        => 'application/json',
         ];
         //查找当前用户创建的issue
         $args = [
-            'user_id' => $user->id,
+            'user_id' => $this->user->id,
             'title'   => "i'am a issue",
         ];
         $issue     = Issue::firstOrCreate($args);
         $variables = [
             'issue_id' => $issue->id,
+        ];
+
+        $this->runGuestGQL($query, $variables, $headers);
+    }
+
+    /**
+     * @group issue
+     * @group testInviteAnswerMutation
+     */
+    public function testInviteAnswerMutation()
+    {
+        $query   = file_get_contents(__DIR__ . '/Issue/inviteAnswerMutation.gql');
+        $token   = $this->user->api_token;
+        $headers = [
+            'Authorization' => 'Bearer ' . $token,
+            'Accept'        => 'application/json',
+        ];
+        $invited_user_id = User::inRandomorder()->first()->id;
+        $variables = [
+            'invited_user_id'=>$invited_user_id, 
+            'issue_id' => $this->issue->id
         ];
 
         $this->runGuestGQL($query, $variables, $headers);
