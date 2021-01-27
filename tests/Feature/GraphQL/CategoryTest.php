@@ -22,7 +22,14 @@ class CategoryTest extends GraphQLTestCase
         parent::setUp();
 
         $this->user = User::where('id', '<', 100)->inRandomOrder()->first();
-        $this->category = Category::where('id', '<', 100)->inRandomOrder()->first();
+        $this->category = Category::create([
+            'user_id' => rand(1, 3),
+            'type' => 'posts',
+            'name' => '测试分类 - name',
+            'description' => '测试分类 - description',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     /**
@@ -53,14 +60,12 @@ class CategoryTest extends GraphQLTestCase
         $variables = [
             'filter' => "hot",
         ];
-
         $this->startGraphQL($query, $variables);
 
         //other分类
         $variables = [
             'filter' => "other",
         ];
-
         $this->startGraphQL($query, $variables);
     }
 }

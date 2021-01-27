@@ -16,9 +16,17 @@ class CollectionTest extends GraphQLTestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->user = factory(User::class)->create([
-            'api_token' => str_random(60),
+        $this->user = User::where('id', '<', 100)->inRandomOrder()->first();
+        $this->collection = Collection::create([
+            'user_id' => rand(1, 3),
+            'status' => 1,
+            'type' => 'posts',
+            'name' => '测试合集数据 - name',
+            'description' => '测试合集数据 - description',
+            'logo' => Collection::TOP_COVER,
+            'sort_rank' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 

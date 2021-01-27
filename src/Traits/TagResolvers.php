@@ -2,6 +2,8 @@
 
 namespace Haxibiao\Content\Traits;
 
+use Haxibiao\Content\Tag;
+
 trait TagResolvers
 {
     public function resolverPosts($rootValue, $args, $context, $resolveInfo)

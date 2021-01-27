@@ -10,6 +10,20 @@ class TagTest extends GraphQLTestCase
 {
     use DatabaseTransactions;
 
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->tag = Tag::create([
+            'user_id' => rand(1, 3),
+            'type' => '1',
+            'name' => '测试标签 - name',
+            'status' => '1',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
     /**
      * 标签详情
      * @tag

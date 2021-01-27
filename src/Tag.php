@@ -6,6 +6,7 @@ use Haxibiao\Breeze\Model;
 use Haxibiao\Content\Traits\TagAttrs;
 use Haxibiao\Content\Traits\TagRepo;
 use Haxibiao\Content\Traits\TagResolvers;
+use Haxibiao\Helpers\Traits\Searchable;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Tag extends Model
@@ -13,9 +14,16 @@ class Tag extends Model
     use TagAttrs;
     use TagRepo;
     use TagResolvers;
+    use Searchable;
 
     protected $table = 'tags';
     public $guarded  = [];
+
+    protected $searchable = [
+        'columns' => [
+            'tags.name' => 1,
+        ],
+    ];
 
     // old relationship
     public function creator()
