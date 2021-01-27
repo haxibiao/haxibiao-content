@@ -23,12 +23,12 @@ query RecommendVideosQuery($page: Int, $count: Int) {
                 name
                 logo
             }
-             # images {
-            #     id
-            #     url
-            #     width
-            #     height
-            # }
+             images {
+                id
+                url
+                width
+                height
+            }
             video {
                 id
                 url

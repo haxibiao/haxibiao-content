@@ -2,16 +2,14 @@
 
 namespace Haxibiao\Content\Tests\Feature\GraphQL;
 
-use App\Article;
+use App\Post;
 use App\User;
+use App\Article;
 use Haxibiao\Breeze\GraphQLTestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class ArticleTest extends GraphQLTestCase
 {
-    /**
-     * todo: article->image 字段查询错误，待修复
-     */
 
     use DatabaseTransactions;
 
@@ -23,7 +21,9 @@ class ArticleTest extends GraphQLTestCase
         parent::setUp();
         $this->user = User::where('id', '<', 100)->inRandomOrder()->first();
         //先确保创建了文章
-        Article::factory()->count(1)->create();
+        Article::factory()->count(1)->make(
+            ['user_id'=>$this->user->id]
+        );
         $this->article = Article::latest('id')->first();
     }
 
@@ -147,26 +147,25 @@ class ArticleTest extends GraphQLTestCase
         $this->runGuestGQL($query, $variables);
     }
 
-    //todo fix :ut错误
     /**
      * @group  article
      * @group testDeleteArticleMutation
      */
-    // public function testDeleteArtcleMutation()
-    // {
-    //     $post = Post::find(2);
-    //     $query = file_get_contents(__DIR__ . '/article/deleteArticleMutation.gql');
+    public function testDeleteArtcleMutation()
+    {
+        $post = Post::find(2);
+        $query = file_get_contents(__DIR__ . '/article/deleteArticleMutation.gql');
 
-    //     $token = User::find(1)->api_token;
-    //     $headers = [
-    //         'Authorization' => 'Bearer ' . $token,
-    //         'Accept' => 'application/json',
-    //     ];
-    //     $variables = [
-    //         'id' => $post->id,
-    //     ];
-    //     $this->startGraphQL($query, $variables, $headers);
-    // }
+        $token = User::find(1)->api_token;
+        $headers = [
+            'Authorization' => 'Bearer ' . $token,
+            'Accept' => 'application/json',
+        ];
+        $variables = [
+            'id' => $post->id,
+        ];
+        $this->startGraphQL($query, $variables, $headers);
+    }
 
     protected function tearDown(): void
     {

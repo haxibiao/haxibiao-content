@@ -121,9 +121,10 @@ class Post extends Model implements Collectionable
         return $this->morphMany(Comment::class, 'commentable');
     }
 
+    //统一使用imageables表
     public function images()
     {
-        return $this->morphToMany(Image::class, 'imageable', 'imageable')->withTimestamps();
+        return $this->morphToMany(Image::class, 'imageable')->withTimestamps();
     }
 
     public function favorite()

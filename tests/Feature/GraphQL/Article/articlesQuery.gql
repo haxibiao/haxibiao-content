@@ -40,12 +40,12 @@ query userArticlesQuery(
                 name
                 logo
             }
-            # images {
-            #     id
-            #     url
-            #     width
-            #     height
-            # }
+            images {
+                id
+                url
+                width
+                height
+            }
             video {
                 id
                 url
