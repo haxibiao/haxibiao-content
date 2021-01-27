@@ -120,7 +120,7 @@ class IssueController extends Controller
         $issue->favorited = 1;
 
         //re-use favorite controller
-        $controller = new \App\Http\Controllers\Api\FavoriteController();
+        $controller = new \Haxibiao\Sns\Http\Api\FavoriteController();
         $controller->toggle($request, $id, 'questions');
 
         return $issue;

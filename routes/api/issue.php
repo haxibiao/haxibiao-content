@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Route; 
 
 //相似问答
-Route::middleware('auth:api')->get('/suggest-question', 'IssueController@suggest');
+Route::middleware('auth:api')->get('/suggest-question', 'IssueController@suggest'); 
 //问答
 Route::middleware('auth:api')->get('/question/{id}', 'IssueController@question');
 // 举报

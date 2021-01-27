@@ -10,61 +10,91 @@ class IssueTest extends TestCase
 
     use DatabaseTransactions;
 
+    /**
+     * @group webIssue
+     * @group testCategories
+     */
     public function testCategories()
     {
         $response = $this->get('/categories-for-question');
         $response->assertStatus(200);
     }
 
+    /**
+     * @group webIssue
+     * @group testBonused
+     */
     public function testBonused()
     {
         $response = $this->get('/question-bonused');
         $response->assertStatus(200);
     }
 
-    public function testAdd()
-    {
-        $question    = \App\Question::inRandomOrder()->first();
-        $question_id = $question->id;
-        $answer      = $question->answer;
-        $response    = $this->post('/question-add', ["question_id" => $question_id, "answer" => $answer]);
-        $response->assertStatus(302);
-    }
-
-    public function testIndex()
+    /**
+     * @group webIssue
+     * @group testIssueIndex
+     */
+    public function testIssueIndex()
     {
         $response = $this->get("/question");
         $response->assertStatus(200);
     }
 
-    public function testStore()
+    /**
+     * @group webIssue
+     * @group testIssueStore
+     */
+    public function testIssueStore()
     {
         $user     = \App\User::inRandomOrder()->first();
-        $response = $this->actingAs($user)->post("/question");
+        $user = \App\User::inRandomOrder()->first();
+        $issue        = new \App\Issue;
+        $issue->user_id = 1;
+        $issue->title =  "测试";
+        $issue->background =  "测试";
+        $data = $issue->toArray();
+        $response = $this->post("/question",$data
+            , ['api_token' => $user->api_token]);
         $response->assertStatus(302);
     }
 
-    public function testShow()
+    /**
+     * @group webIssue
+     * @group testIssueShow
+     */
+    public function testIssueShow()
     {
         $id       = \App\Issue::inRandomOrder()->first()->id;
         $response = $this->get("/question/{$id}");
         $response->assertStatus(200);
     }
 
-    public function testDestroy()
+    /**
+     * @group webIssue
+     * @group testIssueDestroy
+     */
+    public function testIssueDestroy()
     {
         $id       = \App\Issue::inRandomOrder()->first()->id;
         $response = $this->delete("/question/{$id}");
         $response->assertStatus(302);
     }
 
+    /**
+     * @group webIssue
+     * @group testSolution
+     */
     public function testSolution()
     {
         $user         = \App\User::inRandomOrder()->first();
-        $solution     = \App\Solution::inRandomOrder()->first();
-        $solution->id = null;
-        $date         = $solution->toArray();
-        $response     = $this->actingAs($user)->post("/answer", $date);
+        $solution        = new \App\Solution;
+        $solution->user_id = 1;
+        $solution->issue_id =  7;
+        $solution->answer =  "测试";
+        $data           = $solution->toArray();
+        $response     = $this->post("/answer", $data,[
+            "Authorization" => "Bearer " . $user->api_token,
+        ]);
         $response->assertStatus(302);
     }
 }
