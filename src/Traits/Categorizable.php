@@ -67,9 +67,9 @@ trait Categorizable
 
     public function allCategories()
     {
-        return $this->morphToMany(Category::class, 'categorizable')
-            ->withPivot(['id', 'submit'])
-            ->withTimestamps();
+        return $this->morphToMany(Category::class, 'categorizable');
+            // ->withPivot(['id', 'submit'])
+            // ->withTimestamps();
     }
 
     //FIXME: 冗余categories()
