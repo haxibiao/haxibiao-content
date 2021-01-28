@@ -3,7 +3,7 @@
 namespace Haxibiao\Content;
 
 use Haxibiao\Breeze\Model as BreezeModel;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Haxibiao\Breeze\Traits\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Chapter extends BreezeModel

@@ -4,7 +4,7 @@ namespace Haxibiao\Content;
 
 use Haxibiao\Breeze\Model as BreezeModel;
 use Haxibiao\Content\Traits\NovelAttrs as TraitsNovelAttrs;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Haxibiao\Breeze\Traits\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Novel extends BreezeModel

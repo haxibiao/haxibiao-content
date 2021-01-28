@@ -15,7 +15,7 @@ use Haxibiao\Media\Traits\WithMedia;
 use Haxibiao\Sns\Comment;
 use Haxibiao\Sns\Favorite;
 use Haxibiao\Sns\Traits\WithSns;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Haxibiao\Breeze\Traits\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Article extends Model implements Collectionable
