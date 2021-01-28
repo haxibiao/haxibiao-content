@@ -106,7 +106,8 @@ trait PostOldPatch
 
     public function getFavoritedAttribute()
     {
-
+        //借用favorable的特性属性
+        return $this->is_favorited;
     }
 
     public function getVideoUrlAttribute()

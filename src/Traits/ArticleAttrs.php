@@ -110,11 +110,8 @@ trait ArticleAttrs
 
     public function getFavoritedAttribute()
     {
-        if ($user = getUser(false)) {
-            $column          = 'favorable_id';
-            return $favorite = $user->favoritedArticles()->where($column, $this->id)->count() > 0;
-        }
-        return false;
+        //借用favorable的特性属性
+        return $this->is_favorited;
     }
 
     public function getFavoritedIdAttribute()
