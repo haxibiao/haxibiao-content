@@ -6,6 +6,7 @@ use App\Issue;
 use App\User;
 use Haxibiao\Breeze\GraphQLTestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\UploadedFile;
 
 class IssueTest extends GraphQLTestCase
 {
@@ -33,7 +34,8 @@ class IssueTest extends GraphQLTestCase
     public function testCreateIssueMutation()
     {
         $query     = file_get_contents(__DIR__ . '/Issue/createIssueMutation.gql');
-        $base64    = $this->getBase64ImageString();
+        $image   = UploadedFile::fake()->image('photo.jpg');
+        $base64 = 'data:' . $image->getMimeType() . ';base64,' . base64_encode(file_get_contents($image->getRealPath()));
         $headers   = $this->getRandomUserHeaders();
         $variables = [
             "title"      => "创建一个问题",
@@ -73,7 +75,7 @@ class IssueTest extends GraphQLTestCase
      */
     public function testIssuesQuery()
     {
-
+        //用户的问答黑名单没有 $user->blockIssues() not found
         $query = file_get_contents(__DIR__ . '/Issue/issuesQuery.gql');
         $variables = [
             'orderBy' => [

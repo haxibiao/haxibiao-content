@@ -51,14 +51,6 @@ class SolutionTest extends GraphQLTestCase
         ];
         $this->runGuestGQL($query, $variables, $headers);
 
-        $variables = [
-            'issue_id' => $this->issue->id,
-            'answer'   => "test hello world",
-            'images'   => [$this->getBase64ImageString()],
-        ];
-
-        $this->runGuestGQL($query, $variables, $headers);
-
     }
     /**
      * @group solution
