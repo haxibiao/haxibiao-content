@@ -3,10 +3,11 @@
 namespace Haxibiao\Content\Traits;
 
 use App\Article;
-use App\Exceptions\GQLException;
 use App\Scopes\ArticleSubmitScope;
 use App\Visit;
 use GraphQL\Type\Definition\ResolveInfo;
+use Haxibiao\Breeze\Exceptions\GQLException;
+use Haxibiao\Breeze\UserBlock;
 use Haxibiao\Content\Post;
 use Haxibiao\Helpers\Facades\SensitiveFacade;
 use Haxibiao\Helpers\utils\BadWordUtils;
@@ -23,8 +24,8 @@ trait ArticleResolvers
         $userBlockId    = [];
         $articleBlockId = [];
         if ($user = checkUser()) {
-            $userBlockId    = \App\UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
-            $articleBlockId = \App\UserBlock::select('article_block_id')->whereNotNull('article_block_id')->where('user_id', $user->id)->get();
+            $userBlockId    = UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
+            $articleBlockId = UserBlock::select('article_block_id')->whereNotNull('article_block_id')->where('user_id', $user->id)->get();
         }
 
         $query = Article::withoutGlobalScope(ArticleSubmitScope::class)

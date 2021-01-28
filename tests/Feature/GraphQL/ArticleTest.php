@@ -3,7 +3,6 @@
 namespace Haxibiao\Content\Tests\Feature\GraphQL;
 
 use App\Article;
-use App\Post;
 use App\User;
 use Haxibiao\Breeze\GraphQLTestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -112,24 +111,6 @@ class ArticleTest extends GraphQLTestCase
     }
 
     /**
-     * @group  article
-     * @group  testShareQuery
-     */
-    public function testShareQuery()
-    {
-        $token   = User::find(1)->api_token;
-        $query   = file_get_contents(__DIR__ . '/article/shareQuery.gql');
-        $headers = [
-            'Authorization' => 'Bearer ' . $token,
-            'Accept'        => 'application/json',
-        ];
-        $variables = [
-            'id' => $this->article->id,
-        ];
-        $this->startGraphQL($query, $variables, $headers);
-    }
-
-    /**
      * 推荐文章/菜谱
      * @group testRecommendArticlesQuery
      * @group article
@@ -150,7 +131,7 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testDeleteArtcleMutation()
     {
-        $post  = Post::find(2);
+
         $query = file_get_contents(__DIR__ . '/article/deleteArticleMutation.gql');
 
         $token   = User::find(1)->api_token;
@@ -159,7 +140,7 @@ class ArticleTest extends GraphQLTestCase
             'Accept'        => 'application/json',
         ];
         $variables = [
-            'id' => $post->id,
+            'id' => $this->article->id,
         ];
         $this->startGraphQL($query, $variables, $headers);
     }

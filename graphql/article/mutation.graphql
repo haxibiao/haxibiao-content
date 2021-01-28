@@ -17,9 +17,9 @@ extend type Mutation @guard {
     restoreArticle(id: Int!): Article @field(resolver: "App\\Article@restoreArticle")
 
     """
-    接口已经废弃,请使用deletePost
+    删除文章
     """
-    deleteArticle(id: Int!): Post @delete @deprecated(reason: "接口已经废弃,请使用deletePost")
+    deleteArticle(id: Int!): Article @delete
 }
 
 enum ContenType {
