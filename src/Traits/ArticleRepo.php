@@ -447,16 +447,7 @@ trait ArticleRepo
      */
     public function currentUserHasFavorited()
     {
-        //未登录状态
-        if (!checkUser()) {
-            return false;
-        }
-        $loginUser = getUser();
-        return DB::table('favorites')
-            ->where('user_id', $loginUser->id)
-            ->where('faved_id', $this->id)
-            ->where('faved_type', 'articles')
-            ->exists();
+        return $this->is_favorited;
     }
 
     public function tip($amount, $message = '')

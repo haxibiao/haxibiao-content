@@ -111,7 +111,7 @@ trait ArticleAttrs
     public function getFavoritedAttribute()
     {
         if ($user = getUser(false)) {
-            $column          = in_array(config('app.name'), ['datizhuanqian', 'dazhuan']) ? 'favorable_id' : 'faved_id';
+            $column          = 'favorable_id';
             return $favorite = $user->favoritedArticles()->where($column, $this->id)->count() > 0;
         }
         return false;
@@ -120,8 +120,7 @@ trait ArticleAttrs
     public function getFavoritedIdAttribute()
     {
         if ($user = getUser(false)) {
-            $column   = in_array(config('app.name'), ['datizhuanqian', 'dazhuan']) ? 'favorable_id' : 'faved_id';
-            $favorite = $user->favoritedArticles()->where('faved_id', $this->id)->first();
+            $favorite = $user->favoritedArticles()->where('favorable_id', $this->id)->first();
             return $favorite ? $favorite->id : 0;
         }
         return 0;

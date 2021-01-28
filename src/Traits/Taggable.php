@@ -27,11 +27,17 @@ trait Taggable
         });
     }
 
+    /**
+     * 用户的创建标签
+     */
     public function hasTags()
     {
         return $this->hasMany(Tag::class);
     }
 
+    /**
+     * 内容的被贴标签列表
+     */
     public function tags(): MorphToMany
     {
         return $this->morphToMany(Tag::class, 'taggable')
@@ -42,7 +48,8 @@ trait Taggable
     {
         return $root->hasTags();
     }
-    public function resovlePostTags($root, array $args, $context){
+    public function resovlePostTags($root, array $args, $context)
+    {
         return $root->tags();
     }
 

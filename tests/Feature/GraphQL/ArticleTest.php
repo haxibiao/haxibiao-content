@@ -2,9 +2,9 @@
 
 namespace Haxibiao\Content\Tests\Feature\GraphQL;
 
+use App\Article;
 use App\Post;
 use App\User;
-use App\Article;
 use Haxibiao\Breeze\GraphQLTestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
@@ -20,11 +20,9 @@ class ArticleTest extends GraphQLTestCase
     {
         parent::setUp();
         $this->user = User::where('id', '<', 100)->inRandomOrder()->first();
+
         //先确保创建了文章
-        Article::factory()->count(1)->make(
-            ['user_id'=>$this->user->id]
-        );
-        $this->article = Article::latest('id')->first();
+        $this->article = Article::factory(['user_id' => $this->user->id])->create();
     }
 
     /**
@@ -50,9 +48,8 @@ class ArticleTest extends GraphQLTestCase
     public function testArticleQuery()
     {
         $query     = file_get_contents(__DIR__ . '/article/articleQuery.gql');
-        $article   = Article::latest('id')->first();
         $variables = [
-            'id' => $article->id,
+            'id' => $this->article->id,
         ];
         $response = $this->runGQL($query, $variables);
     }
@@ -153,13 +150,13 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testDeleteArtcleMutation()
     {
-        $post = Post::find(2);
+        $post  = Post::find(2);
         $query = file_get_contents(__DIR__ . '/article/deleteArticleMutation.gql');
 
-        $token = User::find(1)->api_token;
+        $token   = User::find(1)->api_token;
         $headers = [
             'Authorization' => 'Bearer ' . $token,
-            'Accept' => 'application/json',
+            'Accept'        => 'application/json',
         ];
         $variables = [
             'id' => $post->id,
@@ -169,6 +166,7 @@ class ArticleTest extends GraphQLTestCase
 
     protected function tearDown(): void
     {
+        $this->article->delete();
         parent::tearDown();
     }
 

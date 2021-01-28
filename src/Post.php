@@ -7,6 +7,7 @@ use App\User;
 use App\Video;
 use Carbon\Carbon;
 use Haxibiao\Breeze\Model;
+use Haxibiao\Breeze\Traits\HasFactory;
 use Haxibiao\Cms\Traits\WithCms;
 use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Traits\Categorizable;
@@ -20,7 +21,6 @@ use Haxibiao\Media\Image;
 use Haxibiao\Media\Spider;
 use Haxibiao\Media\Traits\WithImage;
 use Haxibiao\Sns\Traits\WithSns;
-use Haxibiao\Breeze\Traits\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -127,11 +127,6 @@ class Post extends Model implements Collectionable
     public function images()
     {
         return $this->morphToMany(Image::class, 'imageable')->withTimestamps();
-    }
-
-    public function favorite()
-    {
-        return $this->morphMany(\App\Post::class, 'faved_type');
     }
 
     public function scopePublish($query)

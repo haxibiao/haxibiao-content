@@ -12,7 +12,7 @@ class ArticleController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth')->except(['index']);;
+        $this->middleware('auth')->except(['index']);
         //FIXME: 还没为admin editor的逻辑处理，目前简单登录即可管理任何文章
     }
 
@@ -65,9 +65,6 @@ class ArticleController extends Controller
         {
             //FIXME: 监听的 Observer 里处理
             //彻底删除文章，删除相关数据
-            // Comment::where('comment_id', '=', $id)->where('commentable_type', '=', 'articles')->delete();
-            // Like::where('liked_id', '=', $id)->where('liked_type', '=', 'articles')->delete();
-            // Favorite::where('faved_id', '=', $id)->where('faved_type', '=', 'articles')->delete();
 
             $result = Article::destroy($id);
             DB::commit();
