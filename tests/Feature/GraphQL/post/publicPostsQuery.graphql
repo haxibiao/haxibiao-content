@@ -34,12 +34,12 @@ query publicPostsQuery($user_id: Int, $page: Int) {
                 name
                 logo
             }
-            # images {
-            #     id
-            #     url
-            #     width
-            #     height
-            # }
+            images {
+                id
+                url
+                width
+                height
+            }
             video {
                 id
                 url
@@ -48,6 +48,12 @@ query publicPostsQuery($user_id: Int, $page: Int) {
                 width
                 height
             }
+            tags {
+        data {
+            id
+            name
+        }
+    }
         }
     }
 }

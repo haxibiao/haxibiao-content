@@ -52,6 +52,12 @@ mutation createPostContent(
             width
             height
         }
+        tags {
+        data {
+            id
+            name
+        }
+    }
         video {
             id
             url

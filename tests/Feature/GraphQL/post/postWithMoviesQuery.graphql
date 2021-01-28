@@ -1,10 +1,7 @@
-#import "./postFragment.graphql"
-#import "../collection/collectionFragment.graphql"
-
+#影视动态刷
 query postWithMoviesQuery {
     postWithMovies {
-        {
-    id
+         id
     spider {
         id
     }
@@ -12,7 +9,6 @@ query postWithMoviesQuery {
     description
     status
     liked
-    count_visits
     count_likes
     count_comments
     review_id
@@ -28,12 +24,6 @@ query postWithMoviesQuery {
         gender
         age
         introduction
-    }
-    tags {
-        data {
-            id
-            name
-        }
     }
     images {
         id
@@ -56,64 +46,8 @@ query postWithMoviesQuery {
         introduction
         cover
     }
-}
-
-    id
-    spider {
-        id
-    }
-    content
-    description
-    status
-    liked
-    count_visits
-    count_likes
-    count_comments
-    review_id
-    review_day
-    is_ad
-    created_at
-    current_episode
-    user {
-        id
-        name
-        avatar
-        followed_status
-        gender
-        age
-        introduction
-    }
-    tags {
-        data {
-            id
-            name
-        }
-    }
-    images {
-        id
-        url
-        width
-        height
-    }
-    video {
-        id
-        url
-        cover
-        dynamic_cover
-        duration
-        width
-        height
-    }
-    movies {
-        id
-        name
-        introduction
-        cover
-    }
-}
-
         collections {
-            id
+             id
     logo
     name
     description

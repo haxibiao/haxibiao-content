@@ -188,7 +188,6 @@ class PostTest extends GraphQLTestCase
     {
         $token = User::find(1)->api_token;
         $post = Post::find(2);
-        info($post->user_id);
         $query = file_get_contents(__DIR__ . '/post/UpdatePostMutation.graphql');
         $headers = [
             'Authorization' => 'Bearer ' . $token,

@@ -2,30 +2,30 @@
 
 namespace Haxibiao\Content\Traits;
 
+use App\Gold;
+use App\User;
+use App\Image;
+use App\Visit;
 use App\Action;
+use App\Spider;
+use App\Comment;
 use App\AppConfig;
 use App\Collection;
-use App\Comment;
-use App\Exceptions\GQLException;
-use App\Gold;
-use App\Image;
-use App\Spider;
-use App\User;
-use App\Visit;
-use Haxibiao\Content\Constracts\Collectionable;
-use Haxibiao\Content\Jobs\PublishNewPosts;
-use Haxibiao\Content\Post;
-use Haxibiao\Content\PostRecommend;
-use Haxibiao\Helpers\Facades\SensitiveFacade;
-use Haxibiao\Helpers\utils\BadWordUtils;
-use Haxibiao\Helpers\utils\QcloudUtils;
-use Haxibiao\Media\Events\PostPublishSuccess;
-use Haxibiao\Media\Jobs\ProcessVod;
 use Haxibiao\Media\Video;
+use Haxibiao\Content\Post;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Yansongda\Supports\Str;
+use Haxibiao\Content\PostRecommend;
+use Haxibiao\Media\Jobs\ProcessVod;
+use Illuminate\Support\Facades\Log;
+use Haxibiao\Helpers\utils\QcloudUtils;
+use Illuminate\Support\Facades\Storage;
+use Haxibiao\Helpers\utils\BadWordUtils;
+use Haxibiao\Content\Jobs\PublishNewPosts;
+use Haxibiao\Breeze\Exceptions\GQLException;
+use Haxibiao\Helpers\Facades\SensitiveFacade;
+use Haxibiao\Media\Events\PostPublishSuccess;
+use Haxibiao\Content\Constracts\Collectionable;
 
 trait PostRepo
 {

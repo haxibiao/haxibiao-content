@@ -42,6 +42,9 @@ trait Taggable
     {
         return $root->hasTags();
     }
+    public function resovlePostTags($root, array $args, $context){
+        return $root->tags();
+    }
 
     public function taggable()
     {

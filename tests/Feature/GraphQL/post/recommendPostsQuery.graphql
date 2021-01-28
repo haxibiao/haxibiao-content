@@ -17,6 +17,12 @@ query RecommendPostsQuery {
       cover
       is_ad_video
     }
+    tags {
+        data {
+            id
+            name
+        }
+    }
     user {
       id
       name

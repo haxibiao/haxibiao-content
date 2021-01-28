@@ -48,6 +48,18 @@ type Post {
     广告类型
     """
     ad_type: String
+     """
+    标签
+    """
+    tags:[Tag!] @paginate(defaultCount: 10, builder:"\\App\\Post@resovlePostTags")
+    """
+    合集
+    """
+    collections:[Collection]
+    """
+    关联的长电影
+    """
+    movies:[Movie]
 
     """
     发布时间（多久前）

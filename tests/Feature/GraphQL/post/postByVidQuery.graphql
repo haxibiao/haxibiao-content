@@ -44,6 +44,12 @@ query postByVid($vid: String!) {
         width
         height
     }
+    tags {
+        data {
+            id
+            name
+        }
+    }
     movies {
         id
         name

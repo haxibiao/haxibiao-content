@@ -27,6 +27,12 @@ query UserPostsQuery($user_id: Int!, $page: Int) {
         cover
         is_ad_video
       }
+      tags {
+        data {
+            id
+            name
+        }
+    }
       user {
         id
         name
