@@ -14,9 +14,9 @@ class AddDescriptionToCollections extends Migration
     public function up()
     {
         Schema::table('collections', function (Blueprint $table) {
-           if (!Schema::hasColumn('collections','description')){
-               $table->string('description');
-           }
+            if (!Schema::hasColumn('collections', 'description')) {
+                $table->string('description')->nullable()->comment('合集描述');
+            }
         });
     }
 

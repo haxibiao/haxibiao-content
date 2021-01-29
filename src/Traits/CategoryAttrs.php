@@ -3,7 +3,6 @@
 namespace Haxibiao\Content\Traits;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 trait CategoryAttrs
 {
@@ -72,7 +71,7 @@ trait CategoryAttrs
         if (str_contains($logo, 'http')) {
             return $logo;
         } else {
-            return Storage::cloud()->url($logo);
+            return cdnurl($logo);
         }
     }
 
@@ -84,7 +83,7 @@ trait CategoryAttrs
     public function getFollowIdAttribute()
     {
         if ($user = getUser(false)) {
-            $follow = $user->followings()->where('followed_type', 'categories')->where('followed_id', $this->id)->first();
+            $follow = $user->followings()->where('followable_type', 'categories')->where('followable_id', $this->id)->first();
             return $follow ? $follow->id : 0;
         }
         return 0;

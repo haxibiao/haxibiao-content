@@ -3,7 +3,7 @@
 namespace Haxibiao\Content\Tests\Feature\Web;
 
 use App\Category;
-use App\User;
+use Haxibiao\Content\Article;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
@@ -12,69 +12,92 @@ class CategoryTest extends TestCase
 {
     use DatabaseTransactions;
 
-    public function testCategoryList()
-    {
-        $category = \App\Category::find(2);
-        $user = User::where('role_id', User::ADMIN_STATUS)->first();
-        $response = $this->actingAs($user)->json('GET', '/category/list');
-        $response->assertStatus(200);
-    }
-
-    public function testIndex()
-    {
-        $response = $this->get("/category");
-        $response->assertStatus(200);
-    }
-
-    public function testCreate()
-    {
-        $user = User::inRandomOrder()->first();
-        $response = $this->actingAs($user)->get("/category/create");
-        $response->assertStatus(200);
-    }
-
-    public function testStore()
-    {
-        $user = User::inRandomOrder()->first();
-        $name = "testName";
-        $name_en = "testNameEn";
-        $description = "testDescription";
-        $response = $this->actingAs($user)->call('POST', "/category", [
-            'name' => $name, 'name_en' => $name_en, 'description' => $description]);
-        $response->assertStatus(302);
-    }
-
-    public function testShow()
+    /**
+     * @group categoryApi
+     * @group testShowCategoryApi
+     * 单个专题详情
+     */
+    public function testShowCategoryApi()
     {
         $id = Category::inRandomOrder()->first()->id;
-        $response = $this->get("/category/{$id}");
+        $response = $this->get("/api/category/{$id}");
         $response->assertStatus(200);
     }
 
-    public function testEdit()
+    /**
+     * @group categoryApi
+     * @group testIndexCatrgoryApi
+     * 专题详情
+     */
+    public function testIndexCatrgoryApi()
     {
-        $user = User::inRandomOrder()->first();
-        $category = Category::inRandomOrder()->first();
-        $id = $category->id;
-        $response = $this->actingAs($user)->get("/category/{$id}/edit");
-        $response->assertStatus(!canEdit($category) ? 403 : 200);
+        $response = $this->get("/api/category");
+        $response->assertStatus(200);
     }
 
-    public function testUpdate()
+    /**
+     * @group categoryApi
+     * @group testGetCategoryVideosApi
+     * 专题下的视频
+     */
+    public function testGetCategoryVideosApi()
     {
-        $user = User::inRandomOrder()->first();
-        $category = Category::inRandomOrder()->first();
-        $id = $category->id;
-        $response = $this->actingAs($user)->put("/category/{$id}");
-        $response->assertStatus(!canEdit($category) ? 403 : 302);
+        $category_id = Category::inRandomOrder()->first()->id;
+        $response = $this->get("/api/category/{$category_id}/videos");
+        $response->assertStatus(200);
     }
 
-    public function testDestroy()
+    /**
+     * @group categoryApi
+     * @group testNewLogoCategoryApi
+     */
+    public function testNewLogoCategoryApi()
     {
-        $user = User::inRandomOrder()->first();
-        $category = Category::inRandomOrder()->first();
-        $id = $category->id;
-        $response = $this->actingAs($user)->delete("/category/{$id}");
-        $response->assertStatus(!canEdit($category) ? 403 : 200);
+        $response = $this->post("/api/category/new-logo");
+        $response->assertStatus(200);
+    }
+
+    /**
+     * @group categoryApi
+     * @group testEditLogoCategoryApi
+     */
+    public function testEditLogoCategoryApi()
+    {
+        $id = Category::inRandomOrder()->first()->id;
+        $response = $this->post("/api/category/{$id}/edit-logo");
+        $response->assertStatus(200);
+    }
+
+    /**
+     * @group categoryApi
+     * @group testUpdateCategoryApi
+     */
+    public function testUpdateCategoryApi()
+    {
+        $id = Category::inRandomOrder()->first()->id;
+        $response = $this->post("/api/category/{$id}");
+        $response->assertStatus(200);
+    }
+
+    /**
+     * @group categoryApi
+     * @group testSubmitCategoryApi
+     */
+    public function testSubmitCategoryApi()
+    {
+        $aid = Article::inRandomOrder()->first()->id;
+        $cid = Category::inRandomOrder()->first()->id;
+        $response = $this->get("/api/category/{$aid}/submit-category-{$cid}");
+        $response->assertStatus(200);
+    }
+
+    /**
+     * @group categoryWeb
+     * @group testCategoryWeb
+     */
+    public function testCategoryWeb()
+    {
+        $response = $this->post("/category");
+        $response->assertStatus(302);
     }
 }

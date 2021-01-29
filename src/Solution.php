@@ -67,10 +67,6 @@ class Solution extends Model
         }
         return $text;
     }
-    public function likes()
-    {
-        return $this->morphMany(\App\Like::class, 'likable');
-    }
 
     public function comments()
     {

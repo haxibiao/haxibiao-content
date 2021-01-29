@@ -3,30 +3,32 @@
 namespace Haxibiao\Content;
 
 use Haxibiao\Breeze\Model;
-use Haxibiao\Cms\Traits\PlayWithCms;
+use Haxibiao\Cms\Traits\WithCms;
 use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Traits\ArticleAttrs;
 use Haxibiao\Content\Traits\ArticleRepo;
 use Haxibiao\Content\Traits\ArticleResolvers;
-use Haxibiao\Content\Traits\CanCollect;
-use Haxibiao\Content\Traits\WithCategory;
+use Haxibiao\Content\Traits\Categorizable;
+use Haxibiao\Content\Traits\Collectable;
 use Haxibiao\Media\Image;
-use Haxibiao\Media\Traits\WithImage;
 use Haxibiao\Media\Traits\WithMedia;
+use Haxibiao\Sns\Comment;
+use Haxibiao\Sns\Favorite;
 use Haxibiao\Sns\Traits\WithSns;
+use Haxibiao\Breeze\Traits\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Article extends Model implements Collectionable
 {
+    use HasFactory;
     use ArticleRepo;
     use ArticleResolvers;
     use ArticleAttrs;
     use SoftDeletes;
-    use WithCategory;
+    use Categorizable;
+    use Collectable;
     use WithMedia;
-    use WithImage;
-    use CanCollect;
-    use PlayWithCms;
+    use WithCms;
     use WithSns;
 
     protected $guarded = ['api_token'];
@@ -85,27 +87,17 @@ class Article extends Model implements Collectionable
 
     public function favorites()
     {
-        return $this->morphMany(\App\Favorite::class, 'faved');
+        return $this->morphMany(Favorite::class, 'faved');
     }
 
     public function comments()
     {
-        return $this->morphMany(\App\Comment::class, 'commentable');
-    }
-
-    public function likes()
-    {
-        return $this->morphMany(\App\Like::class, 'likable');
+        return $this->morphMany(Comment::class, 'commentable');
     }
 
     public function tags()
     {
         return $this->morphToMany('App\Tag', 'taggable');
-    }
-
-    public function tips()
-    {
-        return $this->morphMany(\App\Tip::class, 'tipable');
     }
 
     public function relatedVideoPostsQuery()

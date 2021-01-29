@@ -2,12 +2,13 @@
 
 namespace Haxibiao\Content;
 
-use Haxibiao\Breeze\Model;
 use Haxibiao\Content\Traits\CategoryAttrs;
 use Haxibiao\Content\Traits\CategoryRepo;
 use Haxibiao\Content\Traits\CategoryResolvers;
+use Haxibiao\Question\Category as QuestionCategory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Category extends Model
+class Category extends QuestionCategory
 {
     use CategoryResolvers;
     use CategoryAttrs;
@@ -94,7 +95,7 @@ class Category extends Model
             ->orderBy('pivot_created_at', 'desc');
     }
 
-    public function publishedWorks()
+    public function publishedWorks(): BelongsToMany
     {
         //FIXME:暂时兼容一下haxibiao博客
         if (config('app.name') == 'haxibiao') {
@@ -141,7 +142,7 @@ class Category extends Model
 
     public function follows()
     {
-        return $this->morphMany(\App\Follow::class, 'followed');
+        return $this->morphMany(\App\Follow::class, 'followable');
     }
 
     public function categorizable($related)

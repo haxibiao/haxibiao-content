@@ -2,30 +2,30 @@
 
 namespace Haxibiao\Content\Traits;
 
+use App\Gold;
+use App\User;
+use App\Image;
+use App\Visit;
 use App\Action;
+use App\Spider;
+use App\Comment;
 use App\AppConfig;
 use App\Collection;
-use App\Comment;
-use App\Exceptions\GQLException;
-use App\Gold;
-use App\Image;
-use App\Spider;
-use App\User;
-use App\Visit;
-use Haxibiao\Content\Constracts\Collectionable;
-use Haxibiao\Content\Jobs\PublishNewPosts;
-use Haxibiao\Content\Post;
-use Haxibiao\Content\PostRecommend;
-use Haxibiao\Helpers\Facades\SensitiveFacade;
-use Haxibiao\Helpers\utils\BadWordUtils;
-use Haxibiao\Helpers\utils\QcloudUtils;
-use Haxibiao\Media\Events\PostPublishSuccess;
-use Haxibiao\Media\Jobs\ProcessVod;
 use Haxibiao\Media\Video;
+use Haxibiao\Content\Post;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Yansongda\Supports\Str;
+use Haxibiao\Content\PostRecommend;
+use Haxibiao\Media\Jobs\ProcessVod;
+use Illuminate\Support\Facades\Log;
+use Haxibiao\Helpers\utils\QcloudUtils;
+use Illuminate\Support\Facades\Storage;
+use Haxibiao\Helpers\utils\BadWordUtils;
+use Haxibiao\Content\Jobs\PublishNewPosts;
+use Haxibiao\Breeze\Exceptions\GQLException;
+use Haxibiao\Helpers\Facades\SensitiveFacade;
+use Haxibiao\Media\Events\PostPublishSuccess;
+use Haxibiao\Content\Constracts\Collectionable;
 
 trait PostRepo
 {
@@ -166,12 +166,12 @@ trait PostRepo
                     $duration = data_get($result, 'raw.raw.item_list.0.video.duration', 0);
 
                     $video->json = [
-                        'cover'          => Storage::cloud()->url($imagePath),
+                        'cover'          => cdnurl($imagePath),
                         'width'          => $width,
                         'height'         => $height,
                         'duration'       => intval($duration / 1000),
                         'sourceVideoUrl' => $sourceVideoUrl,
-                        'dynamic_cover'  => Storage::cloud()->url($dynamicCoverPath),
+                        'dynamic_cover'  => cdnurl($dynamicCoverPath),
                         'share_link'     => $dyUrl,
                     ];
                     $video->status = Video::TRANSCODE_STATUS;
@@ -452,7 +452,7 @@ trait PostRepo
         //存在用户
         if ($hasLogin) {
             //过滤掉自己 和 不喜欢用户的作品
-            $notLikIds   = $user->notLikes()->ByType('users')->get()->pluck('not_likable_id')->toArray();
+            $notLikIds   = $user->dislikes()->ByType('users')->get()->pluck('dislikeable_id')->toArray();
             $notLikIds[] = $user->id;
             $qb          = $qb->whereNotIn('user_id', $notLikIds);
 
@@ -574,8 +574,8 @@ trait PostRepo
         //1.过滤 过滤掉自己 和 不喜欢用户的作品
         //FIXME: 答妹等喜欢还没notlike表的
         $notLikIds = [];
-        if (class_exists("App\NotLike")) {
-            $notLikIds = $user->notLikes()->ByType('users')->get()->pluck('not_likable_id')->toArray();
+        if (class_exists("App\Dislike")) {
+            $notLikIds = $user->dislikes()->ByType('users')->get()->pluck('dislikeable_id')->toArray();
         }
         if (class_exists('App\UserBlock')) {
             $blockIds  = $user->userBlock()->pluck('user_block_id')->toArray();
@@ -621,13 +621,15 @@ trait PostRepo
 
             $qb_published = static::has('video')->with($withRelationList)->publish();
             if (in_array(config('app.name'), ['yinxiangshipin'])) {
-                $vestIds       = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
-                $visitVideoIds = Visit::ofType('posts')
-                    ->ofUserId($user->id)
-                    ->get()
-                    ->pluck('visited_id');
+                $vestIds      = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
                 $qb_published = $qb_published->whereIn('user_id', $vestIds)
-                    ->whereNotIn('id', $visitVideoIds);
+                    ->whereNotExists(function ($query) use ($user) {
+                        $query->from('visits')
+                            ->whereRaw('posts.id = visits.visited_id')
+                            ->where('visited_type', 'posts')
+                            ->where('user_id', $user->id)
+                        ;
+                    });
             }
             $result = $qb_published->latest('id')->skip(rand(1, 100))->take(20)->get();
             Visit::saveVisits($user, $result, 'posts');

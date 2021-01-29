@@ -3,19 +3,21 @@
 namespace Haxibiao\Content;
 
 use App\Comment;
-use App\Like;
 use App\User;
 use App\Video;
 use Carbon\Carbon;
 use Haxibiao\Breeze\Model;
-use Haxibiao\Cms\Traits\PlayWithCms;
+use Haxibiao\Breeze\Traits\HasFactory;
+use Haxibiao\Cms\Traits\WithCms;
 use Haxibiao\Content\Constracts\Collectionable;
-use Haxibiao\Content\Traits\CanCollect;
+use Haxibiao\Content\Traits\Categorizable;
+use Haxibiao\Content\Traits\Collectable;
 use Haxibiao\Content\Traits\PostAttrs;
 use Haxibiao\Content\Traits\PostOldPatch;
 use Haxibiao\Content\Traits\PostRepo;
 use Haxibiao\Content\Traits\PostResolvers;
-use Haxibiao\Content\Traits\WithCategory;
+use Haxibiao\Content\Traits\Taggable;
+use Haxibiao\Media\Image;
 use Haxibiao\Media\Spider;
 use Haxibiao\Media\Traits\WithImage;
 use Haxibiao\Sns\Traits\WithSns;
@@ -27,16 +29,18 @@ use Illuminate\Support\Str;
 
 class Post extends Model implements Collectionable
 {
+    use HasFactory;
     use SoftDeletes;
     use PostRepo;
     use PostAttrs;
     use PostResolvers;
     use WithImage;
-    use WithCategory;
-    use CanCollect;
+    use Categorizable;
+    use Collectable;
     use PostOldPatch;
-    use PlayWithCms;
+    use WithCms;
     use WithSns;
+    use Taggable;
 
     public function getMorphClass()
     {
@@ -119,19 +123,10 @@ class Post extends Model implements Collectionable
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-    public function likes(): MorphMany
+    //统一使用imageables表
+    public function images()
     {
-        return $this->morphMany(Like::class, 'likable');
-    }
-
-    //    public function images()
-    //    {
-    //        return $this->morphToMany(Image::class, 'imageable','imageable')->withTimestamps();
-    //    }
-
-    public function favorite()
-    {
-        return $this->morphMany(\App\Post::class, 'faved_type');
+        return $this->morphToMany(Image::class, 'imageable')->withTimestamps();
     }
 
     public function scopePublish($query)

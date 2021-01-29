@@ -1,5 +1,5 @@
-query CategoriesQuery($filter: CategoryFilter, $count: Int, $page: Int) {
-  categories(filter: $filter, count: $count, page: $page) {
+query CategoriesQuery($filter: CategoryFilter, $first: Int, $page: Int) {
+  categories(filter: $filter, first: $first, page: $page) {
     data {
       id
       logo

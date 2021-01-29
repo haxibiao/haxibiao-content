@@ -1,36 +1,29 @@
-#动态广场
-query postsSquareQuery($page: Int) {
-    articles(page: $page, submit: SUBMITTED_SUBMIT, status: public) {
+# 首页推荐视频
+query RecommendVideosQuery($page: Int, $count: Int) {
+    recommendVideos(page: $page, count: $count) {
         paginatorInfo {
-            hasMorePages
             currentPage
+            lastPage
         }
         data {
             id
-            type
-            body
-            description
-            time_ago
+            isAdPosition
             cover
-            hits
+            body
             count_likes
-            count_replies
-            count_tips
+            count_comments
             liked
-            answered_status
-            question_reward
             user {
-                avatar
-                name
                 id
-                followed_status
+                name
+                avatar
             }
             categories {
                 id
                 name
                 logo
             }
-            images {
+             images {
                 id
                 url
                 width
@@ -40,13 +33,11 @@ query postsSquareQuery($page: Int) {
                 id
                 url
                 duration
-                info {
-                    width
-                    height
-                    rotate
-                    covers
-                }
                 cover_url
+                info {
+                    height
+                    width
+                }
             }
         }
     }

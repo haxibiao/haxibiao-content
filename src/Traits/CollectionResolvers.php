@@ -218,8 +218,8 @@ trait CollectionResolvers
         if (checkUser()) {
             $user = getUser(false);
             //过滤掉自己 和 不喜欢用户的作品
-            if (class_exists("App\NotLike")) {
-                $notLikIds   = $user->notLikes()->ByType('users')->get()->pluck('not_likable_id')->toArray();
+            if (class_exists("App\Dislike")) {
+                $notLikIds   = $user->dislikes()->ByType('users')->get()->pluck('dislikeable_id')->toArray();
                 $notLikIds[] = $user->id;
                 $qb          = $qb->whereNotIn('user_id', $notLikIds);
             }

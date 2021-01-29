@@ -11,23 +11,30 @@
     ],
     "require": {
         "php": ">=7.3",
+        "laravel/framework": "^8.0",
         "nuwave/lighthouse": "^4.10",
+        "haxibiao/console": "*",
         "haxibiao/helpers": "*",
         "haxibiao/config": "*",
         "haxibiao/matomo": "*",
         "haxibiao/cms": "*",
+        "haxibiao/question": "*",
         "haxibiao/sns": "*",
         "haxibiao/media": "*"
     },
     "autoload": {
         "psr-4": {
             "Haxibiao\\Content\\": "src/"
-        }
+        },
+        "classmap": [
+            "database/seeders/"
+        ]
     },
     "autoload-dev": {
-        "psr-4": {
-            "Haxibiao\\Content\\Tests\\": "tests/"
-        }
+        "classmap": [
+            "database/factories/",
+            "tests/"
+        ]
     },
     "repositories": {},
     "extra": {

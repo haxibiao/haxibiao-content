@@ -1,0 +1,25 @@
+mutation($invited_user_id: Int!, $issue_id: Int!){
+    inviteAnswer(invited_user_id: $invited_user_id, issue_id: $issue_id){
+        id
+        user{
+            avatar
+            name
+            id
+        }
+        invited_user{
+            avatar
+            name
+            id
+        }
+        issue{
+            title
+            background
+            count_answers
+            created_at
+            updated_at
+            id
+        }
+        created_at
+        updated_at
+    }
+}

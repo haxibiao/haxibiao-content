@@ -5,25 +5,27 @@ namespace Haxibiao\Content\Traits;
 use App\Action;
 use App\Article;
 use App\Category;
-use App\Exceptions\GQLException;
-use App\Exceptions\UserException;
-use App\Gold;
 use App\Image;
-use App\Ip;
 use App\Issue;
 use App\Jobs\AwardResolution;
-use App\Notifications\ReceiveAward;
 use App\Tag;
 use App\Video;
 use App\Visit;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
+use Haxibiao\Breeze\Exceptions\GQLException;
+use Haxibiao\Breeze\Exceptions\UserException;
+use Haxibiao\Breeze\Ip;
+use Haxibiao\Breeze\Notifications\ReceiveAward;
 use Haxibiao\Media\Jobs\ProcessVod;
+use Haxibiao\Sns\Tip;
+use Haxibiao\Wallet\Gold;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 trait ArticleRepo
@@ -436,18 +438,6 @@ trait ArticleRepo
         $this->save();
     }
 
-    public function reports()
-    {
-        $json = json_decode($this->json, true);
-        if (empty($json)) {
-            $json = [];
-        }
-        $reports = [];
-        if (isset($json['reports'])) {
-            $reports = $json['reports'];
-        }
-        return $reports;
-    }
     /**
      * @Desc     该文章是否被当前登录的用户收藏，如果用户没有登录将返回false
      *
@@ -457,16 +447,7 @@ trait ArticleRepo
      */
     public function currentUserHasFavorited()
     {
-        //未登录状态
-        if (!checkUser()) {
-            return false;
-        }
-        $loginUser = getUser();
-        return DB::table('favorites')
-            ->where('user_id', $loginUser->id)
-            ->where('faved_id', $this->id)
-            ->where('faved_type', 'articles')
-            ->exists();
+        return $this->is_favorited;
     }
 
     public function tip($amount, $message = '')
@@ -480,7 +461,7 @@ trait ArticleRepo
             'tipable_type' => 'articles',
         ];
 
-        $tip = \App\Tip::firstOrNew($data);
+        $tip = Tip::firstOrNew($data);
         //$tip->amount  = $tip->amount + $amount;
         $tip->amount  = $amount;
         $tip->message = $message; //tips:: 当上多次，总计了总量，留言只保留最后一句，之前的应该通过通知发给用户了
@@ -498,7 +479,7 @@ trait ArticleRepo
         $this->save();
 
         //赞赏消息提醒
-        $this->user->notify(new \App\Notifications\ArticleTiped($this, $user, $tip));
+        $this->user->notify(new \Haxibiao\Breeze\Notifications\ArticleTiped($this, $user, $tip));
 
         return $tip;
     }
@@ -704,7 +685,7 @@ trait ArticleRepo
      * 根据抖音视频信息 转存到 公司的cos
      * FIXME  待 article 与 video 模块重构后，这也需要变化
      * @param array $info
-     * @return void
+     * @return Article
      * @author zengdawei
      */
     public function parseDouyinLink(array $info)
@@ -730,15 +711,15 @@ trait ArticleRepo
 
             try {
                 //本地存一份用于截图
-                \Storage::disk('public')->put($cosPath, file_get_contents($url));
+                Storage::disk('public')->put($cosPath, file_get_contents($url));
                 $video->disk = 'local'; //先标记为成功保存到本地
 
                 $video->path = $cosPath;
                 $video->save();
 
                 //同步上传到cos
-                $cosDisk = \Storage::cloud();
-                $cosDisk->put($cosPath, \Storage::disk('public')->get($cosPath));
+                $cosDisk = Storage::cloud();
+                $cosDisk->put($cosPath, Storage::disk('public')->get($cosPath));
                 $video->disk = 'cos';
                 $video->save();
 
@@ -756,7 +737,7 @@ trait ArticleRepo
                 return Article::find($this->id);
 
             } catch (\Exception $ex) {
-                \Log::error("video save exception" . $ex->getMessage());
+                Log::error("video save exception" . $ex->getMessage());
             }
 
         }

@@ -2,6 +2,16 @@
 
 namespace Haxibiao\Content;
 
+use Haxibiao\Content\Console\CrawlCollection;
+use Haxibiao\Content\Console\FixContent;
+use Haxibiao\Content\Console\InstallCommand;
+use Haxibiao\Content\Console\NovelPush;
+use Haxibiao\Content\Console\NovelSync;
+use Haxibiao\Content\Console\PublishCommand;
+use Haxibiao\Content\Console\RefactorCategorizable;
+use Haxibiao\Content\Console\RefactorCollection;
+use Haxibiao\Content\Console\RefactorPost;
+use Haxibiao\Content\Console\StatisticVideoViewsCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
@@ -17,7 +27,7 @@ class ContentServiceProvider extends ServiceProvider
     {
         //帮助函数
         $src_path = __DIR__;
-        foreach (glob($src_path . '/helpers/*.php') as $filename) {
+        foreach (glob($src_path . '/Helper/*.php') as $filename) {
             require_once $filename;
         }
 
@@ -31,13 +41,16 @@ class ContentServiceProvider extends ServiceProvider
         );
 
         $this->commands([
-            Console\InstallCommand::class,
-            Console\RefactorCategorizable::class,
-            Console\RefactorPost::class,
-            Console\RefactorCollection::class,
-            Console\StatisticVideoViewsCommand::class,
-            Console\CrawlCollection::class,
-
+            InstallCommand::class,
+            PublishCommand::class,
+            NovelPush::class,
+            NovelSync::class,
+            RefactorCategorizable::class,
+            RefactorPost::class,
+            RefactorCollection::class,
+            StatisticVideoViewsCommand::class,
+            CrawlCollection::class,
+            FixContent::class,
         ]);
     }
 
@@ -67,11 +80,7 @@ class ContentServiceProvider extends ServiceProvider
 
             //发布 graphql
             $this->publishes([
-                __DIR__ . '/../graphql/post' => base_path('graphql/post'),
-            ], 'content-graphql');
-
-            $this->publishes([
-                __DIR__ . '/../graphql/article' => base_path('graphql/article'),
+                __DIR__ . '/../graphql' => base_path('graphql'),
             ], 'content-graphql');
 
             // 发布 Nova
@@ -86,7 +95,7 @@ class ContentServiceProvider extends ServiceProvider
                 __DIR__ . '/../resources/css'    => base_path('public/css'),
                 __DIR__ . '/../resources/images' => base_path('public/images'),
                 __DIR__ . '/../resources/js'     => base_path('public/js'),
-                __DIR__ . '/../resources/views'  => base_path('resources/views'),
+                // __DIR__ . '/../resources/views'  => base_path('resources/views'),
             ], 'content-resources');
         }
 

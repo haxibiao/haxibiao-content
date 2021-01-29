@@ -21,9 +21,14 @@ trait PostAttrs
         return time_ago($this->created_at);
     }
 
+    public function getCoverUrlAttribute()
+    {
+        return $this->getCoverAttribute();
+    }
+
     public function getCoverAttribute()
     {
-        return $this->video ? $this->video->cover : "";
+        return $this->video ? $this->video->cover_url : null;
     }
 
     //use Likeable

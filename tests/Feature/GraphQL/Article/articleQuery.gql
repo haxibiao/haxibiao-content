@@ -10,7 +10,6 @@ query articleQuery($id: Int!) {
         video_url
         time_ago
         hits
-        liked_id
         favorited
         count_words
         count_likes
@@ -24,7 +23,6 @@ query articleQuery($id: Int!) {
             introduction
             count_articles
             count_likes
-            followed_status
         }
         video {
             id

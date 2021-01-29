@@ -40,7 +40,7 @@ class CrawlCollection extends Command
     }
 
     const COLLECTIONS_URL = "https://aweme-lq.snssdk.com/aweme/v1/mix/list/?user_id=%s&cursor=%s&count=%s";
-    const VIDEOS_URL = "https://aweme-lq.snssdk.com/aweme/v1/mix/aweme/?mix_id=%s&cursor=%s&count=%s";
+    const VIDEOS_URL      = "https://aweme-lq.snssdk.com/aweme/v1/mix/aweme/?mix_id=%s&cursor=%s&count=%s";
 
     /**
      * Execute the console command.
@@ -55,7 +55,7 @@ class CrawlCollection extends Command
             $share_link = data_get($userPage, 'share_link');
 
             $collectionsName = data_get($userPage, 'collections');
-            $userName = data_get($userPage, 'vest_user');
+            $userName        = data_get($userPage, 'vest_user');
             $this->info("start crawl user " . $share_link);
             self::processCrawl($share_link, $collectionsName, $userName);
         }
@@ -67,23 +67,23 @@ class CrawlCollection extends Command
     {
 
         //获取抖音用户id
-        $user_id = self::getDouYinUserId($share_link);
+        $user_id  = self::getDouYinUserId($share_link);
         $vestUser = User::where('name', $userName)->first();
         if (empty($vestUser)) {
             $vestUser = User::where('role_id', User::VEST_STATUS)->inRandomOrder()->first();
         }
 
-        $hasMore = true;
+        $hasMore     = true;
         $collections = [];
-        $mixIds = [];
+        $mixIds      = [];
         for ($cursor = 0, $count = 15; $hasMore;) {
             $crawlUrl = sprintf(self::COLLECTIONS_URL, $user_id, $cursor, $count);
             info($crawlUrl);
             //获取用户所有的合集信息
             $collectionData = self::getRequestData($crawlUrl);
-            $hasMore = (bool) data_get($collectionData, 'has_more', 0);
-            $cursor = data_get($collectionData, 'cursor', 0);
-            $mixInfos = data_get($collectionData, 'mix_infos', null);
+            $hasMore        = (bool) data_get($collectionData, 'has_more', 0);
+            $cursor         = data_get($collectionData, 'cursor', 0);
+            $mixInfos       = data_get($collectionData, 'mix_infos', null);
             if (empty($mixInfos)) {
                 info('未找到该用户的合集!');
                 continue;
@@ -94,9 +94,9 @@ class CrawlCollection extends Command
                 foreach ($mixInfos as $mixInfo) {
                     info("开始爬取合集 " . data_get($mixInfo, 'mix_name'));
                     //创建对应的collection
-                    $collection = self::getMixInfoCollection($mixInfo, $vestUser);
-                    $mixId = data_get($mixInfo, 'mix_id');
-                    $mixIds[] = $mixId;
+                    $collection          = self::getMixInfoCollection($mixInfo, $vestUser);
+                    $mixId               = data_get($mixInfo, 'mix_id');
+                    $mixIds[]            = $mixId;
                     $collections[$mixId] = $collection;
                 }
 
@@ -107,9 +107,9 @@ class CrawlCollection extends Command
                     if (in_array($name, $collectionsName)) {
                         info("开始爬取合集 " . $name);
                         //创建对应的collection
-                        $collection = self::getMixInfoCollection($mixInfo, $vestUser);
-                        $mixId = data_get($mixInfo, 'mix_id');
-                        $mixIds[] = $mixId;
+                        $collection          = self::getMixInfoCollection($mixInfo, $vestUser);
+                        $mixId               = data_get($mixInfo, 'mix_id');
+                        $mixIds[]            = $mixId;
                         $collections[$mixId] = $collection;
                     } else {
                         continue;
@@ -124,37 +124,35 @@ class CrawlCollection extends Command
         foreach ($mixIds as $mixId) {
             $hasMore = true;
             $postIds = [];
-            for ($cursor = 0, $count = 15; $hasMore; ) {
+            for ($cursor = 0, $count = 15; $hasMore;) {
                 $crawlUrl = sprintf(self::VIDEOS_URL, $mixId, $cursor, $count);
                 info($crawlUrl);
                 $videoData = self::getRequestData($crawlUrl);
-                $hasMore = (bool) data_get($videoData, 'has_more', 0);
-                $cursor = data_get($videoData, 'cursor', 0);
-
-
+                $hasMore   = (bool) data_get($videoData, 'has_more', 0);
+                $cursor    = data_get($videoData, 'cursor', 0);
 
                 $videos = data_get($videoData, 'aweme_list');
 
                 foreach ($videos as $video) {
                     info("开始爬取视频 " . data_get($video, 'desc'));
-                    $created = date('Y-m-d H:i:s', data_get($video, 'create_time'));
-                    $shareUrl = data_get($video, 'share_info.share_url');
-                    $spider = Spider::has('video')->firstOrNew(['source_url' => $shareUrl]);
-                    $spider->user_id = $vestUser->id;
+                    $created             = date('Y-m-d H:i:s', data_get($video, 'create_time'));
+                    $shareUrl            = data_get($video, 'share_info.share_url');
+                    $spider              = Spider::has('video')->firstOrNew(['source_url' => $shareUrl]);
+                    $spider->user_id     = $vestUser->id;
                     $spider->spider_type = 'videos';
                     $spider->saveDataOnly();
                     //创建对应的动态
-                    $post = Post::firstOrNew(['spider_id' => $spider->id]);
-                    $post->status = Post::PRIVARY_STATUS;
-                    $post->created_at = $created;
-                    $post->user_id = $vestUser->id;
-                    $shareTitle = data_get($video, 'share_info.share_title');
-                    $post->content = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音', 'dou', 'Dou', 'DOU', '抖音助手'], '', $shareTitle);
+                    $post              = Post::firstOrNew(['spider_id' => $spider->id]);
+                    $post->status      = Post::PRIVARY_STATUS;
+                    $post->created_at  = $created;
+                    $post->user_id     = $vestUser->id;
+                    $shareTitle        = data_get($video, 'share_info.share_title');
+                    $post->content     = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音', 'dou', 'Dou', 'DOU', '抖音助手'], '', $shareTitle);
                     $post->description = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音', 'dou', 'Dou', 'DOU', '抖音助手'], '', $shareTitle);
 
-                    $reviewDay = $post->created_at->format('Ymd');
-                    $reviewId = Post::makeNewReviewId($reviewDay);
-                    $post->review_id = $reviewId;
+                    $reviewDay        = $post->created_at->format('Ymd');
+                    $reviewId         = Post::makeNewReviewId($reviewDay);
+                    $post->review_id  = $reviewId;
                     $post->review_day = $reviewDay;
                     $post->save();
                     //将视频归入合集中
@@ -186,21 +184,21 @@ class CrawlCollection extends Command
     //根据mix_info创建Collection
     public static function getMixInfoCollection($mixInfo, $vestUser)
     {
-        $name = data_get($mixInfo, 'mix_name');
+        $name        = data_get($mixInfo, 'mix_name');
         $description = data_get($mixInfo, 'desc');
-        $logo = data_get($mixInfo, 'cover_url.url_list.0');
+        $logo        = data_get($mixInfo, 'cover_url.url_list.0');
 
         $cosPath = 'images/' . uniqid() . '.jpeg';
         Storage::cloud()->put($cosPath, file_get_contents($logo));
-        $newImagePath = Storage::cloud()->url($cosPath);
-        $collection = Collection::firstOrCreate(
+        $newImagePath = cdnurl($cosPath);
+        $collection   = Collection::firstOrCreate(
             ['name' => $name, 'user_id' => $vestUser->id],
             [
                 'description' => $description,
-                'type' => 'posts',
-                'logo' => $newImagePath,
-                'status' => Collection::STATUS_ONLINE,
-                'json' => [
+                'type'        => 'posts',
+                'logo'        => $newImagePath,
+                'status'      => Collection::STATUS_ONLINE,
+                'json'        => [
                     'mix_info' => $mixInfo,
                 ]]
         );
@@ -212,7 +210,7 @@ class CrawlCollection extends Command
     public static function getJsonData($path = 'file/collections.json')
     {
 
-        $completePath = Storage::cloud()->url($path);
+        $completePath = cdnurl($path);
         // 从文件中读取数据到PHP变量
         $json_string = file_get_contents($completePath);
 
@@ -230,9 +228,9 @@ class CrawlCollection extends Command
 
         $url = Spider::extractURL($url);
 
-        $client = new Client();
+        $client   = new Client();
         $response = $client->request('GET', $url, [
-            'http_errors' => false,
+            'http_errors'     => false,
             'allow_redirects' => false,
         ]);
         throw_if($response->getStatusCode() == 404, GQLException::class, '您分享的链接不存在,请稍后再试!');
@@ -241,7 +239,7 @@ class CrawlCollection extends Command
         throw_if(is_null($referUrl), GQLException::class, "获取抖音用户ID失败");
 
         $start = strripos($referUrl, "/");
-        $end = strpos($referUrl, "?");
+        $end   = strpos($referUrl, "?");
 
         $user_id = substr($referUrl, $start + 1, $end - $start - 1);
 
@@ -255,7 +253,7 @@ class CrawlCollection extends Command
 
     public static function getRequestData($url = '')
     {
-        $client = new Client();
+        $client   = new Client();
         $response = $client->request('GET', $url, [
             'http_errors' => false,
         ]);

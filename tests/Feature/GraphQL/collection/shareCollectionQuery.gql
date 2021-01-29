@@ -1,0 +1,4 @@
+# 分享合集
+query shareCollectionQuery($collection_id:Int!){
+  shareCollection(collection_id:$collection_id)
+}

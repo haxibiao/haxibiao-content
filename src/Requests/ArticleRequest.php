@@ -15,7 +15,7 @@ class ArticleRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::user()->is_editor;
+        return Auth::check();
     }
 
     /**
@@ -30,10 +30,10 @@ class ArticleRequest extends FormRequest
         });
 
         return [
-            'title'       => 'required',
+            'title' => 'required',
             // 'keywords'    => 'required',
             // 'description' => 'required|min:10',
-            'body'        => 'required|min:20',
+            'body'  => 'required|min:20',
         ];
     }
 }
