@@ -236,11 +236,13 @@ trait CollectionResolvers
         $qb = $qb->whereNotNull('logo')
             ->where('logo', '!=', config('haxibiao-content.collection_default_logo'));
         //按照合集创建时间排序
-        $qb = $qb->whereBetWeen('created_at', [now()->subDay(60), now()]);
+        $qb = $qb->whereBetWeen('created_at', [now()->subDay(365), now()]);
 
         $total = $qb->count();
+
+        // FIXME:跳过十条数据的逻辑，在之前数据不充足的前提下会出现 count 预期数量与实际返回不一致
         $array = $qb
-            ->skip(($currentPage * $perPage) - $perPage)
+            //->skip(($currentPage * $perPage) - $perPage)
             ->take($perPage)
             ->orderBy('created_at', 'desc')
             // ->inRandomOrder()
