@@ -5,10 +5,9 @@ namespace Haxibiao\Content;
 use Haxibiao\Content\Traits\CategoryAttrs;
 use Haxibiao\Content\Traits\CategoryRepo;
 use Haxibiao\Content\Traits\CategoryResolvers;
-use Haxibiao\Question\Category as QuestionCategory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Category extends QuestionCategory
+class Category
 {
     use CategoryResolvers;
     use CategoryAttrs;

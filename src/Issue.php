@@ -18,7 +18,7 @@ class Issue extends Model
     use SoftDeletes;
     use WithImage;
     use Categorizable;
-    use WithCms;
+    //use WithCms;
 
     protected $guarded = [];
 

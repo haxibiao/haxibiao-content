@@ -18,8 +18,8 @@ class Collection extends Model
     use CollectionResolvers;
     use Searchable;
     use SoftDeletes;
-    use Followable;
-    use WithCms;
+    //use Followable;
+    //use WithCms;
 
     protected $table = 'collections';
 

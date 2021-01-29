@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Article extends Model implements Collectionable
 {
-    use HasFactory;
+    //use HasFactory;
     use ArticleRepo;
     use ArticleResolvers;
     use ArticleAttrs;
@@ -28,7 +28,7 @@ class Article extends Model implements Collectionable
     use Categorizable;
     use Collectable;
     use WithMedia;
-    use WithCms;
+    //use WithCms;
     use WithSns;
 
     protected $guarded = ['api_token'];

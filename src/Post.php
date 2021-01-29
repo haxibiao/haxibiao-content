@@ -29,7 +29,7 @@ use Illuminate\Support\Str;
 
 class Post extends Model implements Collectionable
 {
-    use HasFactory;
+    //use HasFactory;
     use SoftDeletes;
     use PostRepo;
     use PostAttrs;
@@ -38,7 +38,7 @@ class Post extends Model implements Collectionable
     use Categorizable;
     use Collectable;
     use PostOldPatch;
-    use WithCms;
+    //use WithCms;
     use WithSns;
     use Taggable;
 
