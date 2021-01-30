@@ -3,7 +3,6 @@
 namespace Haxibiao\Content;
 
 use Haxibiao\Breeze\Model;
-use Haxibiao\Cms\Traits\WithCms;
 use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Traits\ArticleAttrs;
 use Haxibiao\Content\Traits\ArticleRepo;
@@ -15,12 +14,12 @@ use Haxibiao\Media\Traits\WithMedia;
 use Haxibiao\Sns\Comment;
 use Haxibiao\Sns\Favorite;
 use Haxibiao\Sns\Traits\WithSns;
-use Haxibiao\Breeze\Traits\HasFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Article extends Model implements Collectionable
 {
-    //use HasFactory;
+    use HasFactory;
     use ArticleRepo;
     use ArticleResolvers;
     use ArticleAttrs;

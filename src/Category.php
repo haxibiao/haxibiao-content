@@ -3,6 +3,7 @@
 namespace Haxibiao\Content;
 
 use Haxibiao\Breeze\Model;
+use Haxibiao\Breeze\Traits\HasFactory;
 use Haxibiao\Content\Traits\CategoryAttrs;
 use Haxibiao\Content\Traits\CategoryRepo;
 use Haxibiao\Content\Traits\CategoryResolvers;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Category extends Model
 {
+    use HasFactory;
     use CategoryResolvers;
     use CategoryAttrs;
     use CategoryRepo;
