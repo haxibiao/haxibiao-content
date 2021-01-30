@@ -18,7 +18,7 @@ class SolutionTest extends GraphQLTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = $this->getRandomUser();
+        $this->user  = $this->getRandomUser();
         $this->issue = Issue::inRandomOrder()->first();
 
     }
@@ -31,7 +31,7 @@ class SolutionTest extends GraphQLTestCase
      * @group solution
      * @group testAddSolutionMutation
      */
-    public function testAddSolutionMutation()
+    protected function testAddSolutionMutation()
     {
         $query = file_get_contents(__DIR__ . '/Solution/addSolutionMutation.gql');
 
@@ -56,7 +56,7 @@ class SolutionTest extends GraphQLTestCase
      * @group solution
      * @group testDeleteSolutionMutation
      */
-    public function testDeleteSolutionMutation()
+    protected function testDeleteSolutionMutation()
     {
         $query = file_get_contents(__DIR__ . '/Solution/deleteSolutionMutation.gql');
         $user  = User::inRandomorder()->first();
@@ -66,7 +66,7 @@ class SolutionTest extends GraphQLTestCase
             'Authorization' => 'Bearer ' . $token,
             'Accept'        => 'application/json',
         ];
-        $args  = [
+        $args = [
             'user_id'  => $user->id,
             'issue_id' => $this->issue->id,
             'answer'   => "i'm a solution of issue",
@@ -87,14 +87,14 @@ class SolutionTest extends GraphQLTestCase
      * @group solution
      * @group testSolutionsQuery
      */
-    public function testSolutionsQuery()
+    protected function testSolutionsQuery()
     {
 
         $query = file_get_contents(__DIR__ . '/Solution/solutionsQuery.gql');
 
         $variables = [
             'issue_id' => $this->issue->id,
-            'count'    => 3
+            'count'    => 3,
         ];
         $this->runGuestGQL($query, $variables);
 
@@ -103,7 +103,7 @@ class SolutionTest extends GraphQLTestCase
      * @group solution
      * @group testSolutionQuery
      */
-    public function testSolutionQuery()
+    protected function testSolutionQuery()
     {
 
         $query = file_get_contents(__DIR__ . '/Solution/solutionQuery.gql');
@@ -121,7 +121,7 @@ class SolutionTest extends GraphQLTestCase
      * @group solution
      * @group testMySolutionMutation
      */
-    public function testMySolutionMutation()
+    protected function testMySolutionMutation()
     {
         $query = file_get_contents(__DIR__ . '/Solution/mySolutionsQuery.gql');
 
@@ -137,7 +137,7 @@ class SolutionTest extends GraphQLTestCase
 
         $this->runGuestGQL($query, $variables, $headers);
     }
-    
+
     protected function tearDown(): void
     {
         $this->user->forceDelete();

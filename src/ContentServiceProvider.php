@@ -83,13 +83,6 @@ class ContentServiceProvider extends ServiceProvider
                 __DIR__ . '/../graphql' => base_path('graphql'),
             ], 'content-graphql');
 
-            // 发布 Nova
-            $this->publishes([
-                __DIR__ . '/Nova' => base_path('app/Nova'),
-            ], 'content-nova');
-
-            //不发布tests代码，可以直接在包下UT
-
             //发布 resoucre
             $this->publishes([
                 __DIR__ . '/../resources/css'    => base_path('public/css'),

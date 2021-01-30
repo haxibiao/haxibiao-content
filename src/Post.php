@@ -8,7 +8,6 @@ use App\Video;
 use Carbon\Carbon;
 use Haxibiao\Breeze\Model;
 use Haxibiao\Breeze\Traits\HasFactory;
-use Haxibiao\Cms\Traits\WithCms;
 use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Traits\Categorizable;
 use Haxibiao\Content\Traits\Collectable;
@@ -29,7 +28,7 @@ use Illuminate\Support\Str;
 
 class Post extends Model implements Collectionable
 {
-    //use HasFactory;
+    use HasFactory;
     use SoftDeletes;
     use PostRepo;
     use PostAttrs;

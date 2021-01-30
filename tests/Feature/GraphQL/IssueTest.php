@@ -18,8 +18,8 @@ class IssueTest extends GraphQLTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::inRandomorder()->first();
-        $this->issue = Issue::inRandomorder()->first();
+        $this->user  = User::inRandomorder()->first();
+        $this->issue = Issue::factory(['user_id' => $this->user->id])->create();
     }
 
     /**
@@ -31,11 +31,11 @@ class IssueTest extends GraphQLTestCase
      * @group issue
      * @group testCreateIssueMutation
      */
-    public function testCreateIssueMutation()
+    protected function testCreateIssueMutation()
     {
         $query     = file_get_contents(__DIR__ . '/Issue/createIssueMutation.gql');
-        $image   = UploadedFile::fake()->image('photo.jpg');
-        $base64 = 'data:' . $image->getMimeType() . ';base64,' . base64_encode(file_get_contents($image->getRealPath()));
+        $image     = UploadedFile::fake()->image('photo.jpg');
+        $base64    = 'data:' . $image->getMimeType() . ';base64,' . base64_encode(file_get_contents($image->getRealPath()));
         $headers   = $this->getRandomUserHeaders();
         $variables = [
             "title"      => "创建一个问题",
@@ -58,7 +58,7 @@ class IssueTest extends GraphQLTestCase
      * @group issue
      * @group testSearchIssue
      */
-    public function testSearchIssue()
+    protected function testSearchIssue()
     {
 
         $query     = file_get_contents(__DIR__ . '/Issue/searchIssueQuery.gql');
@@ -73,10 +73,10 @@ class IssueTest extends GraphQLTestCase
      * @group issue
      * @group testIssuesQuery
      */
-    public function testIssuesQuery()
+    protected function testIssuesQuery()
     {
         //用户的问答黑名单没有 $user->blockIssues() not found
-        $query = file_get_contents(__DIR__ . '/Issue/issuesQuery.gql');
+        $query     = file_get_contents(__DIR__ . '/Issue/issuesQuery.gql');
         $variables = [
             'orderBy' => [
                 [
@@ -95,7 +95,7 @@ class IssueTest extends GraphQLTestCase
      * @group issue
      * @group testDeleteIssueMutation
      */
-    public function testDeleteIssueMutation()
+    protected function testDeleteIssueMutation()
     {
         $query   = file_get_contents(__DIR__ . '/Issue/deleteIssueMutation.gql');
         $token   = $this->user->api_token;
@@ -120,7 +120,7 @@ class IssueTest extends GraphQLTestCase
      * @group issue
      * @group testInviteAnswerMutation
      */
-    public function testInviteAnswerMutation()
+    protected function testInviteAnswerMutation()
     {
         $query   = file_get_contents(__DIR__ . '/Issue/inviteAnswerMutation.gql');
         $token   = $this->user->api_token;
@@ -129,9 +129,9 @@ class IssueTest extends GraphQLTestCase
             'Accept'        => 'application/json',
         ];
         $invited_user_id = User::inRandomorder()->first()->id;
-        $variables = [
-            'invited_user_id'=>$invited_user_id, 
-            'issue_id' => $this->issue->id
+        $variables       = [
+            'invited_user_id' => $invited_user_id,
+            'issue_id'        => $this->issue->id,
         ];
 
         $this->runGuestGQL($query, $variables, $headers);

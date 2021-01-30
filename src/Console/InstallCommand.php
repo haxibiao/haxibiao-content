@@ -32,7 +32,7 @@ class InstallCommand extends Command
         $force = $this->option('force');
 
         $this->info('发布资源 ...');
-        $this->vendorPublish($force);
+        $this->call('content:publish', ['force' => $force]);
 
         $this->comment("复制 stubs ...");
         copyStubs(__DIR__, $force);
@@ -43,27 +43,5 @@ class InstallCommand extends Command
 
         $this->comment('迁移数据库变化...');
         $this->call('migrate');
-    }
-
-    public function vendorPublish($force = false)
-    {
-        $this->call('vendor:publish', [
-            '--tag'   => 'content-config',
-            '--force' => $force,
-        ]);
-        $this->call('vendor:publish', [
-            '--tag'   => 'content-graphql',
-            '--force' => $force,
-        ]);
-
-        $this->call('vendor:publish', [
-            '--tag'   => 'content-nova',
-            '--force' => $force,
-        ]);
-
-        $this->call('vendor:publish', [
-            '--tag'   => 'content-resources',
-            '--force' => $force,
-        ]);
     }
 }

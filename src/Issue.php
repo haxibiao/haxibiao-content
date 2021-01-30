@@ -3,7 +3,7 @@
 namespace Haxibiao\Content;
 
 use Haxibiao\Breeze\Model;
-use Haxibiao\Cms\Traits\WithCms;
+use Haxibiao\Breeze\Traits\HasFactory;
 use Haxibiao\Content\Traits\Categorizable;
 use Haxibiao\Content\Traits\IssueAttrs;
 use Haxibiao\Content\Traits\IssueResolvers;
@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Issue extends Model
 {
+    use HasFactory;
     use IssueResolvers;
     use IssueAttrs;
     use SoftDeletes;
