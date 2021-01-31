@@ -7,12 +7,7 @@ use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Traits\ArticleAttrs;
 use Haxibiao\Content\Traits\ArticleRepo;
 use Haxibiao\Content\Traits\ArticleResolvers;
-use Haxibiao\Content\Traits\Categorizable;
-use Haxibiao\Content\Traits\Collectable;
-use Haxibiao\Media\Image;
-use Haxibiao\Media\Traits\WithMedia;
-use Haxibiao\Sns\Comment;
-use Haxibiao\Sns\Favorite;
+use Haxibiao\Content\Traits\Contentable;
 use Haxibiao\Sns\Traits\WithSns;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -24,9 +19,7 @@ class Article extends Model implements Collectionable
     use ArticleResolvers;
     use ArticleAttrs;
     use SoftDeletes;
-    use Categorizable;
-    use Collectable;
-    use WithMedia;
+    use Contentable;
     //use WithCms;
     use WithSns;
 
@@ -72,31 +65,6 @@ class Article extends Model implements Collectionable
     public function user()
     {
         return $this->belongsTo('App\User');
-    }
-
-    public function images()
-    {
-        return $this->morphToMany(Image::class, 'imageable')->withTimestamps();
-    }
-
-    public function video()
-    {
-        return $this->belongsTo('App\Video');
-    }
-
-    public function favorites()
-    {
-        return $this->morphMany(Favorite::class, 'faved');
-    }
-
-    public function comments()
-    {
-        return $this->morphMany(Comment::class, 'commentable');
-    }
-
-    public function tags()
-    {
-        return $this->morphToMany('App\Tag', 'taggable');
     }
 
     public function relatedVideoPostsQuery()

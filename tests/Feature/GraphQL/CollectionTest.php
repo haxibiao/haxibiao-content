@@ -10,24 +10,25 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class CollectionTest extends GraphQLTestCase
 {
-
     use DatabaseTransactions;
     protected $user;
+    protected $collection;
+    protected $post;
+
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('id', '<', 100)->inRandomOrder()->first();
-        $this->collection = Collection::create([
-            'user_id' => rand(1, 3),
-            'status' => 1,
-            'type' => 'posts',
-            'name' => '测试合集数据 - name',
+        $this->user       = User::factory()->create();
+        $this->collection = Collection::factory([
+            'user_id'     => $this->user->id,
+            'status'      => 1,
+            'type'        => 'posts',
+            'name'        => '测试合集数据 - name',
             'description' => '测试合集数据 - description',
-            'logo' => Collection::TOP_COVER,
-            'sort_rank' => 1,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+            'logo'        => Collection::TOP_COVER,
+            'sort_rank'   => 1,
+        ])->create();
+        $this->post = Post::factory()->create();
     }
 
     /**
@@ -37,7 +38,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testCollectionsQuery()
     {
-        $query = file_get_contents(__DIR__ . '/collection/collectionsQuery.gql');
+        $query     = file_get_contents(__DIR__ . '/collection/collectionsQuery.gql');
         $variables = [
             'user_id' => $this->user->id,
         ];
@@ -52,9 +53,9 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testCollectionQuery()
     {
-        $query = file_get_contents(__DIR__ . '/collection/collectionQuery.gql');
-        $collection = Collection::first();
-        $variables = [
+        $query      = file_get_contents(__DIR__ . '/collection/collectionQuery.gql');
+        $collection = $this->collection;
+        $variables  = [
             'collection_id' => $collection->id,
         ];
         $this->startGraphQL($query, $variables);
@@ -67,11 +68,11 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testMoveInCollectionsMutation()
     {
-        $query = file_get_contents(__DIR__ . '/collection/moveInCollectionsMutation.gql');
-        $collection = Collection::first();
-        $post = Post::first();
-        $variables = [
-            "collection_id" => $collection->id,
+        $query      = file_get_contents(__DIR__ . '/collection/moveInCollectionsMutation.gql');
+        $collection = $this->collection;
+        $post       = $this->post;
+        $variables  = [
+            "collection_id"   => $collection->id,
             "collectable_ids" => [$post->id],
         ];
         $userHeaders = $this->getRandomUserHeaders($this->user);
@@ -85,21 +86,21 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testMoveOutCollectionsMutation()
     {
-        $queryIn = file_get_contents(__DIR__ . '/collection/moveInCollectionsMutation.gql');
+        $queryIn     = file_get_contents(__DIR__ . '/collection/moveInCollectionsMutation.gql');
         $userHeaders = $this->getRandomUserHeaders($this->user);
-        $collection = Collection::first();
+        $collection  = $this->collection;
         //往合集中添加视频
-        $post = Post::first();
+        $post        = $this->post;
         $variablesIn = [
-            "collection_id" => $collection->id,
+            "collection_id"   => $collection->id,
             "collectable_ids" => [$post->id],
         ];
         $this->runGuestGQL($queryIn, $variablesIn, $userHeaders);
         //将视频从合集中移除
-        $queryOut = file_get_contents(__DIR__ . '/collection/moveOutCollectionsMutation.gql');
-        $post = $collection->posts()->first();
+        $queryOut     = file_get_contents(__DIR__ . '/collection/moveOutCollectionsMutation.gql');
+        $post         = $collection->posts()->first();
         $variablesOut = [
-            "collection_id" => $collection->id,
+            "collection_id"   => $collection->id,
             "collectable_ids" => [$post->id],
         ];
         $this->runGuestGQL($queryOut, $variablesOut, $userHeaders);
@@ -112,9 +113,9 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testRandomCollectionsMutation()
     {
-        $query = file_get_contents(__DIR__ . '/collection/randomCollectionsQuery.gql');
+        $query       = file_get_contents(__DIR__ . '/collection/randomCollectionsQuery.gql');
         $userHeaders = $this->getRandomUserHeaders($this->user);
-        $variables = [];
+        $variables   = [];
         $this->runGuestGQL($query, $variables, $userHeaders);
     }
 
@@ -125,10 +126,10 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testSearchCollectionsQuery()
     {
-        $query = file_get_contents(__DIR__ . '/collection/searchCollectionsQuery.gql');
+        $query       = file_get_contents(__DIR__ . '/collection/searchCollectionsQuery.gql');
         $userHeaders = $this->getRandomUserHeaders($this->user);
-        $collection = Collection::first();
-        $variables = [
+        $collection  = $this->collection;
+        $variables   = [
             'query' => $collection->name,
         ];
         $this->startGraphQL($query, $variables, $userHeaders);
@@ -141,10 +142,10 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testDeleteCollectionMutation()
     {
-        $query = file_get_contents(__DIR__ . '/collection/DeleteCollectionMutation.gql');
+        $query       = file_get_contents(__DIR__ . '/collection/DeleteCollectionMutation.gql');
         $userHeaders = $this->getRandomUserHeaders($this->user);
-        $collection = Collection::first();
-        $variables = [
+        $collection  = $this->collection;
+        $variables   = [
             "id" => $collection->id,
         ];
         $this->runGuestGQL($query, $variables, $userHeaders);
@@ -157,11 +158,11 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testEditCollectionMutation()
     {
-        $query = file_get_contents(__DIR__ . '/collection/editCollectionMutation.gql');
-        $collection = Collection::first();
-        $variables = [
+        $query      = file_get_contents(__DIR__ . '/collection/editCollectionMutation.gql');
+        $collection = $this->collection;
+        $variables  = [
             "collection_id" => $collection->id,
-            "name" => "测试修改",
+            "name"          => "测试修改",
         ];
         $userHeaders = $this->getRandomUserHeaders($this->user);
         $this->runGuestGQL($query, $variables, $userHeaders);
@@ -174,12 +175,12 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testCreateCollectionMutation()
     {
-        $query = file_get_contents(__DIR__ . '/collection/createCollectionMutation.gql');
+        $query       = file_get_contents(__DIR__ . '/collection/createCollectionMutation.gql');
         $userHeaders = $this->getRandomUserHeaders($this->user);
-        $post = Post::first();
+        $post        = $this->post;
         //创建时添加合集
         $variables = [
-            'name' => "测试",
+            'name'            => "测试",
             "collectable_ids" => [$post->id],
         ];
         $this->runGuestGQL($query, $variables, $userHeaders);
@@ -197,10 +198,10 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testShareCollectionQuery()
     {
-        $query = file_get_contents(__DIR__ . '/collection/shareCollectionQuery.gql');
-        $collection = Collection::inRandomOrder()->first();
+        $query       = file_get_contents(__DIR__ . '/collection/shareCollectionQuery.gql');
+        $collection  = $this->collection;
         $userHeaders = $this->getRandomUserHeaders($this->user);
-        $variables = [
+        $variables   = [
             'collection_id' => $collection->id,
         ];
         $this->startGraphQL($query, $variables, $userHeaders);
@@ -217,21 +218,21 @@ class CollectionTest extends GraphQLTestCase
         // POST @enum(value: "psots")
         $variables = [
             'user_id' => $this->user->id,
-            'type' => 'POST',
+            'type'    => 'POST',
         ];
         $this->startGraphQL($query, $variables);
 
         // ARTICLE @enum(value: "articles")
         $variables = [
             'user_id' => $this->user->id,
-            'type' => 'ARTICLE'
+            'type'    => 'ARTICLE',
         ];
         $this->startGraphQL($query, $variables);
 
         // AREA @enum(value: "areas")
         $variables = [
             'user_id' => $this->user->id,
-            'type' => 'AREA'
+            'type'    => 'AREA',
         ];
         $this->startGraphQL($query, $variables);
     }

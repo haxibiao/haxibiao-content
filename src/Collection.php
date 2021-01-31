@@ -4,7 +4,7 @@ namespace Haxibiao\Content;
 
 use App\Visit;
 use Haxibiao\Breeze\Model;
-use Haxibiao\Cms\Traits\WithCms;
+use Haxibiao\Breeze\Traits\HasFactory;
 use Haxibiao\Content\Traits\CollectionResolvers;
 use Haxibiao\Helpers\Traits\Searchable;
 use Haxibiao\Sns\Traits\Followable;
@@ -18,8 +18,8 @@ class Collection extends Model
     use CollectionResolvers;
     use Searchable;
     use SoftDeletes;
-    //use Followable;
-    //use WithCms;
+    use Followable;
+    use HasFactory;
 
     protected $table = 'collections';
 

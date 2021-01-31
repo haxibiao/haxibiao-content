@@ -9,16 +9,14 @@ use Carbon\Carbon;
 use Haxibiao\Breeze\Model;
 use Haxibiao\Breeze\Traits\HasFactory;
 use Haxibiao\Content\Constracts\Collectionable;
-use Haxibiao\Content\Traits\Categorizable;
-use Haxibiao\Content\Traits\Collectable;
+use Haxibiao\Content\Traits\Contentable;
 use Haxibiao\Content\Traits\PostAttrs;
 use Haxibiao\Content\Traits\PostOldPatch;
 use Haxibiao\Content\Traits\PostRepo;
 use Haxibiao\Content\Traits\PostResolvers;
-use Haxibiao\Content\Traits\Taggable;
 use Haxibiao\Media\Image;
 use Haxibiao\Media\Spider;
-use Haxibiao\Media\Traits\WithImage;
+use Haxibiao\Media\Traits\CanLinkMovie;
 use Haxibiao\Sns\Traits\WithSns;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -33,13 +31,12 @@ class Post extends Model implements Collectionable
     use PostRepo;
     use PostAttrs;
     use PostResolvers;
-    use WithImage;
-    use Categorizable;
-    use Collectable;
+
     use PostOldPatch;
     //use WithCms;
     use WithSns;
-    use Taggable;
+    use Contentable;
+    use CanLinkMovie;
 
     public function getMorphClass()
     {

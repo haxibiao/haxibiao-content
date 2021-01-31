@@ -3,14 +3,14 @@
 namespace Haxibiao\Content\Traits;
 
 use App\Visit;
-use Haxibiao\Sns\Follow;
 use Haxibiao\Breeze\User;
-use Haxibiao\Media\Video;
-use Haxibiao\Content\Post;
-use Haxibiao\Media\Series;
-use Illuminate\Support\Arr;
 use Haxibiao\Content\Collection;
 use Haxibiao\Content\Jobs\MakeMp4ByM3U8;
+use Haxibiao\Content\Post;
+use Haxibiao\Media\Series;
+use Haxibiao\Media\Video;
+use Haxibiao\Sns\Follow;
+use Illuminate\Support\Arr;
 
 trait PostResolvers
 {
@@ -18,10 +18,9 @@ trait PostResolvers
     public static function MakePostByMovie($rootValue, array $args, $context, $resolveInfo)
     {
         $series_id = $args['series_id'];
-        $startSec = $args['startSec'];
-        $endSec = $args['endSec'];
-        $title = $args['title'] ?? '';
-
+        $startSec  = $args['startSec'];
+        $endSec    = $args['endSec'];
+        $title     = $args['title'] ?? '';
 
         $series    = Series::find($series_id);
         $second    = $endSec - $startSec;
@@ -36,7 +35,6 @@ trait PostResolvers
         dispatch_now(new MakeMp4ByM3U8($video, $series, $startTime, $second));
         return $post;
     }
-
 
     public function resolvePostByVid($rootValue, array $args, $context, $resolveInfo)
     {
@@ -60,13 +58,13 @@ trait PostResolvers
         if (checkUser()) {
             $visited = Visit::create([
                 'visited_type' => 'users',
-                'visited_id' => data_get($args, 'user_id'),
-                'user_id' => getUser()->id,
+                'visited_id'   => data_get($args, 'user_id'),
+                'user_id'      => getUser()->id,
                 'created_at'   => now(),
                 'updated_at'   => now(),
             ]);
         }
-        $type  = data_get($args, 'type');
+        $type = data_get($args, 'type');
         return static::posts($args['user_id'], data_get($args, 'keyword'), $type);
     }
 
@@ -80,8 +78,8 @@ trait PostResolvers
             if (checkUser()) {
                 $visited = Visit::create([
                     'visited_type' => 'publicPosts',
-                    'visited_id' => 'publicPosts',
-                    'user_id' => getUser()->id,
+                    'visited_id'   => 'publicPosts',
+                    'user_id'      => getUser()->id,
                     'created_at'   => now(),
                     'updated_at'   => now(),
                 ]);
@@ -143,9 +141,9 @@ trait PostResolvers
         }
 
         //插入广告
-        $adVideo = $result[2];
+        $adVideo        = $result[2];
         $adVideo->is_ad = true;
-        $result[] = $adVideo;
+        $result[]       = $adVideo;
 
         return $result;
     }
@@ -177,46 +175,48 @@ trait PostResolvers
             ->orderByDesc('created_at');
     }
 
-        
     /**
      * postWithMovies 关联电影的视频刷
      * @return void
      */
-    public function postWithMovies($rootValue, array $args, $context, $resolveInfo){
+    public function postWithMovies($rootValue, array $args, $context, $resolveInfo)
+    {
         //关联电影不多，先不充一批影视资源的电影
-        $vestIds = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
-        $collections=Collection::whereIn('user_id',$vestIds)
-                ->where('created_at','>','2020-12-18 09:18:55')
-                ->inRandomOrder()
-                ->take(10)
-                ->get();
-        $collectionPosts=[];
-        foreach($collections as $collection){
-            $collectionPosts[]=$collection->posts()->inRandomOrder()->first();
+        $vestIds     = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
+        $collections = Collection::whereIn('user_id', $vestIds)
+            ->where('created_at', '>', '2020-12-18 09:18:55')
+            ->inRandomOrder()
+            ->take(10)
+            ->get();
+        $collectionPosts = [];
+        foreach ($collections as $collection) {
+            $collectionPosts[] = $collection->posts()->inRandomOrder()->first();
         }
         $recommendeds = Post::whereExists(
             function ($query) {
                 return $query->from('link_movie')
-                ->whereRaw('link_movie.linked_id = posts.id')
-                ->where('linked_type', 'posts');
+                    ->whereRaw('link_movie.linked_id = posts.id')
+                    ->where('linked_type', 'posts');
             })
             ->inRandomOrder()
             ->take(10)
             ->get();
 
-        return  $recommendeds?$recommendeds->merge($collectionPosts):$collectionPosts;
+        return $recommendeds ? $recommendeds->merge($collectionPosts) : $collectionPosts;
     }
-        public function resolveUpdatePost($root, $args, $context, $info){
-        $postId = data_get($args,'post_id');
-        $post = static::findOrFail($postId);
+
+    public function resolveUpdatePost($root, $args, $context, $info)
+    {
+        $postId = data_get($args, 'post_id');
+        $post   = static::findOrFail($postId);
         $post->update(
             Arr::only($args, ['content', 'description'])
         );
 
         // 同步标签
-        $tagNames = data_get($args,'tag_names',[]);
+        $tagNames = data_get($args, 'tag_names', []);
 
-        if(!empty($tagNames)){
+        if (!empty($tagNames)) {
             $post->retagByNames($tagNames);
         }
 

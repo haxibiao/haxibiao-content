@@ -4,11 +4,10 @@ namespace Haxibiao\Content;
 
 use Haxibiao\Breeze\Model;
 use Haxibiao\Breeze\Traits\HasFactory;
-use Haxibiao\Content\Traits\Categorizable;
+use Haxibiao\Content\Traits\Contentable;
 use Haxibiao\Content\Traits\IssueAttrs;
 use Haxibiao\Content\Traits\IssueResolvers;
 use Haxibiao\Media\Image;
-use Haxibiao\Media\Traits\WithImage;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Issue extends Model
@@ -17,8 +16,7 @@ class Issue extends Model
     use IssueResolvers;
     use IssueAttrs;
     use SoftDeletes;
-    use WithImage;
-    use Categorizable;
+    use Contentable;
     //use WithCms;
 
     protected $guarded = [];

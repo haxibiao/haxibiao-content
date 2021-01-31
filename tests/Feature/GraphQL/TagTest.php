@@ -10,17 +10,15 @@ class TagTest extends GraphQLTestCase
 {
     use DatabaseTransactions;
 
+    protected $tag;
+
     public function setUp(): void
     {
         parent::setUp();
 
         $this->tag = Tag::create([
             'user_id' => rand(1, 3),
-            'type' => '1',
-            'name' => '测试标签 - name',
-            'status' => '1',
-            'created_at' => now(),
-            'updated_at' => now(),
+            'name'    => '测试标签 - name',
         ]);
     }
 
@@ -31,12 +29,12 @@ class TagTest extends GraphQLTestCase
      */
     public function testTagQuery()
     {
-        $query = file_get_contents(__DIR__ . '/tag/tagQuery.gql');
-        $tag = Tag::first();
+        $query     = file_get_contents(__DIR__ . '/tag/tagQuery.gql');
+        $tag       = $this->tag;
         $variables = [
             'id' => $tag->id,
         ];
-        $this->startGraphQL($query,$variables);
+        $this->startGraphQL($query, $variables);
     }
 
     /**
@@ -45,11 +43,11 @@ class TagTest extends GraphQLTestCase
      */
     public function testTagsQuery()
     {
-        $query = file_get_contents(__DIR__ .'/tag/tagsQuery.gql');
+        $query     = file_get_contents(__DIR__ . '/tag/tagsQuery.gql');
         $variables = [
             'filter' => 'HOT',
         ];
-        $this->startGraphQL($query,$variables);
+        $this->startGraphQL($query, $variables);
     }
 
     /**
@@ -59,11 +57,11 @@ class TagTest extends GraphQLTestCase
      */
     public function testSearchTagsQuery()
     {
-        $query = file_get_contents(__DIR__ .'/tag/searchTagsQuery.gql');
-        $tag = Tag::first();
+        $query     = file_get_contents(__DIR__ . '/tag/searchTagsQuery.gql');
+        $tag       = $this->tag;
         $variables = [
             'query' => $tag->name,
         ];
-        $this->startGraphQL($query,$variables);
+        $this->startGraphQL($query, $variables);
     }
 }

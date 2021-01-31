@@ -122,6 +122,7 @@ class ContentServiceProvider extends ServiceProvider
             'articles'   => \App\Article::class,
             'posts'      => \App\Post::class,
             'issues'     => \App\Issue::class,
+            'questions'  => \App\Question::class,
         ]);
     }
 

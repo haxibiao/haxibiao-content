@@ -540,12 +540,16 @@ trait PostRepo
     {
         $userIds = $posts->pluck('user_id');
         if (count($userIds) > 0) {
+            //一次查询用户关注过的uids
             $followedUserIds = $user->followedUserIds($userIds);
-            //更改liked状态
+            //批量更新对用户列表的 is_followed 状态
             $posts->each(function ($post) use ($followedUserIds) {
                 $postUser = $post->user;
                 if (!is_null($postUser)) {
-                    $postUser->followed_user_status = $followedUserIds->contains($postUser->id);
+                    $is_followed                    = $followedUserIds->contains($postUser->id);
+                    $postUser->followed_user_status = $is_followed;
+                    $postUser->is_followed          = $is_followed;
+                    $postUser->followed_status      = $is_followed;
                 }
             });
         }

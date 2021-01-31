@@ -15,7 +15,7 @@ trait CollectionResolvers
 {
     public function resolveCollections($rootValue, array $args, $context, $resolveInfo)
     {
-        $collections = static::where('user_id', data_get($args, 'user_id'))->where('name', 'like', '%' . ($args['keyword'] ?? '') . '%')
+        $collections = Collection::where('user_id', data_get($args, 'user_id'))->where('name', 'like', '%' . ($args['keyword'] ?? '') . '%')
             ->orderByDesc('updated_at');
         app_track_event('用户页', '我的合集', '用户:' . data_get($args, 'user_id'));
         return $collections;
@@ -24,7 +24,7 @@ trait CollectionResolvers
     //分享合集url
     public function getShareLink($rootValue, array $args, $context, $resolveInfo)
     {
-        $collection = static::has('posts')->find($args['collection_id']);
+        $collection = Collection::with('posts')->find($args['collection_id']);
         throw_if(is_null($collection), GQLException::class, '该合集不存在哦~,请稍后再试');
 
         $shareMag = config('haxibiao-content.share_config.share_collection_msg', '#%s/share/post/%d#, #%s#,打开【%s】,直接观看合集视频,玩视频就能赚钱~,');
@@ -57,7 +57,7 @@ trait CollectionResolvers
             $logo = config('haxibiao-content.collection_default_logo');
         }
 
-        $collection = static::firstOrCreate([
+        $collection = Collection::firstOrCreate([
             'user_id' => getUser()->id,
             'name'    => $name,
         ], [
@@ -83,7 +83,7 @@ trait CollectionResolvers
             Visit::createVisit($user->id, $collection_id, 'collections');
         }
 
-        return static::findOrFail($collection_id);
+        return Collection::findOrFail($collection_id);
     }
 
     /**
@@ -92,7 +92,7 @@ trait CollectionResolvers
     public function resolveUpdateCollection($rootValue, array $args, $context, $resolveInfo)
     {
         $collection_id = data_get($args, 'collection_id');
-        $collection    = static::findOrFail($collection_id);
+        $collection    = Collection::findOrFail($collection_id);
 
         $logo = Arr::get($args, 'logo');
         if ($logo) {
@@ -120,7 +120,7 @@ trait CollectionResolvers
         $collectableIds  = data_get($args, 'collectable_ids');
         $collectableType = data_get($args, 'collectable_type');
 
-        $collection = static::find($collectionId);
+        $collection = Collection::find($collectionId);
         if (!$collection) {
             return false;
         }
@@ -139,7 +139,7 @@ trait CollectionResolvers
         $collectableIds  = data_get($args, 'collectable_ids');
         $collectableType = data_get($args, 'collectable_type');
 
-        $collection = static::find($collectionId);
+        $collection = Collection::find($collectionId);
         if (!$collection) {
             return false;
         }
@@ -189,7 +189,7 @@ trait CollectionResolvers
      */
     public function resolveSearchCollections($rootValue, $args, $context, $resolveInfo)
     {
-        return static::search(data_get($args, 'query'));
+        return Collection::search(data_get($args, 'query'));
     }
 
     /**
@@ -242,10 +242,10 @@ trait CollectionResolvers
 
         // FIXME:跳过十条数据的逻辑，在之前数据不充足的前提下会出现 count 预期数量与实际返回不一致
         $array = $qb
-            //->skip(($currentPage * $perPage) - $perPage)
-            ->take($perPage)
+        //->skip(($currentPage * $perPage) - $perPage)
+        ->take($perPage)
             ->orderBy('created_at', 'desc')
-            // ->inRandomOrder()
+        // ->inRandomOrder()
             ->get();
 
         $collections = new \Illuminate\Pagination\LengthAwarePaginator(
