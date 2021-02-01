@@ -14,24 +14,29 @@ class SolutionTest extends GraphQLTestCase
 
     protected $user;
     protected $issue;
+    protected $solution;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->user  = $this->getRandomUser();
-        $this->issue = Issue::inRandomOrder()->first();
-
+        $this->issue = Issue::create([
+            'user_id'    => $this->user->id,
+            'title'      => '测试问答',
+            'background' => '测试的问答描述',
+        ]);
+        $this->solution = Solution::create([
+            'user_id'    => $this->user->id,
+            'issue_id'   => $this->issue->id,
+            'answer'     => '问答测试用例'
+        ]);
     }
-
-    /* --------------------------------------------------------------------- */
-    /* ------------------------------- Mutation ----------------------------- */
-    /* --------------------------------------------------------------------- */
 
     /**
      * @group solution
      * @group testAddSolutionMutation
      */
-    protected function testAddSolutionMutation()
+    public function testAddSolutionMutation()
     {
         $query = file_get_contents(__DIR__ . '/Solution/addSolutionMutation.gql');
 
@@ -56,18 +61,17 @@ class SolutionTest extends GraphQLTestCase
      * @group solution
      * @group testDeleteSolutionMutation
      */
-    protected function testDeleteSolutionMutation()
+    public function testDeleteSolutionMutation()
     {
         $query = file_get_contents(__DIR__ . '/Solution/deleteSolutionMutation.gql');
-        $user  = User::inRandomorder()->first();
-        $token = $user->api_token;
+        $token = $this->user->api_token;
 
         $headers = [
             'Authorization' => 'Bearer ' . $token,
             'Accept'        => 'application/json',
         ];
         $args = [
-            'user_id'  => $user->id,
+            'user_id'  => $this->user->id,
             'issue_id' => $this->issue->id,
             'answer'   => "i'm a solution of issue",
         ];
@@ -80,14 +84,11 @@ class SolutionTest extends GraphQLTestCase
         $this->runGuestGQL($query, $variables, $headers);
     }
 
-    /* --------------------------------------------------------------------- */
-    /* ------------------------------- Query ----------------------------- */
-    /* ----------------------------up----------------------------------------- */
     /**
      * @group solution
      * @group testSolutionsQuery
      */
-    protected function testSolutionsQuery()
+    public function testSolutionsQuery()
     {
 
         $query = file_get_contents(__DIR__ . '/Solution/solutionsQuery.gql');
@@ -103,15 +104,13 @@ class SolutionTest extends GraphQLTestCase
      * @group solution
      * @group testSolutionQuery
      */
-    protected function testSolutionQuery()
+    public function testSolutionQuery()
     {
 
         $query = file_get_contents(__DIR__ . '/Solution/solutionQuery.gql');
 
-        $solution = Solution::inRandomorder()->first();
-
         $variables = [
-            'id' => $solution->id,
+            'id' => $this->solution->id,
         ];
         $this->runGuestGQL($query, $variables);
 
@@ -121,7 +120,7 @@ class SolutionTest extends GraphQLTestCase
      * @group solution
      * @group testMySolutionMutation
      */
-    protected function testMySolutionMutation()
+    public function testMySolutionMutation()
     {
         $query = file_get_contents(__DIR__ . '/Solution/mySolutionsQuery.gql');
 

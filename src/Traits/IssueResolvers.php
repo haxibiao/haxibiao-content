@@ -60,7 +60,7 @@ trait IssueResolvers
         if (checkUser()) {
             //获取登录用户
             $user     = getUser();
-            $issueIds = $user->blockIssues()->pluck("block_id");
+            $issueIds = $user->userBlock()->where('block_type', 'issues')->pluck("block_id");
             $qb->whereNotIn('id', $issueIds);
         }
         return $qb;

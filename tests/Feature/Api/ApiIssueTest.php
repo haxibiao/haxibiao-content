@@ -13,6 +13,25 @@ class ApiIssueTest extends TestCase
 {
     use DatabaseTransactions;
 
+    protected $user;
+    protected $issue;
+    protected $solution;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = User::inRandomOrder()->first();
+        $this->issue = Issue::create([
+            'user_id'    => $this->user->id,
+            'title'      => '测试问答',
+            'background' => '测试的问答描述',
+        ]);
+        $this->solution = Solution::create([
+            'user_id'    => $this->user->id,
+            'issue_id'   => $this->issue->id,
+            'answer'     => '问答测试用例'
+        ]);
+    }
 
     /**
      * @group apiIssue
@@ -20,9 +39,8 @@ class ApiIssueTest extends TestCase
      */
     public function testSuggest()
     {
-        $user = User::inRandomOrder()->first();
         $response = $this->call('GET', "/api/suggest-question"
-            , ['api_token' => $user->api_token]);
+            , ['api_token' => $this->user->api_token]);
         $response->assertStatus(200);
     }
 
@@ -32,10 +50,8 @@ class ApiIssueTest extends TestCase
      */
     public function testQuestion()
     {
-        $id = Issue::inRandomOrder()->first()->id;
-        $user = User::inRandomOrder()->first();
-        $response = $this->call('GET', "/api/question/{$id}"
-            , ['api_token' => $user->api_token]);
+        $response = $this->call('GET', "/api/question/{$this->issue->id}"
+            , ['api_token' => $this->user->api_token]);
         $response->assertStatus(200);
     }
 
@@ -45,10 +61,8 @@ class ApiIssueTest extends TestCase
      */
     public function testReportQuestion()
     {
-        $id = Issue::inRandomOrder()->first()->id;
-        $user = User::inRandomOrder()->first();
-        $response = $this->call('GET', "/api/report-question-{$id}"
-            , ['api_token' => $user->api_token]);
+        $response = $this->call('GET', "/api/report-question-{$this->issue->id}"
+            , ['api_token' => $this->user->api_token]);
         $response->assertStatus(200);
     }
 
@@ -58,10 +72,8 @@ class ApiIssueTest extends TestCase
      */
     public function testFavoriteQuestion()
     {
-        $id = Issue::inRandomOrder()->first()->id;
-        $user = \App\User::inRandomOrder()->first();
-        $response = $this->call('GET', "/api/favorite-question-{$id}"
-            , ['api_token' => $user->api_token]);
+        $response = $this->call('GET', "/api/favorite-question-{$this->issue->id}"
+            , ['api_token' => $this->user->api_token]);
         $response->assertStatus(200);
     }
 
@@ -71,10 +83,8 @@ class ApiIssueTest extends TestCase
      */
     public function testAnswer()
     {
-        $id = Solution::inRandomOrder()->first()->id;
-        $user = \App\User::inRandomOrder()->first();
-        $response = $this->call('GET', "/api/answer/{$id}"
-            , ['api_token' => $user->api_token]);
+        $response = $this->call('GET', "/api/answer/{$this->solution->id}"
+            , ['api_token' => $this->user->api_token]);
         $response->assertStatus(200);
     }
 
@@ -84,10 +94,8 @@ class ApiIssueTest extends TestCase
      */
     public function testLikeAnswer()
     {
-        $id = Solution::inRandomOrder()->first()->id;
-        $user = \App\User::inRandomOrder()->first();
-        $response = $this->call('GET', "/api/like-answer-{$id}"
-            , ['api_token' => $user->api_token]);
+        $response = $this->call('GET', "/api/like-answer-{$this->solution->id}"
+            , ['api_token' => $this->user->api_token]);
         $response->assertStatus(200);
     }
 
@@ -97,10 +105,8 @@ class ApiIssueTest extends TestCase
      */
     public function testUnlikeAnswer()
     {
-        $id = Solution::inRandomOrder()->first()->id;
-        $user = \App\User::inRandomOrder()->first();
-        $response = $this->call('GET', "/api/unlike-answer-{$id}"
-            , ['api_token' => $user->api_token]);
+        $response = $this->call('GET', "/api/unlike-answer-{$this->solution->id}"
+            , ['api_token' => $this->user->api_token]);
         $response->assertStatus(200);
     }
 
@@ -110,10 +116,8 @@ class ApiIssueTest extends TestCase
      */
     public function testReportAnswer()
     {
-        $id = Solution::inRandomOrder()->first()->id;
-        $user = \App\User::inRandomOrder()->first();
-        $response = $this->call('GET', "/api/report-answer-{$id}"
-            , ['api_token' => $user->api_token]);
+        $response = $this->call('GET', "/api/report-answer-{$this->solution->id}"
+            , ['api_token' => $this->user->api_token]);
         $response->assertStatus(200);
     }
 
@@ -123,10 +127,8 @@ class ApiIssueTest extends TestCase
      */
     public function testDeleteAnswer()
     {
-        $id = Solution::inRandomOrder()->first()->id;
-        $user = \App\User::inRandomOrder()->first();
-        $response = $this->call('GET', "/api/delete-answer-{$id}"
-            , ['api_token' => $user->api_token]);
+        $response = $this->call('GET', "/api/delete-answer-{$this->solution->id}"
+            , ['api_token' => $this->user->api_token]);
         $response->assertStatus(200);
     }
 
@@ -137,10 +139,8 @@ class ApiIssueTest extends TestCase
      */
     public function testQuestionUninvited()
     {
-        $issue_id = Issue::inRandomOrder()->first()->id;
-        $user = User::inRandomOrder()->first();
-        $response = $this->call('GET', "/api/question-{$issue_id}-uninvited"
-            , ['api_token' => $user->api_token]);
+        $response = $this->call('GET', "/api/question-{$this->issue->id}-uninvited"
+            , ['api_token' => $this->user->api_token]);
         $response->assertStatus(200);
     }
 
@@ -150,11 +150,9 @@ class ApiIssueTest extends TestCase
      */
     public function testQuestionInvite()
     {
-        $qid = Issue::inRandomOrder()->first()->id;
         $invite_uid = \App\User::inRandomOrder()->first()->id;
-        $user = \App\User::inRandomOrder()->first();
-        $response = $this->call('GET', "/api/question-{$qid}-invite-user-{$invite_uid}"
-            , ['api_token' => $user->api_token]);
+        $response = $this->call('GET', "/api/question-{$this->issue->id}-invite-user-{$invite_uid}"
+            , ['api_token' => $this->user->api_token]);
         $response->assertStatus(201);
     }
 
@@ -164,10 +162,8 @@ class ApiIssueTest extends TestCase
      */
     public function testAnswered()
     {
-        $id = Issue::inRandomOrder()->first()->id;
-        $user = \App\User::inRandomOrder()->first();
-        $response = $this->call('POST', "/api/question-{$id}-answered"
-        , ['api_token' => $user->api_token]);
+        $response = $this->call('POST', "/api/question-{$this->issue->id}-answered"
+        , ['api_token' => $this->user->api_token]);
         $response->assertStatus(200);
     }
 
@@ -177,10 +173,8 @@ class ApiIssueTest extends TestCase
      */
     public function testDelete()
     {
-        $id = Issue::inRandomOrder()->first()->id;
-        $user = \App\User::inRandomOrder()->first();
-        $response = $this->call('GET', "/api/delete-question-{$id}"
-        , ['api_token' => $user->api_token]);
+        $response = $this->call('GET', "/api/delete-question-{$this->issue->id}"
+        , ['api_token' => $this->user->api_token]);
         $response->assertStatus(200);
     }
 

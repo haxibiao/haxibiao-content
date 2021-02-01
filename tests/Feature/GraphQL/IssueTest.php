@@ -19,7 +19,11 @@ class IssueTest extends GraphQLTestCase
     {
         parent::setUp();
         $this->user  = User::inRandomorder()->first();
-        $this->issue = Issue::factory(['user_id' => $this->user->id])->create();
+        $this->issue = Issue::create([
+            'user_id'    => $this->user->id,
+            'title'      => '测试问答',
+            'background' => '测试的问答描述',
+        ]);
     }
 
     /**
@@ -31,7 +35,7 @@ class IssueTest extends GraphQLTestCase
      * @group issue
      * @group testCreateIssueMutation
      */
-    protected function testCreateIssueMutation()
+    public function testCreateIssueMutation()
     {
         $query     = file_get_contents(__DIR__ . '/Issue/createIssueMutation.gql');
         $image     = UploadedFile::fake()->image('photo.jpg');
@@ -45,11 +49,11 @@ class IssueTest extends GraphQLTestCase
         $this->runGuestGQL($query, $variables, $headers);
 
         //创建戴图片的问题
-        $variables = [
-            "title"       => "创建一个问题",
-            "background"  => "HelloWorld",
-            'cover_image' => $base64,
-        ];
+        // $variables = [
+        //     "title"       => "创建一个问题",
+        //     "background"  => "HelloWorld",
+        //     'cover_image' => $base64,
+        // ];
 
         $this->runGuestGQL($query, $variables, $headers);
     }
@@ -58,7 +62,7 @@ class IssueTest extends GraphQLTestCase
      * @group issue
      * @group testSearchIssue
      */
-    protected function testSearchIssue()
+    public function testSearchIssue()
     {
 
         $query     = file_get_contents(__DIR__ . '/Issue/searchIssueQuery.gql');
@@ -73,9 +77,9 @@ class IssueTest extends GraphQLTestCase
      * @group issue
      * @group testIssuesQuery
      */
-    protected function testIssuesQuery()
+    public function testIssuesQuery()
     {
-        //用户的问答黑名单没有 $user->blockIssues() not found
+        //用户的问答黑名单这块有问题
         $query     = file_get_contents(__DIR__ . '/Issue/issuesQuery.gql');
         $variables = [
             'orderBy' => [
@@ -95,7 +99,7 @@ class IssueTest extends GraphQLTestCase
      * @group issue
      * @group testDeleteIssueMutation
      */
-    protected function testDeleteIssueMutation()
+    public function testDeleteIssueMutation()
     {
         $query   = file_get_contents(__DIR__ . '/Issue/deleteIssueMutation.gql');
         $token   = $this->user->api_token;
@@ -120,7 +124,7 @@ class IssueTest extends GraphQLTestCase
      * @group issue
      * @group testInviteAnswerMutation
      */
-    protected function testInviteAnswerMutation()
+    public function testInviteAnswerMutation()
     {
         $query   = file_get_contents(__DIR__ . '/Issue/inviteAnswerMutation.gql');
         $token   = $this->user->api_token;
