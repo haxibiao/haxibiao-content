@@ -18,7 +18,7 @@ class ArticleTest extends GraphQLTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('id', '<', 100)->inRandomOrder()->first();
+        $this->user = User::factory()->create();
 
         //先确保创建了文章
         $this->article = Article::factory(['user_id' => $this->user->id])->create();
@@ -81,7 +81,7 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testUserFavoriteArticlesQuery()
     {
-        $user  = User::find(1);
+        $user  = $this->user;
         $query = file_get_contents(__DIR__ . '/article/userFavoriteArticlesQuery.gql');
 
         $token   = $user->api_token;
@@ -100,7 +100,7 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testRecommendVideosQuery()
     {
-        $token   = User::find(1)->api_token;
+        $token   = $this->user->api_token;
         $query   = file_get_contents(__DIR__ . '/article/recommendVideosQuery.gql');
         $headers = [
             'Authorization' => 'Bearer ' . $token,
@@ -134,7 +134,7 @@ class ArticleTest extends GraphQLTestCase
 
         $query = file_get_contents(__DIR__ . '/article/deleteArticleMutation.gql');
 
-        $token   = User::find(1)->api_token;
+        $token   = $this->user->api_token;
         $headers = [
             'Authorization' => 'Bearer ' . $token,
             'Accept'        => 'application/json',

@@ -18,7 +18,7 @@ class IssueTest extends GraphQLTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user  = User::inRandomorder()->first();
+        $this->user  = User::factory()->create();
         $this->issue = Issue::create([
             'user_id'    => $this->user->id,
             'title'      => '测试问答',

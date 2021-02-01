@@ -21,14 +21,14 @@ class CategoryTest extends GraphQLTestCase
     {
         parent::setUp();
 
-        $this->user = User::where('id', '<', 100)->inRandomOrder()->first();
+        $this->user     = User::factory()->create();
         $this->category = Category::create([
-            'user_id' => rand(1, 3),
-            'type' => 'posts',
-            'name' => '测试分类 - name',
+            'user_id'     => rand(1, 3),
+            'type'        => 'posts',
+            'name'        => '测试分类 - name',
             'description' => '测试分类 - description',
-            'created_at' => now(),
-            'updated_at' => now(),
+            'created_at'  => now(),
+            'updated_at'  => now(),
         ]);
     }
 
@@ -39,10 +39,10 @@ class CategoryTest extends GraphQLTestCase
      */
     public function testCategoryQuery()
     {
-        $query = file_get_contents(__DIR__ . '/Category/categoryQuery.gql');
+        $query      = file_get_contents(__DIR__ . '/Category/categoryQuery.gql');
         $categoryId = Category::inRandomOrder()->first();
-        $variables = [
-            'id' => $categoryId->id
+        $variables  = [
+            'id' => $categoryId->id,
         ];
         $this->startGraphQL($query, $variables);
     }
