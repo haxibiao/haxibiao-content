@@ -49,14 +49,12 @@ class CreateCategoriesTable extends Migration
             $table->unsignedInteger('min_answer_correct')->default(20)->index()->comment('最小答对数');
             $table->json('answers_count_by_month')->nullable()->comment('每个月的答题次数');
             $table->string('tips', 255)->nullable()->comment('分类tips');
-            $table->integer('rank')->nullable();
             $table->string('icon', 255)->nullable();
 
             $table->integer('count_follows')->default(0)->index();
             $table->integer('count')->default(0)->comment('文章数');
             $table->integer('count_questions')->default(0);
             $table->integer('count_videos')->default(0)->comment('视频文章数');
-
 
             $table->timestamps();
         });
