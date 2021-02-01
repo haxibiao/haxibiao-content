@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLocationTable extends Migration
+class CreateLocationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -26,6 +26,7 @@ class CreateLocationTable extends Migration
             $table->double('latitude', 8, 6)->comment('精度');
             $table->string('geo_code')->index()->comment('geohash code');
 
+            $table->index(['located_type', 'located_id']);
             $table->index(['longitude', 'latitude'], 'lon_lat');
             $table->timestamps();
         });

@@ -13,31 +13,30 @@ class CreateCollectionsTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('collections')) {
-            Schema::create('collections', function (Blueprint $table) {
-                $table->increments('id');
-                $table->integer('user_id')->index();
-                $table->integer('status')->default(1)->index(); // 0 private 1 public
-                $table->string('type')->default('article')->index(); // faved...
-                $table->string('name');
-                $table->string('description')->nullable()->comment('合集描述');
-
-                $table->string('logo')->nullable();
-                $table->json('json')->nullable()->comment('非结构化的数据，冗余一些额外信息');
-                //集合排序字段
-                $table->unsignedInteger('sort_rank')->nullable()->index()->comment('排序(置顶方法)');
-
-                //add counts
-                $table->integer('count')->default(0);
-                $table->integer('count_words')->default(0);
-                $table->integer('count_follows')->default(0)->index();
-                $table->unsignedInteger('count_posts')->default(0)->index();
-                $table->unsignedInteger('count_views')->default(0)->comment('浏览量');
-
-                $table->timestamps();
-                $table->softDeletes();
-            });
+        if (Schema::hasTable('collections')) {
+            return;
         }
+        Schema::create('collections', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('user_id')->index();
+            $table->integer('status')->default(1)->index();
+            $table->string('type', 255)->default('article')->index();
+            $table->string('name', 255);
+            $table->string('description', 255)->nullable();
+            $table->string('logo', 255)->nullable();
+            $table->json('json')->nullable()->comment('非结构化的数据，冗余一些额外信息');
+            $table->unsignedInteger('sort_rank')->nullable()->index()->comment('排序(置顶方法)');
+
+            $table->integer('count')->default(0);
+            $table->integer('count_words')->default(0);
+            $table->integer('count_follows')->default(0);
+            $table->unsignedInteger('count_posts')->default(0);
+            $table->unsignedInteger('count_views')->default(0)->comment('浏览量');
+
+            $table->string('collection_key', 50)->nullable()->index()->comment('合集的唯一key: ainicheng_1122');
+            $table->timestamps();
+            $table->softDeletes();
+        });
     }
 
     /**

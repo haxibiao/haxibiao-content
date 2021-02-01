@@ -13,43 +13,36 @@ class CreateIssuesTable extends Migration
      */
     public function up()
     {
-        if(Schema::hasTable('issues')){
-            return;
-        }
         //web专用付费问答
         Schema::create('issues', function (Blueprint $table) {
             $table->bigIncrements('id');
-
-            $table->unsignedInteger('user_id');
-            $table->string('title');
+            $table->unsignedInteger('user_id')->index();
+            $table->string('title', 255);
             $table->text('background')->nullable();
-            $table->unsignedInteger('latest_resolution_id')->nullable();
-            $table->unsignedInteger('best_resolution_id')->nullable();
-
-            //利用软删除实现状态
-            //$table->unsignedInteger('status')->default(0);
+            $table->unsignedInteger('latest_solution_id')->nullable();
+            $table->unsignedInteger('best_solution_id')->nullable();
             $table->unsignedInteger('gold')->default(0)->comment('金币');
-            //pay
-            $table->boolean('is_anonymous')->default(false)->comment('是否匿名问答');
-            $table->decimal('bonus')->nullable()->commit('赏金');
-            $table->smallInteger('deadline')->nullable()->commit('悬赏时间');
-
+            $table->boolean('is_anonymous')->default(0)->comment('是否匿名问答');
+            $table->decimal('bonus')->nullable();
+            $table->smallInteger('deadline')->nullable();
             $table->unsignedInteger('hits')->default(0);
+
             $table->unsignedInteger('count_answers')->default(0);
             $table->integer('count_favorites')->default(0);
             $table->integer('count_reports')->default(0);
             $table->integer('count_likes')->default(0);
 
-            //closed
-            $table->boolean('closed')->default(false)->comment('问题是否解决');
+            $table->boolean('closed')->default(0)->index()->comment('问题是否解决');
+            $table->string('image1', 255)->nullable();
+            $table->string('image2', 255)->nullable();
+            $table->string('image3', 255)->nullable();
+            $table->string('solution_ids', 255)->nullable();
 
-            $table->string('resolution_ids')->nullable();
+            $table->unsignedInteger('gold')->default(0)->comment('金币');
+            $table->boolean('is_pay')->default(0);
 
             $table->timestamps();
             $table->softDeletes();
-
-            $table->index('user_id');
-            $table->index('closed');
         });
     }
 
