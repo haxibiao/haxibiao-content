@@ -26,7 +26,7 @@ class CreateLocationsTable extends Migration
             $table->double('latitude', 8, 6)->comment('精度');
             $table->string('geo_code')->index()->comment('geohash code');
 
-            $table->index(['located_type', 'located_id']);
+            $table->index(['located_type', 'located_id'], 'type_id');
             $table->index(['longitude', 'latitude'], 'lon_lat');
             $table->timestamps();
         });

@@ -13,6 +13,8 @@ class CreateIssuesTable extends Migration
      */
     public function up()
     {
+        //FIXME: issue 和 article 的关联，后面可以 issueable
+
         //web专用付费问答
         Schema::create('issues', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -38,7 +40,6 @@ class CreateIssuesTable extends Migration
             $table->string('image3', 255)->nullable();
             $table->string('solution_ids', 255)->nullable();
 
-            $table->unsignedInteger('gold')->default(0)->comment('金币');
             $table->boolean('is_pay')->default(0);
 
             $table->timestamps();

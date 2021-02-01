@@ -32,7 +32,7 @@ class InstallCommand extends Command
         $force = $this->option('force');
 
         $this->info('发布资源 ...');
-        $this->call('content:publish', ['force' => $force]);
+        $this->call('content:publish', ['--force' => $force]);
 
         $this->comment("复制 stubs ...");
         copyStubs(__DIR__, $force);
