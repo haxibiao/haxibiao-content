@@ -13,6 +13,9 @@ class CreateChaptersTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('chapters')) {
+            return;
+        }
         Schema::create('chapters', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('novel_id')->index();

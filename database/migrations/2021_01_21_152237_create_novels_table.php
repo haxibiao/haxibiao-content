@@ -13,6 +13,9 @@ class CreateNovelsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('novels')) {
+            return;
+        }
         Schema::create('novels', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable()->index();
