@@ -26,7 +26,7 @@ class ApiArticleTest extends TestCase
      */
     public function testIndex()
     {
-        $user     = $this->u;
+        $user     = $this->user;
         $response = $this->actingAs($user)->get("/api/article");
         $response->assertStatus(200);
     }
@@ -59,7 +59,7 @@ class ApiArticleTest extends TestCase
         $article  = $this->article;
         $id       = $article->id;
         $response = $this->get("/api/article/{$id}");
-        $response->assertStatus($article->video_id ? 302 : 200);
+        $response->assertStatus(200);
     }
 
     /**

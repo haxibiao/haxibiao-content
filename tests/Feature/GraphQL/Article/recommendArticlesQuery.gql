@@ -1,52 +1,51 @@
-# 用户收藏的动态
-query recommendArticlesQuery( $page: Int) {
-    recommendArticles( page: $page) {
+# 19年工厂APP的动态广场
+query recommendArticlesQuery($page: Int) {
+    recommendArticles(page: $page) {
         paginatorInfo {
             currentPage
             hasMorePages
         }
         data {
+            id
+            type
+            body
+            description
+            time_ago
+            cover
+            hits
+            count_likes
+            count_comments
+            count_tips
+            liked
+            favorited
+            user {
+                avatar
+                name
                 id
-                type
-                body
-                description
-                time_ago
-                cover
-                hits
-                count_likes
-                count_comments
-                count_tips
-                liked
-                favorited
-                user {
-                    avatar
-                    name
-                    id
-                }
-                category {
-                    id
-                    name
-                    logo
-                }
-                images {
-                    id
-                    url
+            }
+            category {
+                id
+                name
+                logo
+            }
+            images {
+                id
+                url
+                width
+                height
+            }
+            video {
+                id
+                url
+                duration
+                info {
                     width
                     height
+                    rotate
+                    covers
                 }
-                video {
-                    id
-                    url
-                    duration
-                    info {
-                        width
-                        height
-                        rotate
-                        covers
-                    }
-                    cover_url
-                }
-            
+                cover_url
+            }
         }
     }
 }

@@ -92,21 +92,26 @@ class ArticleTest extends GraphQLTestCase
         ];
         $this->startGraphQL($query, $variables, $headers);
     }
-    /**
-     * @group  article
-     * @group  testRecommendVideosQuery
-     */
-    public function testRecommendVideosQuery()
-    {
-        $token   = $this->user->api_token;
-        $query   = file_get_contents(__DIR__ . '/article/recommendVideosQuery.gql');
-        $headers = [
-            'Authorization' => 'Bearer ' . $token,
-            'Accept'        => 'application/json',
-        ];
-        $this->startGraphQL($query, [], $headers);
-        $this->startGraphQL($query, [], []);
-    }
+
+    //19 年工厂APP的首页视频刷，基于article的已无产品继续用，都更新了
+    // /**
+    //  * @group  article
+    //  * @group  testRecommendVideosQuery
+    //  */
+    // public function testRecommendVideosQuery()
+    // {
+    //     $token   = $this->user->api_token;
+    //     $query   = file_get_contents(__DIR__ . '/article/recommendVideosQuery.gql');
+    //     $headers = [
+    //         'Authorization' => 'Bearer ' . $token,
+    //         'Accept'        => 'application/json',
+    //     ];
+    //     //未登录刷视频
+    //     $this->startGraphQL($query, [], []);
+
+    //     //登录用户刷视频
+    //     $this->startGraphQL($query, [], $headers);
+    // }
 
     /**
      * 推荐文章/菜谱

@@ -12,7 +12,7 @@ class ArticleController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth')->except(['index']);
+        $this->middleware('auth')->except(['index', 'show']);
         //FIXME: 还没为admin editor的逻辑处理，目前简单登录即可管理任何文章
     }
 
