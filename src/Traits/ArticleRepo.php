@@ -622,7 +622,7 @@ trait ArticleRepo
     {
         $article          = $this;
         $old_categories   = $article->categories;
-        $new_categories   = json_decode($categories_json);
+        $new_categories   = is_array($categories_json) ? $categories_json : @json_decode($categories_json);
         $new_category_ids = [];
         //记录选得第一个做文章的主分类，投稿的话，记最后一个专题做主专题
         if (!empty($new_categories)) {

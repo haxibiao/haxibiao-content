@@ -99,7 +99,8 @@ class ArticleTest extends TestCase
     public function testArticleUpdate()
     {
         $this->article->title = $this->article->title . " - 编辑于" . now()->toDateString();
-        $response             = $this->actingAs($this->user)->put("/article/{$this->article->id}", $this->article->toArray());
+        $response             = $this->actingAs($this->user)
+            ->put("/article/{$this->article->id}", $this->article->toArray());
         $response->assertStatus(302);
     }
 
