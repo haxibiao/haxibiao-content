@@ -13,6 +13,9 @@ class CreatePostsRecommendedTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('posts_recommended')) {
+            return;
+        }
         Schema::create('posts_recommended', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedInteger('post_id')->comment('动态ID');

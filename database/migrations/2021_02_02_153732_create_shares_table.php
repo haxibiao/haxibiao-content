@@ -13,10 +13,13 @@ class CreateSharesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('shares')) {
+            return;
+        }
         Schema::create('shares', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->boolean('active')->default(1);
-            $table->string('shareable_type');reate
+            $table->string('shareable_type');
             $table->unsignedBigInteger('shareable_id');
             $table->string('url')->nullable()->comment('分享地址');
             $table->unsignedInteger('user_id')->index()->comment('分享的用户');
