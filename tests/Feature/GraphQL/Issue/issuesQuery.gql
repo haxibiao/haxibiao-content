@@ -1,10 +1,10 @@
-query issues($orderBy:[IssuesOrderByOrderByClause!]){
-    issues(orderBy: $orderBy,count:10){
-        paginatorInfo{
+query issues($orderBy: [IssuesOrderByOrderByClause!]) {
+    issues(orderBy: $orderBy) {
+        paginatorInfo {
             hasMorePages
             currentPage
         }
-        data{
+        data {
             title
             background
             count_answers

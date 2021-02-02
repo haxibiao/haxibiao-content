@@ -119,9 +119,9 @@ class IssueController extends Controller
         $issue->save();
         $issue->favorited = 1;
 
-        //re-use favorite controller
-        $controller = new \Haxibiao\Sns\Http\Api\FavoriteController();
-        $controller->toggle($request, $id, 'questions');
+        //收藏问答暂时不实现网站用户通知...
+        // $controller = new \Haxibiao\Sns\Http\Api\FavoriteController();
+        // $controller->toggle($request, $id, 'issues');
 
         return $issue;
     }
