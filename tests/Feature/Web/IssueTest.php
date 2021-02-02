@@ -19,7 +19,7 @@ class IssueTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::inRandomOrder()->first();
+        $this->user  = User::factory()->create();
         $this->issue = Issue::create([
             'user_id'    => $this->user->id,
             'title'      => '测试问答',
@@ -63,14 +63,17 @@ class IssueTest extends TestCase
      */
     protected function testIssueStore()
     {
-        $issue        = new \App\Issue;
-        $issue->user_id = 1;
-        $issue->title =  "测试";
-        $issue->background =  "测试";
-        $data = $issue->toArray();
-        $response = $this->post("/question",$data
+        $issue             = new \App\Issue;
+        $issue->user_id    = 1;
+        $issue->title      = "测试";
+        $issue->background = "测试";
+        $data              = $issue->toArray();
+        $response          = $this->post("/question", $data
             , ['api_token' => $this->user->api_token]);
         $response->assertStatus(302);
+
+        //tearDown
+        $issue->delete();
     }
 
     /**

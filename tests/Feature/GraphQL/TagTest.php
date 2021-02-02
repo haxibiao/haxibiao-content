@@ -64,4 +64,10 @@ class TagTest extends GraphQLTestCase
         ];
         $this->startGraphQL($query, $variables);
     }
+
+    protected function tearDown(): void
+    {
+        $this->tag->forceDelete();
+        parent::tearDown();
+    }
 }

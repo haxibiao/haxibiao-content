@@ -26,9 +26,9 @@ class SolutionTest extends GraphQLTestCase
             'background' => '测试的问答描述',
         ]);
         $this->solution = Solution::create([
-            'user_id'    => $this->user->id,
-            'issue_id'   => $this->issue->id,
-            'answer'     => '问答测试用例'
+            'user_id'  => $this->user->id,
+            'issue_id' => $this->issue->id,
+            'answer'   => '问答测试用例',
         ]);
     }
 
@@ -139,8 +139,9 @@ class SolutionTest extends GraphQLTestCase
 
     protected function tearDown(): void
     {
+        $this->solution->forceDelete();
+        $this->issue->forceDelete();
         $this->user->forceDelete();
-
         parent::tearDown();
     }
 }

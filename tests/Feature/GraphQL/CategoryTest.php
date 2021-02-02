@@ -14,22 +14,13 @@ class CategoryTest extends GraphQLTestCase
     use DatabaseTransactions;
 
     protected $user;
-
     protected $category;
 
     public function setUp(): void
     {
         parent::setUp();
-
         $this->user     = User::factory()->create();
-        $this->category = Category::create([
-            'user_id'     => rand(1, 3),
-            'type'        => 'posts',
-            'name'        => '测试分类 - name',
-            'description' => '测试分类 - description',
-            'created_at'  => now(),
-            'updated_at'  => now(),
-        ]);
+        $this->category = Category::factory()->create();
     }
 
     /**
@@ -40,7 +31,7 @@ class CategoryTest extends GraphQLTestCase
     public function testCategoryQuery()
     {
         $query      = file_get_contents(__DIR__ . '/Category/categoryQuery.gql');
-        $categoryId = Category::inRandomOrder()->first();
+        $categoryId = $this->category;
         $variables  = [
             'id' => $categoryId->id,
         ];
@@ -67,5 +58,12 @@ class CategoryTest extends GraphQLTestCase
             'filter' => "other",
         ];
         $this->startGraphQL($query, $variables);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->category->delete();
+        $this->user->delete();
+        parent::tearDown();
     }
 }

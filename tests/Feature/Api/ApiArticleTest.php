@@ -2,8 +2,8 @@
 
 namespace Haxibiao\Content\Tests\Feature\Api;
 
-use Haxibiao\Breeze\User;
-use Haxibiao\Content\Article;
+use App\Article;
+use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
@@ -11,12 +11,22 @@ class ApiArticleTest extends TestCase
 {
     use DatabaseTransactions;
 
+    protected $user;
+    protected $article;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user    = User::factory()->create();
+        $this->article = Article::factory(['user_id' => $this->user->id])->create();
+    }
+
     /**
      * @group article
      */
     public function testIndex()
     {
-        $user     = User::latest('id')->first();
+        $user     = $this->u;
         $response = $this->actingAs($user)->get("/api/article");
         $response->assertStatus(200);
     }
@@ -26,7 +36,7 @@ class ApiArticleTest extends TestCase
      */
     public function testStore()
     {
-        $user           = User::role(User::EDITOR_STATUS)->first();
+        $user           = $this->user;
         $article        = new Article;
         $article->title = 'testTitle';
         $article->body  = 'testtesttesttesttesttest';
@@ -35,9 +45,10 @@ class ApiArticleTest extends TestCase
         $response = $this->actingAs($user)->post("/api/article/create", $data, [
             "Authorization" => "Bearer " . $user->api_token,
         ]);
-        //api创建文章后201 （created）
-        // $response->assertStatus(201);
         $response->assertCreated();
+
+        //tearDown
+        $article->delete();
     }
 
     /**
@@ -45,10 +56,7 @@ class ApiArticleTest extends TestCase
      */
     public function testShow()
     {
-        //先创建文章
-        $this->testStore();
-        //再获取
-        $article  = Article::latest('id')->first();
+        $article  = $this->article;
         $id       = $article->id;
         $response = $this->get("/api/article/{$id}");
         $response->assertStatus($article->video_id ? 302 : 200);
@@ -59,11 +67,8 @@ class ApiArticleTest extends TestCase
      */
     public function testUpdate()
     {
-        $user = User::role(User::EDITOR_STATUS)->first();
-        //先创建文章
-        $this->testStore();
-
-        $article        = Article::latest('id')->first();
+        $user           = $this->user;
+        $article        = $this->article;
         $article->title = $article->title . "[$user->name 编辑]";
         $data           = $article->toArray();
 
@@ -81,13 +86,17 @@ class ApiArticleTest extends TestCase
      */
     public function testDestroy()
     {
-        //先创建
-        $this->testStore();
-        $article = Article::latest('id')->first();
-        //小编有权限
-        $user     = User::role(User::EDITOR_STATUS)->first();
+        $article  = $this->article;
+        $user     = $this->user;
         $response = $this->actingAs($user)->call('GET', "/api/article/{$article->id}/destroy"
             , ['api_token' => $user->api_token]);
         $response->assertStatus(200);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->article->delete();
+        $this->user->delete();
+        parent::tearDown();
     }
 }

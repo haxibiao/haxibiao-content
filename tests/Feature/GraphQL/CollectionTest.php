@@ -236,4 +236,12 @@ class CollectionTest extends GraphQLTestCase
         ];
         $this->startGraphQL($query, $variables);
     }
+
+    protected function tearDown(): void
+    {
+        $this->post->delete();
+        $this->collection->delete();
+        $this->user->delete();
+        parent::tearDown();
+    }
 }

@@ -17,10 +17,7 @@ class ArticleTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        //随机拿个测试用户
-        $this->user = User::factory()->create();
-        //先确保创建了文章
+        $this->user    = User::factory()->create();
         $this->article = Article::factory([
             'user_id' => $this->user->id,
             'status'  => 1,
@@ -108,6 +105,13 @@ class ArticleTest extends TestCase
     {
         $response = $this->actingAs($this->user)->delete("/article/{$this->article->id}");
         $response->assertStatus(302);
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        $this->article->delete();
+        $this->user->delete();
     }
 
 }

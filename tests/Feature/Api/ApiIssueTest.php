@@ -2,7 +2,6 @@
 
 namespace Haxibiao\Content\Tests\Feature\Api;
 
-
 use App\Issue;
 use App\Solution;
 use App\User;
@@ -20,16 +19,16 @@ class ApiIssueTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::inRandomOrder()->first();
+        $this->user  = User::factory()->create();
         $this->issue = Issue::create([
             'user_id'    => $this->user->id,
             'title'      => '测试问答',
             'background' => '测试的问答描述',
         ]);
         $this->solution = Solution::create([
-            'user_id'    => $this->user->id,
-            'issue_id'   => $this->issue->id,
-            'answer'     => '问答测试用例'
+            'user_id'  => $this->user->id,
+            'issue_id' => $this->issue->id,
+            'answer'   => '问答测试用例',
         ]);
     }
 
@@ -132,7 +131,6 @@ class ApiIssueTest extends TestCase
         $response->assertStatus(200);
     }
 
-
     /**
      * @group apiIssue
      * @group testQuestionUninvited
@@ -150,8 +148,8 @@ class ApiIssueTest extends TestCase
      */
     public function testQuestionInvite()
     {
-        $invite_uid = \App\User::inRandomOrder()->first()->id;
-        $response = $this->call('GET', "/api/question-{$this->issue->id}-invite-user-{$invite_uid}"
+        $invite_uid = $this->user->id;
+        $response   = $this->call('GET', "/api/question-{$this->issue->id}-invite-user-{$invite_uid}"
             , ['api_token' => $this->user->api_token]);
         $response->assertStatus(201);
     }
@@ -163,7 +161,7 @@ class ApiIssueTest extends TestCase
     public function testAnswered()
     {
         $response = $this->call('POST', "/api/question-{$this->issue->id}-answered"
-        , ['api_token' => $this->user->api_token]);
+            , ['api_token' => $this->user->api_token]);
         $response->assertStatus(200);
     }
 
@@ -174,7 +172,7 @@ class ApiIssueTest extends TestCase
     public function testDelete()
     {
         $response = $this->call('GET', "/api/delete-question-{$this->issue->id}"
-        , ['api_token' => $this->user->api_token]);
+            , ['api_token' => $this->user->api_token]);
         $response->assertStatus(200);
     }
 

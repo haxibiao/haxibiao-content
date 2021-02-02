@@ -141,4 +141,11 @@ class IssueTest extends GraphQLTestCase
         $this->runGuestGQL($query, $variables, $headers);
     }
 
+    protected function tearDown(): void
+    {
+        $this->issue->delete();
+        $this->user->delete();
+        parent::tearDown();
+    }
+
 }

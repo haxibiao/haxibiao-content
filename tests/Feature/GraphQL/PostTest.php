@@ -222,6 +222,9 @@ class PostTest extends GraphQLTestCase
 
     protected function tearDown(): void
     {
+        $this->video->delete();
+        $this->post->delete();
+        $this->user->delete();
         parent::tearDown();
     }
 

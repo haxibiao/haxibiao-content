@@ -2,15 +2,33 @@
 
 namespace Haxibiao\Content\Tests\Feature\Web;
 
+use App\Article;
 use App\Category;
-use Haxibiao\Content\Article;
+use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
-
 
 class CategoryTest extends TestCase
 {
     use DatabaseTransactions;
+
+    protected $user;
+    protected $category;
+    protected $article;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user     = User::factory()->create();
+        $this->category = Category::factory([
+            'user_id' => $this->user->id,
+            'status'  => 1,
+        ])->create();
+        $this->article = Article::factory([
+            'user_id'     => $this->user->id,
+            'category_id' => $this->category->id,
+        ])->create();
+    }
 
     /**
      * @group categoryApi
@@ -19,7 +37,7 @@ class CategoryTest extends TestCase
      */
     public function testShowCategoryApi()
     {
-        $id = Category::inRandomOrder()->first()->id;
+        $id       = $this->category->id;
         $response = $this->get("/api/category/{$id}");
         $response->assertStatus(200);
     }
@@ -42,8 +60,8 @@ class CategoryTest extends TestCase
      */
     public function testGetCategoryVideosApi()
     {
-        $category_id = Category::inRandomOrder()->first()->id;
-        $response = $this->get("/api/category/{$category_id}/videos");
+        $category_id = $this->category->id;
+        $response    = $this->get("/api/category/{$category_id}/videos");
         $response->assertStatus(200);
     }
 
@@ -63,7 +81,7 @@ class CategoryTest extends TestCase
      */
     public function testEditLogoCategoryApi()
     {
-        $id = Category::inRandomOrder()->first()->id;
+        $id       = $this->category->id;
         $response = $this->post("/api/category/{$id}/edit-logo");
         $response->assertStatus(200);
     }
@@ -74,7 +92,7 @@ class CategoryTest extends TestCase
      */
     public function testUpdateCategoryApi()
     {
-        $id = Category::inRandomOrder()->first()->id;
+        $id       = $this->category->id;
         $response = $this->post("/api/category/{$id}");
         $response->assertStatus(200);
     }
@@ -85,8 +103,8 @@ class CategoryTest extends TestCase
      */
     public function testSubmitCategoryApi()
     {
-        $aid = Article::inRandomOrder()->first()->id;
-        $cid = Category::inRandomOrder()->first()->id;
+        $aid      = $this->article->id;
+        $cid      = $this->category->id;
         $response = $this->get("/api/category/{$aid}/submit-category-{$cid}");
         $response->assertStatus(200);
     }
@@ -99,5 +117,13 @@ class CategoryTest extends TestCase
     {
         $response = $this->post("/category");
         $response->assertStatus(302);
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        $this->article->delete();
+        $this->category->delete();
+        $this->user->delete();
     }
 }

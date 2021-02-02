@@ -8,10 +8,20 @@ use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
-
 class CollectionTest extends TestCase
 {
     use DatabaseTransactions;
+
+    protected $user;
+    protected $collection;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user       = User::factory()->create();
+        $this->collection = Collection::factory()->create();
+        $this->article    = Article::factory()->create();
+    }
 
     /**
      * @group collectionApi
@@ -20,8 +30,8 @@ class CollectionTest extends TestCase
      */
     public function testCollectionsIndexApi()
     {
-        $user = User::inRandomOrder()->first();
-        $response = $this->call('GET','/api/collections',['api_token' => $user->api_token]);
+        $user     = $this->user;
+        $response = $this->call('GET', '/api/collections', ['api_token' => $user->api_token]);
         $response->assertStatus(200);
     }
 
@@ -32,7 +42,7 @@ class CollectionTest extends TestCase
      */
     public function testShowCollectionApi()
     {
-        $id = Collection::inRandomOrder()->first()->id;
+        $id       = $this->collection->id;
         $response = $this->get("/api/collection/{$id}");
         $response->assertStatus(200);
     }
@@ -44,9 +54,9 @@ class CollectionTest extends TestCase
      */
     public function testCollectionArticleApi()
     {
-        $collection = Collection::inRandomOrder()->first();
-        $id = $collection->id;
-        $response = $this->get("/api/collection/{$id}/articles");
+        $collection = $this->collection;
+        $id         = $collection->id;
+        $response   = $this->get("/api/collection/{$id}/articles");
         $response->assertStatus(200);
     }
 
@@ -57,12 +67,12 @@ class CollectionTest extends TestCase
      */
     public function testCreateCollectionApi()
     {
-        $user = User::inRandomOrder()->first();
-        $collection = Collection::inRandomOrder()->first();
-        $collection->name = "api测试合集创建";
+        $user                = $this->user;
+        $collection          = $this->collection;
+        $collection->name    = "api测试合集创建";
         $collection->user_id = 2;
-        $data = $collection->toArray();
-        $response = $this->post("/api/collection/create",$data,['api_token'=>$user->api_token]);
+        $data                = $collection->toArray();
+        $response            = $this->post("/api/collection/create", $data, ['api_token' => $user->api_token]);
         $response->assertStatus(302);
     }
 
@@ -73,10 +83,10 @@ class CollectionTest extends TestCase
      */
     public function testUpdateCollectionApi()
     {
-        $user = User::inRandomOrder()->first();
-        $collection = Collection::inRandomOrder()->first();
-        $id = $collection->id;
-        $response = $this->post("/api/collection/{$id}",['api_token'=>$user->api_token]);
+        $user       = $this->user;
+        $collection = $this->collection;
+        $id         = $collection->id;
+        $response   = $this->post("/api/collection/{$id}", ['api_token' => $user->api_token]);
         $response->assertStatus(200);
     }
 
@@ -87,7 +97,7 @@ class CollectionTest extends TestCase
      */
     public function testDeleteCollectionApi()
     {
-        $id = Collection::inRandomOrder()->first()->id;
+        $id       = $this->collection->id;
         $response = $this->delete("/api/collection/{$id}");
         $response->assertStatus(302);
     }
@@ -98,13 +108,13 @@ class CollectionTest extends TestCase
      */
     public function testCreateArticleCollectionApi()
     {
-        $user = User::inRandomOrder()->first();
-        $collection = Collection::inRandomOrder()->first();
-        $id = $collection->id;
-        $article = Article::inRandomOrder()->first();
+        $user          = $this->user;
+        $collection    = $this->collection;
+        $id            = $collection->id;
+        $article       = $this->article;
         $article->name = "测试合集。。";
-        $data = $article->toArray();
-        $response = $this->post("/api/collection/{$id}/article/create",$data,['api_token'=>$user->api_token]);
+        $data          = $article->toArray();
+        $response      = $this->post("/api/collection/{$id}/article/create", $data, ['api_token' => $user->api_token]);
         $response->assertStatus(302);
     }
 
@@ -114,10 +124,10 @@ class CollectionTest extends TestCase
      */
     public function testMovieArticleCollectionApi()
     {
-        $user = User::inRandomOrder()->first();
-        $id = Article::inRandomOrder()->first()->id;
-        $cid = Collection::inRandomOrder()->first()->id;
-        $response = $this->call('GET',"/api/article-{$id}-move-collection-{$cid}",['api_token'=>$user->api_token]);
+        $user     = $this->user;
+        $id       = $this->article->id;
+        $cid      = $this->collection->id;
+        $response = $this->call('GET', "/api/article-{$id}-move-collection-{$cid}", ['api_token' => $user->api_token]);
         $response->assertStatus(200);
     }
 
@@ -127,8 +137,8 @@ class CollectionTest extends TestCase
      */
     public function testGetCollectionVideosCollectionApi()
     {
-        $collection_id = Collection::inRandomOrder()->first()->id;
-        $response = $this->post("/api/collection/{$collection_id}/posts");
+        $collection_id = $this->collection->id;
+        $response      = $this->post("/api/collection/{$collection_id}/posts");
         $response->assertStatus(200);
     }
 
@@ -139,8 +149,8 @@ class CollectionTest extends TestCase
      */
     public function testShareCollectionWeb()
     {
-        $id = Collection::inRandomOrder()->first()->id;
-        $response = $this->call('GET',"/share/collection/{$id}");
+        $id       = $this->collection->id;
+        $response = $this->call('GET', "/share/collection/{$id}");
         $response->assertStatus(200);
     }
 

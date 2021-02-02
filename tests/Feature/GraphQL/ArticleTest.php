@@ -18,9 +18,7 @@ class ArticleTest extends GraphQLTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
-
-        //先确保创建了文章
+        $this->user    = User::factory()->create();
         $this->article = Article::factory(['user_id' => $this->user->id])->create();
     }
 
@@ -148,6 +146,7 @@ class ArticleTest extends GraphQLTestCase
     protected function tearDown(): void
     {
         $this->article->delete();
+        $this->user->delete();
         parent::tearDown();
     }
 
