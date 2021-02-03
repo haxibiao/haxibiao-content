@@ -20,10 +20,10 @@ class CreateCollectablesTable extends Migration
             $table->id();
 
             $table->integer('collection_id')->unsigned();
-            $table->unsignedInteger('user_id')->index();
+            // $table->unsignedInteger('user_id')->index();
             $table->morphs('collectable');
             $table->string('collection_name');
-             //post在集合中的排序
+            //post在集合中的排序
             $table->unsignedInteger('sort_rank')->nullable()->index()->comment('排序(置顶方法)');
 
             //索引字段
