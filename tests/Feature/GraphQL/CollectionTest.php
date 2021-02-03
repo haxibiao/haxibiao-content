@@ -11,6 +11,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 class CollectionTest extends GraphQLTestCase
 {
     use DatabaseTransactions;
+
     protected $user;
     protected $collection;
     protected $post;
@@ -32,13 +33,25 @@ class CollectionTest extends GraphQLTestCase
     }
 
     /**
+     * 合集内的视频
+     * @group collection
+     * @group testCollectionPostsQuery
+     */
+    public function testCollectionPostsQuery(){
+        $query     = file_get_contents(__DIR__ . '/Collection/collectionPostsQuery.gql');
+        $variables = [
+            'collection_id' => $this->collection->id,
+        ];
+        $this->runGuestGQL($query, $variables);
+    }
+    /**
      * 我的合集
      * @group collection
      * @group testCollectionsQuery
      */
     public function testCollectionsQuery()
     {
-        $query     = file_get_contents(__DIR__ . '/collection/collectionsQuery.gql');
+        $query     = file_get_contents(__DIR__ . '/Collection/collectionsQuery.gql');
         $variables = [
             'user_id' => $this->user->id,
         ];
@@ -53,7 +66,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testCollectionQuery()
     {
-        $query      = file_get_contents(__DIR__ . '/collection/collectionQuery.gql');
+        $query      = file_get_contents(__DIR__ . '/Collection/collectionQuery.gql');
         $collection = $this->collection;
         $variables  = [
             'collection_id' => $collection->id,
@@ -68,7 +81,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testMoveInCollectionsMutation()
     {
-        $query      = file_get_contents(__DIR__ . '/collection/moveInCollectionsMutation.gql');
+        $query      = file_get_contents(__DIR__ . '/Collection/moveInCollectionsMutation.gql');
         $collection = $this->collection;
         $post       = $this->post;
         $variables  = [
@@ -86,7 +99,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testMoveOutCollectionsMutation()
     {
-        $queryIn     = file_get_contents(__DIR__ . '/collection/moveInCollectionsMutation.gql');
+        $queryIn     = file_get_contents(__DIR__ . '/Collection/moveInCollectionsMutation.gql');
         $userHeaders = $this->getRandomUserHeaders($this->user);
         $collection  = $this->collection;
         //往合集中添加视频
@@ -97,7 +110,7 @@ class CollectionTest extends GraphQLTestCase
         ];
         $this->runGuestGQL($queryIn, $variablesIn, $userHeaders);
         //将视频从合集中移除
-        $queryOut     = file_get_contents(__DIR__ . '/collection/moveOutCollectionsMutation.gql');
+        $queryOut     = file_get_contents(__DIR__ . '/Collection/moveOutCollectionsMutation.gql');
         $post         = $collection->posts()->first();
         $variablesOut = [
             "collection_id"   => $collection->id,
@@ -113,10 +126,13 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testRandomCollectionsMutation()
     {
-        $query       = file_get_contents(__DIR__ . '/collection/randomCollectionsQuery.gql');
+        $query       = file_get_contents(__DIR__ . '/Collection/randomCollectionsQuery.gql');
         $userHeaders = $this->getRandomUserHeaders($this->user);
         $variables   = [];
+        // 登陆
         $this->runGuestGQL($query, $variables, $userHeaders);
+        // 没登录
+        $this->runGuestGQL($query, $variables, []);
     }
 
     /**
@@ -126,7 +142,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testSearchCollectionsQuery()
     {
-        $query       = file_get_contents(__DIR__ . '/collection/searchCollectionsQuery.gql');
+        $query       = file_get_contents(__DIR__ . '/Collection/searchCollectionsQuery.gql');
         $userHeaders = $this->getRandomUserHeaders($this->user);
         $collection  = $this->collection;
         $variables   = [
@@ -142,7 +158,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testDeleteCollectionMutation()
     {
-        $query       = file_get_contents(__DIR__ . '/collection/DeleteCollectionMutation.gql');
+        $query       = file_get_contents(__DIR__ . '/Collection/DeleteCollectionMutation.gql');
         $userHeaders = $this->getRandomUserHeaders($this->user);
         $collection  = $this->collection;
         $variables   = [
@@ -154,11 +170,11 @@ class CollectionTest extends GraphQLTestCase
     /**
      * 编辑合集
      * @group collection
-     * @group testDeleteCollectionMutation
+     * @group testEditCollectionMutation
      */
     public function testEditCollectionMutation()
     {
-        $query      = file_get_contents(__DIR__ . '/collection/editCollectionMutation.gql');
+        $query      = file_get_contents(__DIR__ . '/Collection/editCollectionMutation.gql');
         $collection = $this->collection;
         $variables  = [
             "collection_id" => $collection->id,
@@ -171,11 +187,11 @@ class CollectionTest extends GraphQLTestCase
     /**
      * 创建合集
      * @group collection
-     * @group testDeleteCollectionMutation
+     * @group testCreateCollectionMutation
      */
     public function testCreateCollectionMutation()
     {
-        $query       = file_get_contents(__DIR__ . '/collection/createCollectionMutation.gql');
+        $query       = file_get_contents(__DIR__ . '/Collection/createCollectionMutation.gql');
         $userHeaders = $this->getRandomUserHeaders($this->user);
         $post        = $this->post;
         //创建时添加合集
@@ -198,7 +214,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testShareCollectionQuery()
     {
-        $query       = file_get_contents(__DIR__ . '/collection/shareCollectionQuery.gql');
+        $query       = file_get_contents(__DIR__ . '/Collection/shareCollectionQuery.gql');
         $collection  = $this->collection;
         $userHeaders = $this->getRandomUserHeaders($this->user);
         $variables   = [
@@ -213,7 +229,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testTypeCollectionsQuery()
     {
-        $query = file_get_contents(__DIR__ . '/collection/typeCollectionsQuery.gql');
+        $query = file_get_contents(__DIR__ . '/Collection/typeCollectionsQuery.gql');
 
         // POST @enum(value: "psots")
         $variables = [
@@ -237,11 +253,27 @@ class CollectionTest extends GraphQLTestCase
         $this->startGraphQL($query, $variables);
     }
 
+    /**
+     * 置顶合集推荐
+     * @group collection
+     * @group testRecommendCollectionsQuery
+     */
+    public function testRecommendCollectionsQuery(){
+
+        $query       = file_get_contents(__DIR__ . '/Collection/recommendCollectionsQuery.gql');
+        $userHeaders = $this->getRandomUserHeaders($this->user);
+        $variables   = [];
+        // 登陆
+        $this->runGuestGQL($query, $variables, $userHeaders);
+        // 没登录
+        $this->runGuestGQL($query, $variables, []);
+    }
+
     protected function tearDown(): void
     {
-        $this->post->delete();
-        $this->collection->delete();
-        $this->user->delete();
+        $this->post->forceDelete();
+        $this->collection->forceDelete();
+        $this->user->forceDelete();
         parent::tearDown();
     }
 }

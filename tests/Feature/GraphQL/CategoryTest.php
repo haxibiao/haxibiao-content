@@ -10,7 +10,6 @@ use Tests\CreatesApplication;
 
 class CategoryTest extends GraphQLTestCase
 {
-    use CreatesApplication;
     use DatabaseTransactions;
 
     protected $user;
@@ -62,8 +61,8 @@ class CategoryTest extends GraphQLTestCase
 
     protected function tearDown(): void
     {
-        $this->category->delete();
-        $this->user->delete();
+        $this->category->forceDelete();
+        $this->user->forceDelete();
         parent::tearDown();
     }
 }

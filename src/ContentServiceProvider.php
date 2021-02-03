@@ -97,8 +97,8 @@ class ContentServiceProvider extends ServiceProvider
         );
 
         //绑定observers
-        \Haxibiao\Media\Spider::observe(Observers\SpiderObserver::class);
-        \Haxibiao\Media\Video::observe(Observers\VideoObserver::class);
+//        \Haxibiao\Media\Spider::observe(Observers\SpiderObserver::class);
+//        \Haxibiao\Media\Video::observe(Observers\VideoObserver::class);
     }
 
     protected function bindPathsInContainer()

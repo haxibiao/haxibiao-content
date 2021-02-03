@@ -42,7 +42,7 @@ class ArticleTest extends TestCase
         $article = $this->article;
 
         //关联专题
-        $categories   = Category::latest('id')->take(3)->get();
+        $categories = Category::factory(3)->create();
         $category_ids = [];
         foreach ($categories as $category) {
             $category_ids[] = $category->id;
@@ -110,7 +110,9 @@ class ArticleTest extends TestCase
     public function testArticleEdit()
     {
         //seed的3个用户里有编辑用户，才可以编辑别人的文章
-        $editor   = User::whereRole(User::EDITOR_STATUS)->first();
+        $editor = User::factory()->create([
+            'role_id' => User::EDITOR_STATUS,
+        ]);
         $response = $this->actingAs($editor)->get("/article/{$this->article->id}/edit");
         $response->assertStatus(200);
     }
@@ -134,7 +136,8 @@ class ArticleTest extends TestCase
         $this->article->forceDelete();
         $this->post->forceDelete();
         $this->user->forceDelete();
-        // parent::tearDown();
+        $this->video->forceDelete();
+        parent::tearDown();
     }
 
 }

@@ -230,6 +230,7 @@ trait Taggable
         } else {
             $tag       = new \App\Tag();
             $tag->name = $tagName;
+            $tag->user_id = getUserId();
             $tag->save();
 
             $this->tags()->attach([

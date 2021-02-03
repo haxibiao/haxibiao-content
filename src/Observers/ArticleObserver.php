@@ -25,19 +25,22 @@ class ArticleObserver
 
     public function created(Article $article)
     {
-        //黑名单用户禁言处理
-        if ($article->user->isBlack()) {
-            // $article->delete();
-            $article->status = -1;
-            $article->save();
-            // throw new GQLException('发布失败,你以被禁言');
+        $user = data_get($article,'user');
+        if($user){
+            //黑名单用户禁言处理
+            if ($user->isBlack()) {
+                // $article->delete();
+                $article->status = -1;
+                $article->save();
+                // throw new GQLException('发布失败,你以被禁言');
 
-        }
+            }
 
-        if ($profile = $article->user->profile) {
-            $profile->count_articles = $article->user->publishedArticles()->count();
-            $profile->count_words    = $article->user->publishedArticles()->sum('count_words');
-            $profile->save();
+            if ($profile = $user->profile) {
+                $profile->count_articles = $article->user->publishedArticles()->count();
+                $profile->count_words    = $article->user->publishedArticles()->sum('count_words');
+                $profile->save();
+            }
         }
 
         if ($category = $article->category) {

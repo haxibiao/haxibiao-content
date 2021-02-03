@@ -16,7 +16,6 @@ trait IssueResolvers
 
     public function createIssueResolver($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
-
         $user = getUser();
         //创建一个新的问题issue
         $this->title      = $args['title'];
@@ -28,7 +27,6 @@ trait IssueResolvers
             $image = Image::saveImage($args['cover_image']);
             $this->images()->attach($image->id);
             $this->save();
-
         }
 
         return $this;

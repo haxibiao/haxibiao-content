@@ -225,6 +225,10 @@ class Collection extends Model
 
     public static function getTopCover()
     {
+        // 测试环境跳过
+        if(config('app.env') == 'testing'){
+            return;
+        }
         $update_time = Storage::cloud()->lastModified(self::TOP_COVER);
         $interval    = ceil((time() - $update_time));
 

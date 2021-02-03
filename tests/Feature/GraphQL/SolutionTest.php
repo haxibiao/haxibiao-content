@@ -13,26 +13,31 @@ class SolutionTest extends GraphQLTestCase
     use DatabaseTransactions;
 
     protected $user;
+    protected $solver;
     protected $issue;
     protected $solution;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user  = $this->getRandomUser();
-        $this->issue = Issue::create([
+
+        $this->user    = User::factory()->create();
+        $this->solver  = User::factory()->create();
+
+        $this->issue = Issue::factory([
             'user_id'    => $this->user->id,
             'title'      => '测试问答',
             'background' => '测试的问答描述',
-        ]);
-        $this->solution = Solution::create([
-            'user_id'  => $this->user->id,
+        ])->create();
+        $this->solution = Solution::factory([
+            'user_id'  => $this->solver->id,
             'issue_id' => $this->issue->id,
             'answer'   => '问答测试用例',
-        ]);
+        ])->create();
     }
 
     /**
+     * 回复问答
      * @group solution
      * @group testAddSolutionMutation
      */
@@ -40,15 +45,16 @@ class SolutionTest extends GraphQLTestCase
     {
         $query = file_get_contents(__DIR__ . '/Solution/addSolutionMutation.gql');
 
-        $headers = $this->getRandomUserHeaders();
+        $headers = $this->getRandomUserHeaders($this->user);
 
+        // 不带图
         $variables = [
             'issue_id' => $this->issue->id,
             'answer'   => "test hello world",
         ];
-
         $this->runGuestGQL($query, $variables, $headers);
 
+        // 带图
         $variables = [
             'issue_id'   => $this->issue->id,
             'answer'     => "test hello world",
@@ -58,33 +64,24 @@ class SolutionTest extends GraphQLTestCase
 
     }
     /**
+     * 删除回答
      * @group solution
      * @group testDeleteSolutionMutation
      */
     public function testDeleteSolutionMutation()
     {
         $query = file_get_contents(__DIR__ . '/Solution/deleteSolutionMutation.gql');
-        $token = $this->user->api_token;
 
-        $headers = [
-            'Authorization' => 'Bearer ' . $token,
-            'Accept'        => 'application/json',
-        ];
-        $args = [
-            'user_id'  => $this->user->id,
-            'issue_id' => $this->issue->id,
-            'answer'   => "i'm a solution of issue",
-        ];
-        //用参数创建一个回答
-        $solution  = Solution::firstOrCreate($args);
+        $headers = $this->getRandomUserHeaders($this->solver);
         $variables = [
-            'id' => $solution->id,
+            'id' => $this->solution->id,
         ];
 
         $this->runGuestGQL($query, $variables, $headers);
     }
 
     /**
+     * 回复查询
      * @group solution
      * @group testSolutionsQuery
      */
@@ -101,6 +98,7 @@ class SolutionTest extends GraphQLTestCase
 
     }
     /**
+     * 回复详情
      * @group solution
      * @group testSolutionQuery
      */
@@ -117,21 +115,18 @@ class SolutionTest extends GraphQLTestCase
     }
 
     /**
+     * 查询我的回答
      * @group solution
      * @group testMySolutionMutation
      */
     public function testMySolutionMutation()
     {
         $query = file_get_contents(__DIR__ . '/Solution/mySolutionsQuery.gql');
+        $solver  = $this->solver;
+        $headers = $this->getRandomUserHeaders($solver);
 
-        $token = $this->user->api_token;
-
-        $headers = [
-            'Authorization' => 'Bearer ' . $token,
-            'Accept'        => 'application/json',
-        ];
         $variables = [
-            'user_id' => $this->user->id,
+            'user_id' => $solver->id,
         ];
 
         $this->runGuestGQL($query, $variables, $headers);
@@ -142,6 +137,7 @@ class SolutionTest extends GraphQLTestCase
         $this->solution->forceDelete();
         $this->issue->forceDelete();
         $this->user->forceDelete();
+        $this->solver->forceDelete();
         parent::tearDown();
     }
 }

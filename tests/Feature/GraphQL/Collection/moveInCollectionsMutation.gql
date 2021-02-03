@@ -1,0 +1,7 @@
+# 批量添加视频到合集中
+mutation moveInCollectionsMutation($collection_id:Int!,$collectable_ids:[Int!]!){
+    moveInCollections(
+        collection_id:$collection_id,
+        collectable_ids:$collectable_ids
+    )
+}

@@ -121,10 +121,9 @@ class CategoryTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->article->delete();
-        $this->category->delete();
-        $this->user->delete();
+        $this->article->forceDelete();
+        $this->category->forceDelete();
+        $this->user->forceDelete();
         parent::tearDown();
-
     }
 }

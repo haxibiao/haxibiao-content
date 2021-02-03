@@ -9,12 +9,10 @@ use Tests\TestCase;
 
 class IssueTest extends TestCase
 {
-
     use DatabaseTransactions;
 
     protected $user;
     protected $issue;
-    protected $solution;
 
     protected function setUp(): void
     {
@@ -71,9 +69,6 @@ class IssueTest extends TestCase
         $response          = $this->post("/question", $data
             , ['api_token' => $this->user->api_token]);
         $response->assertStatus(302);
-
-        //tearDown
-        $issue->delete();
     }
 
     /**
@@ -94,5 +89,12 @@ class IssueTest extends TestCase
     {
         $response = $this->delete("/question/{$this->issue->id}");
         $response->assertStatus(302);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->user->forceDelete();
+        $this->issue->forceDelete();
+        parent::tearDown();
     }
 }

@@ -9,7 +9,6 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class ArticleTest extends GraphQLTestCase
 {
-
     use DatabaseTransactions;
 
     protected $user;
@@ -48,7 +47,7 @@ class ArticleTest extends GraphQLTestCase
         $variables = [
             'id' => $this->article->id,
         ];
-        $response = $this->runGQL($query, $variables);
+        $this->runGQL($query, $variables);
     }
 
     /**
@@ -93,26 +92,6 @@ class ArticleTest extends GraphQLTestCase
         $this->startGraphQL($query, $variables, $headers);
     }
 
-    //19 年工厂APP的首页视频刷，基于article的已无产品继续用，都更新了
-    // /**
-    //  * @group  article
-    //  * @group  testRecommendVideosQuery
-    //  */
-    // public function testRecommendVideosQuery()
-    // {
-    //     $token   = $this->user->api_token;
-    //     $query   = file_get_contents(__DIR__ . '/article/recommendVideosQuery.gql');
-    //     $headers = [
-    //         'Authorization' => 'Bearer ' . $token,
-    //         'Accept'        => 'application/json',
-    //     ];
-    //     //未登录刷视频
-    //     $this->startGraphQL($query, [], []);
-
-    //     //登录用户刷视频
-    //     $this->startGraphQL($query, [], $headers);
-    // }
-
     /**
      * 推荐文章/菜谱
      * @group testRecommendArticlesQuery
@@ -150,8 +129,8 @@ class ArticleTest extends GraphQLTestCase
 
     protected function tearDown(): void
     {
-        $this->article->delete();
-        $this->user->delete();
+        $this->article->forceDelete();
+        $this->user->forceDelete();
         parent::tearDown();
     }
 

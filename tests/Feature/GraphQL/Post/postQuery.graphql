@@ -1,6 +1,8 @@
-#影视动态刷
-query postWithMoviesQuery {
-    postWithMovies {
+#import "./postFragment.graphql"
+#import "../collection/collectionFragment.graphql"
+
+query postQuery($id: Int!) {
+    post(id: $id) {
         id
         spider {
             id
@@ -9,7 +11,6 @@ query postWithMoviesQuery {
         description
         status
         liked
-        count_visits
         count_likes
         count_comments
         review_id
@@ -26,12 +27,7 @@ query postWithMoviesQuery {
             age
             introduction
         }
-        tags {
-            data {
-                id
-                name
-            }
-        }
+
         images {
             id
             url
@@ -47,13 +43,19 @@ query postWithMoviesQuery {
             width
             height
         }
+        tags {
+            data {
+                id
+                name
+            }
+        }
         movies {
             id
             name
             introduction
             cover
         }
-        collections{
+        collections {
             id
             logo
             name

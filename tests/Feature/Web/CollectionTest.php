@@ -14,6 +14,7 @@ class CollectionTest extends TestCase
 
     protected $user;
     protected $collection;
+    protected $article;
 
     protected function setUp(): void
     {
@@ -112,7 +113,7 @@ class CollectionTest extends TestCase
         $collection    = $this->collection;
         $id            = $collection->id;
         $article       = $this->article;
-        $article->name = "测试合集。。";
+        $article->title = "测试合集。。";
         $data          = $article->toArray();
         $response      = $this->post("/api/collection/{$id}/article/create", $data, ['api_token' => $user->api_token]);
         $response->assertStatus(302);
@@ -149,7 +150,8 @@ class CollectionTest extends TestCase
      */
     public function testShareCollectionWeb()
     {
-        $id       = $this->collection->id;
+        $collection = Collection::factory()->create();
+        $id       = $collection->id;
         $response = $this->call('GET', "/share/collection/{$id}");
         $response->assertStatus(200);
     }
@@ -162,5 +164,13 @@ class CollectionTest extends TestCase
     {
         $response = $this->post("/collection");
         $response->assertStatus(200);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->user->forceDelete();
+        $this->collection->forceDelete();
+        $this->article->forceDelete();
+        parent::tearDown();
     }
 }

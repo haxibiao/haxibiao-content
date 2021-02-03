@@ -3,6 +3,7 @@
 namespace Haxibiao\Content;
 
 use Haxibiao\Breeze\Model;
+use Haxibiao\Breeze\Traits\HasFactory;
 use Haxibiao\Content\Traits\SolutionAttrs;
 use Haxibiao\Content\Traits\SolutionResolvers;
 use Haxibiao\Sns\Traits\WithSns;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Solution extends Model
 {
+    use HasFactory;
     use SolutionResolvers;
     use SolutionAttrs;
     use SoftDeletes;

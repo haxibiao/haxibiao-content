@@ -1,11 +1,13 @@
-#动态广场
-query publicPostsQuery($user_id: Int, $page: Int) {
-    publicPosts(user_id: $user_id,  page: $page) {
-        paginatorInfo {
-            hasMorePages
-            currentPage
+# 读取视频流中的的UUID获得分享信息
+query visitShareablebyUuid($id: String!) {
+    visitShareablebyUuid(uuid: $id) {
+        id
+        user {
+            id
+            name
+            avatar
         }
-        data {
+        post {
             id
             spider {
                 id
