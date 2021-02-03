@@ -1038,4 +1038,18 @@ trait PostRepo
             return $query;
         }
     }
+
+    public static function newPublicPosts($user_id, $page = 1, $count = 10)
+    {
+        $total = $page * $count;
+        // 先刷快手的视频
+        $query = \App\Post::whereIn('spider_id', function ($query) {
+            $query->select('id')->from('spiders')->where('spiders.source_url', 'like', 'https://v.kuaishou.com/%');
+        })->publish();
+        if ($query->count() < $total) {
+            return static::publicPosts($user_id);
+        }
+
+        return $query->inRandomOrder();
+    }
 }

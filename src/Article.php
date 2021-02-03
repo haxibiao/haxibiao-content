@@ -20,7 +20,6 @@ class Article extends Model implements Collectionable
     use ArticleAttrs;
     use SoftDeletes;
     use Contentable;
-    //use WithCms;
     use WithSns;
 
     protected $guarded = ['api_token'];

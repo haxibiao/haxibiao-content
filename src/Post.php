@@ -3,6 +3,7 @@
 namespace Haxibiao\Content;
 
 use App\Comment;
+use App\PostRecommended;
 use App\User;
 use App\Video;
 use Carbon\Carbon;
@@ -14,6 +15,7 @@ use Haxibiao\Content\Traits\PostAttrs;
 use Haxibiao\Content\Traits\PostOldPatch;
 use Haxibiao\Content\Traits\PostRepo;
 use Haxibiao\Content\Traits\PostResolvers;
+use Haxibiao\Helpers\Traits\Searchable;
 use Haxibiao\Media\Image;
 use Haxibiao\Media\Spider;
 use Haxibiao\Media\Traits\CanLinkMovie;
@@ -31,9 +33,9 @@ class Post extends Model implements Collectionable
     use PostRepo;
     use PostAttrs;
     use PostResolvers;
+    use Searchable;
 
     use PostOldPatch;
-    //use WithCms;
     use WithSns;
     use Contentable;
     use CanLinkMovie;
@@ -42,6 +44,19 @@ class Post extends Model implements Collectionable
     {
         return 'posts';
     }
+
+    protected $searchable = [
+        'columns' => [
+            'posts.description'  => 2,
+            'taggables.tag_name' => 1,
+        ],
+        'joins'   => [
+            'taggables' => [
+                ['taggables.taggable_id', 'posts.id'],
+                ['taggables.taggable_type', 'posts'],
+            ],
+        ],
+    ];
 
     protected $guarded = [];
 
@@ -117,6 +132,11 @@ class Post extends Model implements Collectionable
     public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');
+    }
+
+    public function recommended()
+    {
+        return $this->hasOne(PostRecommended::class, 'post_id');
     }
 
     //统一使用imageables表
@@ -239,6 +259,8 @@ class Post extends Model implements Collectionable
 
     public static function getRecommendPosts($limit = 4)
     {
+        // 系统推荐表
+
         //登录
         if (checkUser()) {
             return static::fastRecommendPosts($limit);

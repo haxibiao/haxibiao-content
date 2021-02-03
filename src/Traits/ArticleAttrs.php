@@ -171,9 +171,4 @@ trait ArticleAttrs
         }
         return $this->resoureTypeCN() . '<a href=' . $this->url . '>《' . $title . '》</a>';
     }
-
-    public function getCountLikesAttribute()
-    {
-        return $this->likes()->count();
-    }
 }
