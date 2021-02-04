@@ -41,7 +41,7 @@ class PostTest extends GraphQLTestCase
         $variables = [
             "user_id" => $this->user->id,
         ];
-        $this->runGQL($query, $variables);
+        $this->startGraphQL($query, $variables);
     }
 
     /**
@@ -55,11 +55,11 @@ class PostTest extends GraphQLTestCase
 
         // 未登陆
         $variables = [];
-        $this->runGQL($query, $variables,[]);
+        $this->startGraphQL($query, $variables,[]);
 
         // 登陆
         $headers = $this->getRandomUserHeaders($this->user);
-        $this->runGQL($query, $variables,$headers);
+        $this->startGraphQL($query, $variables,$headers);
     }
 
     /**
@@ -73,11 +73,11 @@ class PostTest extends GraphQLTestCase
 
         // 未登陆
         $variables = [];
-        $this->runGQL($query, $variables,[]);
+        $this->startGraphQL($query, $variables,[]);
 
         // 登陆
         $headers = $this->getRandomUserHeaders($this->user);
-        $this->runGQL($query, $variables,$headers);
+        $this->startGraphQL($query, $variables,$headers);
     }
 
     /**
@@ -91,7 +91,7 @@ class PostTest extends GraphQLTestCase
         $variables = [
             "user_id" => $this->user->id,
         ];
-        $this->runGQL($query, $variables);
+        $this->startGraphQL($query, $variables);
     }
 
     /**
@@ -106,7 +106,7 @@ class PostTest extends GraphQLTestCase
         $variables = [
             "user_id" => $this->user->id,
         ];
-        $this->runGQL($query, $variables);
+        $this->startGraphQL($query, $variables);
     }
 
     /**
@@ -134,7 +134,7 @@ class PostTest extends GraphQLTestCase
         $variables = [
             "id" => $share->uuid,
         ];
-        $this->runGQL($query, $variables,$headers);
+        $this->startGraphQL($query, $variables,$headers);
     }
 
     /**
@@ -147,7 +147,7 @@ class PostTest extends GraphQLTestCase
     {
         $query     = file_get_contents(__DIR__ . '/Post/recommendPostsQuery.graphql');
         $variables = [];
-        $this->runGQL($query, $variables);
+        $this->startGraphQL($query, $variables);
     }
 
     /**
@@ -164,7 +164,7 @@ class PostTest extends GraphQLTestCase
             'id' => $this->post->id,
         ];
 
-        $this->runGQL($query, $variables);
+        $this->startGraphQL($query, $variables);
     }
 
     /**
@@ -231,7 +231,7 @@ class PostTest extends GraphQLTestCase
             // 注释的原因：GQL后台测试正常，跑UT就报错
             //'images' => [$this->getBase64ImageString()]
         ];
-        $this->runGQL($query, $variables, $headers);
+        $this->startGraphQL($query, $variables, $headers);
     }
     /**
      * @group  post
@@ -256,7 +256,7 @@ class PostTest extends GraphQLTestCase
             'video_id' => $video->id,
             'body'     => '测试创建创建视频动态',
         ];
-        $this->runGQL($query, $variables, $headers);
+        $this->startGraphQL($query, $variables, $headers);
 
          //情形2:创建带图动态
          $variables = [
@@ -265,7 +265,7 @@ class PostTest extends GraphQLTestCase
              'type'         => 'POST',
              'category_ids' => [1],
          ];
-        $this->runGQL($query, $variables, $headers);
+        $this->startGraphQL($query, $variables, $headers);
     }
 
     /**
@@ -283,7 +283,7 @@ class PostTest extends GraphQLTestCase
             'share_link' => "#在抖音，记录美好生活#美元如何全球褥羊毛？经济危机下，2万亿救市的深层动力，你怎么看？#经济 #教育#云上大课堂 #抖音小助手 https://v.douyin.com/vruTta/ 复制此链接，打开【抖音短视频】，直接观看视频！",
         ];
 
-        $this->runGQL($query, $variables, $headers);
+        $this->startGraphQL($query, $variables, $headers);
     }
 
     /**

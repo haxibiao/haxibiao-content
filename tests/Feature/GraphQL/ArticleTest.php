@@ -3,6 +3,7 @@
 namespace Haxibiao\Content\Tests\Feature\GraphQL;
 
 use App\Article;
+use App\Category;
 use App\User;
 use Haxibiao\Breeze\GraphQLTestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -28,12 +29,20 @@ class ArticleTest extends GraphQLTestCase
      */
     public function testFollowedArticleQuery()
     {
+        $category = Category::factory()->create();
+        Article::factory(3)->create([
+            'category_id' => $category->id
+        ]);
+
+        $follower = User::factory()->create();
+        $follower->followIt($category);
+        $headers = $this->getRandomUserHeaders($follower);
+
         $query     = file_get_contents(__DIR__ . '/article/followedArticlesQuery.gql');
         $variables = [
-            'user_id' => $this->user->id,
-            'type'    => 'users',
+            'user_id' => $follower->id,
         ];
-        $this->runGQL($query, $variables);
+        $this->startGraphQL($query, $variables ,$headers);
     }
 
     /**
@@ -47,7 +56,7 @@ class ArticleTest extends GraphQLTestCase
         $variables = [
             'id' => $this->article->id,
         ];
-        $this->runGQL($query, $variables);
+        $this->startGraphQL($query, $variables);
     }
 
     /**
@@ -63,13 +72,13 @@ class ArticleTest extends GraphQLTestCase
         $variables = [
             'submit' => "SUBMITTED_SUBMIT",
         ];
-        $this->runGQL($query, $variables);
+        $this->startGraphQL($query, $variables);
 
         //用户全部文章
         $variables = [
             'submit' => "ALL",
         ];
-        $this->runGQL($query, $variables);
+        $this->startGraphQL($query, $variables);
     }
 
     /**
@@ -104,7 +113,7 @@ class ArticleTest extends GraphQLTestCase
             'count' => 1,
             'page'  => 1,
         ];
-        $this->runGuestGQL($query, $variables);
+        $this->startGraphQL($query, $variables);
     }
 
     /**

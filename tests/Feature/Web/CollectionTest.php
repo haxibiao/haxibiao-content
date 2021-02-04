@@ -150,7 +150,9 @@ class CollectionTest extends TestCase
      */
     public function testShareCollectionWeb()
     {
-        $collection = Collection::factory()->create();
+        $collection = Collection::factory()->create([
+            'user_id' => $this->user->id
+        ]);
         $id       = $collection->id;
         $response = $this->call('GET', "/share/collection/{$id}");
         $response->assertStatus(200);

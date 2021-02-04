@@ -52,7 +52,7 @@ class SolutionTest extends GraphQLTestCase
             'issue_id' => $this->issue->id,
             'answer'   => "test hello world",
         ];
-        $this->runGuestGQL($query, $variables, $headers);
+        $this->startGraphQL($query, $variables, $headers);
 
         // 带图
         $variables = [
@@ -60,7 +60,7 @@ class SolutionTest extends GraphQLTestCase
             'answer'     => "test hello world",
             'image_urls' => ['http://cos.dongdianyi.com/storage/img/159.jpg'],
         ];
-        $this->runGuestGQL($query, $variables, $headers);
+        $this->startGraphQL($query, $variables, $headers);
 
     }
     /**
@@ -77,7 +77,7 @@ class SolutionTest extends GraphQLTestCase
             'id' => $this->solution->id,
         ];
 
-        $this->runGuestGQL($query, $variables, $headers);
+        $this->startGraphQL($query, $variables, $headers);
     }
 
     /**
@@ -94,7 +94,7 @@ class SolutionTest extends GraphQLTestCase
             'issue_id' => $this->issue->id,
             'count'    => 3,
         ];
-        $this->runGuestGQL($query, $variables);
+        $this->startGraphQL($query, $variables);
 
     }
     /**
@@ -110,7 +110,7 @@ class SolutionTest extends GraphQLTestCase
         $variables = [
             'id' => $this->solution->id,
         ];
-        $this->runGuestGQL($query, $variables);
+        $this->startGraphQL($query, $variables);
 
     }
 
@@ -129,7 +129,7 @@ class SolutionTest extends GraphQLTestCase
             'user_id' => $solver->id,
         ];
 
-        $this->runGuestGQL($query, $variables, $headers);
+        $this->startGraphQL($query, $variables, $headers);
     }
 
     protected function tearDown(): void

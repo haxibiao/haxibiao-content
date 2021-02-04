@@ -42,7 +42,7 @@ class CollectionTest extends GraphQLTestCase
         $variables = [
             'collection_id' => $this->collection->id,
         ];
-        $this->runGuestGQL($query, $variables);
+        $this->startGraphQL($query, $variables);
     }
     /**
      * 我的合集
@@ -56,7 +56,7 @@ class CollectionTest extends GraphQLTestCase
             'user_id' => $this->user->id,
         ];
         $userHeaders = $this->getRandomUserHeaders($this->user);
-        $this->runGuestGQL($query, $variables, $userHeaders);
+        $this->startGraphQL($query, $variables, $userHeaders);
     }
 
     /**
@@ -89,7 +89,7 @@ class CollectionTest extends GraphQLTestCase
             "collectable_ids" => [$post->id],
         ];
         $userHeaders = $this->getRandomUserHeaders($this->user);
-        $this->runGuestGQL($query, $variables, $userHeaders);
+        $this->startGraphQL($query, $variables, $userHeaders);
     }
 
     /**
@@ -108,7 +108,7 @@ class CollectionTest extends GraphQLTestCase
             "collection_id"   => $collection->id,
             "collectable_ids" => [$post->id],
         ];
-        $this->runGuestGQL($queryIn, $variablesIn, $userHeaders);
+        $this->startGraphQL($queryIn, $variablesIn, $userHeaders);
         //将视频从合集中移除
         $queryOut     = file_get_contents(__DIR__ . '/Collection/moveOutCollectionsMutation.gql');
         $post         = $collection->posts()->first();
@@ -116,7 +116,7 @@ class CollectionTest extends GraphQLTestCase
             "collection_id"   => $collection->id,
             "collectable_ids" => [$post->id],
         ];
-        $this->runGuestGQL($queryOut, $variablesOut, $userHeaders);
+        $this->startGraphQL($queryOut, $variablesOut, $userHeaders);
     }
 
     /**
@@ -130,9 +130,9 @@ class CollectionTest extends GraphQLTestCase
         $userHeaders = $this->getRandomUserHeaders($this->user);
         $variables   = [];
         // 登陆
-        $this->runGuestGQL($query, $variables, $userHeaders);
+        $this->startGraphQL($query, $variables, $userHeaders);
         // 没登录
-        $this->runGuestGQL($query, $variables, []);
+        $this->startGraphQL($query, $variables, []);
     }
 
     /**
@@ -164,7 +164,7 @@ class CollectionTest extends GraphQLTestCase
         $variables   = [
             "id" => $collection->id,
         ];
-        $this->runGuestGQL($query, $variables, $userHeaders);
+        $this->startGraphQL($query, $variables, $userHeaders);
     }
 
     /**
@@ -181,7 +181,7 @@ class CollectionTest extends GraphQLTestCase
             "name"          => "测试修改",
         ];
         $userHeaders = $this->getRandomUserHeaders($this->user);
-        $this->runGuestGQL($query, $variables, $userHeaders);
+        $this->startGraphQL($query, $variables, $userHeaders);
     }
 
     /**
@@ -199,12 +199,12 @@ class CollectionTest extends GraphQLTestCase
             'name'            => "测试",
             "collectable_ids" => [$post->id],
         ];
-        $this->runGuestGQL($query, $variables, $userHeaders);
+        $this->startGraphQL($query, $variables, $userHeaders);
         //创建时不添加合集
         $variables = [
             'name' => "测试",
         ];
-        $this->runGuestGQL($query, $variables, $userHeaders);
+        $this->startGraphQL($query, $variables, $userHeaders);
     }
 
     /**
@@ -264,9 +264,9 @@ class CollectionTest extends GraphQLTestCase
         $userHeaders = $this->getRandomUserHeaders($this->user);
         $variables   = [];
         // 登陆
-        $this->runGuestGQL($query, $variables, $userHeaders);
+        $this->startGraphQL($query, $variables, $userHeaders);
         // 没登录
-        $this->runGuestGQL($query, $variables, []);
+        $this->startGraphQL($query, $variables, []);
     }
 
     protected function tearDown(): void

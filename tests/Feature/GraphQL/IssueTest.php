@@ -41,7 +41,7 @@ class IssueTest extends GraphQLTestCase
             "background" => "HelloWorld",
         ];
 
-        $this->runGuestGQL($query, $variables, $headers);
+        $this->startGraphQL($query, $variables, $headers);
 
         // TODO 注释的原因：GQL后台测试没问题，但是测试用例一直跑不过。有空过来看看
         //创建戴图片的问题
@@ -50,8 +50,8 @@ class IssueTest extends GraphQLTestCase
 //             "background"  => "HelloWorld",
 //             'cover_image' => $this->getBase64ImageString(),
 //         ];
-
-        $this->runGuestGQL($query, $variables, $headers);
+//
+//        $this->startGraphQL($query, $variables, $headers);
     }
 
     /**
@@ -66,7 +66,7 @@ class IssueTest extends GraphQLTestCase
         $variables = [
             'query' => str_limit($this->issue->title, 5),
         ];
-        $this->runGuestGQL($query, $variables, $headers);
+        $this->startGraphQL($query, $variables, $headers);
     }
 
     /**
@@ -85,10 +85,10 @@ class IssueTest extends GraphQLTestCase
                 ],
             ],
         ];
-        $this->runGuestGQL($query, $variables);
+        $this->startGraphQL($query, $variables);
         //默认排序方式
         $variables = [];
-        $this->runGuestGQL($query, $variables);
+        $this->startGraphQL($query, $variables);
 
     }
     /**
@@ -109,7 +109,7 @@ class IssueTest extends GraphQLTestCase
             'issue_id' => $issue->id,
         ];
 
-        $this->runGuestGQL($query, $variables, $headers);
+        $this->startGraphQL($query, $variables, $headers);
     }
 
     /**
@@ -126,14 +126,14 @@ class IssueTest extends GraphQLTestCase
             'invited_user_id' => $this->invitee->id,
             'issue_id'        => $this->issue->id,
         ];
-        $this->runGuestGQL($query, $variables, $headers);
+        $this->startGraphQL($query, $variables, $headers);
 
         // 邀请自己
         $variables       = [
             'invited_user_id' => $this->user->id,
             'issue_id'        => $this->issue->id,
         ];
-        $this->runGuestGQL($query, $variables, $headers);
+        $this->startGraphQL($query, $variables, $headers);
     }
 
     protected function tearDown(): void
