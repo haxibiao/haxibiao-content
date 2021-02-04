@@ -70,6 +70,10 @@ class ContentServiceProvider extends ServiceProvider
             });
         }
 
+        if (!app()->configurationIsCached()) {
+            $this->mergeConfigFrom(__DIR__ . '/../config/database.php', 'database.connections');
+        }
+
         //安装时需要
         if ($this->app->runningInConsole()) {
             $this->loadMigrationsFrom($this->app->make('path.haxibiao-content.migrations'));

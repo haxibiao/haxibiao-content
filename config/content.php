@@ -3,6 +3,7 @@
 declare (strict_types = 1);
 
 return [
+    'enable_haxiyun'          => env('ENABLE_HAXIYUN', false),
     // 分享模版
     'share_config'            => [
         'share_msg'            => '#%s/share/post/%d#, #%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,',
