@@ -271,7 +271,7 @@ trait PostResolvers
         $filter = data_get($args, 'filter');
         $user   = getUser();
         //2.获取用户关注列表
-        $followedUserIds = $user->follows()->pluck('followed_id');
+        $followedUserIds = $user->follows()->pluck('followable_id');
         //3.获取关注用户发布的视频
         $qb = static::whereNotNull('video_id')
             ->whereIn('user_id', $followedUserIds)
