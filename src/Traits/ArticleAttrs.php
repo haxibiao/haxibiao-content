@@ -7,20 +7,20 @@ use App\Category;
 trait ArticleAttrs
 {
 
-    // public function getBodyAttribute()
-    // {
-    //     开启哈希云
-    //     if (config('content.enable_haxiyun')) {
-    //         // media database 获取body
-    //         $body = optional(\DB::connection('media')->table('articles')
-    //                 ->where('source_id', $this->id)
-    //                 ->select('body')
-    //                 ->first())
-    //             ->body;
-    //         return is_null($body) ? $this->getOriginal('body') : $body;
-    //     }
-    //     // return $this->getOriginal('body');
-    // }
+    public function getBodyAttribute()
+    {
+        // 开启哈希云
+        if (config('content.enable_haxiyun')) {
+            // media database 获取body
+            $body = optional(\DB::connection('media')->table('articles')
+                    ->where('source_id', $this->id)
+                    ->select('body')
+                    ->first())
+                ->body;
+            return is_null($body) ? $this->attributes['body'] : $body;
+        }
+        return $this->attributes['body'];
+    }
 
     public function getSubjectAttribute()
     {
