@@ -12,6 +12,7 @@ use Haxibiao\Content\Console\InstallCommand;
 use Haxibiao\Content\Console\PublishCommand;
 use Haxibiao\Content\Console\CrawlCollection;
 use Haxibiao\Content\Console\ImportCollections;
+use Haxibiao\Content\Console\SyncPostWithMovie;
 use Haxibiao\Content\Console\RefactorCollection;
 use Haxibiao\Content\Console\RefactorCategorizable;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -53,6 +54,7 @@ class ContentServiceProvider extends ServiceProvider
             CrawlCollection::class,
             FixContent::class,
             ImportCollections::class,
+            SyncPostWithMovie::class,
         ]);
     }
 
