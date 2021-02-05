@@ -229,21 +229,23 @@ class Collection extends Model
         if(config('app.env') == 'testing'){
             return;
         }
-        $update_time = Storage::cloud()->lastModified(self::TOP_COVER);
-        $interval    = ceil((time() - $update_time));
+        return cdnurl(self::TOP_COVER);
+        // $update_time = Storage::lastModified(self::TOP_COVER);
+        // // $update_time = Storage::cloud()->lastModified(self::TOP_COVER);
+        // $interval    = ceil((time() - $update_time));
 
-        //如果今天更新过，则拷贝一份新的更新名字
-        $newCover = 'storage/collection/new_top_cover.png';
-        if ($interval <= 1000) {
-            Storage::cloud()->copy(self::TOP_COVER, $newCover);
-            return cdnurl($newCover);
-        }
-        //如果在规定时间内没有访问更新后的图片，更新缓存
-        if (mt_rand(1, 100) > 50) {
-            return cdnurl($newCover);
-        } else {
-            return cdnurl(self::TOP_COVER);
-        }
+        // //如果今天更新过，则拷贝一份新的更新名字
+        // $newCover = 'storage/collection/new_top_cover.png';
+        // if ($interval <= 1000) {
+        //     Storage::cloud()->copy(self::TOP_COVER, $newCover);
+        //     return cdnurl($newCover);
+        // }
+        // //如果在规定时间内没有访问更新后的图片，更新缓存
+        // if (mt_rand(1, 100) > 50) {
+        //     return cdnurl($newCover);
+        // } else {
+        //     return cdnurl(self::TOP_COVER);
+        // }
     }
 
     public static function setTopCover($file)
