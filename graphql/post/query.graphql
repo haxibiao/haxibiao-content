@@ -38,6 +38,7 @@ type Post {
     """
     status: Int
     liked: Boolean
+    count_visits: Int
     count_likes: Int
     count_comments: Int
     review_id: String
@@ -48,18 +49,18 @@ type Post {
     广告类型
     """
     ad_type: String
-     """
+    """
     标签
     """
-    tags:[Tag!] @paginate(defaultCount: 10, builder:"\\App\\Post@resovlePostTags")
+    tags: [Tag!] @paginate(defaultCount: 10, builder: "\\App\\Post@resovlePostTags")
     """
     合集
     """
-    collections:[Collection]
+    collections: [Collection]
     """
     关联的长电影
     """
-    movies:[Movie]
+    movies: [Movie]
 
     """
     发布时间（多久前）
@@ -91,6 +92,12 @@ extend type Query {
         @paginate(builder: "App\\Post@resolvePosts", defaultCount: 10)
 
     """
+    收藏/普通动态
+    """
+    userPosts(user_id: Int!, filter: PostFilter = spider): [Post!]
+        @paginate(builder: "App\\Post@resolveUserPosts", defaultCount: 10)
+
+    """
     分享post
     """
     shareNewPost(id: ID!): String @field(resolver: "App\\Post@getShareLink")
@@ -120,7 +127,7 @@ extend type Query {
     """
     获取关联了电影的post列表
     """
-    postWithMovies:[Post] @field(resolver: "App\\Post@postWithMovies")
+    postWithMovies: [Post] @field(resolver: "App\\Post@postWithMovies")
 }
 
 enum PostTag {
@@ -133,6 +140,21 @@ enum PostTag {
     娱乐模块
     """
     PLAY @enum(value: 2)
+}
+
+enum PostFilter {
+    """
+    用户爬取的动态
+    """
+    spider
+    """
+    用户发布的动态
+    """
+    normal
+    """
+    全部
+    """
+    all
 }
 
 enum PostType {

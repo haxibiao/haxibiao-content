@@ -4,7 +4,7 @@ type Collection {
     """
     合集描述
     """
-    description: String!
+    description: String
     """
     合集播放量
     """
