@@ -2,19 +2,20 @@
 
 namespace Haxibiao\Content;
 
-use Haxibiao\Content\Console\CrawlCollection;
-use Haxibiao\Content\Console\FixContent;
-use Haxibiao\Content\Console\InstallCommand;
 use Haxibiao\Content\Console\NovelPush;
 use Haxibiao\Content\Console\NovelSync;
-use Haxibiao\Content\Console\PublishCommand;
-use Haxibiao\Content\Console\RefactorCategorizable;
-use Haxibiao\Content\Console\RefactorCollection;
-use Haxibiao\Content\Console\RefactorPost;
-use Haxibiao\Content\Console\StatisticVideoViewsCommand;
-use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
+use Haxibiao\Content\Console\FixContent;
+use Haxibiao\Content\Console\RefactorPost;
+use Illuminate\Console\Scheduling\Schedule;
+use Haxibiao\Content\Console\InstallCommand;
+use Haxibiao\Content\Console\PublishCommand;
+use Haxibiao\Content\Console\CrawlCollection;
+use Haxibiao\Content\Console\ImportCollections;
+use Haxibiao\Content\Console\RefactorCollection;
+use Haxibiao\Content\Console\RefactorCategorizable;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Haxibiao\Content\Console\StatisticVideoViewsCommand;
 
 class ContentServiceProvider extends ServiceProvider
 {
@@ -51,6 +52,7 @@ class ContentServiceProvider extends ServiceProvider
             StatisticVideoViewsCommand::class,
             CrawlCollection::class,
             FixContent::class,
+            ImportCollections::class,
         ]);
     }
 

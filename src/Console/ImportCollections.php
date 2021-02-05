@@ -72,7 +72,8 @@ class ImportCollections extends Command
                 try {
                     //新建user
                     $fromUser        = $fromcollection->user;
-                    $user_attributes = array_except($fromUser->getAttributes(), ['id', 'avatar']);
+                    $user_attributes = array_filter( array_except($fromUser->getAttributes(), 
+                    ['id', 'avatar','birthday','age','background']));
                     $intoUser        = User::firstOrNew(
                         ['account' => $fromUser->account],
                         $user_attributes);
@@ -137,6 +138,9 @@ class ImportCollections extends Command
                         //导入tag数据
                         $tag_ids = [];
                         foreach ($fromPost->tags as $fromTag) {
+                            if(!isset($fromTag->tag_name)){
+                                continue;
+                            }
                             $intoTag   = self::copyModel($fromTag, Tag::class, 'name', $intoUser->id);
                             $tag_ids[] = $intoTag->id;
                         }
@@ -149,6 +153,8 @@ class ImportCollections extends Command
                         $intoPost->video_id   = $intoVideo->id;
                         $intoPost->user_id    = $intoUser->id;
                         $intoPost->spider_id  = $intoSpider->id;
+                        $intoPost->created_at = now();
+                        $intoPost->updated_at = now();;
 
                         $intoPost->saveDataOnly();
 
@@ -159,7 +165,7 @@ class ImportCollections extends Command
                     //事务提交
                     DB::commit();
                 } catch (\Exception $ex) {
-                    info($ex->getMessage());
+                    info($ex);
                     //数据库回滚
                     DB::rollBack();
                     return false;
