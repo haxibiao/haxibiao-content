@@ -72,13 +72,13 @@ class ImportCollections extends Command
                 try {
                     //新建user
                     $fromUser        = $fromcollection->user;
-                    $user_attributes = array_filter( array_except($fromUser->getAttributes(), 
-                    ['id', 'avatar','birthday','age','background']));
-                    $intoUser        = User::firstOrNew(
+                    $user_attributes = array_filter(array_except($fromUser->getAttributes(),
+                        ['id', 'avatar', 'birthday', 'age', 'background']));
+                    $intoUser = User::firstOrNew(
                         ['account' => $fromUser->account],
                         $user_attributes);
                     //更新头像
-                    $intoUser->avatar = self::transferImage($fromUser->avatar);
+                    $intoUser->avatar = self::saveCompleteImage($fromUser->avatar);
                     $intoUser->saveDataOnly();
 
                     //确认该集合是否已经存在
@@ -90,7 +90,9 @@ class ImportCollections extends Command
                             null, $intoUser->id);
                     }
                     //更新合集封面
-                    $intoCollection->logo = self::transferImage($fromcollection->getRawOriginal('logo'));
+                    $intoCollection->logo       = self::saveCompleteImage($fromcollection->getRawOriginal('logo'));
+                    $intoCollection->created_at = now();
+                    $intoCollection->updated_at = now();
                     $intoCollection->saveDataOnly();
 
                     $fromPosts = $fromcollection->posts;
@@ -112,7 +114,7 @@ class ImportCollections extends Command
                         $fromVideo = $fromPost->video;
                         $intoVideo = self::copyModel($fromVideo, Video::class, 'hash', $intoUser->id);
                         //更新Video封面
-                        $intoVideo->cover = self::transferImage($fromVideo->cover);
+                        $intoVideo->cover = self::saveCompleteImage($fromVideo->cover);
                         $intoCollection->saveDataOnly();
 
                         //导入spider数据
@@ -128,7 +130,7 @@ class ImportCollections extends Command
                         $image_ids = [];
                         foreach ($fromPost->images as $fromImage) {
                             $intoImage       = self::copyModel($fromImage, Image::class, 'hash', $intoUser->id);
-                            $fromImage->path = self::transferImage($fromImage->path);
+                            $fromImage->path = self::saveCompleteImage($fromImage->path);
                             $fromImage->saveDataOnly();
                             $image_ids[] = $intoImage->id;
                         }
@@ -138,7 +140,7 @@ class ImportCollections extends Command
                         //导入tag数据
                         $tag_ids = [];
                         foreach ($fromPost->tags as $fromTag) {
-                            if(!isset($fromTag->tag_name)){
+                            if (!isset($fromTag->tag_name)) {
                                 continue;
                             }
                             $intoTag   = self::copyModel($fromTag, Tag::class, 'name', $intoUser->id);
@@ -223,11 +225,30 @@ class ImportCollections extends Command
     }
 
     /**
+     * 相对路径转存为绝对路径https
+     */
+    public static function saveCompleteImage($oldImagePath)
+    {
+        //返回默认图片
+        if (!isset($oldImagePath)) {
+            return config('content.collection_default_logo');
+        }
+        //返回原链接
+        if (str_contains($oldImagePath, 'http')) {
+            return $oldImagePath;
+        }
+        //返回https链接
+        $oldImagePath = "/" . $oldImagePath;
+        $oldImagePath = str_replace('//', '/', $oldImagePath);
+        return "https://" . config('content.origin_cos_domain') . $oldImagePath;
+
+    }
+
+    /**
      *将绝对路径图片重新上传当前app的的cos
      */
     public static function transferImage($oldImagePath)
     {
-
         $defaultImage = config('haxibiao-content.collection_default_logo');
         try {
 

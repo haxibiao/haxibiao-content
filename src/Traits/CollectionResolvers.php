@@ -223,18 +223,13 @@ trait CollectionResolvers
                 $notLikIds[] = $user->id;
                 $qb          = $qb->whereNotIn('user_id', $notLikIds);
             }
-
-            // //排除浏览过的视频->合集太少，暂时不排除已浏览过的数据
-            // $visitVideoIds = Visit::ofType('collections')->ofUserId($user->id)->get()->pluck('visited_id');
-            // if (!is_null($visitVideoIds)) {
-            //     $qb = $qb->whereNotIn('id', $visitVideoIds);
-            // }
         }
         //动态数量大于三的
         $qb = $qb->where('count_posts', '>=', 3);
         //过滤掉合集封面为默认封面的
         $qb = $qb->whereNotNull('logo')
             ->where('logo', '!=', config('haxibiao-content.collection_default_logo'));
+
         //按照合集创建时间排序
         $qb = $qb->whereBetWeen('created_at', [now()->subDay(365), now()]);
 
@@ -242,10 +237,8 @@ trait CollectionResolvers
 
         // FIXME:跳过十条数据的逻辑，在之前数据不充足的前提下会出现 count 预期数量与实际返回不一致
         $array = $qb
-        //->skip(($currentPage * $perPage) - $perPage)
-        ->take($perPage)
+            ->take($perPage)
             ->orderBy('created_at', 'desc')
-        // ->inRandomOrder()
             ->get();
 
         $collections = new \Illuminate\Pagination\LengthAwarePaginator(
