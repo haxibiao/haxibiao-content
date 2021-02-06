@@ -19,7 +19,7 @@ trait ArticleAttrs
                 ->body;
             return is_null($body) ? $this->attributes['body'] : $body;
         }
-        return $this->attributes['body'];
+        return data_get($this->attributes,'body');
     }
 
     public function getSubjectAttribute()
