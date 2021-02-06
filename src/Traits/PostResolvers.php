@@ -202,7 +202,7 @@ trait PostResolvers
             ->take(10)
             ->get();
 
-        return $recommendeds->count() ?  $recommendeds->merge($collectionPosts):$collectionPosts ;
+        return $recommendeds->count() ?  $recommendeds->merge(array_filter($collectionPosts)):$collectionPosts ;
     }
 
     public function resolveUpdatePost($root, $args, $context, $info)
