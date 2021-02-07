@@ -3,13 +3,13 @@
 namespace Haxibiao\Content;
 
 use Haxibiao\Breeze\Model;
+use Haxibiao\Breeze\Traits\HasFactory;
 use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Traits\ArticleAttrs;
 use Haxibiao\Content\Traits\ArticleRepo;
 use Haxibiao\Content\Traits\ArticleResolvers;
 use Haxibiao\Content\Traits\Contentable;
 use Haxibiao\Sns\Traits\WithSns;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Article extends Model implements Collectionable
