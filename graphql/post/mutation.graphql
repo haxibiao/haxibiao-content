@@ -77,4 +77,10 @@ extend type Mutation @guard {
         """
         tag_names: [String]
     ): Post! @field(resolver: "App\\Post@resolveUpdatePost")
+
+    """
+    删除动态
+    """
+    deletePost(id: ID!): Post @delete
+    deletePost(id: Int!): Post @delete
 }

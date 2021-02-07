@@ -40,6 +40,10 @@ type Article {
     question_reward: Int
     issue: Issue
     remark: String
+    """
+    合集
+    """
+    collections: [Collection]
 }
 
 extend type Query @guard {
