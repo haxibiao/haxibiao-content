@@ -13,13 +13,16 @@ trait ArticleAttrs
         if (config('content.enable_haxiyun')) {
             // media database 获取body
             $body = optional(\DB::connection('media')->table('articles')
-                    ->where('source_id', $this->id)
+                    ->where([
+                        'source_id' => $this->id,
+                        'source'    => config('app.domain'),
+                    ])
                     ->select('body')
                     ->first())
                 ->body;
             return is_null($body) ? $this->attributes['body'] : $body;
         }
-        return data_get($this->attributes,'body');
+        return data_get($this->attributes, 'body');
     }
 
     public function getSubjectAttribute()
