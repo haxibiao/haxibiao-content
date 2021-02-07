@@ -1,4 +1,4 @@
-query issues($orderBy: [IssuesOrderByOrderByClause!]) {
+query issues($orderBy: [QueryIssuesOrderByOrderByClause!]) {
     issues(orderBy: $orderBy) {
         paginatorInfo {
             hasMorePages
