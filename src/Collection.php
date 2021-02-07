@@ -171,8 +171,7 @@ class Collection extends Model
             ];
             $index++;
         }
-        $this->collectable($modelStr)
-            ->sync($syncData);
+        $this->collectable($modelStr)->syncWithoutDetaching($syncData);
 
         $this->updateCountPosts();
 
@@ -226,7 +225,7 @@ class Collection extends Model
     public static function getTopCover()
     {
         // 测试环境跳过
-        if(config('app.env') == 'testing'){
+        if (config('app.env') == 'testing') {
             return;
         }
         return cdnurl(self::TOP_COVER);
