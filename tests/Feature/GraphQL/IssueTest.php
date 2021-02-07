@@ -77,11 +77,12 @@ class IssueTest extends GraphQLTestCase
     {
         //用户的问答黑名单这块有问题
         $query     = file_get_contents(__DIR__ . '/Issue/issuesQuery.gql');
+
         $variables = [
             'orderBy' => [
                 [
+                    "column" => "LASTEST",
                     "order" => "DESC",
-                    "field" => "HOT",
                 ],
             ],
         ];
