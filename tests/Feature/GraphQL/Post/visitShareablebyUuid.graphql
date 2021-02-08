@@ -1,6 +1,6 @@
 # 读取视频流中的的UUID获得分享信息
-query visitShareablebyUuid($id: String!) {
-    visitShareablebyUuid(uuid: $id) {
+query visitShareablebyUuid($uuid: String!) {
+    visitShareablebyUuid(uuid: $uuid) {
         id
         user {
             id

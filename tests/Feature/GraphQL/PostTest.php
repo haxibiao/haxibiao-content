@@ -132,7 +132,7 @@ class PostTest extends GraphQLTestCase
 
         $query     = file_get_contents(__DIR__ . '/Post/VisitShareablebyUuid.graphql');
         $variables = [
-            "id" => $share->uuid,
+            "uuid" => $share->uuid,
         ];
         $this->startGraphQL($query, $variables,$headers);
     }
