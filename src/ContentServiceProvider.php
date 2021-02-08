@@ -2,21 +2,22 @@
 
 namespace Haxibiao\Content;
 
+use Haxibiao\Content\Console\ArticleClear;
+use Haxibiao\Content\Console\CrawlCollection;
+use Haxibiao\Content\Console\FixContent;
+use Haxibiao\Content\Console\ImportCollections;
+use Haxibiao\Content\Console\InstallCommand;
 use Haxibiao\Content\Console\NovelPush;
 use Haxibiao\Content\Console\NovelSync;
-use Illuminate\Support\ServiceProvider;
-use Haxibiao\Content\Console\FixContent;
-use Haxibiao\Content\Console\RefactorPost;
-use Illuminate\Console\Scheduling\Schedule;
-use Haxibiao\Content\Console\InstallCommand;
 use Haxibiao\Content\Console\PublishCommand;
-use Haxibiao\Content\Console\CrawlCollection;
-use Haxibiao\Content\Console\ImportCollections;
-use Haxibiao\Content\Console\SyncPostWithMovie;
-use Haxibiao\Content\Console\RefactorCollection;
 use Haxibiao\Content\Console\RefactorCategorizable;
-use Illuminate\Database\Eloquent\Relations\Relation;
+use Haxibiao\Content\Console\RefactorCollection;
+use Haxibiao\Content\Console\RefactorPost;
 use Haxibiao\Content\Console\StatisticVideoViewsCommand;
+use Haxibiao\Content\Console\SyncPostWithMovie;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\ServiceProvider;
 
 class ContentServiceProvider extends ServiceProvider
 {
@@ -47,6 +48,7 @@ class ContentServiceProvider extends ServiceProvider
             PublishCommand::class,
             NovelPush::class,
             NovelSync::class,
+            ArticleClear::class,
             RefactorCategorizable::class,
             RefactorPost::class,
             RefactorCollection::class,
@@ -105,8 +107,8 @@ class ContentServiceProvider extends ServiceProvider
         );
 
         //绑定observers
-//        \Haxibiao\Media\Spider::observe(Observers\SpiderObserver::class);
-//        \Haxibiao\Media\Video::observe(Observers\VideoObserver::class);
+        //        \Haxibiao\Media\Spider::observe(Observers\SpiderObserver::class);
+        //        \Haxibiao\Media\Video::observe(Observers\VideoObserver::class);
     }
 
     protected function bindPathsInContainer()
