@@ -82,7 +82,7 @@ enum IssueColumn {
     LASTEST @enum(value: "created_at")
 }
 enum CollectionEnum {
-    POST @enum(value: "psots")
+    POST @enum(value: "posts")
     ARTICLE @enum(value: "articles")
     AREA @enum(value: "areas")
 }
