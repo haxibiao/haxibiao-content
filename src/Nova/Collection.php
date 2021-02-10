@@ -3,6 +3,11 @@
 namespace Haxibiao\Content\Nova;
 
 use App\Nova\Resource;
+use Haxibiao\Content\Nova\Actions\AssignPostRecommend;
+use Haxibiao\Content\Nova\Actions\PickCollectionPost;
+use Haxibiao\Content\Nova\Actions\RecommendCollection;
+use Haxibiao\Content\Nova\Actions\TopCollection;
+use Haxibiao\Content\Nova\Actions\TransferCollection;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\ID;
@@ -60,6 +65,12 @@ class Collection extends Resource
 
     public function actions(Request $request)
     {
-        return [];
+        return [
+            new TopCollection,
+            new AssignPostRecommend,
+            new RecommendCollection,
+            new PickCollectionPost,
+            new TransferCollection,
+        ];
     }
 }
