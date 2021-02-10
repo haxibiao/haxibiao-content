@@ -3,12 +3,12 @@
 namespace Haxibiao\Content\Nova\Actions;
 
 use App\Post;
+use Haxibiao\NovaTools\Components\SelectAutoComplete;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Collection;
 use Laravel\Nova\Actions\Action;
 use Laravel\Nova\Fields\ActionFields;
-use Techouse\SelectAutoComplete\SelectAutoComplete;
 
 class PickCollectionPost extends Action
 {

@@ -26,7 +26,7 @@ class CollectionTest extends GraphQLTestCase
             'type'        => 'posts',
             'name'        => '测试合集数据 - name',
             'description' => '测试合集数据 - description',
-            'logo'        => Collection::TOP_COVER,
+            'logo'        => Collection::TOP_COVER(),
             'sort_rank'   => 1,
         ])->create();
         $this->post = Post::factory()->create();

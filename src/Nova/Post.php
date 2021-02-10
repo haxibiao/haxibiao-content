@@ -2,8 +2,11 @@
 
 namespace Haxibiao\Content\Nova;
 
-use App\Nova\Actions\Article\UpdatePost;
 use App\Nova\Resource;
+use Haxibiao\Content\Nova\Actions\AssignPostRecommend;
+use Haxibiao\Content\Nova\Actions\PickCollectionPost;
+use Haxibiao\Content\Nova\Actions\UpdatePost;
+use Haxibiao\Media\Nova\Video;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\ID;
@@ -89,6 +92,8 @@ class Post extends Resource
     {
         return [
             new UpdatePost,
+            new AssignPostRecommend,
+            new PickCollectionPost,
         ];
     }
 }

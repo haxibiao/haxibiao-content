@@ -3,6 +3,7 @@
 namespace Haxibiao\Content\Nova;
 
 use App\Nova\Resource;
+use Haxibiao\Content\Nova\Actions\UpdateArticle;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\ID;
@@ -70,6 +71,8 @@ class Article extends Resource
 
     public function actions(Request $request)
     {
-        return [];
+        return [
+            new UpdateArticle,
+        ];
     }
 }
