@@ -23,7 +23,7 @@ class Category extends Resource
     {
         return "专题";
     }
-    public static $group = '内容管理';
+    public static $group = '内容中心';
 
     /**
      * Get the fields displayed by the resource.

@@ -12,7 +12,7 @@ trait CategoryAttrs
             return false;
         }
         $is_category_admin = in_array(Auth::id(), $this->admins->pluck('id')->toArray());
-        return $is_category_admin || Auth::user()->checkEditor();
+        return $is_category_admin || checkEditor();
     }
 
     public function isFollowed()

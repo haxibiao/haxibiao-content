@@ -16,7 +16,7 @@ class Article extends Resource
 
     public static $model = 'App\\Article';
 
-    public static $group = '内容管理';
+    public static $group = '内容中心';
 
     public static $search = [
         'id', 'content',

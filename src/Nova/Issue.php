@@ -15,7 +15,7 @@ class Issue extends Resource
 
     public static $model = 'App\\Issue';
 
-    public static $group = '内容管理';
+    public static $group = '内容中心';
 
     public static $search = [
         'id', 'content',

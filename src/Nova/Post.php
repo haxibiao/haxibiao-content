@@ -16,21 +16,20 @@ use Laravel\Nova\Fields\Textarea;
 
 class Post extends Resource
 {
-    //public static $title = 'description';
-
+    public static $title = 'id';
     public static $model = 'App\\Post';
 
-    public static $group = '内容管理';
+    public static $group = '内容中心';
+    public static function label()
+    {
+        return "动态";
+    }
 
     public static $search = [
         'id', 'content',
     ];
 
     public static $with = ['user', 'video'];
-    public static function label()
-    {
-        return "动态";
-    }
 
     public function fields(Request $request)
     {
