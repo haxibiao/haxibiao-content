@@ -24,7 +24,7 @@ class Issue extends Resource
     public static $with = ['user'];
     public static function label()
     {
-        return "问题";
+        return "问答";
     }
 
     public function fields(Request $request)
