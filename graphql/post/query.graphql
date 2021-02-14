@@ -6,6 +6,14 @@ type Post {
     """
     video: Video
     """
+    视频地址(兼容用)
+    """
+    video_url: String
+    """
+    封面地址(兼容用)
+    """
+    cover: String
+    """
     爬虫
     """
     spider: Spider
@@ -51,8 +59,7 @@ type Post {
     """
     标签
     """
-    tags: [Tag!]
-    @paginate(defaultCount: 10, builder: "\\App\\Post@resovlePostTags")
+    tags: [Tag!] @paginate(defaultCount: 10, builder: "\\App\\Post@resovlePostTags")
     """
     发布时间（多久前）
     """
@@ -116,7 +123,7 @@ extend type Query {
     个人主页动态列表
     """
     posts(user_id: Int!, keyword: String, type: PostType = VIDEO): [Post!]
-    @paginate(builder: "App\\Post@resolvePosts", defaultCount: 10)
+        @paginate(builder: "App\\Post@resolvePosts", defaultCount: 10)
 
     """
     分享post
@@ -146,30 +153,23 @@ extend type Query {
     """
     搜索动态
     """
-    searchPosts(
-        query: String!
-        tag_id: Int
-        user_id: Int
-        type: PostType = VIDEO
-        collection_id: Int
-    ): [Post!]
-    @paginate(defaultCount: 10, builder: "App\\Post@resolveSearchPosts")
+    searchPosts(query: String!, tag_id: Int, user_id: Int, type: PostType = VIDEO, collection_id: Int): [Post!]
+        @paginate(defaultCount: 10, builder: "App\\Post@resolveSearchPosts")
     """
     收藏/普通动态
     """
     userPosts(user_id: Int!, filter: PostFilter = spider): [Post!]
-    @paginate(builder: "App\\Post@resolveUserPosts", defaultCount: 10)
+        @paginate(builder: "App\\Post@resolveUserPosts", defaultCount: 10)
 
     postByVid(vid: String!): Post @field(resolver: "App\\Post@resolvePostByVid")
     """
     通过video_id获取相应的动态
     """
-    postByVideoId(video_id: Int!): Post
-    @field(resolver: "App\\Post@postByVideoId")
+    postByVideoId(video_id: Int!): Post @field(resolver: "App\\Post@postByVideoId")
     """
     获取关联了电影的post列表
     """
-    postWithMovies:[Post] @field(resolver: "App\\Post@postWithMovies")
+    postWithMovies: [Post] @field(resolver: "App\\Post@postWithMovies")
 }
 
 enum PostFilter {

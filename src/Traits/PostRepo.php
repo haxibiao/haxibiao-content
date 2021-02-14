@@ -572,7 +572,7 @@ trait PostRepo
 
         //基础推荐数据 - 全部有视频的动态
         if (is_null($query)) {
-            $query = Post::has('video')->with(['video', 'user'])->publish();
+            $query = \App\Post::has('video')->with(['video', 'user'])->publish();
         }
         $qb = $query;
 

@@ -259,8 +259,6 @@ class Post extends Model implements Collectionable
 
     public static function getRecommendPosts($limit = 4)
     {
-        // 系统推荐表
-
         //登录
         if (checkUser()) {
             return Post::fastRecommendPosts($limit);
@@ -275,7 +273,7 @@ class Post extends Model implements Collectionable
         if (class_exists("App\\Role", true)) {
             $withRelationList = array_merge($withRelationList, ['user.role']);
         }
-        $qb = Post::with($withRelationList)
+        $qb = \App\Post::with($withRelationList)
             ->has('video')
             ->publish();
         $qb     = $qb->take($limit);
