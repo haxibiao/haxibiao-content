@@ -29,7 +29,7 @@ class PostRecommend extends Model
     {
         return PostRecommend::firstOrCreate([
             'user_id' => $user->id,
-            'type'    => $scope,
+            'scope'   => $scope,
         ]);
     }
 
