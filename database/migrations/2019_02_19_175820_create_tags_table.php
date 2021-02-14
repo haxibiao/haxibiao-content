@@ -19,8 +19,10 @@ class CreateTagsTable extends Migration
 
         Schema::create('tags', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name')->comment('标签名'); //FIXME: 这name应该是unique
-            $table->unsignedInteger('tag_id')->nullable()->index()->comment('标签ID'); //FIXME: 这个字段应该是冗余的
+            //FIXME: 这name应该是unique
+            $table->string('name')->comment('标签名');
+            //FIXME: 这个字段应该是冗余的
+            $table->unsignedInteger('tag_id')->nullable()->index()->comment('标签ID');
             $table->unsignedInteger('user_id')->nullable()->index()->comment('用户ID');
             $table->integer('type')->default(0)->index();
             $table->unsignedInteger('count')->default(0)->comment('总数');

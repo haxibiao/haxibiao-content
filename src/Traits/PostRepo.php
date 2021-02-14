@@ -82,7 +82,7 @@ trait PostRepo
 
             ];
         }
-        $post = static::createPost($inputs);
+        $post = Post::createPost($inputs);
 
         $tagNames = data_get($args, 'tag_names', []);
         if ($tagNames) {
@@ -200,7 +200,7 @@ trait PostRepo
                     $spider->updated_at  = now();
                     $spider->saveDataOnly();
                 }
-                $post = static::firstOrNew([
+                $post = Post::firstOrNew([
                     'user_id'  => $user->id,
                     'video_id' => $video->id,
                 ]);
@@ -208,8 +208,8 @@ trait PostRepo
                     $post->content    = $body;
                     $post->status     = Post::PUBLISH_STATUS;
                     $post->spider_id  = $spider->id;
-                    $post->review_id  = static::makeNewReviewId();
-                    $post->review_day = static::makeNewReviewDay();
+                    $post->review_id  = Post::makeNewReviewId();
+                    $post->review_day = Post::makeNewReviewDay();
                     $post->save();
                     if ('dongdianyi' != (config('app.name'))) {
                         //默认添加抖音中的标签
@@ -259,8 +259,8 @@ trait PostRepo
                             $post->status = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
                         }
                         $post->content    = $body;
-                        $post->review_id  = static::makeNewReviewId();
-                        $post->review_day = static::makeNewReviewDay();
+                        $post->review_id  = Post::makeNewReviewId();
+                        $post->review_day = Post::makeNewReviewDay();
                         $post->save();
                         //添加定位信息
                         if (in_array(config('app.name'), ['dongwaimao', 'jinlinle']) && !empty(data_get($inputs, 'location'))) {
@@ -285,13 +285,13 @@ trait PostRepo
                         Action::createAction('posts', $post->id, $post->user->id);
                         // Ip::createIpRecord('users', $user->id, $user->id);
                     } else if ($video_id) {
-                        $post = static::where('video_id', $video_id)->first();
+                        $post = Post::where('video_id', $video_id)->first();
                         if (!$post) {
                             $post = new static();
                         }
                         $post->content    = $body;
-                        $post->review_id  = static::makeNewReviewId();
-                        $post->review_day = static::makeNewReviewDay();
+                        $post->review_id  = Post::makeNewReviewId();
+                        $post->review_day = Post::makeNewReviewDay();
                         $post->video_id   = $video_id; //关联上视频
                         $post->user_id    = $user->id;
 
@@ -446,7 +446,7 @@ trait PostRepo
             $withRelationList = array_merge($withRelationList, ['user.role']);
         }
         //构建查询
-        $qb = static::with($withRelationList)->has('video')->publish()
+        $qb = Post::with($withRelationList)->has('video')->publish()
             ->orderByDesc('review_id')
             ->take($limit);
         //存在用户
@@ -464,7 +464,7 @@ trait PostRepo
         } else {
             //游客浏览翻页
             //访客第一页随机略过几个视频
-            $offset = $offset == 0 ? mt_rand(0, 50) : $offset;
+            $offset = 0 == $offset ? mt_rand(0, 50) : $offset;
             $qb     = $qb->skip($offset);
         }
         //获取数据
@@ -472,10 +472,10 @@ trait PostRepo
 
         if ($hasLogin) {
             //喜欢状态
-            $posts = static::likedPosts($user, $posts);
+            $posts = Post::likedPosts($user, $posts);
 
             //关注动态的用户
-            $posts = static::followedPostsUsers($user, $posts);
+            $posts = Post::followedPostsUsers($user, $posts);
 
             //批量插入
             Visit::saveVisits($user, $posts, 'posts');
@@ -487,7 +487,7 @@ trait PostRepo
         // }
 
         //混合广告视频
-        $mixPosts = static::mixPosts($posts);
+        $mixPosts = Post::mixPosts($posts);
 
         return $mixPosts;
     }
@@ -560,23 +560,26 @@ trait PostRepo
     /**
      * 目前最简单的错日排重推荐视频算法(FastRecommend)，人人可以看最新，随机，过滤，不重复的视频流了
      *
-     * @param int $limit
+     * @param int $limit 返回动态条数
+     * @param mixed $query 基础推荐数据范围查询
+     * @param mixed $scope 推荐排重游标范围名称(视频刷，电影剪辑)
      * @return array
      */
-    public static function fastRecommendPosts($limit = 4)
+    public static function fastRecommendPosts($limit = 4, $query = null, $scope = null)
     {
-        $user = getUser(); //必须登录
-
-        //把每天的最大指针拿进一个数组 //TODO: 可以缓存1小时
-        $maxReviewIdInDays = static::getMaxReviewIdInDays();
-
-        //构建查询
-        $qb_published = static::has('video')->with(['video', 'user'])->publish();
-        $qb           = $qb_published;
         //登录用户
+        $user = getUser();
+
+        //基础推荐数据 - 全部有视频的动态
+        if (is_null($query)) {
+            $query = Post::has('video')->with(['video', 'user'])->publish();
+        }
+        $qb = $query;
+
+        //开始推荐 - 把每天的最大指针拿进一个数组
+        $maxReviewIdInDays = Post::getMaxReviewIdInDays();
 
         //1.过滤 过滤掉自己 和 不喜欢用户的作品
-        //FIXME: 答妹等喜欢还没notlike表的
         $notLikIds = [];
         if (class_exists("App\Dislike")) {
             $notLikIds = $user->dislikes()->ByType('users')->get()->pluck('dislikeable_id')->toArray();
@@ -594,15 +597,16 @@ trait PostRepo
             $qb      = $qb->whereIn('user_id', $vestIds);
         }
 
-        $postRecommend = PostRecommend::firstOrCreate(['user_id' => $user->id]);
+        $postRecommend = PostRecommend::fetchByScope($user, $scope);
         //2.找出指针：最新，随机 每个用户的推荐视频推荐表，就是日刷指针记录表，找到最近未刷完的指针（指针含日期和review_id）
-        $reviewId  = static::getNextReviewId($postRecommend->day_review_ids, $maxReviewIdInDays);
+        $reviewId  = Post::getNextReviewId($postRecommend->day_review_ids, $maxReviewIdInDays);
         $reviewDay = substr($reviewId, 0, 8);
 
         //视频刷光了,先返回20个最新的视频顶一下，有点逻辑需要分析
         if (is_null($reviewId)) {
             $result = $qb->latest('id')->skip(rand(1, 100))->take(20)->get();
-            Visit::saveVisits($user, $result, 'posts');
+            //视频刷的就不算访问足迹了，这个数据暂时不排重，无意义
+            // Visit::saveVisits($user, $result, 'posts');
             return $qb->latest('id')->skip(rand(1, 100))->take(20)->get();
         }
 
@@ -623,35 +627,39 @@ trait PostRepo
                 $withRelationList = array_merge($withRelationList, ['user.role']);
             }
 
-            $qb_published = static::has('video')->with($withRelationList)->publish();
+            $qb_published = Post::has('video')->with($withRelationList)->publish();
+
+            // 印象视频有编辑发布的精品
             if (in_array(config('app.name'), ['yinxiangshipin'])) {
                 $vestIds      = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
-                $qb_published = $qb_published->whereIn('user_id', $vestIds)
-                    ->whereNotExists(function ($query) use ($user) {
-                        $query->from('visits')
-                            ->whereRaw('posts.id = visits.visited_id')
-                            ->where('visited_type', 'posts')
-                            ->where('user_id', $user->id)
-                        ;
-                    });
+                $qb_published = $qb_published->whereIn('user_id', $vestIds);
+                //足迹数据排重？性能风险，重复刷劝退把，逐步优化推荐即可
+                // $qb_published = $qb_published->whereNotExists(function ($query) use ($user) {
+                //     $query->from('visits')
+                //         ->whereRaw('posts.id = visits.visited_id')
+                //         ->where('visited_type', 'posts')
+                //         ->where('user_id', $user->id)
+                //     ;
+                // });
             }
             $result = $qb_published->latest('id')->skip(rand(1, 100))->take(20)->get();
-            Visit::saveVisits($user, $result, 'posts');
+
+            // 视频刷的就不算访问足迹了，这个数据暂时不排重，无意义
+            // Visit::saveVisits($user, $result, 'posts');
+
             //增加广告展示
             $mixPosts = $result;
             if (adIsOpened()) {
-                $mixPosts = static::mixPosts($result);
+                $mixPosts = Post::mixPosts($result);
             }
             return $mixPosts;
         }
 
-        //用户和当前这堆视频动态的 喜欢状态（是否已喜欢过，更新post->liked）
-        //TODO: 后续换倒排表，到推荐子喜欢单次查询返回结果集
-        $posts = static::likedPosts($user, $posts);
+        //更新点赞状态
+        $posts = Post::likedPosts($user, $posts);
 
-        //关注动态的用户（是否已关注过，更新post->followed)
-        //TODO: 后续换倒排表，到推荐子喜欢单次查询返回结果集
-        $posts = static::followedPostsUsers($user, $posts);
+        //更新关注状态
+        $posts = Post::followedPostsUsers($user, $posts);
 
         //4.更新指针
         $postRecommend->updateCursor($posts);
@@ -659,9 +667,12 @@ trait PostRepo
         //混合广告视频
         $mixPosts = $posts;
         if (adIsOpened()) {
-            $mixPosts = static::mixPosts($posts);
+            $mixPosts = Post::mixPosts($posts);
         }
-        Visit::saveVisits($user, $mixPosts, 'posts');
+
+        //视频刷的就不算访问足迹了，这个数据暂时不排重，无意义
+        // Visit::saveVisits($user, $mixPosts, 'posts');
+
         return $mixPosts;
     }
 
@@ -699,7 +710,7 @@ trait PostRepo
             //未刷过该日视频
             if (is_null($userDayReviewId)) {
 
-                $reviewId = static::where('review_day', $reviewDay)->min('review_id') - 1;
+                $reviewId = Post::where('review_day', $reviewDay)->min('review_id') - 1;
                 break;
             }
 
@@ -719,7 +730,7 @@ trait PostRepo
     //粘贴时：保存抖音爬虫视频动态
     public static function saveSpiderVideoPost($spider)
     {
-        $post = static::firstOrNew(['spider_id' => $spider->id]);
+        $post = Post::firstOrNew(['spider_id' => $spider->id]);
 
         //创建动态 避免重复创建..
         if (!isset($post->id)) {
@@ -740,14 +751,14 @@ trait PostRepo
     //抖音爬虫成功时：发布视频动态
     public static function publishSpiderVideoPost($spider)
     {
-        $post = static::where(['spider_id' => $spider->id])->first();
+        $post = Post::where(['spider_id' => $spider->id])->first();
         if ($post) {
             $post->video_id = $spider->spider_id; //爬虫的类型spider_type="videos",这个video_id只有爬虫成功后才有...
-            static::publishPost($post);
+            Post::publishPost($post);
 
             // 延迟发布评论
             dispatch(function () use ($post, $spider) {
-                static::publishComment($post, $spider);
+                Post::publishComment($post, $spider);
             })->onQueue('default')->delay(now()->addHours(2));
         }
     }
@@ -776,9 +787,9 @@ trait PostRepo
 
         //FIXME: 这个逻辑要放到 content 系统里，PostObserver updated ...
         //超过100个动态或者已经有1个小时未归档了，自动发布.
-        $canPublished = static::where('review_day', 0)
+        $canPublished = Post::where('review_day', 0)
             ->where('created_at', '<=', now()->subHour())->exists()
-        || static::where('review_day', 0)->count() >= 100;
+        || Post::where('review_day', 0)->count() >= 100;
 
         if ($canPublished) {
             dispatch_now(new PublishNewPosts);
@@ -795,7 +806,7 @@ trait PostRepo
              */
             if (!in_array(config('app.name'), ['caohan', 'yinxiangshipin', 'ainicheng'])) {
                 //触发奖励
-                if ($user->id == 2) {
+                if (2 == $user->id) {
                     Gold::makeIncome($user, 6, '测试分享视频奖励');
                 } else {
                     Gold::makeIncome($user, 10, '分享视频奖励');
@@ -963,10 +974,10 @@ trait PostRepo
     //个人主页动态
     public static function posts($user_id, $keyword = null, $type = 'VIDEO')
     {
-        $qb = static::latest('id')->publish()->where('user_id', $user_id)
-            ->when($type == 'VIDEO', function ($q) {
+        $qb = Post::latest('id')->publish()->where('user_id', $user_id)
+            ->when('VIDEO' == $type, function ($q) {
                 return $q->whereNotNull('video_id');
-            })->when($type == 'IMAGE', function ($q) {
+            })->when('IMAGE' == $type, function ($q) {
             return $q->whereNull('video_id');
         });
         if (!empty($keyword)) {
@@ -978,7 +989,7 @@ trait PostRepo
     //分享post链接
     public static function shareLink($id)
     {
-        $post = static::find($id);
+        $post = Post::find($id);
         throw_if(is_null($post), GQLException::class, '该动态不存在哦~,请稍后再试');
 
         $shareMag = config('haxibiao-content.share_config.share_msg', '#%s/share/post/%d#, #%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,');
@@ -998,7 +1009,7 @@ trait PostRepo
         $userBlockId    = [];
         $articleBlockId = [];
         if (in_array(config('app.name'), ['dianyintujie'])) {
-            $query = static::publish()->has('collectable')->inRandomOrder();
+            $query = Post::publish()->has('collectable')->inRandomOrder();
             if (($user = getUser(false)) && class_exists("App\\UserBlock", true)) {
                 $userBlockId    = \App\UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
                 $articleBlockId = \App\UserBlock::select('article_block_id')->whereNotNull('article_block_id')->where('user_id', $user->id)->get();
@@ -1015,11 +1026,11 @@ trait PostRepo
             }
             return $query;
         } else {
-            $query = static::publish()
+            $query = Post::publish()
                 ->whereBetWeen('created_at', [now()->subDay(7), now()])
                 ->inRandomOrder();
             if ($query) {
-                $query = static::publish()->inRandomOrder();
+                $query = Post::publish()->inRandomOrder();
             }
             if (($user = getUser(false)) && class_exists("App\\UserBlock", true)) {
                 $userBlockId    = \App\UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
@@ -1047,7 +1058,7 @@ trait PostRepo
             $query->select('id')->from('spiders')->where('spiders.source_url', 'like', 'https://v.kuaishou.com/%');
         })->publish();
         if ($query->count() < $total) {
-            return static::publicPosts($user_id);
+            return Post::publicPosts($user_id);
         }
 
         return $query->inRandomOrder();

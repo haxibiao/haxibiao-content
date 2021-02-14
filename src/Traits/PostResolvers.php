@@ -3,8 +3,6 @@
 namespace Haxibiao\Content\Traits;
 
 use App\Visit;
-use Haxibiao\Breeze\User;
-use Haxibiao\Content\Collection;
 use Haxibiao\Content\Jobs\MakeMp4ByM3U8;
 use Haxibiao\Content\Post;
 use Haxibiao\Media\Series;
@@ -49,7 +47,7 @@ trait PostResolvers
     public function resolveRecommendPosts($root, $args, $context, $info)
     {
         app_track_event("首页", "获取学习视频");
-        return static::getRecommendPosts();
+        return Post::getRecommendPosts();
     }
 
     public function resolvePosts($root, $args, $context, $info)
@@ -65,7 +63,7 @@ trait PostResolvers
             ]);
         }
         $type = data_get($args, 'type');
-        return static::posts($args['user_id'], data_get($args, 'keyword'), $type);
+        return Post::posts($args['user_id'], data_get($args, 'keyword'), $type);
     }
 
     /**
@@ -85,7 +83,7 @@ trait PostResolvers
                 ]);
             }
         }
-        return static::newPublicPosts($args['user_id'] ?? null, data_get($args, 'page'), data_get($args, 'count'));
+        return Post::newPublicPosts($args['user_id'] ?? null, data_get($args, 'page'), data_get($args, 'count'));
     }
 
     /**
@@ -94,9 +92,9 @@ trait PostResolvers
     public function getShareLink($rootValue, array $args, $context, $resolveInfo)
     {
         app_track_event('分享', '分享视频');
-        return static::shareLink($args['id']);
+        return Post::shareLink($args['id']);
 
-        $qb = static::latest('id');
+        $qb = Post::latest('id');
         //自己看自己的发布列表时，需要看到未成功的爬虫视频动态...
         if (getUserId() == $args['user_id']) {
             $qb = $qb->publish();
@@ -125,7 +123,7 @@ trait PostResolvers
         //是否第一次调用接口
         $is_first = Arr::get($args, 'is_first', false);
 
-        $result = static::where('tag_id', $type)
+        $result = Post::where('tag_id', $type)
             ->whereStatus(Post::PUBLISH_STATUS)
             ->inRandomOrder()
             ->take($limit)
@@ -133,7 +131,7 @@ trait PostResolvers
 
         //第一次获取学习视频，设置第一条视频为固定视频
         if (Post::STUDY == $type && $is_first) {
-            $firstPosts = static::where('tag_id', Post::FIRST)
+            $firstPosts = Post::where('tag_id', Post::FIRST)
                 ->whereStatus(Post::PUBLISH_STATUS)
                 ->get();
 
@@ -170,7 +168,7 @@ trait PostResolvers
         $followedUserIds = Follow::follows($loginUser, $filter)->pluck('followed_id');
 
         //3.获取关注用户发布的视频
-        return static::query()
+        return Post::query()
             ->whereIn('user_id', $followedUserIds)
             ->orderByDesc('created_at');
     }
@@ -181,34 +179,30 @@ trait PostResolvers
      */
     public function postWithMovies($rootValue, array $args, $context, $resolveInfo)
     {
-        //关联电影不多，先不充一批影视资源的电影
-        $vestIds     = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
-        $collections = Collection::whereIn('user_id', $vestIds)
-            ->where('created_at', '>', '2020-12-18 09:18:55')
-            ->inRandomOrder()
-            ->take(10)
-            ->get();
-        $collectionPosts = [];
-        foreach ($collections as $collection) {
-            $collectionPosts[] = $collection->posts()->inRandomOrder()->first();
+        //有关联电影的
+        //FIXME: 修复link movie的数据，重构关联电影逻辑
+        $qb = Post::where('movie_id', '>', 0);
+        if (!$qb->exists()) {
+            //把有合集的
+            //FIXME: 修复有合集的视频数据
+            $qb = Post::where('collection_id', '>', 0);
+            if (!$qb->exists()) {
+                //默认常规的视频刷 - 兼容没修复数据的时候
+                $qb = Post::has('video')->with(['video', 'user'])->publish();
+            }
         }
-        $recommendeds = Post::whereExists(
-            function ($query) {
-                return $query->from('link_movie')
-                    ->whereRaw('link_movie.linked_id = posts.id')
-                    ->where('linked_type', 'posts');
-            })
-            ->inRandomOrder()
-            ->take(10)
-            ->get();
-
-        return $recommendeds->count() ?  $recommendeds->merge(array_filter($collectionPosts)):$collectionPosts ;
+        $limit = 4; //快速推荐有广告位逻辑
+        if (!checkUser()) {
+            //游客
+            return Post::getGuestPosts($limit);
+        }
+        return Post::fastRecommendPosts($limit, $qb, '电影剪辑');
     }
 
     public function resolveUpdatePost($root, $args, $context, $info)
     {
         $postId = data_get($args, 'post_id');
-        $post   = static::findOrFail($postId);
+        $post   = Post::findOrFail($postId);
         $post->update(
             Arr::only($args, ['content', 'description'])
         );
@@ -233,12 +227,12 @@ trait PostResolvers
     {
         $filter = data_get($args, 'filter');
 
-        if ($filter == 'spider') {
-            return static::posts($args['user_id'])->whereNotNull('spider_id');
-        } elseif ($filter == 'normal') {
-            return static::posts($args['user_id'], "", "all")->whereNull('spider_id');
+        if ('spider' == $filter) {
+            return Post::posts($args['user_id'])->whereNotNull('spider_id');
+        } elseif ('normal' == $filter) {
+            return Post::posts($args['user_id'], "", "all")->whereNull('spider_id');
         }
-        return static::posts($args['user_id'], "", "all");
+        return Post::posts($args['user_id'], "", "all");
     }
 
     public function resolveSearchPosts($root, array $args, $context)
@@ -247,22 +241,22 @@ trait PostResolvers
         $tagId        = data_get($args, 'tag_id');
         $collectionId = data_get($args, 'collection_id');
         $type         = data_get($args, 'type');
-        return static::publish()->search(data_get($args, 'query'))
-            ->when($type == 'VIDEO', function ($q) use ($userId) {
+        return Post::publish()->search(data_get($args, 'query'))
+            ->when('VIDEO' == $type, function ($q) use ($userId) {
                 return $q->whereNotNull('video_id');
-            })->when($type == 'IMAGE', function ($q) use ($userId) {
-                return $q->whereNull('video_id');
-            })->when($userId, function ($q) use ($userId) {
-                return $q->where('posts.user_id', $userId);
-            })->when($tagId, function ($q) use ($tagId) {
-                return $q->whereHas('tags', function ($q) use ($tagId) {
-                    $q->where('tags.id', $tagId);
-                });
-            })->when($collectionId, function ($q) use ($collectionId) {
-                return $q->whereHas('collections', function ($q) use ($collectionId) {
-                    $q->where('collections.id', $collectionId);
-                });
-            })->with('video');
+            })->when('IMAGE' == $type, function ($q) use ($userId) {
+            return $q->whereNull('video_id');
+        })->when($userId, function ($q) use ($userId) {
+            return $q->where('posts.user_id', $userId);
+        })->when($tagId, function ($q) use ($tagId) {
+            return $q->whereHas('tags', function ($q) use ($tagId) {
+                $q->where('tags.id', $tagId);
+            });
+        })->when($collectionId, function ($q) use ($collectionId) {
+            return $q->whereHas('collections', function ($q) use ($collectionId) {
+                $q->where('collections.id', $collectionId);
+            });
+        })->with('video');
     }
 
     //关注用户的收藏列表
@@ -273,7 +267,7 @@ trait PostResolvers
         //2.获取用户关注列表
         $followedUserIds = $user->follows()->pluck('followable_id');
         //3.获取关注用户发布的视频
-        $qb = static::whereNotNull('video_id')
+        $qb = Post::whereNotNull('video_id')
             ->whereIn('user_id', $followedUserIds)
             ->orderByDesc('id');
 
@@ -284,9 +278,9 @@ trait PostResolvers
             $qb->with(['video', 'collections', 'images']);
         }
 
-        if ($filter == 'spider') {
+        if ('spider' == $filter) {
             return $qb->whereNotNull('spider_id');
-        } elseif ($filter == 'normal') {
+        } elseif ('normal' == $filter) {
             return $qb->whereNull('spider_id');
         }
         return $qb;

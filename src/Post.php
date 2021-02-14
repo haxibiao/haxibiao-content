@@ -202,7 +202,7 @@ class Post extends Model implements Collectionable
 
     public static function todayMinReviewId()
     {
-        $minReviewPost = static::select('review_id')
+        $minReviewPost = Post::select('review_id')
             ->where('review_id', '>=', today()->format('Ymd') * 100000 + 1)
             ->orderBy('review_id')
             ->first();
@@ -213,7 +213,7 @@ class Post extends Model implements Collectionable
 
     public static function makeTodayMaxReviewId()
     {
-        $reviewDay = static::makeNewReviewDay();
+        $reviewDay = Post::makeNewReviewDay();
         $maxNum    = Post::TODAY_MAX_POST_NUM;
 
         return $reviewDay * $maxNum + $maxNum - 1;
@@ -221,7 +221,7 @@ class Post extends Model implements Collectionable
 
     public static function makeTodayMinReviewId()
     {
-        $reviewDay = static::makeNewReviewDay();
+        $reviewDay = Post::makeNewReviewDay();
         $maxNum    = Post::TODAY_MAX_POST_NUM;
 
         return $reviewDay * $maxNum;
@@ -229,7 +229,7 @@ class Post extends Model implements Collectionable
 
     public static function getMaxReviewIdInDays()
     {
-        $maxRviewIds = static::selectRaw("review_day,max(review_id) as max_review_id")
+        $maxRviewIds = Post::selectRaw("review_day,max(review_id) as max_review_id")
             ->whereStatus(1) //只考虑已上架发布的动态
             ->groupBy('review_day')
             ->latest('review_day')
@@ -263,10 +263,10 @@ class Post extends Model implements Collectionable
 
         //登录
         if (checkUser()) {
-            return static::fastRecommendPosts($limit);
+            return Post::fastRecommendPosts($limit);
         }
         //游客
-        return static::getGuestPosts($limit);
+        return Post::getGuestPosts($limit);
     }
 
     public static function getGuestPosts($limit = 5)
@@ -275,7 +275,7 @@ class Post extends Model implements Collectionable
         if (class_exists("App\\Role", true)) {
             $withRelationList = array_merge($withRelationList, ['user.role']);
         }
-        $qb = static::with($withRelationList)
+        $qb = Post::with($withRelationList)
             ->has('video')
             ->publish();
         $qb     = $qb->take($limit);
@@ -292,15 +292,15 @@ class Post extends Model implements Collectionable
             //视频刷
             if (checkUser()) {
                 //登录
-                $posts = static::fastRecommendPosts($limit);
+                $posts = Post::fastRecommendPosts($limit);
                 return $posts;
             } else {
                 //游客
-                return static::getGuestPosts($limit);
+                return Post::getGuestPosts($limit);
             }
         } else {
             //获取用户的视频动态
-            $posts = static::where('user_id', $userId)
+            $posts = Post::where('user_id', $userId)
                 ->publish()
                 ->latest('id')
                 ->skip($offset)

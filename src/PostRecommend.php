@@ -18,6 +18,21 @@ class PostRecommend extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * 返回用户的刷视频推荐范围
+     *
+     * @param User $user
+     * @param string $scope
+     * @return PostRecommend
+     */
+    public static function fetchByScope($user, $scope = null)
+    {
+        return PostRecommend::firstOrCreate([
+            'user_id' => $user->id,
+            'type'    => $scope,
+        ]);
+    }
+
     //保存最后一次取完推荐的5-10个视频后，需要更新指针
     public function updateCursor($posts)
     {

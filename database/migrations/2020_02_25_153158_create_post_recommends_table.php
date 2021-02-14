@@ -19,8 +19,9 @@ class CreatePostRecommendsTable extends Migration
 
         Schema::create('post_recommends', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('user_id')->unique()->comment('用户ID');
+            $table->unsignedInteger('user_id')->index()->comment('用户ID');
             $table->json('day_review_ids')->nullable()->comment("用户在各日期块的指针"); //用户各日期块的指针
+            $table->string('scope', 20)->nullable()->index()->comment('推荐范围');
             $table->timestamps();
         });
     }
