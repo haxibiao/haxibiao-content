@@ -15,7 +15,7 @@ class AddCollectionIdToPosts extends Migration
     {
         Schema::table('posts', function (Blueprint $table) {
             if (!Schema::hasColumn('posts', 'collection_id')) {
-                $table->integer('collection_id')->nullable(0)->index()->comment('主合集id,最后收录的合集');
+                $table->integer('collection_id')->nullable()->index()->comment('主合集id,最后收录的合集');
             }
         });
     }

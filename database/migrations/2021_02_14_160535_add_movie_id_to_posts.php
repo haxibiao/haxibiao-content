@@ -15,7 +15,7 @@ class AddMovieIdToPosts extends Migration
     {
         Schema::table('posts', function (Blueprint $table) {
             if (!Schema::hasColumn('posts', 'movie_id')) {
-                $table->integer('movie_id')->nullable(0)->index()->comment('关联的电影');
+                $table->integer('movie_id')->nullable()->index()->comment('关联的电影');
             }
         });
     }
