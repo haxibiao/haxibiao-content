@@ -231,7 +231,7 @@ trait CollectionResolvers
             ->where('logo', '!=', config('haxibiao-content.collection_default_logo'));
 
         //按照合集创建时间排序
-        $qb = $qb->whereBetWeen('created_at', [now()->subDay(365), now()]);
+        $qb = $qb->latest();
 
         $total = $qb->count();
 
