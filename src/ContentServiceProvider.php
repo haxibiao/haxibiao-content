@@ -90,7 +90,7 @@ class ContentServiceProvider extends ServiceProvider
 
             //发布 graphql
             $this->publishes([
-                __DIR__ . '/../graphql' => base_path('graphql'),
+                __DIR__ . '/../graphql' => base_path('graphql/content'),
             ], 'content-graphql');
 
             //发布 resoucre
