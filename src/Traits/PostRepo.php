@@ -25,8 +25,7 @@ use Haxibiao\Media\Video;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Yansongda\Supports\Str;
-
+use Illuminate\Support\Str;
 trait PostRepo
 {
 
