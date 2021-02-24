@@ -9,6 +9,7 @@ trait ArticleAttrs
 
     public function getBodyAttribute()
     {
+        $body = null;
         // 开启哈希云
         if (config('content.enable_haxiyun')) {
             // media database 获取body
