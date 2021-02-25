@@ -7,6 +7,7 @@ use Haxibiao\Breeze\Traits\HasFactory;
 use Haxibiao\Content\Traits\CategoryAttrs;
 use Haxibiao\Content\Traits\CategoryRepo;
 use Haxibiao\Content\Traits\CategoryResolvers;
+use Haxibiao\Content\Traits\WithCms;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Category extends Model
@@ -15,6 +16,9 @@ class Category extends Model
     use CategoryResolvers;
     use CategoryAttrs;
     use CategoryRepo;
+
+    use WithCms;
+    use \Haxibiao\Content\Traits\Stickable;
 
     const LOGO_PATH = '/images/category.logo.jpg';
 

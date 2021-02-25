@@ -15,6 +15,7 @@ use Haxibiao\Content\Console\RefactorCollection;
 use Haxibiao\Content\Console\RefactorPost;
 use Haxibiao\Content\Console\StatisticVideoViewsCommand;
 use Haxibiao\Content\Console\SyncPostWithMovie;
+use Haxibiao\Content\Http\Middleware\SeoTraffic;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
@@ -57,6 +58,11 @@ class ContentServiceProvider extends ServiceProvider
             FixContent::class,
             ImportCollections::class,
             SyncPostWithMovie::class,
+
+            Console\Cms\SitemapGenerate::class,
+            Console\Cms\ArchiveTraffic::class,
+            Console\Cms\SeoWorker::class,
+            Console\Cms\CmsUpdate::class,
         ]);
     }
 
@@ -78,6 +84,7 @@ class ContentServiceProvider extends ServiceProvider
 
         if (!app()->configurationIsCached()) {
             $this->mergeConfigFrom(__DIR__ . '/../config/database.php', 'database.connections');
+            $this->mergeConfigFrom(__DIR__ . '/../config/cms.php', 'cms');
         }
 
         //安装时需要
@@ -86,6 +93,10 @@ class ContentServiceProvider extends ServiceProvider
 
             $this->publishes([
                 __DIR__ . '/../config/content.php' => config_path('content.php'),
+            ], 'content-config');
+
+            $this->publishes([
+                __DIR__ . '/../config/cms.php' => config_path('cms.php'),
             ], 'content-config');
 
             //发布 graphql
@@ -98,17 +109,46 @@ class ContentServiceProvider extends ServiceProvider
                 __DIR__ . '/../resources/css'    => base_path('public/css'),
                 __DIR__ . '/../resources/images' => base_path('public/images'),
                 __DIR__ . '/../resources/js'     => base_path('public/js'),
-                // __DIR__ . '/../resources/views'  => base_path('resources/views'),
+                __DIR__ . '/../resources/views'  => base_path('resources/views'),
             ], 'content-resources');
         }
+
+        //中间件
+        app('router')->pushMiddlewareToGroup('web', SeoTraffic::class);
 
         $this->loadRoutesFrom(
             $this->app->make('path.haxibiao-content') . '/router.php'
         );
 
-        //绑定observers
-        //        \Haxibiao\Media\Spider::observe(Observers\SpiderObserver::class);
-        //        \Haxibiao\Media\Video::observe(Observers\VideoObserver::class);
+        //cms站点
+        $this->app->singleton('cms_site', function ($app) {
+
+            $modelStr = '\Haxibiao\Content\Site';
+            if (class_exists('\App\Site')) {
+                // \App\Site 是 \Haxibiao\Cms\Site 的子类
+                $modelStr = '\App\Site';
+            }
+            if ($site = $modelStr::whereDomain(get_domain())->first()) {
+                return $site;
+            }
+            //默认返回最后一个站点
+            return $modelStr::latest('id')->first();
+        });
+
+        if (config('cms.multi_domains')) {
+            $this->app->booted(function () {
+                $schedule = $this->app->make(Schedule::class);
+                // 每天定时归档seo流量
+                $schedule->command('archive:traffic')->dailyAt('1:00');
+
+                // 自动更新站群首页资源
+                $schedule->command('cms:update')->dailyAt('2:00');
+
+                // 生成新的SiteMap
+                $schedule->command('sitemap:generate')->dailyAt('3:00');
+
+            });
+        }
     }
 
     protected function bindPathsInContainer()
@@ -124,6 +164,7 @@ class ContentServiceProvider extends ServiceProvider
             $this->app->instance($abstract, $instance);
         }
     }
+
 
     protected function registerMorphMap()
     {
