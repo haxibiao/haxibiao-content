@@ -237,6 +237,7 @@ trait CollectionResolvers
 
         // FIXME:跳过十条数据的逻辑，在之前数据不充足的前提下会出现 count 预期数量与实际返回不一致
         $array = $qb
+            ->skip(($currentPage * $perPage) - $perPage)
             ->take($perPage)
             ->orderBy('created_at', 'desc')
             ->get();
