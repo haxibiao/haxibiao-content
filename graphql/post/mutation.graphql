@@ -79,6 +79,20 @@ extend type Mutation @guard {
     ): Post! @field(resolver: "App\\Post@resolveUpdatePost")
 
     """
+    出题关联题目，顺便关联电影
+    """
+    relationQuestion(
+        """
+        动态ID
+        """
+        post_id: Int!
+        """
+        正文
+        """
+        content: String
+    ): Post! @field(resolver: "App\\Post@resolveRelationPost")
+
+    """
     删除动态
     """
     deletePost(id: ID!): Post @delete

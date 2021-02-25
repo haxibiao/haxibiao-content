@@ -2,7 +2,10 @@
 
 namespace Haxibiao\Content\Traits;
 
+use App\Movie;
+use App\Question;
 use App\Visit;
+use Haxibiao\Breeze\Exceptions\GQLException;
 use Haxibiao\Content\Jobs\MakeMp4ByM3U8;
 use Haxibiao\Content\Post;
 use Haxibiao\Media\Series;
@@ -64,6 +67,44 @@ trait PostResolvers
         }
         $type = data_get($args, 'type');
         return Post::posts($args['user_id'], data_get($args, 'keyword'), $type);
+    }
+
+    public function resolveRelationPost($root, $args, $context, $info)
+    {
+        app_track_event("视频刷", "发布视频题");
+        $content = $args['content'];
+        $post_id = $args['post_id'];
+
+        $post = Post::find($post_id);
+
+        throw_if(empty($post), GQLException::class, "该动态不存在!");
+
+        //有这部电影，直接关联上
+        $movie = Movie::where('name', $content)->first();
+
+        $data = [];
+        if ($movie) {
+            array_add($data, 'movie_id', $movie->id);
+        }
+
+        //创建题目
+        //随机一个题目
+        do {
+            $other_movie = Movie::find(random_int(1, 10000));
+        } while (!empty($other_movie));
+        $selections = json_encode(["A" => $content, "B" => $other_movie->name], JSON_UNESCAPED_UNICODE);
+
+        $question = Question::create([
+            "description" => Question::DEFALUT_QUESTION_DESCRIPTION,
+            "selections"  => $selections,
+            "answer"      => $content,
+            "gold"        => Question::POST_QUESTION_GOLD,
+            "ticket"      => Question::POST_QUESTION_TICKET,
+            "status"      => Question::SUBMITTED_SUBMIT,
+        ]);
+        array_add($data, 'question_id', $question->id);
+
+        $movie->update($data);
     }
 
     /**
