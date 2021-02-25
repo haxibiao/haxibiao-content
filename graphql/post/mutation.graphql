@@ -90,7 +90,7 @@ extend type Mutation @guard {
         正文
         """
         content: String
-    ): Post! @field(resolver: "App\\Post@resolveRelationPost")
+    ): Post! @field(resolver: "App\\Post@resolveRelationQuestion")
 
     """
     删除动态

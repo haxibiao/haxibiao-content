@@ -8,6 +8,8 @@ use App\Collection;
 use App\Comment;
 use App\Gold;
 use App\Image;
+use App\Movie;
+use App\Question;
 use App\Spider;
 use App\User;
 use App\Visit;
@@ -26,6 +28,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+
 trait PostRepo
 {
 
@@ -1061,5 +1064,42 @@ trait PostRepo
         }
 
         return $query->inRandomOrder();
+    }
+
+    public static function relationQuestion($post_id, $content)
+    {
+        $post = Post::find($post_id);
+        throw_if(empty($post), GQLException::class, "该动态不存在!");
+        throw_if(!empty($post->question), GQLException::class, "该动态已关联视频题!");
+        //有这部电影，直接关联上
+        $movie = Movie::where('name', $content)->first();
+
+        $data = [];
+        if ($movie && empty($post->movie)) {
+            $data = array_add($data, 'movie_id', $movie->id);
+        }
+
+        //创建题目
+        //随机一个题目
+        $other_movie = null;
+        do {
+            $other_movie = Movie::find(random_int(1, 10000));
+        } while ($other_movie == null);
+
+        $selections = json_encode(["A" => $content, "B" => $other_movie->name], JSON_UNESCAPED_UNICODE);
+
+        $question = Question::create([
+            "description" => Question::POST_QUESTION_DESCRIPTION,
+            "selections"  => $selections,
+            "answer"      => $content,
+            "gold"        => Question::POST_QUESTION_GOLD,
+            "ticket"      => Question::POST_QUESTION_TICKET,
+            "rank"        => 1,
+            "status"      => Question::SUBMITTED_SUBMIT,
+        ]);
+        $data = array_add($data, 'question_id', $question->id);
+        $post->update($data);
+
+        return $post;
     }
 }
