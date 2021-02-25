@@ -29,6 +29,9 @@ class CreatePostsTable extends Migration
 
             $table->tinyInteger('status')->default(0)->comment('状态');
 
+            $table->unsignedInteger('question_id')->nullable()->comment('关联题目');
+            $table->unsignedInteger('movie_id')->nullable()->comment('关联长视频');
+
             $table->unsignedInteger('hot')->default(0)->comment('热度');
             $table->unsignedInteger('count_likes')->default(0)->comment('点赞数');
             $table->unsignedInteger('count_comments')->default(0)->comment('点赞数');

@@ -3,7 +3,9 @@
 namespace Haxibiao\Content;
 
 use App\Comment;
+use App\Movie;
 use App\PostRecommended;
+use App\Question;
 use App\User;
 use App\Video;
 use Carbon\Carbon;
@@ -394,5 +396,15 @@ class Post extends Model implements Collectionable
             $this->owner_id = $user->id;
             $this->user_id  = $vestId;
         }
+    }
+
+    public function movie()
+    {
+        return $this->belongsTo(Movie::class);
+    }
+
+    public function question()
+    {
+        return $this->belongsTo(Question::class);
     }
 }

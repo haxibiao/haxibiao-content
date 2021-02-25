@@ -5,6 +5,8 @@ namespace Haxibiao\Content\Nova;
 use App\Nova\Resource;
 use Haxibiao\Content\Nova\Actions\AssignPostRecommend;
 use Haxibiao\Content\Nova\Actions\PickCollectionPost;
+use Haxibiao\Content\Nova\Actions\RelationMovie;
+use Haxibiao\Content\Nova\Actions\RemoveRelationMovie;
 use Haxibiao\Content\Nova\Actions\UpdatePost;
 use Haxibiao\Media\Nova\Video;
 use Illuminate\Http\Request;
@@ -38,6 +40,8 @@ class Post extends Resource
             Textarea::make('文章内容', 'content')->rules('required')->hideFromIndex(),
             BelongsTo::make('作者', 'user', 'App\Nova\User')->exceptOnForms(),
             BelongsTo::make('视频', 'video', Video::class)->exceptOnForms(),
+            BelongsTo::make('电影', 'movie', Movie::class)->exceptOnForms(),
+            BelongsTo::make('题目', 'question', Question::class)->exceptOnForms(),
             Text::make('描述', 'description')->exceptOnForms(),
             Text::make('热度', 'hot')->exceptOnForms(),
             Text::make('点赞', 'count_likes')->exceptOnForms(),
@@ -55,18 +59,6 @@ class Post extends Resource
                 return '';
             })->asHtml(),
 
-            // File::make('上传视频', 'video_id')->onlyOnForms()->store(
-            //     function (Request $request, $model) {
-            //         $file      = $request->file('video_id');
-            //         $validator = Validator::make($request->all(), [
-            //             'video' => 'mimetypes:video/avi,video/mp4,video/mpeg,video/quicktime',
-            //         ]);
-            //         if ($validator->fails()) {
-            //             return '视频格式有问题';
-            //         }
-            //         return \App\Video::uploadNovaVod($file);
-            //     }
-            // ),
         ];
     }
 
@@ -91,6 +83,8 @@ class Post extends Resource
     {
         return [
             new UpdatePost,
+            new RelationMovie,
+            new RemoveRelationMovie,
             new AssignPostRecommend,
             new PickCollectionPost,
         ];
