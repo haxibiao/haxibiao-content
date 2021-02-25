@@ -20,7 +20,9 @@
         "haxibiao/cms": "*",
         "haxibiao/question": "*",
         "haxibiao/sns": "*",
-        "haxibiao/media": "*"
+        "haxibiao/media": "*",
+        "jenssegers/agent": "^2.6",
+        "spatie/laravel-sitemap": "^5.0.1"
     },
     "autoload": {
         "psr-4": {

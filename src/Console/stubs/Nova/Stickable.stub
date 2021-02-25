@@ -1,0 +1,10 @@
+<?php
+
+namespace App\Nova;
+
+use Haxibiao\Content\Nova\Stickable as NovaStickable;
+
+class Stickable extends NovaStickable
+{
+    //
+}

@@ -1,0 +1,10 @@
+<?php
+
+namespace App\Nova;
+
+use Haxibiao\Content\Nova\SiteCategory as NovaSiteCategory;
+
+class SiteCategory extends NovaSiteCategory
+{
+    //
+}

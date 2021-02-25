@@ -41,5 +41,32 @@ Route::get('/question-bonused', 'IssueController@bonused');
 //创作
 Route::middleware('auth')->get('/write', 'ArticleController@write');
 
-//TODO 这个里面还有梗,注意这个category的匹配顺序
-//Route::get('/{name_en}', CategoryController::class.'@name_en')->where('name_en', '(?!nova).*');
+
+//调试和日志查看
+Route::get('/logshow', 'LogController@logShow');
+Route::get('/logclear', 'LogController@logClear');
+Route::get('/debug', 'LogController@debug');
+
+/**
+ * 站点seo管理
+ */
+Route::group(['prefix' => 'seo'], function (RouteRegisterContract $route) {
+    // 百度收录查询
+    Route::get('/baidu', 'SeoController@baiduInclude');
+    Route::get('/baidu/include', 'SeoController@baiduInclude');
+    //收录反馈查询
+    Route::get('/pushResult', 'SeoController@pushResult');
+});
+
+//站点地图索引
+Route::get('/sitemap', 'SitemapController@index');
+Route::get('/sitemap.xml', 'SitemapController@index');
+//单个地图
+Route::get('/sitemap/{name_en}', 'SitemapController@name_en');
+
+// robots
+Route::get('/robots.txt', 'SeoController@robot');
+
+// robots
+Route::get('/shenma-site-verification.txt', 'SeoController@verification');
+Route::get('/sogousiteverification.txt', 'SeoController@verification');

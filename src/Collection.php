@@ -50,6 +50,11 @@ class Collection extends Model
         'json' => 'object',
     ];
 
+    public function getMorphClass()
+    {
+        return 'collections';
+    }
+
     protected $guarded = ['api_token'];
 
     public static function boot()

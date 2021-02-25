@@ -9,6 +9,7 @@ use Haxibiao\Content\Traits\ArticleAttrs;
 use Haxibiao\Content\Traits\ArticleRepo;
 use Haxibiao\Content\Traits\ArticleResolvers;
 use Haxibiao\Content\Traits\Contentable;
+use Haxibiao\Content\Traits\WithCms;
 use Haxibiao\Sns\Traits\WithSns;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -21,6 +22,9 @@ class Article extends Model implements Collectionable
     use SoftDeletes;
     use Contentable;
     use WithSns;
+
+    use WithCms;
+    use \Haxibiao\Content\Traits\Stickable;
 
     protected $guarded = ['api_token'];
 

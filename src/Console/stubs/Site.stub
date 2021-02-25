@@ -1,0 +1,10 @@
+<?php
+
+namespace App;
+
+use Haxibiao\Content\Site as BaseSite;
+
+class Site extends BaseSite
+{
+    //
+}

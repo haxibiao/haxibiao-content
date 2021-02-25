@@ -1,0 +1,10 @@
+<?php
+
+namespace App;
+
+use Haxibiao\Content\Stickable as BaseStickable;
+
+class Stickable extends BaseStickable
+{
+    //
+}
