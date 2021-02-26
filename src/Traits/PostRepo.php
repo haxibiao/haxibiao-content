@@ -587,7 +587,11 @@ trait PostRepo
             $notLikIds = $user->dislikes()->ByType('users')->get()->pluck('dislikeable_id')->toArray();
         }
         if (class_exists('App\UserBlock')) {
-            $blockIds  = $user->userBlock()->pluck('user_block_id')->toArray();
+            $blockIds = \App\UserBlock::where("user_id", $user->id)
+                ->where('blockable_type', 'users')
+                ->pluck('blockable_id')
+                ->toArray();
+
             $notLikIds = array_unique(array_filter(array_merge($notLikIds, $blockIds)));
         }
 
@@ -1013,8 +1017,15 @@ trait PostRepo
         if (in_array(config('app.name'), ['dianyintujie'])) {
             $query = Post::publish()->has('collectable')->inRandomOrder();
             if (($user = getUser(false)) && class_exists("App\\UserBlock", true)) {
-                $userBlockId    = \App\UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
-                $articleBlockId = \App\UserBlock::select('article_block_id')->whereNotNull('article_block_id')->where('user_id', $user->id)->get();
+                $userBlockId = \App\UserBlock::where("user_id", $user->id)
+                    ->where('blockable_type', 'users')
+                    ->pluck('blockable_id')
+                    ->toArray();
+
+                $articleBlockId = \App\UserBlock::where("user_id", $user->id)
+                    ->where('blockable_type', 'posts')
+                    ->pluck('blockable_id')
+                    ->toArray();
 
                 if ($userBlockId) {
                     $query->whereNotIn('user_id', $userBlockId);
@@ -1035,8 +1046,15 @@ trait PostRepo
                 $query = Post::publish()->inRandomOrder();
             }
             if (($user = getUser(false)) && class_exists("App\\UserBlock", true)) {
-                $userBlockId    = \App\UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
-                $articleBlockId = \App\UserBlock::select('article_block_id')->whereNotNull('article_block_id')->where('user_id', $user->id)->get();
+                $userBlockId = \App\UserBlock::where("user_id", $user->id)
+                    ->where('blockable_type', 'users')
+                    ->pluck('blockable_id')
+                    ->toArray();
+
+                $articleBlockId = \App\UserBlock::where("user_id", $user->id)
+                    ->where('blockable_type', 'posts')
+                    ->pluck('blockable_id')
+                    ->toArray();
 
                 if ($userBlockId) {
                     $query->whereNotIn('user_id', $userBlockId);
