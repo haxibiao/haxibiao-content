@@ -33,14 +33,13 @@ Route::get('/share/collection/{id}', 'CollectionController@shareCollection');
  * 问答
  */
 Route::post('/question/updateBackground', 'IssueController@add')->name('question.updateBackground');
-Route::resource('/question', 'IssueController');
+// Route::resource('/question', 'IssueController');
 Route::resource('/answer', 'SolutionController');
 Route::get('/categories-for-question', 'IssueController@categories');
 Route::get('/question-bonused', 'IssueController@bonused');
 
 //创作
 Route::middleware('auth')->get('/write', 'ArticleController@write');
-
 
 //调试和日志查看
 Route::get('/logshow', 'LogController@logShow');
