@@ -7,7 +7,7 @@ use App\Scopes\ArticleSubmitScope;
 use App\Visit;
 use GraphQL\Type\Definition\ResolveInfo;
 use Haxibiao\Breeze\Exceptions\GQLException;
-use Haxibiao\Breeze\UserBlock;
+use Haxibiao\Sns\UserBlock;
 use Haxibiao\Content\Post;
 use Haxibiao\Helpers\Facades\SensitiveFacade;
 use Haxibiao\Helpers\utils\BadWordUtils;
