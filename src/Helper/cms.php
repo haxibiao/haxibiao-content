@@ -6,7 +6,7 @@ use Illuminate\Support\Str;
 /**
  * 站群资源可以置顶的位置对照表
  */
-if (!function_exists('stickable_areas')){
+if (!function_exists('stickable_areas')) {
     function stickable_areas($type = null)
     {
         $areas = [
@@ -37,7 +37,7 @@ if (!function_exists('stickable_areas')){
     }
 }
 
-if (!function_exists('cms_url')){
+if (!function_exists('cms_url')) {
     function cms_url($model, $site)
     {
         $url = sprintf('https://%s/%s/%s',
@@ -49,15 +49,15 @@ if (!function_exists('cms_url')){
     }
 }
 
-if (!function_exists('cms_morph_map')){
+if (!function_exists('cms_morph_map')) {
     function cms_morph_map()
     {
         return [
-            'categories' => 'Haxibiao\Cms\Category',
-            'articles'   => 'Haxibiao\Cms\Article',
-            'posts'      => 'Haxibiao\Cms\Post',
-            'movies'     => 'Haxibiao\Cms\Movie',
-            'siteables'  => 'Haxibiao\Cms\Siteable',
+            'categories' => 'App\Category',
+            'articles'   => 'App\Article',
+            'posts'      => 'App\Post',
+            'movies'     => 'App\Movie',
+            'siteables'  => 'App\Siteable',
         ];
     }
 }
@@ -65,7 +65,7 @@ if (!function_exists('cms_morph_map')){
 /**
  * 更新百度提交时间
  */
-if (!function_exists('update_baidu_pushed_at')){
+if (!function_exists('update_baidu_pushed_at')) {
     function update_baidu_pushed_at($model, $site)
     {
         $morphType = null;
@@ -90,7 +90,7 @@ if (!function_exists('update_baidu_pushed_at')){
  * *****cms站群模式TKD和站长验证*********
  * ***************************
  */
-if (!function_exists('cms_seo_title')){
+if (!function_exists('cms_seo_title')) {
     function cms_seo_title()
     {
         //站群模式
@@ -105,7 +105,7 @@ if (!function_exists('cms_seo_title')){
     }
 }
 
-if (!function_exists('cms_seo_keywords')){
+if (!function_exists('cms_seo_keywords')) {
     function cms_seo_keywords()
     {
         //站群模式
@@ -120,7 +120,7 @@ if (!function_exists('cms_seo_keywords')){
     }
 }
 
-if (!function_exists('cms_seo_description')){
+if (!function_exists('cms_seo_description')) {
     function cms_seo_description()
     {
         //站群模式
@@ -135,7 +135,7 @@ if (!function_exists('cms_seo_description')){
     }
 }
 
-if (!function_exists('cms_seo_meta')){
+if (!function_exists('cms_seo_meta')) {
     function cms_seo_meta()
     {
         //站群模式
@@ -153,53 +153,53 @@ if (!function_exists('cms_seo_meta')){
 /**
  * 返回站点ICP备案号
  */
-if (!function_exists('cms_icp_info')){
+if (!function_exists('cms_icp_info')) {
     function cms_icp_info()
     {
 
         // 单站模式
         if (!config('cms.multi_domains')) {
-            $copyRight = seo_value('备案', 'copyright');
+            $copyRight  = seo_value('备案', 'copyright');
             $recordCode = seo_value('备案', '备案号');
             $policeCode = seo_value('备案', '公安网备号');
-            $html = [];
-            $html [] = "<div>" ;
-            $html [] = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\" rel=\"nofollow\">{$copyRight}</a><br>" ;
-            $html [] = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\"  rel=\"nofollow\">{$recordCode}";
-            $html [] = "邮箱：support@beian.gov.cn</a><br>";
-            $html [] = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\" rel=\"nofollow\" >";
-            $html [] = "<img src=\"http://cos.haxibiao.com/images/yyzz.png\" rel=\"nofollow\" alt=\"电子安全监督\">";
-            $html [] = "{$policeCode}";
-            $html [] = "</a><br>";
-            $html [] = "</div>" ;
+            $html       = [];
+            $html[]     = "<div>";
+            $html[]     = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\" rel=\"nofollow\">{$copyRight}</a><br>";
+            $html[]     = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\"  rel=\"nofollow\">{$recordCode}";
+            $html[]     = "邮箱：support@beian.gov.cn</a><br>";
+            $html[]     = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\" rel=\"nofollow\" >";
+            $html[]     = "<img src=\"http://cos.haxibiao.com/images/yyzz.png\" rel=\"nofollow\" alt=\"电子安全监督\">";
+            $html[]     = "{$policeCode}";
+            $html[]     = "</a><br>";
+            $html[]     = "</div>";
             return implode(PHP_EOL, $html);
         }
-        $site = cms_get_site();
-        $company  = data_get($site,'company');
+        $site    = cms_get_site();
+        $company = data_get($site, 'company');
         // 未配置ICP信息
-        if(!$company){
+        if (!$company) {
             return;
         }
         $infoList = config('cms.icp');
-        $icpInfo = data_get($infoList,$company);
-        if(!$icpInfo){
+        $icpInfo  = data_get($infoList, $company);
+        if (!$icpInfo) {
             return;
         }
-        $copyRight = data_get($icpInfo,'copyright');
-        $recordCode = data_get($icpInfo,'record_code');
-        $policeCode = data_get($icpInfo,'police_code');
-        $html = [];
-        $html [] = "<div>" ;
-        $html [] = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\" rel=\"nofollow\">{$copyRight}</a><br>" ;
-        $html [] = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\"  rel=\"nofollow\">{$recordCode}";
-        $html [] = "邮箱：support@beian.gov.cn</a><br>";
-        if($policeCode){
-            $html [] = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\" rel=\"nofollow\">";
-            $html [] = "<img src=\"http://cos.haxibiao.com/images/yyzz.png\" rel=\"nofollow\" alt=\"电子安全监督\">";
-            $html [] = "{$policeCode}";
-            $html [] = "</a><br>";
+        $copyRight  = data_get($icpInfo, 'copyright');
+        $recordCode = data_get($icpInfo, 'record_code');
+        $policeCode = data_get($icpInfo, 'police_code');
+        $html       = [];
+        $html[]     = "<div>";
+        $html[]     = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\" rel=\"nofollow\">{$copyRight}</a><br>";
+        $html[]     = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\"  rel=\"nofollow\">{$recordCode}";
+        $html[]     = "邮箱：support@beian.gov.cn</a><br>";
+        if ($policeCode) {
+            $html[] = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\" rel=\"nofollow\">";
+            $html[] = "<img src=\"http://cos.haxibiao.com/images/yyzz.png\" rel=\"nofollow\" alt=\"电子安全监督\">";
+            $html[] = "{$policeCode}";
+            $html[] = "</a><br>";
         }
-        $html [] = "</div>" ;
+        $html[] = "</div>";
         return implode(PHP_EOL, $html);
     }
 }
@@ -207,7 +207,7 @@ if (!function_exists('cms_icp_info')){
 /**
  * cms底部js
  */
-if (!function_exists('cms_seo_js')){
+if (!function_exists('cms_seo_js')) {
     function cms_seo_js()
     {
         //站群模式
@@ -224,7 +224,7 @@ if (!function_exists('cms_seo_js')){
 /**
  * 获得当前cms的站点
  */
-if (!function_exists('cms_get_site')){
+if (!function_exists('cms_get_site')) {
     function cms_get_site()
     {
         return app('cms_site');
@@ -234,7 +234,7 @@ if (!function_exists('cms_get_site')){
 /**
  * 获得当前cms的主题
  */
-if (!function_exists('cms_seo_theme')){
+if (!function_exists('cms_seo_theme')) {
     function cms_seo_theme()
     {
         //站群模式
@@ -251,7 +251,7 @@ if (!function_exists('cms_seo_theme')){
 /**
  * 首页置顶电影(站群)
  */
-if (!function_exists('cmsTopMovies')){
+if (!function_exists('cmsTopMovies')) {
     function cmsTopMovies($top = 4)
     {
         //站群模式
@@ -273,7 +273,7 @@ if (!function_exists('cmsTopMovies')){
 /**
  * 首页置顶视频(站群)
  */
-if (!function_exists('cmsTopVideos')){
+if (!function_exists('cmsTopVideos')) {
     function cmsTopVideos($top = 4)
     {
         //站群模式
@@ -295,7 +295,7 @@ if (!function_exists('cmsTopVideos')){
  * 首页的专题(站群)
  * @return [category] [前几个专题的数组]
  */
-if (!function_exists('cmsTopCategories')){
+if (!function_exists('cmsTopCategories')) {
     function cmsTopCategories($top = 7)
     {
         //站群模式
@@ -317,7 +317,7 @@ if (!function_exists('cmsTopCategories')){
  * 首页的文章列表(站群)
  * @return collection([article]) 包含分页信息和移动ＶＵＥ等优化的文章列表
  */
-if (!function_exists('cmsTopArticles')){
+if (!function_exists('cmsTopArticles')) {
     function cmsTopArticles()
     {
         //站群模式
@@ -341,7 +341,7 @@ if (!function_exists('cmsTopArticles')){
  * @param string $urls
  * @return array
  */
-if (!function_exists('baidu_include_check')){
+if (!function_exists('baidu_include_check')) {
     function baidu_include_check($urls)
     {
         // $check_url = "https://www.baidu.com/s?wd=site:diudie.com&rn=3&tn=json&ie=UTF-8&cl=3&f=9";
