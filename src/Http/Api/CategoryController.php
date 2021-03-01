@@ -49,8 +49,11 @@ class CategoryController extends Controller
 
     public function index(Request $request)
     {
-        $categories = Category::orderBy('updated_at', 'desc')
-            ->whereStatus(1)->get();
+        //网页VUE 发布动态，选择专题用，只取最近top100专题 直接投稿用
+        $categories = Category::latest('updated_at')
+            ->whereStatus(1)
+            ->take(100)
+            ->get();
         foreach ($categories as $category) {
             $category->fillForJs();
         }
