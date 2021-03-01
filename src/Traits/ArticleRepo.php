@@ -321,6 +321,10 @@ trait ArticleRepo
             $this->duration     = gmdate('i:s', $this->video->duration);
             $this->cover        = $this->video->cover_url;
             $this->video->cover = $this->video->cover_url;
+
+            //继续兼容旧vue
+            $this->has_image     = $this->cover;
+            $this->primary_image = $this->cover;
         }
     }
 
