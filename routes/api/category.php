@@ -16,6 +16,11 @@ Route::get('/category/recommend-categories', 'CategoryController@page');
 
 //分类
 Route::get('/category', 'CategoryController@index');
+
+//首页分类推荐vue(兼容旧网站,发布动态，选择专题)
+Route::get('/categories', 'CategoryController@index');
+Route::get('/recommend-categories', 'CategoryController@page');
+
 //搜索专题
 Route::get('/category/search-submit-for-article-{aid}', 'CategoryController@search');
 
