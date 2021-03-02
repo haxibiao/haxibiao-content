@@ -325,6 +325,7 @@ trait ArticleRepo
             //继续兼容旧vue
             $this->has_image     = $this->cover;
             $this->primary_image = $this->cover;
+            $this->url           = $this->url;
         }
     }
 
