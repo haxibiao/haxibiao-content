@@ -3,8 +3,8 @@
 namespace Haxibiao\Content\Http\Controllers;
 
 use App\Article;
+use App\Category;
 use App\User;
-use Haxibiao\Content\Category;
 use Haxibiao\Content\Requests\CategoryRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -280,7 +280,7 @@ class CategoryController extends Controller
         $category->recordBrowserHistory();
 
         $questions = [];
-        if (class_exists("\App\Question")) {
+        if (enable_question()) {
             $questions = \App\Question::where('category_id', $category->id)->paginate(9);
         }
         return view('category.show')
