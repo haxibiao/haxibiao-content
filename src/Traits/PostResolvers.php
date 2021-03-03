@@ -190,11 +190,9 @@ trait PostResolvers
     public function postWithMovies($rootValue, array $args, $context, $resolveInfo)
     {
         //有关联电影的
-        //FIXME: 修复link movie的数据，重构关联电影逻辑
         $qb = Post::where('movie_id', '>', 0);
         if (!$qb->exists()) {
             //把有合集的
-            //FIXME: 修复有合集的视频数据
             $qb = Post::where('collection_id', '>', 0);
             if (!$qb->exists()) {
                 //默认常规的视频刷 - 兼容没修复数据的时候
