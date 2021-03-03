@@ -68,7 +68,7 @@ type Post {
     """
     关联的长电影
     """
-    movies: [Movie]
+    movie: Movie
 }
 type Certification {
     id: Int

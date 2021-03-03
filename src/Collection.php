@@ -76,7 +76,11 @@ class Collection extends Model
     {
         return $this->belongsTo(\App\User::class);
     }
-
+    
+    public function movie()
+    {
+        return $this->belongsTo(\App\Movie::class);
+    }
     public function collectable($related)
     {
         return $this->morphedByMany($related, 'collectable')

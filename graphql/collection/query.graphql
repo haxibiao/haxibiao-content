@@ -17,7 +17,7 @@ type Collection {
     """
     关联的长电影
     """
-    movies: [Movie]
+    movie: Movie
     """
     合集类型
     """

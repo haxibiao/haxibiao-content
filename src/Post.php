@@ -21,7 +21,6 @@ use Haxibiao\Content\Traits\WithCms;
 use Haxibiao\Helpers\Traits\Searchable;
 use Haxibiao\Media\Image;
 use Haxibiao\Media\Spider;
-use Haxibiao\Media\Traits\CanLinkMovie;
 use Haxibiao\Sns\Traits\WithSns;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -41,7 +40,6 @@ class Post extends Model implements Collectionable
     use PostOldPatch;
     use WithSns;
     use Contentable;
-    use CanLinkMovie;
 
     use WithCms;
     use \Haxibiao\Content\Traits\Stickable;
