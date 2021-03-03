@@ -1,0 +1,24 @@
+type Stickable {
+    id: Int
+}
+
+type EditorChoice {
+    id: Int
+    title:String
+    description:String
+    image_url:String
+    movies:  [Movie!] @paginate(defaultCount: 10, builder: "\\App\\EditorChoice@resovleEditorChoiceMovies")
+}
+
+extend type Query {
+    """
+    精选
+    """
+    editorChoices(name:String, channel:ChannelOfStickable=APP):[EditorChoice!]
+        @paginate(defaultCount: 10, builder: "App\\EditorChoice@resolveEditorChoices")
+}
+
+enum ChannelOfStickable {
+    APP @enum(value: "APP")
+    WEB @enum(value: "WEB")
+}

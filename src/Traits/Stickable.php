@@ -115,7 +115,7 @@ trait Stickable
     public function stickable($related): MorphToMany
     {
         return $this->morphedByMany($related, 'stickable')
-            ->withPivot(['name', 'page', 'area'])
+            ->withPivot(['name', 'page', 'area','channel'])
             ->withTimestamps();
     }
 }

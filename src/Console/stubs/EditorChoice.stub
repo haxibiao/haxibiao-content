@@ -1,0 +1,10 @@
+<?php
+
+namespace App;
+
+use Haxibiao\Content\EditorChoice as BaseEditorChoice;
+
+class EditorChoice extends BaseEditorChoice
+{
+
+}
