@@ -1,0 +1,10 @@
+<?php
+
+namespace App;
+
+use Haxibiao\Content\Stick as BaseStick;
+
+class Stick extends BaseStick
+{
+
+}

@@ -2,41 +2,13 @@
 
 namespace Haxibiao\Content;
 
-use Haxibiao\Breeze\Model;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Pagination\Paginator;
+use Haxibiao\Breeze\Model as BreezeModel;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class EditorChoice extends Model
+class EditorChoice extends BreezeModel
 {
-    use \Haxibiao\Content\Traits\Stickable;
-
-    protected $guarded = [];
-
-    protected $casts = [
-        'data' => 'array'
-    ];
-
-    public function getMorphClass()
+    public function editor(): BelongsTo
     {
-        return 'editor_choices';
-    }
-
-    public function movies(){
-        $movieIds =  data_get($this,'data.movies',[]);
-        $modelString = Relation::getMorphedModel('movies');
-        return $modelString::whereIn('id',$movieIds);
-    }
-
-    public function resolveEditorChoices($root,$args, $context){
-        $name = data_get($args,'name');
-        $channel = data_get($args,'channel');
-
-        return static::whereHas('related',function ($query)use($name,$channel){
-            $query->where('name', $name)->whereChannel($channel);
-        });
-    }
-
-    public function resovleEditorChoiceMovies($root,$args, $context){
-        return $root->movies();
+        return $this->belongsTo(User::class);
     }
 }
