@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Content;
 
+use App\Site;
 use Haxibiao\Breeze\Model as BreezeModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -15,6 +16,16 @@ class Stick extends BreezeModel
     public function editorChoice(): BelongsTo
     {
         return $this->belongsTo(EditorChoice::class);
+    }
+
+    public function editor(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
     }
 
     public function stickable(): MorphTo

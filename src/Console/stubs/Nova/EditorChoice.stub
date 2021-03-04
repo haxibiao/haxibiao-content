@@ -1,0 +1,10 @@
+<?php
+
+namespace App\Nova;
+
+use Haxibiao\Content\Nova\EditorChoice as NovaEditorChoice;
+
+class EditorChoice extends NovaEditorChoice
+{
+    //
+}
