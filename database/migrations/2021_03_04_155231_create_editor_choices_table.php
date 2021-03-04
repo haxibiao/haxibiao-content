@@ -13,6 +13,9 @@ class CreateEditorChoicesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('editor_choices')) {
+            return;
+        }
         Schema::create('editor_choices', function (Blueprint $table) {
             $table->id();
             $table->string('title');
