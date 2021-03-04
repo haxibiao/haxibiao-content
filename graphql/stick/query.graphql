@@ -1,9 +1,9 @@
 type Stick {
-    id: ID
-    place: String
-    cover: String
-    stickable: Stickable @morphTo
-    editorChoice: EditorChoice @belongsTp
+  id: ID
+  place: String
+  cover: String
+  stickable: Stickable @morphTo
+  editorChoice: EditorChoice @belongsTo
 }
 
 union Stickable = Movie
