@@ -54,11 +54,10 @@ class AddMovieToSticks extends Action
     public function fields()
     {
         return [
-            // Select::make('精选', 'choice')->options(EditorChoice::all()->pluck(['name',''])),
-            Text::make('精选名', 'title'),
-            Text::make('展示地点', 'place'),
-            Text::make('展示站点', 'sitename'),
-            Text::make('展示app', 'app'),
+            Text::make('精选名称', 'title'),
+            Text::make('展示位置', 'place'),
+            Text::make('展示站点（可为空）', 'sitename'),
+            Text::make('展示app（可为空）', 'app'),
         ];
     }
 }

@@ -2,25 +2,42 @@
 
 namespace Haxibiao\Content\Nova;
 
+use App\Nova\Post;
 use App\Nova\Resource;
 use Haxibiao\Breeze\Nova\User;
-use Haxibiao\Content\Nova\Site;
+use Haxibiao\Media\Nova\Movie;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Image;
+use Laravel\Nova\Fields\MorphTo;
 use Laravel\Nova\Fields\Text;
 
 class Stick extends Resource
 {
-    public static $group          = "置顶系统";
+
+    public static $group          = "小编精选";
     public static $perPageOptions = [25, 50, 100, 500, 1000];
     public static function label()
     {
-        return '置顶';
+        return '定制';
     }
+
+    /**
+     * The model the resource corresponds to.
+     *
+     * @var string
+     */
+    public static $model = \App\Stick::class;
+
+    /**
+     * The single value that should be used to represent the resource when being displayed.
+     *
+     * @var string
+     */
     public static $title = 'id';
+
     /**
      * The columns that should be searched.
      *
@@ -42,14 +59,21 @@ class Stick extends Resource
             ID::make(__('ID'), 'id')->sortable(),
             Text::make('展示位置', 'place'),
             Text::make('app名字', 'app_name'),
-            Image::make('图片', 'path')
+            Image::make('封面', 'cover')
                 ->thumbnail(function () {
                     return $this->cover;
-                })->preview(function () {
+                })->store(function (Request $request, $model) {
+                $file = $request->file('cover');
+                return $model->saveDownloadImage($file);
+            })->preview(function () {
                 return $this->cover;
             })->disableDownload(),
+            MorphTo::make('定制对象', 'stickable')->types([
+                Movie::class,
+                Post::class,
+            ]),
             BelongsTo::make('精选', 'editorChoice', EditorChoice::class),
-            BelongsTo::make('网站', 'site', Site::class),
+            BelongsTo::make('网站', 'site', Site::class)->nullable(),
             BelongsTo::make('小编', 'editor', User::class),
             DateTime::make('创建时间', 'created_at'),
             DateTime::make('更新时间', 'updated_at'),

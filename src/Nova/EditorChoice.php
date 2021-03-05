@@ -17,7 +17,7 @@ class EditorChoice extends Resource
     public static $perPageOptions = [25, 50, 100, 500, 1000];
     public static function label()
     {
-        return '置顶';
+        return '精选';
     }
 
     /**
