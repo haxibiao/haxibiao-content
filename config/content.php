@@ -3,6 +3,9 @@
 declare (strict_types = 1);
 
 return [
+    //临时允许不迁移数据库 用content 的部分能力
+    'migration_autoload'      => true,
+
     //是否开启答题模块
     'enable_question'         => env('ENABLE_QUESTION', true),
 

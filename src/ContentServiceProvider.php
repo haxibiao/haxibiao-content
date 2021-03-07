@@ -89,7 +89,10 @@ class ContentServiceProvider extends ServiceProvider
 
         //安装时需要
         if ($this->app->runningInConsole()) {
-            $this->loadMigrationsFrom($this->app->make('path.haxibiao-content.migrations'));
+            // FIXME:临时添加了一个属性动态控制了migrations的加载。
+            if (config('content.migration_autoload')) {
+                $this->loadMigrationsFrom($this->app->make('path.haxibiao-content.migrations'));
+            }
 
             $this->publishes([
                 __DIR__ . '/../config/content.php' => config_path('content.php'),
@@ -164,7 +167,6 @@ class ContentServiceProvider extends ServiceProvider
             $this->app->instance($abstract, $instance);
         }
     }
-
 
     protected function registerMorphMap()
     {

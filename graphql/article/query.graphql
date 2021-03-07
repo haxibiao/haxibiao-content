@@ -10,7 +10,7 @@ type Article {
     favorited: Int
     time_ago: String!
     liked: Boolean
-    liked_id: Int
+    liked_id: Int @rename(attribute: "likable_id")
     favorited: Boolean
     favorited_id: Int
     cover: String
