@@ -36,4 +36,20 @@ return [
     //数据源的 cos domian
     'origin_cos_domain'       => env('ORIGIN_COS_DOMAIN', ''),
 
+	/**
+	 * 专题模块配置
+	 */
+	'category'                          => [
+		'middleware' => [
+			'web',
+		],
+	],
+	/**
+	 * 文章模块配置
+	 */
+	'article'                          => [
+		'middleware' => [
+			'web',
+		],
+	],
 ];

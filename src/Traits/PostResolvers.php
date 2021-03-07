@@ -189,22 +189,40 @@ trait PostResolvers
      */
     public function postWithMovies($rootValue, array $args, $context, $resolveInfo)
     {
-        //有关联电影的
+        $limit = 4; //快速推荐有广告位逻辑
+
+        $posts = collect([]);
+
+        //1.优先有电影的
         $qb = Post::where('movie_id', '>', 0);
         if (!$qb->exists()) {
-            //把有合集的
-            $qb = Post::where('collection_id', '>', 0);
-            if (!$qb->exists()) {
-                //默认常规的视频刷 - 兼容没修复数据的时候
-                $qb = Post::has('video')->with(['video', 'user'])->publish();
-            }
+            $movie_posts = Post::fastRecommendPosts(1, $qb, '电影剪辑');
+            $posts->merge($movie_posts);
         }
-        $limit = 4; //快速推荐有广告位逻辑
-        if (!checkUser()) {
-            //游客
-            return Post::getGuestPosts($limit);
+
+        //2.有合集的
+        $qb = Post::where('collection_id', '>', 0);
+        if (!$qb->exists()) {
+            $collection_posts = Post::fastRecommendPosts(1, $qb, '视频合集');
+            $posts->merge($collection_posts);
         }
-        return Post::fastRecommendPosts($limit, $qb, '电影剪辑');
+
+        //3. 有题目的
+        $qb = Post::where('question_id', '>', 0);
+        if (!$qb->exists()) {
+            $question_posts = Post::fastRecommendPosts(1, $qb, '视频答题');
+            $posts->merge($question_posts);
+        }
+
+        //4. 普通的 = 比如 美女
+        $qb = Post::query();
+        if (!$qb->exists()) {
+            $latest_take  = $limit - $posts->count();
+            $latest_posts = Post::fastRecommendPosts($latest_take, $qb);
+            $posts->merge($latest_posts);
+        }
+
+        return $posts;
     }
 
     public function resolveUpdatePost($root, $args, $context, $info)
