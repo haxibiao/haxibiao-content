@@ -3,4 +3,10 @@ type EditorChoice {
   title: String
   summary: String
   editor: User @belongsTo
+  sticks: [Stick] @hasMany
+}
+
+extend type Query {
+  indexEditorChoice: [EditorChoice]
+    @field(resolver: "App\\EditorChoice@resolveIndexEditorChoice")
 }
