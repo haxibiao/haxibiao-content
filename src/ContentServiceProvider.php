@@ -3,6 +3,7 @@
 namespace Haxibiao\Content;
 
 use Haxibiao\Content\Console\ArticleClear;
+use Haxibiao\Content\Console\ClearCache;
 use Haxibiao\Content\Console\CrawlCollection;
 use Haxibiao\Content\Console\FixContent;
 use Haxibiao\Content\Console\ImportCollections;
@@ -59,11 +60,20 @@ class ContentServiceProvider extends ServiceProvider
             ImportCollections::class,
             SyncPostWithMovie::class,
 
+            ClearCache::class,
+
             Console\Cms\SitemapGenerate::class,
             Console\Cms\ArchiveTraffic::class,
             Console\Cms\SeoWorker::class,
             Console\Cms\CmsUpdate::class,
         ]);
+
+		$this->app->singleton(Cache::class, function () {
+			$instance = new Cache($this->app->make('files'));
+
+			return $instance->setContainer($this->app);
+		});
+
     }
 
     /**
