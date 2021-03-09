@@ -8,11 +8,8 @@ use Illuminate\Support\Facades\Route;
 /**
  * Category
  */
-Route::group(['prefix' => 'category'], function (RouteRegisterContract $route) {
-	Route::middleware(config('content.category.middleware', []))->resource('/', 'CategoryController');
-    //管理专题
-    Route::get('/list', 'CategoryController@list');
-});
+Route::middleware(config('content.category.middleware', []))->resource('/category', 'CategoryController');
+Route::get('/category/list', 'CategoryController@list');
 
 /**
  * Article
