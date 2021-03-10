@@ -76,4 +76,12 @@ class Site extends Model
     {
         return $this->data['baidu_remain'] ?? '未知';
     }
+
+	/**
+	 * 是否已备案
+	 * @return bool
+	 */
+    public function isRecorded(){
+    	return is_null(data_get($this,'company',null));
+	}
 }
