@@ -111,7 +111,7 @@ class SitemapGenerate extends Command
             $sitemapGenerator = SitemapGenerator::create($domain)
                 ->getSitemap();
             foreach ($questions as $question) {
-                $sitemapGenerator->add(Url::create('https://' . $domain . '/question/' . $question->id)
+                $sitemapGenerator->add(Url::create('https://' . $domain . '/issue/' . $question->id)
                         ->setLastModificationDate(Carbon::yesterday())
                         ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
                         ->setPriority(0.8)
