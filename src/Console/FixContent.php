@@ -28,40 +28,42 @@ class FixContent extends Command
     public function fixBodys()
     {
         $this->info('修复图解body内容展示');
-        $articles  = DB::connection('media')->table('articles')->where('id','>','66639')->where('type','diagrams')->get();
-        foreach ($articles as $article) {
-            $dataInfos = $article->body;
-            $body = '<div>';
+        DB::connection('media')->table('articles')->whereBetween('id',[85002,120020])->where('type','diagrams')->orderBy('id','desc')->chunk(1000,function($articles){
+            $this->info('开始处理body数据....');
+            foreach ($articles as $article) {
+                $dataInfos = $article->body;
+                $body = '<div>';
 
-            //匹配到所有的图片信息
-            preg_match_all('/<img.*?src=[\"|\']?(.*?)[\"|\']?\s.*?>/i',$dataInfos, $image);
-            //匹配所有的描述
-            preg_match_all('/<figcaption[^>]*([\s\S]*?)<\/figcaption>/i',$dataInfos, $description);
+                //匹配到所有的图片信息
+                preg_match_all('/<img.*?src=[\"|\']?(.*?)[\"|\']?\s.*?>/i',$dataInfos, $image);
+                //匹配所有的描述
+                preg_match_all('/<figcaption[^>]*([\s\S]*?)<\/figcaption>/i',$dataInfos, $description);
 
-            //构造json内容
-            $images = $image[1];
-            $descriptions = $description[1];
-            $json = [];
-            for ($i = 0; $i < count($images) && $i < count($descriptions); $i++) {
-                $jsonInfo['image'] = str_replace('http', 'https', $images[$i]);
-                $jsonInfo['description'] = str_replace('>','',$descriptions[$i]);
-                $json[$i] = $jsonInfo;
+                //构造json内容
+                $images = $image[1];
+                $descriptions = $description[1];
+                $json = [];
+                for ($i = 0; $i < count($images) && $i < count($descriptions); $i++) {
+                    $jsonInfo['image'] = str_replace('http', 'https', $images[$i]);
+                    $jsonInfo['description'] = str_replace('>','',$descriptions[$i]);
+                    $json[$i] = $jsonInfo;
+                }
+
+                //修复body内容数据
+                foreach ($json as $info) {
+                    $href = data_get($info, 'image');
+                    $content = data_get($info, 'description');
+                    $body .= "<p><img alt='$content' src='$href' width='960' height='540'/></p><p style='text-align:justify'>$content</p>";
+                }
+
+                $body .= '</div>';
+                DB::connection('media')->table('articles')->where('id',$article->id)->update([
+                    'body' => $body,
+                    'json' => $json,
+                ]);
+                $this->info('修改body && json 成功' . $article->title);
             }
-
-            //修复body内容数据
-            foreach ($json as $info) {
-                $href = data_get($info, 'image');
-                $content = data_get($info, 'description');
-                $body .= "<p><img alt='$content' src='$href' width='960' height='540'/></p><p style='text-align:justify'>$content</p>";
-            }
-
-            $body .= '</div>';
-            DB::connection('media')->table('articles')->where('id',$article->id)->update([
-                'body' => $body,
-                'json' => $json,
-            ]);
-            $this->info('修改body && json 成功' . $article->title);
-        }
+        });
     }
 
     public function videos()
