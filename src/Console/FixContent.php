@@ -28,8 +28,9 @@ class FixContent extends Command
     public function fixBodys()
     {
         $this->info('修复图解body内容展示');
-        DB::connection('media')->table('articles')->whereBetween('id',[85002,120020])->where('type','diagrams')->orderBy('id','desc')->chunk(1000,function($articles){
+        DB::connection('media')->table('articles')->where('type','diagrams')->orderBy('id','asc')->chunk(1000,function($articles){
             $this->info('开始处理body数据....');
+            $count = 0;
             foreach ($articles as $article) {
                 $dataInfos = $article->body;
                 $body = '<div>';
@@ -60,9 +61,12 @@ class FixContent extends Command
                 DB::connection('media')->table('articles')->where('id',$article->id)->update([
                     'body' => $body,
                     'json' => $json,
+                    'type' => 'diagrams',
                 ]);
-                $this->info('修改body && json 成功' . $article->title);
+                $count++;
+                $this->info('修改body && json 成功' . $article->title . 'id为:' .$article->id);
             }
+            echo "\n上传成功" . $count . "条文章数据";
         });
     }
 
