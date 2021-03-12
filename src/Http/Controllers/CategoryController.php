@@ -99,13 +99,13 @@ class CategoryController extends Controller
         //热门
         //获取最近七天发布的Article 按照hits order by desc
         $week_start = Carbon::now()->subWeek()->startOfWeek()->toDateTimeString();
-        $articles   = Article::where('updated_at', '<=', $week_start)
-            ->where('status', '>=', 0)
-            ->whereNotNull('category_id')
-            ->selectRaw('category_id')
-            ->groupBy('category_id')
-            ->get()->toArray();
-        $categories = Category::whereIn('id', $articles)
+
+        $categories = Category::whereExists(function ($query) use ($week_start) {
+            return $query->from('articles')
+                ->whereRaw('categories.id = articles.category_id')
+                ->where('articles.status', '>=', 0)
+                ->where('updated_at', '<=', $week_start);
+        })
             ->where('status', 1)
             ->where('parent_id', 0)
             ->paginate(24);
@@ -118,12 +118,13 @@ class CategoryController extends Controller
         }
         $data['hot'] = $categories;
 
-        //取子分类总和
-        foreach ($data as $categories) {
-            foreach ($categories as $category) {
-                $category->count += $category->subCategory()->pluck('count')->sum();
-            }
-        }
+        //分类列表页面未使用到子分类数量字段暂时注释
+        // //取子分类总和
+        // foreach ($data as $categories) {
+        //     foreach ($categories as $category) {
+        //         $category->count += $category->subCategory()->pluck('count')->sum();
+        //     }
+        // }
 
         //TODO:: 后期根据地理位置获得城市，多关联一个城市的分类，方便用户看附近的内容
         //城市
