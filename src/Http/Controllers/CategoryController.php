@@ -215,11 +215,13 @@ class CategoryController extends Controller
 
     public function showCate($request, $category)
     {
-        //最新评论
         $qb = $category->publishedWorks()
-            ->with('user')->with('category')
-            ->orderBy('commented', 'desc');
-        $articles = smartPager($qb, 10);
+            ->with('user')->with('category');
+
+        //最新评论
+        $qb                = $qb->orderBy('commented', 'desc');
+        $articles          = smartPager($qb, 10);
+        $data['commented'] = $articles;
         if (ajaxOrDebug() && $request->get('commented')) {
             foreach ($articles as $article) {
                 $article->fillForJs();
@@ -227,13 +229,11 @@ class CategoryController extends Controller
             }
             return $articles;
         }
-        $data['commented'] = $articles;
 
         //作品
-        $qb = $category->publishedWorks()
-            ->with('user')->with('category')
-            ->orderBy('pivot_created_at', 'desc');
-        $articles = smartPager($qb, 10);
+        $qb            = $qb->orderBy('pivot_created_at', 'desc');
+        $articles      = smartPager($qb, 10);
+        $data['works'] = $articles;
 
         if (ajaxOrDebug() && $request->get('works')) {
             foreach ($articles as $article) {
@@ -242,13 +242,12 @@ class CategoryController extends Controller
             }
             return $articles;
         }
-        $data['works'] = $articles;
 
         //热门文章
-        $qb = $category->publishedWorks()
-            ->with('user')->with('category')
-            ->orderBy('hits', 'desc');
-        $articles = smartPager($qb, 10);
+        $qb          = $qb->orderBy('hits', 'desc');
+        $articles    = smartPager($qb, 10);
+        $data['hot'] = $articles;
+
         if (ajaxOrDebug() && $request->get('hot')) {
             foreach ($articles as $article) {
                 $article->fillForJs();
@@ -256,7 +255,6 @@ class CategoryController extends Controller
             }
             return $articles;
         }
-        $data['hot'] = $articles;
 
         //相关专题,加入层级关系
         $level_categories = Category::where('id', '<>', $category->id)
