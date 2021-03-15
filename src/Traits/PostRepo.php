@@ -198,6 +198,7 @@ trait PostRepo
                     $spider->status      = Spider::PROCESSED_STATUS;
                     $spider->spider_type = 'videos';
                     $spider->spider_id   = $video->id;
+                    $spider->user_id     = $user->id;
                     $spider->created_at  = now();
                     $spider->updated_at  = now();
                     $spider->saveDataOnly();
