@@ -176,8 +176,8 @@ class ArticleController extends Controller
         //记录用户浏览记录
         $article->recordBrowserHistory();
 
-        //parse video and image, etc...
-        //$article->body = $article->parsedBody();
+        //修复正文中写死的图片url为cdn版本 image->url属性的
+        $article->body = $article->parsedBody();
 
         $data['recommended'] = Article::whereIn('category_id', $article->categories->pluck('id'))
             ->where('id', '<>', $article->id)

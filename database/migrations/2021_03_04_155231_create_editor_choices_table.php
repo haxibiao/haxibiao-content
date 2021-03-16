@@ -13,22 +13,14 @@ class CreateEditorChoicesTable extends Migration
      */
     public function up()
     {
-        if(Schema::hasTable('editor_choices')){
+        if (Schema::hasTable('editor_choices')) {
             return;
         }
         Schema::create('editor_choices', function (Blueprint $table) {
             $table->id();
-
-            $table->string('title')->nullable()->comment('标题');
-            $table->string('description')->nullable()->comment('副标题或描述');
-            $table->string('image_url')->nullable()->comment('封面图片');
-            /**
-             * 存放精选的内容示例：
-             *  {"movies":{1,2,3,4}}
-             *  movies:表示精选的资源类型，后面是该种类型资源的ID。
-             */
-            $table->json('data')->nullable()->comment('附加信息');
-
+            $table->string('title');
+            $table->string('summary')->nullable();
+            $table->string('editor_id')->nullable();
             $table->timestamps();
         });
     }

@@ -2,13 +2,14 @@
 
 namespace Haxibiao\Content\Nova;
 
+use Haxibiao\Content\Nova\Actions\AddMovieToSticks;
 use Haxibiao\Content\Nova\Actions\AssignToSite;
 use Haxibiao\Content\Nova\Actions\StickyToSite;
 use Haxibiao\Content\Nova\Filters\MoviesByRegion;
 use Haxibiao\Content\Nova\Filters\MoviesByStyle;
 use Haxibiao\Content\Nova\Filters\MoviesByType;
 use Haxibiao\Content\Nova\Filters\MoviesByYear;
-use Haxibiao\Media\Nova\Action\AddMovieToShowType;
+use Haxibiao\Media\Nova\Action\ClipMovie;
 use Haxibiao\Media\Nova\Movie as NovaMovie;
 use Illuminate\Http\Request;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -60,7 +61,8 @@ class SiteMovie extends NovaMovie
         return [
             new AssignToSite,
             (new StickyToSite)->withMeta(['type' => 'movies']),
-            new AddMovieToShowType,
+            new AddMovieToSticks,
+            new ClipMovie,
         ];
     }
 }
