@@ -4,12 +4,13 @@ namespace Haxibiao\Content\Http\Api;
 
 use App\Article;
 use App\Category;
-use Haxibiao\Breeze\Notifications\ArticleApproved;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Haxibiao\Breeze\Notifications\ArticleApproved;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class CategoryController extends Controller
 {
@@ -62,19 +63,21 @@ class CategoryController extends Controller
 
     public function page(Request $request)
     {
-        $categories = Category::orderBy('updated_at', 'desc')
-            ->where('status', '1')
-            ->where('is_official', '0')
-            ->paginate(7);
+        $categories = null;
         if ($request->get('index')) {
             $stick_categories = get_stick_categories();
             $top_count        = 7 - count($stick_categories);
             $categories       = Category::where('is_official', '0')
-                ->where('count', '>=', 0)
                 ->where('status', '>=', 0)
+                ->where('count', '>=', 0)
                 ->orderBy('updated_at', 'desc')
                 ->take($top_count)
                 ->get();
+        } else {
+            $categories = Category::orderBy('updated_at', 'desc')
+                ->where('is_official', '0')
+                ->where('status', '1')
+                ->paginate(7);
         }
         foreach ($categories as $category) {
             $category->fillForJs();
@@ -126,7 +129,7 @@ class CategoryController extends Controller
     public function checkCategory(Request $request, $id)
     {
         $category = Category::findOrFail($id);
-        $user     = $request->user();
+        $user     = $request->user()?:Auth::guard('api')->user();
         $isAdmin  = $category->admins->contains($user);
         $query    = $user->articles();
         if (request('q')) {
@@ -262,7 +265,7 @@ class CategoryController extends Controller
     public function adminCategoriesCheckArticle(Request $request, $aid)
     {
         $article                  = Article::findOrFail($aid);
-        $user                     = $request->user();
+        $user                     = $request->user()?:Auth::guard('api')->user();
         $qb                       = $user->adminCategories()->with('user');
         $data['accurateCategory'] = $user->adminCategories()->with('user')->where('categories.name', request('q'))->paginate(5);
         if (request('q')) {
@@ -288,7 +291,7 @@ class CategoryController extends Controller
     public function recommendCategoriesCheckArticle(Request $request, $aid)
     {
         $article = Article::findOrFail($aid);
-        $user    = $request->user();
+        $user    = $request->user()?:Auth::guard('api')->user();
         $qb      = Category::orderBy('id', 'desc')
             ->whereNotIn('id', $user->adminCategories()->pluck('categories.id'));
         $data['accurateCategory'] = Category::orderBy('id', 'desc')

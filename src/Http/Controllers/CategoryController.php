@@ -99,13 +99,13 @@ class CategoryController extends Controller
         //热门
         //获取最近七天发布的Article 按照hits order by desc
         $week_start = Carbon::now()->subWeek()->startOfWeek()->toDateTimeString();
-        $articles   = Article::where('updated_at', '<=', $week_start)
-            ->where('status', '>=', 0)
-            ->whereNotNull('category_id')
-            ->selectRaw('category_id')
-            ->groupBy('category_id')
-            ->get()->toArray();
-        $categories = Category::whereIn('id', $articles)
+
+        $categories = Category::whereExists(function ($query) use ($week_start) {
+            return $query->from('articles')
+                ->whereRaw('categories.id = articles.category_id')
+                ->where('articles.status', '>=', 0)
+                ->where('updated_at', '<=', $week_start);
+        })
             ->where('status', 1)
             ->where('parent_id', 0)
             ->paginate(24);
@@ -118,12 +118,13 @@ class CategoryController extends Controller
         }
         $data['hot'] = $categories;
 
-        //取子分类总和
-        foreach ($data as $categories) {
-            foreach ($categories as $category) {
-                $category->count += $category->subCategory()->pluck('count')->sum();
-            }
-        }
+        //分类列表页面未使用到子分类数量字段暂时注释
+        // //取子分类总和
+        // foreach ($data as $categories) {
+        //     foreach ($categories as $category) {
+        //         $category->count += $category->subCategory()->pluck('count')->sum();
+        //     }
+        // }
 
         //TODO:: 后期根据地理位置获得城市，多关联一个城市的分类，方便用户看附近的内容
         //城市
@@ -215,11 +216,13 @@ class CategoryController extends Controller
 
     public function showCate($request, $category)
     {
-        //最新评论
         $qb = $category->publishedWorks()
-            ->with('user')->with('category')
-            ->orderBy('commented', 'desc');
-        $articles = smartPager($qb, 10);
+            ->with('user')->with('category');
+
+        //最新评论
+        $qb                = $qb->orderBy('commented', 'desc');
+        $articles          = smartPager($qb, 10);
+        $data['commented'] = $articles;
         if (ajaxOrDebug() && $request->get('commented')) {
             foreach ($articles as $article) {
                 $article->fillForJs();
@@ -227,13 +230,11 @@ class CategoryController extends Controller
             }
             return $articles;
         }
-        $data['commented'] = $articles;
 
         //作品
-        $qb = $category->publishedWorks()
-            ->with('user')->with('category')
-            ->orderBy('pivot_created_at', 'desc');
-        $articles = smartPager($qb, 10);
+        $qb            = $qb->orderBy('pivot_created_at', 'desc');
+        $articles      = smartPager($qb, 10);
+        $data['works'] = $articles;
 
         if (ajaxOrDebug() && $request->get('works')) {
             foreach ($articles as $article) {
@@ -242,13 +243,12 @@ class CategoryController extends Controller
             }
             return $articles;
         }
-        $data['works'] = $articles;
 
         //热门文章
-        $qb = $category->publishedWorks()
-            ->with('user')->with('category')
-            ->orderBy('hits', 'desc');
-        $articles = smartPager($qb, 10);
+        $qb          = $qb->orderBy('hits', 'desc');
+        $articles    = smartPager($qb, 10);
+        $data['hot'] = $articles;
+
         if (ajaxOrDebug() && $request->get('hot')) {
             foreach ($articles as $article) {
                 $article->fillForJs();
@@ -256,7 +256,6 @@ class CategoryController extends Controller
             }
             return $articles;
         }
-        $data['hot'] = $articles;
 
         //相关专题,加入层级关系
         $level_categories = Category::where('id', '<>', $category->id)

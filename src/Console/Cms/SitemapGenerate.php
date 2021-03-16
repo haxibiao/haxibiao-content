@@ -3,6 +3,7 @@
 namespace Haxibiao\Content\Console\Cms;
 
 use App\Category;
+use App\Movie;
 use App\Site;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
@@ -45,6 +46,7 @@ class SitemapGenerate extends Command
         $this->info("- 生成" . $domain);
         $siteMapIndexUrls = array_merge(
             $this->generateMovies($domain),
+            $this->generateDisplayMovies($domain),
             $this->generateIssues($domain),
             $this->generateCategory($domain),
             $this->generateArticles($domain),
@@ -111,7 +113,7 @@ class SitemapGenerate extends Command
             $sitemapGenerator = SitemapGenerator::create($domain)
                 ->getSitemap();
             foreach ($questions as $question) {
-                $sitemapGenerator->add(Url::create('https://' . $domain . '/question/' . $question->id)
+                $sitemapGenerator->add(Url::create('https://' . $domain . '/issue/' . $question->id)
                         ->setLastModificationDate(Carbon::yesterday())
                         ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
                         ->setPriority(0.8)
@@ -232,6 +234,42 @@ class SitemapGenerate extends Command
             UnifiedArchive::archiveFile($path, $path . '.gz');
             $siteMapIndexUrls[] = '/' . $fileName;
             $vi++;
+        });
+        return $siteMapIndexUrls;
+    }
+
+    private function generateDisplayMovies($domain)
+    {
+        $siteMapIndexUrls = [];
+        $mi               = 0;
+
+        $qb = DB::table('movies')->select(['id'])
+            ->orderBy('id', 'desc');
+        //先只提交前1000个
+        $qb = $qb->where('status', Movie::DISABLED);
+        $qb->chunk(10000, function ($movies) use (&$mi, &$siteMapIndexUrls, $domain) {
+            $fileName     = 'display_movie_' . $mi . '.xml';
+            $gzFileName   = $fileName . '.gz';
+            $relativePath = 'sitemap/' . $domain . '/' . $fileName;
+
+            $sitemapGenerator = SitemapGenerator::create($domain)
+                ->getSitemap();
+            foreach ($movies as $movie) {
+                $sitemapGenerator->add(Url::create('https://' . $domain . '/display_movie/' . $movie->id)
+                        ->setLastModificationDate(Carbon::yesterday())
+                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
+                        ->setPriority(0.8)
+                );
+            }
+
+            $sitemapGenerator->writeToDisk('public', $relativePath);
+            $path = \Storage::disk('public')->path($relativePath);
+            if (file_exists($path . '.gz')) {
+                unlink($path . '.gz');
+            }
+            UnifiedArchive::archiveFile($path, $path . '.gz');
+            $siteMapIndexUrls[] = '/' . $fileName;
+            $mi++;
         });
         return $siteMapIndexUrls;
     }

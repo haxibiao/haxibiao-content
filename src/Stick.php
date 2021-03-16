@@ -4,11 +4,15 @@ namespace Haxibiao\Content;
 
 use App\Site;
 use Haxibiao\Breeze\Model as BreezeModel;
+use Haxibiao\Breeze\User;
+use Haxibiao\Content\Traits\StickRepo;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Stick extends BreezeModel
 {
+
+    use StickRepo;
 
     const CHANNEL_OF_APP = 'APP'; // App频道
     const CHANNEL_OF_PC  = 'WEB'; // 网站频道

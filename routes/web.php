@@ -8,12 +8,8 @@ use Illuminate\Support\Facades\Route;
 /**
  * Category
  */
-Route::group(['prefix' => 'category'], function (RouteRegisterContract $route) {
-    //管理专题
-    Route::get('/list', 'CategoryController@list');
-});
-
-Route::resource('/category', 'CategoryController');
+Route::middleware(config('content.category.middleware', []))->resource('/category', 'CategoryController');
+Route::get('/category/list', 'CategoryController@list');
 
 /**
  * Article
@@ -22,7 +18,7 @@ Route::resource('/category', 'CategoryController');
 Route::post('/post/new', 'ArticleController@storePost');
 //文章
 Route::get('/drafts', 'ArticleController@drafts');
-Route::resource('/article', 'ArticleController');
+Route::middleware(config('content.article.middleware', []))->resource('/article', 'ArticleController');
 //因为APP二维码分享用了 /post/{id}
 Route::resource('/post', 'ArticleController');
 Route::any('/share/post/{id}', 'ArticleController@shareVideo');
@@ -33,7 +29,7 @@ Route::get('/share/collection/{id}', 'CollectionController@shareCollection');
  * 问答
  */
 Route::post('/question/updateBackground', 'IssueController@add')->name('question.updateBackground');
-// Route::resource('/question', 'IssueController');
+Route::resource('/issue', 'IssueController');
 Route::resource('/answer', 'SolutionController');
 Route::get('/categories-for-question', 'IssueController@categories');
 Route::get('/question-bonused', 'IssueController@bonused');

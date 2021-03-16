@@ -87,6 +87,9 @@ class SeoController extends Controller
     {
         $domain       = get_domain();
         $robotContent = <<<EOD
+User-agent: SemrushBot
+Disallow: /
+
 User-agent: *
 Disallow: /*q=*
 Disallow: /share/qrcode/

@@ -5,10 +5,11 @@ namespace Haxibiao\Content\Nova;
 use App\Nova\Resource;
 use Haxibiao\Content\Nova\Actions\AssignPostRecommend;
 use Haxibiao\Content\Nova\Actions\PickCollectionPost;
-use Haxibiao\Content\Nova\Actions\RelationMovie;
 use Haxibiao\Content\Nova\Actions\RemoveRelationMovie;
 use Haxibiao\Content\Nova\Actions\UpdatePost;
+use Haxibiao\Media\Nova\Movie;
 use Haxibiao\Media\Nova\Video;
+use Haxibiao\Question\Nova\Question;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\ID;
@@ -83,7 +84,7 @@ class Post extends Resource
     {
         return [
             new UpdatePost,
-            new RelationMovie,
+            // new RelationMovie,
             new RemoveRelationMovie,
             new AssignPostRecommend,
             new PickCollectionPost,

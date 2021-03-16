@@ -3,7 +3,7 @@
 namespace Haxibiao\Content\Nova;
 
 use App\Nova\Resource;
-use Haxibiao\Breeze\Nova\User;
+use App\Nova\User;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\DateTime;
@@ -17,7 +17,7 @@ class EditorChoice extends Resource
     public static $perPageOptions = [25, 50, 100, 500, 1000];
     public static function label()
     {
-        return '置顶';
+        return '精选';
     }
 
     /**
