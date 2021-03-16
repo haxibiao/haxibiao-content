@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Content\Nova\Actions;
 
+use App\Movie;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -10,7 +11,6 @@ use Laravel\Nova\Actions\Action;
 use Laravel\Nova\Fields\ActionFields;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Nova;
-use OptimistDigital\MultiselectField\Multiselect;
 
 class RelationMovie extends Action
 {
@@ -54,15 +54,15 @@ class RelationMovie extends Action
         $data = \App\Movie::query()->take(30)->select('name', 'id')->pluck('name', 'id')->toArray();
         return [
             Number::make('电影ID', 'movie_id'),
-            Multiselect::make('关联电影', 'select_movie_id')
-                ->belongsTo(Movie::class)
-                ->asyncResource(Movie::class)->onlyOnForms(),
+            // Multiselect::make('关联电影', 'select_movie_id')
+            //     ->belongsTo(\App\Movie::class)
+            //     ->asyncResource(\App\Movie::class)->onlyOnForms(),
         ];
 
     }
 
     public function uriKey()
     {
-        return str_slug(Nova::humanize($this));
+        return "relation-movie";
     }
 }
