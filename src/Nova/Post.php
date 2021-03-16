@@ -5,6 +5,7 @@ namespace Haxibiao\Content\Nova;
 use App\Nova\Resource;
 use Haxibiao\Content\Nova\Actions\AssignPostRecommend;
 use Haxibiao\Content\Nova\Actions\PickCollectionPost;
+use Haxibiao\Content\Nova\Actions\RelationMovie;
 use Haxibiao\Content\Nova\Actions\RemoveRelationMovie;
 use Haxibiao\Content\Nova\Actions\UpdatePost;
 use Haxibiao\Media\Nova\Movie;
@@ -84,7 +85,7 @@ class Post extends Resource
     {
         return [
             new UpdatePost,
-            // new RelationMovie,
+            new RelationMovie,
             new RemoveRelationMovie,
             new AssignPostRecommend,
             new PickCollectionPost,
