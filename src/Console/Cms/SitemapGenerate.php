@@ -248,7 +248,7 @@ class SitemapGenerate extends Command
         //先只提交前1000个
         $qb = $qb->where('status', Movie::DISABLED);
         $qb->chunk(10000, function ($movies) use (&$mi, &$siteMapIndexUrls, $domain) {
-            $fileName     = 'movie_' . $mi . '.xml';
+            $fileName     = 'display_movie_' . $mi . '.xml';
             $gzFileName   = $fileName . '.gz';
             $relativePath = 'sitemap/' . $domain . '/' . $fileName;
 
