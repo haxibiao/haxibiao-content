@@ -68,11 +68,11 @@ class ContentServiceProvider extends ServiceProvider
             Console\Cms\CmsUpdate::class,
         ]);
 
-		$this->app->singleton(Cache::class, function () {
-			$instance = new Cache($this->app->make('files'));
+        $this->app->singleton(Cache::class, function () {
+            $instance = new Cache($this->app->make('files'));
 
-			return $instance->setContainer($this->app);
-		});
+            return $instance->setContainer($this->app);
+        });
 
     }
 
@@ -182,6 +182,7 @@ class ContentServiceProvider extends ServiceProvider
     {
         $this->morphMap([
             'categories' => \App\Category::class,
+            'movies'     => \App\Movie::class,
             'articles'   => \App\Article::class,
             'posts'      => \App\Post::class,
             'issues'     => \App\Issue::class,
