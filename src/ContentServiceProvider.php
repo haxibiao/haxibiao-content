@@ -36,6 +36,17 @@ class ContentServiceProvider extends ServiceProvider
             require_once $filename;
         }
 
+        //合并view paths
+        if (!app()->configurationIsCached()) {
+            $view_paths = array_merge(
+                //APP 的 views 最先匹配
+                config('view.paths'),
+                //然后 匹配 breeze的默认views
+                [content_path('resources/views')]
+            );
+            config(['view.paths' => $view_paths]);
+        }
+
         $this->bindPathsInContainer();
 
         $this->registerMorphMap();
@@ -119,10 +130,8 @@ class ContentServiceProvider extends ServiceProvider
 
             //发布 resoucre
             $this->publishes([
-                __DIR__ . '/../resources/css'    => base_path('public/css'),
-                __DIR__ . '/../resources/images' => base_path('public/images'),
-                __DIR__ . '/../resources/js'     => base_path('public/js'),
-                __DIR__ . '/../resources/views'  => base_path('resources/views'),
+                __DIR__ . '/../public/vendor/content' => base_path('public/vendor/content'),
+                __DIR__ . '/../resources/views'       => base_path('resources/views'),
             ], 'content-resources');
         }
 

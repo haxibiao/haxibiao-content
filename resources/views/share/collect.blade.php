@@ -6,7 +6,7 @@
     <title>合集</title>
 
     <link rel="stylesheet" type="text/css" href="/css/base.css" />
-    <link rel="stylesheet" type="text/css" href="/css/collection.css" />
+    <link rel="stylesheet" type="text/css" href="{{ content_mix('css/collection.css') }}" />
 
 </head>
 
@@ -17,7 +17,7 @@
             <img src="{{$collection->logo}}">
             <div id="top_right">
                 <div id="title">
-                    <img src="/images/collection_icon.png">
+                    <img src="{{ content_mix('/images/collection_icon.png') }}">
                     <strong>{{ $collection->name }}</strong>
                 </div>
                 <div id="top_main">
@@ -58,7 +58,7 @@
 
 </body>
 <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-<script src="/js/collection.js"></script>
+<script src="{{ content_mix('/js/collection.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
 <script>
     new Vue({

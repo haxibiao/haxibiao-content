@@ -8,6 +8,20 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 /**
+ * content的laravel mix pack后的资源地址
+ */
+function content_mix($path)
+{
+    //FIXME: 支持version 变化
+    return url("/vendor/content/" . $path);
+}
+
+function content_path($path)
+{
+    return __DIR__ . "/../../" . $path;
+}
+
+/**
  * 首页置顶电影
  */
 function indexTopMovies($top = 4)
