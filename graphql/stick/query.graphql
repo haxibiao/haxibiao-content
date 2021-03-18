@@ -7,3 +7,10 @@ type Stick {
 }
 
 union Stickable = Movie
+
+extend type Query {
+  """
+  今日精选推荐
+  """
+  todayRecommend: [Stick] @field(resolver: "App\\Stick@resolveTodayRecommend")
+}
