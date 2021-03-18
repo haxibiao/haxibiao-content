@@ -109,6 +109,14 @@ trait ArticleAttrs
     public function getCoverAttribute()
     {
         $cover_url = $this->cover_path;
+
+        if(strpos($cover_url,'https') !== false){
+            return $cover_url;
+        }
+         if(strpos($cover_url,'http') !== false){
+            return str_replace('http', 'https', $cover_url);
+        }
+
         //为空返回默认图片
         if (empty($cover_url)) {
             if ($this->type == 'article') {
