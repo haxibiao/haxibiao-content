@@ -6,13 +6,14 @@ use App\Site;
 use Haxibiao\Breeze\Model as BreezeModel;
 use Haxibiao\Breeze\User;
 use Haxibiao\Content\Traits\StickRepo;
+use Haxibiao\Content\Traits\StickResolver;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Stick extends BreezeModel
 {
 
-    use StickRepo;
+    use StickRepo, StickResolver;
 
     const CHANNEL_OF_APP = 'APP'; // App频道
     const CHANNEL_OF_PC  = 'WEB'; // 网站频道

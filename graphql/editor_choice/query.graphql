@@ -9,4 +9,8 @@ type EditorChoice {
 extend type Query {
   indexEditorChoice: [EditorChoice]
     @field(resolver: "App\\EditorChoice@resolveIndexEditorChoice")
+  """
+  根据名字查询小编精选
+  """
+  editorChoice(title: String! @eq): EditorChoice @find
 }
