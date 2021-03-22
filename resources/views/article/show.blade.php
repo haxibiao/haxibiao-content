@@ -124,38 +124,33 @@
 @endpush
 
 @push('side_tool')
-<side-tool id="{{ $article->id }}" is-self="{{ $article->isSelf() }}" is-login="{{ Auth::check() }}">
-  <share placement='left' url="{{ url('/article/'.$article->id) }}" article_id="{{ $article->id }}" author="{{ $article->user->name }}" title="{{ $article->subject }}"></share>
-</side-tool>
+    <side-tool id="{{ $article->id }}" is-self="{{ $article->isSelf() }}" is-login="{{ Auth::check() }}">
+    <share placement='left' url="{{ url('/article/'.$article->id) }}" article_id="{{ $article->id }}" author="{{ $article->user->name }}" title="{{ $article->subject }}"></share>
+    </side-tool>
 @endpush
 
 @push('modals')
-@if(Auth::check())
-<modal-add-category article-id="{{ $article->id }}"></modal-add-category>
-<modal-category-contribute article-id="{{ $article->id }}"></modal-category-contribute>
-@endif
-{{-- 分享到微信 --}}
-{{--<modal-share-wx url="{{ url()->full() }}" aid="{{ $article->id }}"></modal-share-wx>--}}
-{{-- 举报 --}}
-<modal-report></modal-report>
+    @if(Auth::check())
+    <modal-add-category article-id="{{ $article->id }}"></modal-add-category>
+    <modal-category-contribute article-id="{{ $article->id }}"></modal-category-contribute>
+    @endif
+    {{-- 分享到微信 --}}
+    {{--<modal-share-wx url="{{ url()->full() }}" aid="{{ $article->id }}"></modal-share-wx>--}}
+    {{-- 举报 --}}
+    <modal-report></modal-report>
 @endpush
 
 @push('scripts')
-@if(Auth::check())
-<script type="text/javascript">
-  var at_config = {
-    at: "@",
-    {
-      {
-        --这个是触发弹出菜单的按键--
-      }
+    @if(Auth::check())
+    <script type="text/javascript">
+    var at_config = {
+        at: "@",
+        data: window.tokenize('/api/related-users'),
+        insertTpl: '<span data-id="${id}">@${name}</span>',
+        displayTpl: "<li > ${name} </li>",
+        limit: 200
     }
-    data: window.tokenize('/api/related-users'),
-    insertTpl: '<span data-id="${id}">@${name}</span>',
-    displayTpl: "<li > ${name} </li>",
-    limit: 200
-  }
-  $('#editComment').atwho(at_config); // 初始化
-</script>
-@endif
+    $('#editComment').atwho(at_config); // 初始化
+    </script>
+    @endif
 @endpush
