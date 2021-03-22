@@ -4,6 +4,7 @@ namespace Haxibiao\Content\Traits;
 
 use App\Movie;
 use App\Visit;
+use Haxibiao\Breeze\User;
 use Haxibiao\Content\Jobs\MakeMp4ByM3U8;
 use Haxibiao\Content\Post;
 use Haxibiao\Media\Series;
@@ -288,8 +289,10 @@ trait PostResolvers
     //关注用户的收藏列表
     public function resolveFollowPosts($rootValue, array $args, $context, $resolveInfo)
     {
-        $filter = data_get($args, 'filter');
-        $user   = getUser();
+        $filter  = data_get($args, 'filter');
+        $user_id = data_get($args, 'user_id');
+
+        $user = checkUser() ? getUser() : User::find($user_id);
         //2.获取用户关注列表
         $followedUserIds = $user->follows()->pluck('followable_id');
         //3.获取关注用户发布的视频
