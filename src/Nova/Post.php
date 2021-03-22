@@ -39,12 +39,12 @@ class Post extends Resource
     {
         return [
             ID::make()->sortable(),
-            Textarea::make('文章内容', 'content')->rules('required')->hideFromIndex(),
+            Textarea::make('文章内容', 'content')->exceptOnForms()->hideFromIndex(),
             BelongsTo::make('作者', 'user', 'App\Nova\User')->exceptOnForms(),
             BelongsTo::make('视频', 'video', Video::class)->exceptOnForms(),
             BelongsTo::make('电影', 'movie', Movie::class)->exceptOnForms(),
             BelongsTo::make('题目', 'question', Question::class)->exceptOnForms(),
-            Text::make('描述', 'description')->exceptOnForms(),
+            Text::make('描述', 'description'),
             Text::make('热度', 'hot')->exceptOnForms(),
             Text::make('点赞', 'count_likes')->exceptOnForms(),
             Text::make('评论', 'count_comments')->exceptOnForms(),
