@@ -261,11 +261,11 @@ class Post extends Model implements Collectionable
         return $reviewIds;
     }
 
-    public static function getRecommendPosts($limit = 4)
+    public static function getRecommendPosts($limit = 4, $query = null, $scope = null)
     {
         //登录
         if (checkUser()) {
-            return Post::fastRecommendPosts($limit);
+            return Post::fastRecommendPosts($limit, $query, $scope);
         }
         //游客
         return Post::getGuestPosts($limit);

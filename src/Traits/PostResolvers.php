@@ -196,21 +196,21 @@ trait PostResolvers
         //1.优先有电影的
         $qb = Post::where('movie_id', '>', 0);
         if (!$qb->exists()) {
-            $movie_posts = Post::fastRecommendPosts(1, $qb, '电影剪辑');
+            $movie_posts = Post::getRecommendPosts(1, $qb, '电影剪辑');
             $posts       = $posts->merge($movie_posts);
         }
 
         //2.有合集的
         $qb = Post::where('collection_id', '>', 0);
         if (!$qb->exists()) {
-            $collection_posts = Post::fastRecommendPosts(1, $qb, '视频合集');
+            $collection_posts = Post::getRecommendPosts(1, $qb, '视频合集');
             $posts            = $posts->merge($collection_posts);
         }
 
         //3. 有题目的
         $qb = Post::where('question_id', '>', 0);
         if (!$qb->exists()) {
-            $question_posts = Post::fastRecommendPosts(1, $qb, '视频答题');
+            $question_posts = Post::getRecommendPosts(1, $qb, '视频答题');
             $posts          = $posts->merge($question_posts);
         }
 
@@ -218,7 +218,7 @@ trait PostResolvers
         $qb = Post::query();
         if (!$qb->exists()) {
             $latest_take  = $limit - $posts->count();
-            $latest_posts = Post::fastRecommendPosts($latest_take, $qb);
+            $latest_posts = Post::getRecommendPosts($latest_take, $qb);
             $posts        = $posts->merge($latest_posts);
         }
 
