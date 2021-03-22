@@ -15,10 +15,11 @@ function content_mix($path)
     //FIXME: 支持version 变化
     return url("/vendor/content/" . $path);
 }
-
-function content_path($path)
-{
-    return __DIR__ . "/../../" . $path;
+if (!function_exists('content_path')) {
+    function content_path($path)
+    {
+        return __DIR__ . "/../../" . $path;
+    }
 }
 
 /**
