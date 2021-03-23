@@ -28,6 +28,10 @@ trait PostAttrs
 
     public function getCoverAttribute()
     {
+        // 剪辑电影的封面
+        if ($this->movie) {
+            return $this->movie->cover_url;
+        }
         return $this->video ? $this->video->cover_url : null;
     }
 
