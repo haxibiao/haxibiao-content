@@ -32,7 +32,7 @@ class Site extends Resource
     //过滤非激活状态的站点
     public static function indexQuery(NovaRequest $request, $query)
     {
-        return $query->whereActive(1)->with(['articles','posts','movies']);
+        return $query->whereActive(1);
     }
 
     /**
