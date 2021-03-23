@@ -99,7 +99,7 @@ class AssignToSite extends Action
     public function fields()
     {
         $siteOptions = [];
-        foreach (Site::all() as $site) {
+        foreach (Site::whereNotNull('domain')->get() as $site) {
             $siteOptions[$site->id] = $site->name . "(" . $site->domain . ")";
         }
         return [
