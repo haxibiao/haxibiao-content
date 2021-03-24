@@ -47,7 +47,7 @@ class SeoWorker extends Command
      */
     public function handle()
     {
-        $this->submit_count = $this->option('submit_count') ?? 3000; //每日提交收录数量，默认3000,必须是100的倍数
+        $this->submit_count = $this->option('submit_count') ?? 2990; //每日提交收录数量，默认3000,必须是100的倍数
         $this->sync_count   = $this->option('sync_count') ?? null; //每日同步数据数量 默认5 暂支持article
 
         //都使用爱你城的article数据吧，目前内涵云上article只有懂代码和爱你城...后面其他站点添加内容进来再加这个option
