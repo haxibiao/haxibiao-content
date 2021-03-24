@@ -2,7 +2,6 @@
 
 namespace Haxibiao\Content\Http\Controllers;
 
-use App\Article;
 use Haxibiao\Content\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -48,11 +47,9 @@ class CollectionController extends Controller
      */
     public function show($id)
     {
-        $collection        = \App\Collection::with(['user','followables'])->findOrFail($id);
-        $data['new']       = $collection->hasManyArticles()->orderBy('updated_at', 'desc')->paginate(10);
-        $collection->count = count($data['new']);
-        $data['commented'] = $collection->hasManyArticles()->orderBy('commented', 'desc')->paginate(10);
-        $data['old']       = $collection->hasManyArticles()->orderBy('id', 'desc')->paginate(10);
+        $collection       = \App\Collection::with(['user', 'followables'])->findOrFail($id);
+        $data['posts']    = $collection->posts()->orderBy('id', 'desc')->paginate(10);
+        $data['articles'] = $collection->hasManyArticles()->orderBy('id', 'desc')->paginate(10);
         return view('collection.show')->withCollection($collection)->withData($data);
     }
 
@@ -95,7 +92,7 @@ class CollectionController extends Controller
     {
         $collection = Collection::find($id);
         if (empty($collection)) {
-            return  view(
+            return view(
                 'errors.404',
                 ['data' => "分享的合集好像不存在呢(。・＿・。)ﾉ"]
             );

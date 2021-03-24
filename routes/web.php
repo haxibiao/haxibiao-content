@@ -11,16 +11,20 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(config('content.category.middleware', []))->resource('/category', 'CategoryController');
 Route::get('/category/list', 'CategoryController@list');
 
+// 动态
+Route::resource('/post', 'PostController');
+//因为APP二维码分享用了 /post/{id} - 需要兼容article 查询
+// Route::resource('/post', 'ArticleController');
+
 /**
  * Article
  */
-//动态
+//文章动态
 Route::post('/post/new', 'ArticleController@storePost');
+
 //文章
 Route::get('/drafts', 'ArticleController@drafts');
 Route::middleware(config('content.article.middleware', []))->resource('/article', 'ArticleController');
-//因为APP二维码分享用了 /post/{id}
-Route::resource('/post', 'ArticleController');
 Route::any('/share/post/{id}', 'ArticleController@shareVideo');
 
 Route::resource('/collection', 'CollectionController');

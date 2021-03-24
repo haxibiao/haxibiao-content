@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Content;
 
+use App\Post;
 use Haxibiao\Breeze\Model;
 use Haxibiao\Breeze\Traits\HasFactory;
 use Haxibiao\Content\Traits\CategoryAttrs;
@@ -81,11 +82,22 @@ class Category extends Model
             ->withPivot('updated_at');
     }
 
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    /**
+     * @deprecated 今后主要用posts关系直接获取动态
+     */
     public function videoPosts()
     {
         return $this->articles()->where('type', 'video');
     }
 
+    /**
+     * @deprecated 今后主要用posts关系直接获取动态
+     */
     public function containedVideoPosts()
     {
         return $this->categorizable(\App\Article::class)

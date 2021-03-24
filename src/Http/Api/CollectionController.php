@@ -91,14 +91,18 @@ class CollectionController extends Controller
     //获取指定合集下的动态
     public function getCollectionVideos($collection_id)
     {
-        // $video_id = request()->get('video_id');
-        $num = request()->get('num') ? request()->get('num') : 10;
-        $data = \App\Collection::find($collection_id)
-            // ->has('post')
-            // ->where('video_id', '!=', $video_id)
-            ->whereStatus(1)
-            ->paginate($num);
-
-        return $data;
+        $video_id = request()->get('video_id');
+        $num      = request()->get('num') ? request()->get('num') : 10;
+        $posts    = [];
+        if ($collection = Collection::find($collection_id)) {
+            $posts = $collection->posts()->with('video')
+                ->where('video_id', '!=', $video_id)
+                ->whereStatus(1)
+                ->paginate($num);
+            foreach ($posts as $post) {
+                $post->fillForJs();
+            }
+        }
+        return $posts;
     }
 }

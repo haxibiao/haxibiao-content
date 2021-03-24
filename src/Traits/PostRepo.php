@@ -1121,4 +1121,9 @@ trait PostRepo
 
         return $post;
     }
+
+    public function fillForJs()
+    {
+        $this->cover = $this->cover;
+    }
 }
