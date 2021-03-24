@@ -3,6 +3,9 @@
 declare (strict_types = 1);
 
 return [
+    //是否显示视频相关播放次数
+    'show_video_plays'        => false,
+
     //临时允许不迁移数据库 用content 的部分能力
     'migration_autoload'      => true,
 
@@ -36,20 +39,20 @@ return [
     //数据源的 cos domian
     'origin_cos_domain'       => env('ORIGIN_COS_DOMAIN', ''),
 
-	/**
-	 * 专题模块配置
-	 */
-	'category'                          => [
-		'middleware' => [
-			'web',
-		],
-	],
-	/**
-	 * 文章模块配置
-	 */
-	'article'                          => [
-		'middleware' => [
-			'web',
-		],
-	],
+    /**
+     * 专题模块配置
+     */
+    'category'                => [
+        'middleware' => [
+            'web',
+        ],
+    ],
+    /**
+     * 文章模块配置
+     */
+    'article'                 => [
+        'middleware' => [
+            'web',
+        ],
+    ],
 ];
