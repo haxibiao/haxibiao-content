@@ -186,9 +186,6 @@ class ArticleController extends Controller
             ->take(10)
             ->get();
 
-        if (in_array(config('app.name'), ['haxibiao', 'dongdaima'])) {
-            return view('blog.details')->with(['article' => $article]);
-        }
         return view('article.show')
             ->withArticle($article)
             ->withData($data);
