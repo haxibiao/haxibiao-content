@@ -29,9 +29,13 @@ trait Collectable
     /**
      * 内容的合集
      */
-    public function collections(): MorphToMany
+    public function collections()
     {
-        return $this->morphToMany(Collection::class, 'collectable')
+        if (in_array(config('app.name'), ['haxibiao'])) {
+            return $this->hasMany(\App\Collection::class);
+
+        }
+        return $this->morphToMany(Collection::class, '')
             ->orderBy('type')
             ->withPivot(['id', 'collection_name', 'sort_rank'])
             ->withTimestamps();
