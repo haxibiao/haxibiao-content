@@ -366,6 +366,10 @@ trait ArticleRepo
 		// 保存外链图片
 		$images = [];
         foreach ($imageUrls as $url) {
+        	if(!data_get($this,'cover_path')){
+				$this->cover_path = $url;
+				$this->save();
+			}
 			if(str_contains($url,env('COS_DOMAIN'))){
 				continue;
 			}
