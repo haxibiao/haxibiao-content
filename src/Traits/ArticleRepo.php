@@ -12,6 +12,7 @@ use App\Tag;
 use App\Video;
 use App\Visit;
 use Carbon\Carbon;
+use DOMDocument;
 use Exception;
 use GuzzleHttp\Client;
 use Haxibiao\Breeze\Exceptions\GQLException;
@@ -359,61 +360,52 @@ trait ArticleRepo
 
     public function saveRelatedImagesFromBody()
     {
-        $images           = [];
-        $pattern_img_path = '/src=\"([^\"]*?(\/storage\/image\/\d+\.(jpg|gif|png|jpeg)))\"/';
-        if (preg_match_all($pattern_img_path, $this->body, $match)) {
-            $images = $match[1]; //考虑目前图片全部在Cos上,存Cos全路径.
-        }
-        $imgs             = [];
-        $pattern_img_path = '/src=\"([^\"]*?(\/storage\/img\/\d+\.(jpg|gif|png|jpeg)))\"/';
-        if (preg_match_all($pattern_img_path, $this->body, $match)) {
-            $imgs = $match[1];
-        }
-        $imgs                = array_merge($imgs, $images);
-        $image_ids           = [];
-        $has_primary_top     = false;
-        $last_img_small_path = '';
-        foreach ($imgs as $img) {
-            // $path      = parse_url($img)['path'];
-            $path      = $img;
-            $extension = pathinfo($path, PATHINFO_EXTENSION);
-            $path      = str_replace('.small.' . $extension, '', $path);
-            if (str_contains($img, 'base64') || str_contains($path, 'storage/video')) {
-                continue;
-            }
-            $image = Image::firstOrNew([
-                'path' => $path,
-            ]);
-            $image = $image->id ? $image : Image::firstOrNew([
-                'path' => str_replace('/image/', '/img/', $path),
-            ]);
-            if ($image->id) {
-                $image_ids[]  = $image->id;
-                $image->count = $image->count + 1;
-                $image->title = $this->title;
-                $image->save();
-                $last_img_small_path = $image->path_small();
-                //自动上轮播图，只要图片满足条件
-                if ($image->path_top) {
-                    $this->is_top = 1;
-                    if (!$has_primary_top) {
-                        if ($image->path == $this->cover) {
-                            $has_primary_top = true;
-                        }
-                        $this->image_top = $image->path_top;
-                    }
-                }
-            }
+		$body = $this->body;
+		$imageUrls = $this->findHtmlImageUrls($body);
+
+		// 保存外链图片
+		$images = [];
+        foreach ($imageUrls as $url) {
+			if(str_contains($url,env('COS_DOMAIN'))){
+				continue;
+			}
+			try {
+				$image = Image::saveImage($url);
+				$images[$url] = $image;
+			} catch (\Exception $e){
+				error_log($e->getMessage());
+			}
         }
 
-        //沒有可以上首頁的圖片，上首頁失敗
-        if (!$has_primary_top) {
-            $this->is_top = 0;
-        }
-        $this->save();
-        //如果文章图片关系中得图片地址不在文中，清除掉！
-        $this->images()->sync($image_ids);
+        if( !$images ){
+        	return;
+		}
+        $imageIds = data_get($images,'id');
+        $this->images()->sync($imageIds);
+
+		// 替换外域图片
+		foreach ($images as $originImageUrl=>$imageModel){
+			$body = str_replace($originImageUrl,data_get($imageModel,'url'),$body);
+		}
+		$this->body = $body;
+		$this->save();
+		return $this;
     }
+
+    private function findHtmlImageUrls($html){
+
+		$doc = new DOMDocument();
+		$doc->loadHTML($this->body);
+		$xml = simplexml_import_dom($doc);
+		$tags = $xml->xpath('//img');
+
+		$imageUrls = [];
+		foreach ($tags as $tag)
+		{
+			$imageUrls[] = $tag['src']->__toString();
+		}
+		return $imageUrls;
+	}
 
     public function report($type, $reason)
     {
