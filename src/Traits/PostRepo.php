@@ -180,13 +180,6 @@ trait PostRepo
                     $video->saveDataOnly();
                 }
 
-                $model = Spider::where('spider_id', $video->id)
-                    ->first();
-                $sourceUrl = data_get($model, 'source_url');
-                if ($sourceUrl && ($sourceUrl != $dyUrl)) {
-                    throw new GQLException('上传的参数有误');
-                }
-
                 $spider = Spider::firstOrNew([
                     'source_url' => $dyUrl,
                 ]);
