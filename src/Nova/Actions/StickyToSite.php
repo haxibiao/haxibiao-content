@@ -51,7 +51,7 @@ class StickyToSite extends Action
     {
         $type        = data_get($this, 'meta.type', 'articles');
         $siteOptions = [];
-        foreach (Site::whereNotNull('domain')->get() as $site) {
+        foreach (Site::active()->get() as $site) {
             $siteOptions[$site->id] = $site->name . "(" . $site->domain . ")";
         }
         // name 按名称检索
