@@ -130,9 +130,8 @@ class ContentServiceProvider extends ServiceProvider
 
             //发布 resoucre
             $this->publishes([
-                __DIR__ . '/../public/vendor/content' => base_path('public/vendor/content'),
-                __DIR__ . '/../resources/views'       => base_path('resources/views'),
-            ], 'content-resources');
+                __DIR__ . '/../public' => public_path('/'),
+            ], 'content-assets');
         }
 
         //中间件
