@@ -152,7 +152,7 @@ class ArticleController extends Controller
         $article = Article::where(function ($query) use ($id) {
             is_numeric($id) ? $query->whereId($id) : $query->whereSlug($id);
         })->firstOrFail();
-        $article->load(['user']);
+        $article->load(['user.profile']);
 
         //type is video redirect
         if ($article->video_id) {

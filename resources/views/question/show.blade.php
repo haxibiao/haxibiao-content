@@ -143,10 +143,6 @@
     </div>
 @stop
 
-@push('css')
-    <link rel="stylesheet" type="text/css" href="/css/e.css">
-@endpush
-
 @push('modals')
     {{-- 分享到微信 --}}
 {{--    <modal-share-wx url="{{ url()->full() }}" aid="{{ $question->id }}"></modal-share-wx>--}}

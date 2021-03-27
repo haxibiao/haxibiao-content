@@ -77,9 +77,6 @@
                 {!! $article->body !!}
             </div>
             <editor name="body" value=""　autosave></editor>
-            @push('css')
-                <link rel="stylesheet" type="text/css" href="/css/e.css">
-            @endpush
             <small class="text-danger">{{ $errors->first('body') }}</small>
         </div>
 
