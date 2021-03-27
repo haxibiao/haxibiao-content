@@ -31,11 +31,7 @@ trait Collectable
      */
     public function collections()
     {
-        if (in_array(config('app.name'), ['haxibiao'])) {
-            return $this->hasMany(\App\Collection::class);
-
-        }
-        return $this->morphToMany(Collection::class, '')
+        return $this->morphToMany(Collection::class, 'collectable')
             ->orderBy('type')
             ->withPivot(['id', 'collection_name', 'sort_rank'])
             ->withTimestamps();
@@ -43,7 +39,7 @@ trait Collectable
 
     public function collectable()
     {
-        return $this->morphMany(\Haxibiao\Content\Collectable::class, 'collectable');
+        return $this->morphMany(Collectable::class, 'collectable');
     }
 
     /**
