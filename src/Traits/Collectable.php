@@ -2,7 +2,7 @@
 
 namespace Haxibiao\Content\Traits;
 
-use Haxibiao\Content\Collection;
+use App\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 trait Collectable

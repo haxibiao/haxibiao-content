@@ -11,10 +11,17 @@ class CollectionController extends Controller
 {
     public function index(Request $request)
     {
-        $user        = $request->user();
-        $collections = $user->hasCollections()->where('status', '>=', 0)->with(['articles' => function ($query) {
-            $query->where('status', '>=', 0);
-        }])->orderBy('id', 'desc')->get();
+        $user = $request->user();
+        //限制最多加载最近的100个合集
+        $collections = $user->hasCollections()
+            ->where('status', '>=', 0)
+            ->latest('id')
+            ->take(100)
+            ->get();
+        //每个合集限制最多加载最近100篇文章
+        foreach ($collections as $collection) {
+            $collection->articles = $collection->articles()->select('id', 'title', 'body', 'status')->latest('id')->take(100)->get();
+        }
         return $collections;
     }
 
