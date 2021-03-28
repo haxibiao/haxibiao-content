@@ -5,6 +5,7 @@ namespace Haxibiao\Content;
 use App\Visit;
 use Haxibiao\Breeze\Model;
 use Haxibiao\Breeze\Traits\HasFactory;
+use Haxibiao\Content\Traits\CollectionAttrs;
 use Haxibiao\Content\Traits\CollectionResolvers;
 use Haxibiao\Helpers\Traits\Searchable;
 use Haxibiao\Sns\Traits\Followable;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Collection extends Model
 {
+    use CollectionAttrs;
     use CollectionResolvers;
     use Searchable;
     use SoftDeletes;
@@ -115,51 +117,14 @@ class Collection extends Model
         return $this->articles()->where('status', '>=', '0');
     }
 
-    public function getLogoAttribute()
-    {
-        $defaultLogo = config('haxibiao-content.collection_default_logo', 'https://haxibiao-1251052432.cos.ap-guangzhou.myqcloud.com/images/collection.png');
-        $logo        = $this->getRawOriginal('logo');
-        if (!$logo) {
-            return $defaultLogo;
-        }
-
-        $isValidateUrl = filter_var($logo, FILTER_VALIDATE_URL);
-        if ($isValidateUrl) {
-            return $logo;
-        }
-        return cdnurl($logo);
-    }
-
-    public function getImageAttribute()
-    {
-        if (starts_with($this->logo, 'http')) {
-            return $this->logo;
-        }
-        $localFileExist = !is_prod() && Storage::disk('public')->exists($this->logo);
-        if ($localFileExist) {
-            return env('LOCAL_APP_URL') . '/storage/' . $this->logo;
-        }
-
-        return cdnurl($this->logo);
-    }
-
-    public function getCountPlaysAttribute()
-    {
-        return numberToReadable(data_get($this, 'count_views', 0));
-    }
-
     public function scopeByCollectionIds($query, $collectionIds)
     {
         return $query->whereIn('id', $collectionIds);
     }
+
     public function scopeTop($query)
     {
         return $query->where('sort_rank', self::TOP_COLLECTION);
-    }
-
-    public function getUpdatedToEpisodeAttribute()
-    {
-        return $this->posts()->count();
     }
 
     /**
