@@ -156,8 +156,14 @@ if (!function_exists('cms_seo_meta')) {
 if (!function_exists('cms_icp_info')) {
     function cms_icp_info()
     {
+        $site    = cms_get_site();
+        $company = data_get($site, 'company');
+        // 未配置ICP信息 - 默认开源匿名网站
+        if (!$company) {
+            return;
+        }
 
-        // 单站模式
+        // 单站模式 - 继承seo config
         if (!config('cms.multi_domains')) {
             $copyRight  = seo_value('备案', 'copyright');
             $recordCode = seo_value('备案', '备案号');
@@ -174,12 +180,8 @@ if (!function_exists('cms_icp_info')) {
             $html[]     = "</div>";
             return implode(PHP_EOL, $html);
         }
-        $site    = cms_get_site();
-        $company = data_get($site, 'company');
-        // 未配置ICP信息
-        if (!$company) {
-            return;
-        }
+
+        // 站群模式 - 尊重cms config文件
         $infoList = config('cms.icp');
         $icpInfo  = data_get($infoList, $company);
         if (!$icpInfo) {
