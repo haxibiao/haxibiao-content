@@ -14,7 +14,7 @@ class CreateCategorizablesTable extends Migration
      */
     public function up()
     {
-        if (Schema::hasTable('categorizeds')) {
+        if (Schema::hasTable('categorizeds') && !Schema::hasTable('categorizables')) {
             Schema::rename('categorizeds', 'categorizables');
             //重构旧的表结构
             Schema::table('categorizables', function (Blueprint $table) {
@@ -25,14 +25,15 @@ class CreateCategorizablesTable extends Migration
             });
             return;
         }
-
-        Schema::create('categorizables', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedInteger('category_id');
-            $table->morphs('categorizable');
-            $table->string('submit')->nullable()->index()->comment('投稿状态：待审核，已收录，已拒绝');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('categorizables')) {
+            Schema::create('categorizables', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedInteger('category_id');
+                $table->morphs('categorizable');
+                $table->string('submit')->nullable()->index()->comment('投稿状态：待审核，已收录，已拒绝');
+                $table->timestamps();
+            });
+        }
     }
 
     /**
