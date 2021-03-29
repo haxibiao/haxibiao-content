@@ -4,6 +4,7 @@ namespace Haxibiao\Content\Http\Api;
 
 use App\Article;
 use App\Category;
+use Haxibiao\Breeze\Exceptions\GQLException;
 use Haxibiao\Breeze\Notifications\ArticleApproved;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -266,6 +267,7 @@ class CategoryController extends Controller
     {
         $article                  = Article::findOrFail($aid);
         $user                     = $request->user() ?: Auth::guard('api')->user();
+        throw_if(!$user,GQLException::class,'用户不存在，请换一个哦！！');
         $qb                       = $user->adminCategories()->with('user');
         $data['accurateCategory'] = $user->adminCategories()->with('user')->where('categories.name', request('q'))->paginate(5);
         if (request('q')) {
