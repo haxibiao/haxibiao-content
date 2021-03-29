@@ -3,7 +3,7 @@
 @section('title')
     发布文章
 @endsection
-@section('keywords')  
+@section('keywords')
 @endsection
 @section('description')
 @endsection
@@ -13,39 +13,39 @@
 <div class="container">
 <div class="row">
   <div class="col-md-offset-1 col-md-10">
-    {!! Form::open(['method' => 'POST', 'route' => 'article.store', 'class' => 'form-horizontal', 'id'=>'article_form', 'enctype' => "multipart/form-data"]) !!}      
+    {!! Form::open(['method' => 'POST', 'route' => 'article.store', 'class' => 'form-horizontal', 'id'=>'article_form', 'enctype' => "multipart/form-data"]) !!}
       <div class="">
         <div class="row">
             <legend>发布文章</legend>
         </div>
-    
+
         <div class="form-group{{ $errors->has('title') ? ' has-error' : '' }}">
             {!! Form::label('title', '标题') !!}
             {!! Form::text('title',null, ['class' => 'form-control', 'required' => 'required']) !!}
             <small class="text-danger">{{ $errors->first('title') }}</small>
         </div>
-        
+
         <div class="row">
 
-            <div class="col-md-12">
-                <div class="form-group{{ $errors->has('delay') ? ' has-error' : '' }}">
-                   {!! Form::label('delay', '定时发布') !!}
-                   {!! Form::select('delay',[
-                        0 => '立即',
-                        1 => '1天后',
-                        2 => '2天后',
-                        3 => '3天后',
-                        4 => '4天后',
-                        5 => '5天后',
-                        6 => '6天后',
-                        7 => '7天后',
-                        8 => '8天后',
-                        9 => '9天后',
-                        10 => '10天后',
-                    ], null, ['id' => 'delay', 'class' => 'form-control']) !!}
-                   <small class="text-danger">{{ $errors->first('delay') }}</small>
-                </div>
-            </div> 
+{{--            <div class="col-md-12">--}}
+{{--                <div class="form-group{{ $errors->has('delay') ? ' has-error' : '' }}">--}}
+{{--                   {!! Form::label('delay', '定时发布') !!}--}}
+{{--                   {!! Form::select('delay',[--}}
+{{--                        0 => '立即',--}}
+{{--                        1 => '1天后',--}}
+{{--                        2 => '2天后',--}}
+{{--                        3 => '3天后',--}}
+{{--                        4 => '4天后',--}}
+{{--                        5 => '5天后',--}}
+{{--                        6 => '6天后',--}}
+{{--                        7 => '7天后',--}}
+{{--                        8 => '8天后',--}}
+{{--                        9 => '9天后',--}}
+{{--                        10 => '10天后',--}}
+{{--                    ], null, ['id' => 'delay', 'class' => 'form-control']) !!}--}}
+{{--                   <small class="text-danger">{{ $errors->first('delay') }}</small>--}}
+{{--                </div>--}}
+{{--            </div> --}}
 
           {{--   <div class="col-md-6">
                 <div class="form-group{{ $errors->has('is_top') ? ' has-error' : '' }}">
@@ -56,7 +56,7 @@
             </div> --}}
 
         </div>
-        
+
         <div class="row">
             <div class="col-md-12">
                 <div class="form-group{{ $errors->has('keywords') ? ' has-error-for-editor' : '' }}">
@@ -72,7 +72,7 @@
                     <input class="form-control" name="slug" value=""/>
                 </div>
             </div>
-           
+
         </div>
 
        {{--  <div class="form-group{{ $errors->has('description') ? ' has-error' : '' }}">
@@ -99,7 +99,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="pull-right">
             <input type="hidden" name="author" value="{{ Auth::user()->name }}">
             <input type="hidden" name="author_id" value="{{ Auth::user()->id }}">

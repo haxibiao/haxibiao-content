@@ -383,7 +383,7 @@ trait ArticleRepo
         if( !$images ){
         	return;
 		}
-        $imageIds = data_get($images,'id');
+        $imageIds = data_get($images,'*.id');
         $this->images()->sync($imageIds);
 
 		// 替换外域图片

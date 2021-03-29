@@ -10,6 +10,7 @@ use Haxibiao\Content\Requests\ArticleRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ArticleController extends Controller
 {
@@ -26,12 +27,6 @@ class ArticleController extends Controller
         return view('write');
     }
 
-    /**
-     * @Desc     发布一篇动态
-     * @DateTime 2018-07-20
-     * @param    Request    $request [description]
-     * @return   [type]              [description]
-     */
     public function storePost(Request $request)
     {
         $article = new Article();
@@ -52,11 +47,6 @@ class ArticleController extends Controller
         return view('article.drafts')->withArticles($articles);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
         $query = Article::orderBy('id', 'desc')->where('status', '>', 0)->whereType('article');
@@ -78,27 +68,16 @@ class ArticleController extends Controller
         return view('article.index')->withData($data);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         $categories = get_categories();
         return view('article.create')->withCategories($categories);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(ArticleRequest $request)
     {
+    	// 校验
         $user = $request->user();
-
         if ($slug = $request->slug) {
             $validator = Validator::make(
                 $request->input(),
@@ -111,11 +90,23 @@ class ArticleController extends Controller
                 dd('slug 不能为纯数字');
             }
         }
+
         $article = new Article($request->all());
+
+        // description
+		$description = $request->input('description');
+		if(!$description){
+			$description = str_purify($request->input('body'));
+			$description = Str::limit($description, 100);
+		}
+		$article->description 	= $description;
         $article->save();
 
-        //delay
-        $this->process_delay($article);
+		$article->saveRelatedImagesFromBody();
+
+		// cover
+		$article->cover_path =  data_get($article,'images.0.url');
+		$article->save();
 
         //categories
         $article->saveCategories(request('categories'));
@@ -123,15 +114,7 @@ class ArticleController extends Controller
         //tags
         $this->save_article_tags($article);
 
-        //保存外部图片
-        $article->saveExternalImage();
 
-        //images
-        $article->saveRelatedImagesFromBody();
-
-        // if (!empty($article->slug)) {
-        //     return redirect()->to('/article/' . $article->slug);
-        // }
         return redirect()->to('/article/' . $article->id);
     }
 
@@ -204,9 +187,7 @@ class ArticleController extends Controller
         if (!checkEditor()) {
             abort(404);
         }
-
         $article = Article::with('images')->findOrFail($id);
-        $article->saveRelatedImagesFromBody();
         $article->load('images');
 
         $categories    = request()->user()->adminCategories;
@@ -247,11 +228,24 @@ class ArticleController extends Controller
         $article->source_url  = null; //手动编辑过的文章，都不再是爬虫文章
         $article->save();
 
+		// description
+		$description = $request->input('description');
+		if(!$description || data_get($article,'cover_path',null)){
+			$description = str_purify($request->input('body'));
+			$description = Str::limit($description, 100);
+		}
+		$article->description 	= $description;
+		$article->save();
+
+		$article->saveRelatedImagesFromBody();
+
+		// cover
+		$article->cover_path =  data_get($article,'images.0.url');
+		$article->save();
+
         //改变动态
         $article->changeAction();
 
-        //保存外部图片
-        $article->saveExternalImage();
         //images
         $article->saveRelatedImagesFromBody();
 
