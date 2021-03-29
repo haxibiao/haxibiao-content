@@ -7,6 +7,7 @@ use Haxibiao\Content\Article;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ArticleController extends Controller
 {
@@ -47,13 +48,22 @@ class ArticleController extends Controller
 
     public function update(Request $request, $id)
     {
-        $user                 = $request->user();
         $article              = Article::findOrFail($id);
         $article->count_words = ceil(strlen(strip_tags($article->body)) / 2);
         $article->update($request->all());
 
         //images
         $article->saveRelatedImagesFromBody();
+
+        // 格式化description
+		$body    	 = $request->input('body');
+		$description = $request->input('description');
+		if(!$description){
+			$description = str_purify($body);
+			$description = Str::limit($description, 100);
+		}
+		$article->description 	= $description;
+        $article->save();
 
         return $article;
     }
