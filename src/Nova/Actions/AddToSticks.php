@@ -36,17 +36,20 @@ class AddToSticks extends Action
 
         foreach ($models as $movie) {
             $type  = $movie->getMorphClass();
-            $stick = Stick::create([
-                'stickable_type'   => $type,
-                'stickable_id'     => $movie->id,
-                'place'            => $fields->place,
-                'editor_id'        => $user->id,
-                'editor_choice_id' => $fields->editorChoice,
-                'site_id'          => optional($site)->id,
-                'app_name'         => $fields->app,
+            $stick = Stick::firstOrCreate([
+                'stickable_type' => $type,
+                'stickable_id'   => $movie->id,
+                'place'          => $fields->place,
+                'editor_id'      => $user->id,
+                'site_id'        => optional($site)->id,
+                'app_name'       => $fields->app,
             ]);
             if (isset($fields->cover)) {
                 $stick->cover = Stick::saveDownloadImage($fields->cover);
+                $stick->save();
+            }
+            if (isset($fields->editorChoice)) {
+                $stick->editor_choice_id = json_decode($fields->editorChoice)[0];
                 $stick->save();
             }
         }
