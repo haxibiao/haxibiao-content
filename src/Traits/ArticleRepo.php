@@ -361,6 +361,9 @@ trait ArticleRepo
     public function saveRelatedImagesFromBody()
     {
 		$body = $this->body;
+		if(!$body){
+			return;
+		}
 		$imageUrls = $this->findHtmlImageUrls($body);
 
 		// 保存外链图片
