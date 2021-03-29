@@ -328,7 +328,7 @@ class CategoryController extends Controller
         if (!canEdit($category)) {
             abort(403);
         }
-        $category->update($request->all());
+        $category->update($request->except('uids','categories'));
         //save logo
         $category->saveLogo($request);
         $category->updated_at = now();
