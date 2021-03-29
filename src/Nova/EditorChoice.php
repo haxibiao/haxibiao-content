@@ -17,7 +17,7 @@ class EditorChoice extends Resource
     public static $perPageOptions = [25, 50, 100, 500, 1000];
     public static function label()
     {
-        return '精选';
+        return '精选栏';
     }
 
     /**
@@ -32,7 +32,7 @@ class EditorChoice extends Resource
      *
      * @var string
      */
-    public static $title = 'id';
+    public static $title = 'title';
 
     /**
      * The columns that should be searched.
@@ -40,7 +40,7 @@ class EditorChoice extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'id','title'
     ];
 
     /**
@@ -55,7 +55,7 @@ class EditorChoice extends Resource
             ID::make(__('ID'), 'id')->sortable(),
             Text::make('标题', 'title'),
             Text::make('主题', 'summary'),
-            BelongsTo::make('小编', 'editor', User::class),
+            BelongsTo::make('小编', 'editor', User::class)->searchable(),
             DateTime::make('创建时间', 'created_at'),
             DateTime::make('更新时间', 'updated_at'),
         ];

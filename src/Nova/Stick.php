@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Content\Nova;
 
+use App\Nova\Collection;
 use App\Nova\Post;
 use App\Nova\Resource;
 use Haxibiao\Breeze\Nova\User;
@@ -71,6 +72,7 @@ class Stick extends Resource
             MorphTo::make('定制对象', 'stickable')->types([
                 Movie::class,
                 Post::class,
+                Collection::class,
             ]),
             BelongsTo::make('精选', 'editorChoice', EditorChoice::class),
             BelongsTo::make('网站', 'site', Site::class)->nullable(),

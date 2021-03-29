@@ -7,7 +7,7 @@ trait StickRepo
     /**
      * 上传合集封面
      */
-    public function saveDownloadImage($file)
+    public static function saveDownloadImage($file)
     {
         if ($file) {
             $cover   = '/stick/' . uniqid() . '_' . time() . '.png';
