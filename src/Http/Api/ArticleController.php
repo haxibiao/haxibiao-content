@@ -39,10 +39,26 @@ class ArticleController extends Controller
     public function store(Request $request)
     {
         $article          = new Article($request->all());
+
+        // 格式化description
+		$body    	 = $request->input('body');
+		$description = $request->input('description');
+		if(!$description){
+			$description = str_purify($body);
+			$description = Str::limit($description, 100);
+		}
+		$article->description 	= $description;
+
         $article->user_id = $request->user()->id;
         $article->save();
+
         //images
         $article->saveRelatedImagesFromBody();
+
+		// 处理封面图
+		$article->cover_path =  data_get($article,'images.0.url');
+		$article->save();
+
         return $article;
     }
 
