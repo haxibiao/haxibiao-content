@@ -58,7 +58,7 @@ class ArticleController extends Controller
 		// 处理封面图
 		$article->cover_path =  data_get($article,'images.0.url');
 		$article->save();
-
+		$article->fresh();
         return $article;
     }
 
@@ -84,6 +84,7 @@ class ArticleController extends Controller
 		$article->cover_path =  data_get($article,'images.0.url');
 
         $article->save();
+		$article->fresh();
 
         return $article;
     }
