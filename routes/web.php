@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Route;
 /**
  * Category
  */
-Route::middleware(config('content.category.middleware', []))->resource('/category', 'CategoryController');
 Route::get('/category/list', 'CategoryController@list');
+Route::middleware(config('content.category.middleware', []))->resource('/category', 'CategoryController');
 
 // 动态
 Route::resource('/post', 'PostController');

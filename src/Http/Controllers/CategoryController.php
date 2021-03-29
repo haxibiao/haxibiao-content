@@ -160,7 +160,7 @@ class CategoryController extends Controller
      */
     public function store(CategoryRequest $request)
     {
-        $category = new Category($request->all());
+        $category = new Category($request->except('uids','categories'));
         $category->save();
         //save logo
         $category->saveLogo($request);
