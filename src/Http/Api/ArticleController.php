@@ -63,6 +63,10 @@ class ArticleController extends Controller
 			$description = Str::limit($description, 100);
 		}
 		$article->description 	= $description;
+
+		// 处理封面图
+		$article->cover_path =  data_get($article,'images.0.url');
+
         $article->save();
 
         return $article;
