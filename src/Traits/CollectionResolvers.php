@@ -277,10 +277,6 @@ trait CollectionResolvers
         $recommendCollectionsA = $qb->take(3)->skip(0)->get();
         $recommendCollectionsB = $qb->take(3)->skip(3)->get();
 
-        //降低rank值，减少出现的概率
-        Collection::whereIn('id', $recommendCollectionsA->pluck('id'))
-            ->whereIn('id', $recommendCollectionsB->pluck('id'))
-            ->increment('sort_rank');
         $result = [];
         //构建返回结果
         $result['topCover']              = Collection::getTopCover();
