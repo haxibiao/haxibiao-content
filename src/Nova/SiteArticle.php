@@ -6,6 +6,7 @@ use Halimtuhu\ArrayImages\ArrayImages;
 use Haxibiao\Content\Nova\Actions\AssignToSite;
 use Haxibiao\Content\Nova\Actions\StickyToSite;
 use Haxibiao\Content\Nova\Filters\ArticleByType;
+use Haxibiao\Content\Nova\Filters\ArticleStatusType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Nova\Fields\BelongsTo;
@@ -108,6 +109,7 @@ class SiteArticle extends Resource
     {
         return [
             new ArticleByType,
+            new ArticleStatusType,
         ];
     }
 
