@@ -14,6 +14,7 @@ use Haxibiao\Content\Console\PublishCommand;
 use Haxibiao\Content\Console\RefactorCategorizable;
 use Haxibiao\Content\Console\RefactorCollection;
 use Haxibiao\Content\Console\RefactorPost;
+use Haxibiao\Content\Console\SelectCollection;
 use Haxibiao\Content\Console\StatisticVideoViewsCommand;
 use Haxibiao\Content\Console\SyncPostWithMovie;
 use Haxibiao\Content\Http\Middleware\SeoTraffic;
@@ -72,6 +73,7 @@ class ContentServiceProvider extends ServiceProvider
             SyncPostWithMovie::class,
 
             ClearCache::class,
+            SelectCollection::class,
 
             Console\Cms\SitemapGenerate::class,
             Console\Cms\ArchiveTraffic::class,

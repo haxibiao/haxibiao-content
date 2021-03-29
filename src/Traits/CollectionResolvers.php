@@ -212,7 +212,7 @@ trait CollectionResolvers
         $perPage     = data_get($args, 'count');
 
         //过滤掉推荐列表中的集合
-        $qb = Collection::whereNull('sort_rank');
+        $qb = Collection::whereNull('sort_rank')->orWhere('sort_rank', 0);
 
         //登录用户
         if (checkUser()) {
@@ -273,7 +273,7 @@ trait CollectionResolvers
         $topCollection = Collection::top()->first();
 
         $qb = Collection::where('sort_rank', '>=', Collection::RECOMMEND_COLLECTION)
-            ->orderby('sort_rank', 'asc');
+            ->orderby('updated_at', 'desc');
         $recommendCollectionsA = $qb->take(3)->skip(0)->get();
         $recommendCollectionsB = $qb->take(3)->skip(3)->get();
 
