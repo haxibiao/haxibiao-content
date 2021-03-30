@@ -1,5 +1,7 @@
 <?php
 
+use App\Movie;
+use App\Stick;
 use Haxibiao\Content\Siteable;
 use Illuminate\Support\Str;
 
@@ -253,23 +255,22 @@ if (!function_exists('cms_seo_theme')) {
 /**
  * 首页置顶电影(站群)
  */
-if (!function_exists('cmsTopMovies')) {
-    function cmsTopMovies($top = 4)
-    {
-        //站群模式
-        if (config('cms.multi_domains')) {
-            if ($site = cms_get_site()) {
-                if ($site->stickyMovies()->byStickableName('首页-电影')->count()) {
-                    return $site->stickyMovies()
-                        ->byStickableName('首页-电影')
-                        ->latest('stickables.updated_at')
-                        ->take($top)
-                        ->get();
-                }
+function cmsTopMovies($top = 4)
+{
+    //站群模式
+    if (config('cms.multi_domains')) {
+        if ($site = cms_get_site()) {
+            $place   = "网页-首页-置顶";
+            $movieid = Stick::where([
+                'place'          => $place,
+                'stickable_type' => 'movies',
+            ])->take(4)->select('stickable_id')->get()->pluck('stickable_id')->toArray();
+            if (count($movieid) >= 4) {
+                return Movie::whereIn('id', $movieid)->get();
             }
         }
-        return indexTopMovies($top);
     }
+    return indexTopMovies($top);
 }
 
 /**
