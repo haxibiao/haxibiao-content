@@ -6,6 +6,7 @@ use App\Article;
 use App\Collection;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class CollectionController extends Controller
 {
@@ -14,13 +15,14 @@ class CollectionController extends Controller
         $user = $request->user();
         //限制最多加载最近的100个合集
         $collections = $user->hasCollections()
+			->whereType(\App\Collection::TYPE_OF_ARTICLE)
             ->where('status', '>=', 0)
             ->latest('id')
             ->take(100)
             ->get();
         //每个合集限制最多加载最近100篇文章
         foreach ($collections as $collection) {
-            $collection->articles = $collection->articles()->select('id', 'title', 'body', 'status')->latest('id')->take(100)->get();
+            $collection->articles = $collection->articles()->latest('id')->take(100)->get();
         }
         return $collections;
     }
@@ -45,6 +47,7 @@ class CollectionController extends Controller
     {
         $collection          = new Collection($request->all());
         $collection->user_id = $request->user()->id;
+        $collection->type 	 = \App\Collection::TYPE_OF_ARTICLE;
         $collection->save();
         $collection->load('articles');
         return $collection;
@@ -79,6 +82,8 @@ class CollectionController extends Controller
         $article->timestamps    = false;
         $article->save();
 
+		$article->collectivize(Arr::wrap($id));
+
         return $article;
     }
 
@@ -89,8 +94,7 @@ class CollectionController extends Controller
         $article->collection_id = $id;
         $article->save();
 
-        //暂时维护个和文集的多对多关系，方便今后文集之间复制文章的时候用
-        // $article->collections()->sync($id);
+		$article->recollectivize(Arr::wrap($id));
 
         return $article;
     }

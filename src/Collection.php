@@ -34,6 +34,9 @@ class Collection extends Model
     /* 置顶集合 */
     const TOP_COLLECTION = 1;
 
+    const TYPE_OF_ARTICLE = 'articles';// 文集
+    const TYPE_OF_POST    = 'posts';  // 视频合集
+
     //置顶合集图片
     public static function TOP_COVER()
     {
