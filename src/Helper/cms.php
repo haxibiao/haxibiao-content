@@ -1,7 +1,6 @@
 <?php
 
 use App\Movie;
-use App\Stick;
 use Haxibiao\Content\Siteable;
 use Haxibiao\Content\Stick;
 use Illuminate\Support\Str;
