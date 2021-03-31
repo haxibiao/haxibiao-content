@@ -317,6 +317,7 @@ trait ArticleRepo
         }
 
         $this->description = $this->summary;
+		$this->cover       = $this->getCoverAttribute();
 
         if ($this->video) {
             $this->duration     = gmdate('i:s', $this->video->duration);
