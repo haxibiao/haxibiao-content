@@ -370,9 +370,6 @@ trait ArticleRepo
 		// 保存外链图片
 		$images = [];
         foreach ($imageUrls as $url) {
-			if(str_contains($url,env('COS_DOMAIN'))){
-				continue;
-			}
 			try {
 				$image = Image::saveImage($url);
 				$images[$url] = $image;
@@ -389,6 +386,9 @@ trait ArticleRepo
 
 		// 替换外域图片
 		foreach ($images as $originImageUrl=>$imageModel){
+			if(str_contains($originImageUrl,env('COS_DOMAIN'))){
+				continue;
+			}
 			$body = str_replace($originImageUrl,data_get($imageModel,'url'),$body);
 		}
 		$this->body = $body;
