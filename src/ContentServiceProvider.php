@@ -37,6 +37,9 @@ class ContentServiceProvider extends ServiceProvider
             require_once $filename;
         }
 
+        //加载 css js images
+        load_breeze_assets(content_path('public'));
+
         //合并view paths
         if (!app()->configurationIsCached()) {
             $view_paths = array_merge(
@@ -132,7 +135,7 @@ class ContentServiceProvider extends ServiceProvider
 
             //发布 resoucre
             $this->publishes([
-                __DIR__ . '/../public' => public_path('/'),
+                // __DIR__ . '/../public/fonts' => public_path('/fonts'),
             ], 'content-assets');
         }
 
