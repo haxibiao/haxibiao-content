@@ -71,7 +71,7 @@ type Post {
     """
     标签
     """
-    tags: [Tag!] @paginate(defaultCount: 10, builder: "\\App\\Post@resovlePostTags")
+    tags: [Tag!]
     """
     发布时间（多久前）
     """

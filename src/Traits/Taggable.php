@@ -68,12 +68,33 @@ trait Taggable
     /**
      * 返回标签名的数组
      *
-     * @return array
+     * @return [string]
      */
     public function getTagNamesAttribute()
     {
         //FIXME: 可以冗余 tags name 到 post的字段 tag_names转换的数组
-        return [];
+        $tag_names = $this->tag_names ?? '';
+        return explode(',', $tag_names);
+    }
+
+    /**
+     * 返回标签数组(无需join queries)
+     *
+     * @return [Tag]
+     */
+    public function getTagsAttribute()
+    {
+        $tags      = [];
+        $tag_names = $this->getTagNamesAttribute();
+        $index     = 1;
+        foreach ($tag_names as $tag_name) {
+            $tag       = new Tag();
+            $tag->name = $tag_name;
+            $tag->id   = $index; //兼容：这个id 在前端主要做key排重，没有数据逻辑意义...
+            $tags[]    = $tag;
+            $index++;
+        }
+        return $tags;
     }
 
     public function setTagsAttribute($tags)
