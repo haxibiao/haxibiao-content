@@ -106,19 +106,22 @@ trait Collectable
 
     public function getCurrentEpisodeAttribute()
     {
-        $collection = $this->collections()
-            ->latest()->first();
-        if (!$collection) {
-            return null;
-        }
-        $results = $collection->posts()->orderBy('collectables.sort_rank', 'asc')->get();
-        $index   = 1;
-        foreach ($results as $result) {
-            if (data_get($result, 'pivot.collectable_id') == $this->id) {
-                return $index;
-            }
-            $index++;
-        }
-        return null;
+        //FIXME: 优化查询速度，修复post的合集index 冗余字段 current_episode
+        // $collection = $this->collections()
+        //     ->latest()->first();
+        // if (!$collection) {
+        //     return null;
+        // }
+        // $results = $collection->posts()->orderBy('collectables.sort_rank', 'asc')->get();
+        // $index   = 1;
+        // foreach ($results as $result) {
+        //     if (data_get($result, 'pivot.collectable_id') == $this->id) {
+        //         return $index;
+        //     }
+        //     $index++;
+        // }
+
+        //先默认第一集
+        return 1;
     }
 }

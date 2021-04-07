@@ -113,9 +113,25 @@ class ContentServiceProvider extends ServiceProvider
             $this->mergeConfigFrom(__DIR__ . '/../config/cms.php', 'cms');
         }
 
-        //安装时需要
+        //安装/console模式时需要
         if ($this->app->runningInConsole()) {
-            // FIXME:临时添加了一个属性动态控制了migrations的加载。
+
+            if (config('cms.multi_domains')) {
+                //cms定时任务代码让普通app boot time 增加2s, console模式才需要
+                $this->app->booted(function () {
+                    $schedule = $this->app->make(Schedule::class);
+                    // 每天定时归档seo流量
+                    $schedule->command('archive:traffic')->dailyAt('1:00');
+
+                    // 自动更新站群首页资源
+                    $schedule->command('cms:update')->dailyAt('2:00');
+
+                    // 生成新的SiteMap
+                    $schedule->command('sitemap:generate')->dailyAt('3:00');
+                });
+            }
+
+            // FIXME:临时添加了一个开关，兼容不migration的项目复用content能力。
             if (config('content.migration_autoload')) {
                 $this->loadMigrationsFrom($this->app->make('path.haxibiao-content.migrations'));
             }
@@ -159,23 +175,6 @@ class ContentServiceProvider extends ServiceProvider
             //默认返回最后一个站点
             return $modelStr::latest('id')->first();
         });
-
-        if (config('cms.multi_domains')) {
-            //FIXME: cms定时任务代码让boot time 增加2s,通过其他install安装到项目的console
-
-            // $this->app->booted(function () {
-            //     $schedule = $this->app->make(Schedule::class);
-            //     // 每天定时归档seo流量
-            //     $schedule->command('archive:traffic')->dailyAt('1:00');
-
-            //     // 自动更新站群首页资源
-            //     $schedule->command('cms:update')->dailyAt('2:00');
-
-            //     // 生成新的SiteMap
-            //     $schedule->command('sitemap:generate')->dailyAt('3:00');
-
-            // });
-        }
     }
 
     protected function bindPathsInContainer()
