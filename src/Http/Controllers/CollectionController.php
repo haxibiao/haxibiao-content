@@ -97,7 +97,7 @@ class CollectionController extends Controller
                 ['data' => "分享的合集好像不存在呢(。・＿・。)ﾉ"]
             );
         }
-        $posts = $collection->posts()->latest()->take(10)->get();
+        $posts = $collection->posts()->has('video')->latest()->take(10)->get();
         // return $posts;
         return view('share.collect', ['collection' => $collection, 'posts' => $posts]);
     }
