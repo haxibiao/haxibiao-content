@@ -212,7 +212,10 @@ trait CollectionResolvers
         $perPage     = data_get($args, 'count');
 
         //过滤掉推荐列表中的集合
-        $qb = Collection::whereNull('sort_rank')->orWhere('sort_rank', 0);
+        $qb = Collection::where(function ($query) {
+            $query->whereNull('sort_rank')
+                ->orWhere('sort_rank', 0);});
+        // $qb = Collection::whereNull('sort_rank')->orWhere('sort_rank', 0);
 
         //登录用户
         if (checkUser()) {

@@ -41,7 +41,9 @@ class SelectCollection extends Command
     public function handle()
     {
         //不在推荐列表中的合集
-        $qb = Collection::whereNull('sort_rank')->orWhere('sort_rank', 0);
+        $qb = Collection::where(function ($query) {
+            $query->whereNull('sort_rank')
+                ->orWhere('sort_rank', 0);});
 
         //马甲号或者管理员创建的合集
         $qb = $qb->whereExists(function ($query) {
@@ -49,6 +51,11 @@ class SelectCollection extends Command
                 ->whereRaw('users.id = collections.user_id')
                 ->whereIn('users.role_id', [User::VEST_STATUS, User::EDITOR_STATUS]);
         });
+        //动态数量大于三的
+        $qb = $qb->where('count_posts', '>=', 3);
+        //过滤掉合集封面为默认封面的
+        $qb = $qb->whereNotNull('logo')
+            ->where('logo', '!=', config('haxibiao-content.collection_default_logo'));
         $collections = $qb->inRandomOrder()->take(6)->get();
         //如果推荐列表不够用了，就清空原推荐列表
         if ($qb->count()
