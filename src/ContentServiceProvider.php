@@ -148,7 +148,6 @@ class ContentServiceProvider extends ServiceProvider
 
         //cms站点
         $this->app->singleton('cms_site', function ($app) {
-
             $modelStr = '\Haxibiao\Content\Site';
             if (class_exists('\App\Site')) {
                 // \App\Site 是 \Haxibiao\Cms\Site 的子类
@@ -162,18 +161,20 @@ class ContentServiceProvider extends ServiceProvider
         });
 
         if (config('cms.multi_domains')) {
-            $this->app->booted(function () {
-                $schedule = $this->app->make(Schedule::class);
-                // 每天定时归档seo流量
-                $schedule->command('archive:traffic')->dailyAt('1:00');
+            //FIXME: cms定时任务代码让boot time 增加2s,通过其他install安装到项目的console
 
-                // 自动更新站群首页资源
-                $schedule->command('cms:update')->dailyAt('2:00');
+            // $this->app->booted(function () {
+            //     $schedule = $this->app->make(Schedule::class);
+            //     // 每天定时归档seo流量
+            //     $schedule->command('archive:traffic')->dailyAt('1:00');
 
-                // 生成新的SiteMap
-                $schedule->command('sitemap:generate')->dailyAt('3:00');
+            //     // 自动更新站群首页资源
+            //     $schedule->command('cms:update')->dailyAt('2:00');
 
-            });
+            //     // 生成新的SiteMap
+            //     $schedule->command('sitemap:generate')->dailyAt('3:00');
+
+            // });
         }
     }
 
