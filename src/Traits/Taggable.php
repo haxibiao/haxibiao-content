@@ -60,9 +60,20 @@ trait Taggable
     /**
      * 通过属性获取标签名，例如 $model->tag_names = '经典电影, 音乐欣赏';
      */
-    public function getTagNamesAttribute($value, $delimiter = ', ')
+    public function setTagNamesAttribute($value, $delimiter = ', ')
     {
         return implode($delimiter, $this->tagNames());
+    }
+
+    /**
+     * 返回标签名的数组
+     *
+     * @return array
+     */
+    public function getTagNamesAttribute()
+    {
+        //FIXME: 可以冗余 tags name 到 post的字段 tag_names转换的数组
+        return [];
     }
 
     public function setTagsAttribute($tags)
@@ -228,8 +239,8 @@ trait Taggable
             }
             // 如果Tag不存在，创建一个Tag并且关联到当前对象
         } else {
-            $tag       = new \App\Tag();
-            $tag->name = $tagName;
+            $tag          = new \App\Tag();
+            $tag->name    = $tagName;
             $tag->user_id = getUserId();
             $tag->save();
 

@@ -9,7 +9,6 @@ use Haxibiao\Content\Jobs\MakeMp4ByM3U8;
 use Haxibiao\Content\Post;
 use Haxibiao\Media\Series;
 use Haxibiao\Media\Video;
-use Haxibiao\Sns\Follow;
 use Illuminate\Support\Arr;
 
 trait PostResolvers
@@ -171,34 +170,37 @@ trait PostResolvers
      */
     public function postWithMovies($rootValue, array $args, $context, $resolveInfo)
     {
+        //标记请求为快速推荐模式
+        request()->request->add(['fast_recommend_mode' => true]);
+
         $limit = 4; //快速推荐有广告位逻辑
 
         $posts = collect([]);
 
-        //1.优先有电影的
+        //1.优先来1个有电影的
         $qb = Post::where('movie_id', '>', 0);
         if (!$qb->exists()) {
-            $movie_posts = Post::getRecommendPosts(1, $qb, '电影剪辑');
+            $movie_posts = Post::getRecommendPosts(1, $qb->with('movie'), '电影剪辑');
             $posts       = $posts->merge($movie_posts);
         }
 
-        //2.有合集的
+        //2.再填充1个有合集的
         $qb = Post::where('collection_id', '>', 0);
-        if (!$qb->exists()) {
-            $collection_posts = Post::getRecommendPosts(1, $qb, '视频合集');
+        if ($qb->exists()) {
+            $collection_posts = Post::getRecommendPosts(1, $qb->with('collection'), '视频合集');
             $posts            = $posts->merge($collection_posts);
         }
 
-        //3. 有题目的
+        //3. 再填充1个有题目的
         $qb = Post::where('question_id', '>', 0);
-        if (!$qb->exists()) {
-            $question_posts = Post::getRecommendPosts(1, $qb, '视频答题');
+        if ($qb->exists()) {
+            $question_posts = Post::getRecommendPosts(1, $qb->with('question'), '视频答题');
             $posts          = $posts->merge($question_posts);
         }
 
-        //4. 普通的 = 比如 美女
-        $qb = Post::query();
-        if (!$qb->exists()) {
+        //4. 最后补充普通的动态 = 也许有美女，不过影视剪辑更多..
+        $qb = Post::query()->with('movie');
+        if ($qb->exists()) {
             $latest_take  = $limit - $posts->count();
             $latest_posts = Post::getRecommendPosts($latest_take, $qb);
             $posts        = $posts->merge($latest_posts);

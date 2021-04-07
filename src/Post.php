@@ -13,6 +13,7 @@ use Haxibiao\Breeze\Model;
 use Haxibiao\Breeze\Traits\HasFactory;
 use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Traits\Contentable;
+use Haxibiao\Content\Traits\FastRecommendStrategy;
 use Haxibiao\Content\Traits\PostAttrs;
 use Haxibiao\Content\Traits\PostOldPatch;
 use Haxibiao\Content\Traits\PostRepo;
@@ -26,7 +27,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class Post extends Model implements Collectionable
 {
@@ -37,6 +37,7 @@ class Post extends Model implements Collectionable
     use PostResolvers;
     use Searchable;
 
+    use FastRecommendStrategy;
     use PostOldPatch;
     use WithSns;
     use Contentable;
@@ -174,91 +175,6 @@ class Post extends Model implements Collectionable
                 $this->description = $content;
             }
         }
-    }
-
-    //按日期生成review_id
-    public static function makeNewReviewId($reviewDay = null)
-    {
-        //随机范围10w,如果一天内新增内容数量超过10w，需要增加这个数值...
-        $maxNum    = 100000;
-        $reviewDay = is_null($reviewDay) ? today()->format('Ymd') : $reviewDay;
-        $reviewId  = intval($reviewDay) * $maxNum + mt_rand(1, $maxNum - 1);
-        //TODO: 如何避开新生成的这个review_id 今天已经生成过了，找个空缺的位置填充
-        return $reviewId;
-    }
-
-    //旧数据补充review_id
-    public function reviewId()
-    {
-        $reviewId = $this->review_id;
-        if (is_null($reviewId)) {
-            $reviewDay = is_null($this->created_at) ? null : $this->created_at->format('Ymd');
-            $reviewId  = self::makeNewReviewId($reviewDay);
-        }
-        return $reviewId;
-    }
-
-    public static function isTodayReviewId($reviewId)
-    {
-        $prefix = today()->format('Ymd') . '*';
-        return Str::is($prefix, $reviewId);
-    }
-
-    public static function todayMinReviewId()
-    {
-        $minReviewPost = Post::select('review_id')
-            ->where('review_id', '>=', today()->format('Ymd') * 100000 + 1)
-            ->orderBy('review_id')
-            ->first();
-        $reviewId = data_get($minReviewPost, 'review_id', 0);
-
-        return $reviewId;
-    }
-
-    public static function makeTodayMaxReviewId()
-    {
-        $reviewDay = Post::makeNewReviewDay();
-        $maxNum    = Post::TODAY_MAX_POST_NUM;
-
-        return $reviewDay * $maxNum + $maxNum - 1;
-    }
-
-    public static function makeTodayMinReviewId()
-    {
-        $reviewDay = Post::makeNewReviewDay();
-        $maxNum    = Post::TODAY_MAX_POST_NUM;
-
-        return $reviewDay * $maxNum;
-    }
-
-    public static function getMaxReviewIdInDays()
-    {
-        $maxRviewIds = Post::selectRaw("review_day,max(review_id) as max_review_id")
-            ->whereStatus(1) //只考虑已上架发布的动态
-            ->groupBy('review_day')
-            ->latest('review_day')
-            ->get();
-
-        return $maxRviewIds;
-    }
-
-    public static function makeNewReviewDay()
-    {
-        return today()->format('Ymd');
-    }
-
-    //给每小时批量生成review_ids用
-    public static function makeReviewIds($maxRviewId, $count)
-    {
-        $reviewIds = [];
-        for ($i = 1; $i <= $count; $i++) {
-            $reviewIds[] = $maxRviewId + $i;
-        }
-
-        //随机打乱出去分配
-        shuffle($reviewIds);
-
-        return $reviewIds;
     }
 
     public static function getRecommendPosts($limit = 4, $query = null, $scope = null)

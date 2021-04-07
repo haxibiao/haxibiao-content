@@ -2,7 +2,7 @@
 
 namespace Haxibiao\Content\Traits;
 
-use Haxibiao\Content\Post;
+use App\Post;
 
 /**
  * 兼容以前Article
