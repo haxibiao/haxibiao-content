@@ -13,6 +13,7 @@ class AddIndexQuestionIdToPosts extends Migration
      */
     public function up()
     {
+        //优化影视推荐视频刷index引起的性能问题
         Schema::table('posts', function (Blueprint $table) {
             $table->index('question_id');
             $table->index('movie_id');
