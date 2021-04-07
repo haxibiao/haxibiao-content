@@ -44,7 +44,11 @@ type Post {
     """
     合集
     """
-    collections: [Collection]
+    collection: Collection
+    """
+    合集列表
+    """
+    collections: [Collection] @deprecated(reason: "暂时无多合集场景")
     """
     当前集数
     """
@@ -60,6 +64,10 @@ type Post {
     review_id: String
     review_day: String
     is_ad: Int
+    """
+    标签名
+    """
+    tag_names: [String!]
     """
     标签
     """
