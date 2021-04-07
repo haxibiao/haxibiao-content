@@ -32,12 +32,6 @@ class MoviesByRegion extends Filter
      */
     public function options(Request $request)
     {
-        $options      = [];
-        $movieRegions = DB::table('movies')->distinct('region')->get();
-        foreach ($movieRegions as $item) {
-            $options[$item->region] = $item->region;
-        }
-
-        return $options;
+        return DB::table('movies')->distinct('region')->pluck('region', 'region')->toArray();
     }
 }

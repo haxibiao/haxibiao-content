@@ -32,12 +32,6 @@ class MoviesByStyle extends Filter
      */
     public function options(Request $request)
     {
-        $options = [];
-        $items   = DB::table('movies')->distinct('style')->get();
-        foreach ($items as $item) {
-            $options[$item->style] = $item->style;
-        }
-
-        return $options;
+        return DB::table('movies')->distinct('style')->pluck('style', 'style')->toArray();
     }
 }

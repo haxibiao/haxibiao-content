@@ -32,12 +32,6 @@ class MoviesByYear extends Filter
      */
     public function options(Request $request)
     {
-        $options = [];
-        $items   = DB::table('movies')->distinct('year')->get();
-        foreach ($items as $item) {
-            $options[$item->year] = $item->year;
-        }
-
-        return $options;
+        return DB::table('movies')->distinct('year')->pluck('year', 'year')->toArray();
     }
 }

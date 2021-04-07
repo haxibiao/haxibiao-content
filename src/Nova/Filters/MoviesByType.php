@@ -32,12 +32,6 @@ class MoviesByType extends Filter
      */
     public function options(Request $request)
     {
-        $options = [];
-        $items   = DB::table('movies')->distinct('type')->get();
-        foreach ($items as $item) {
-            $options[$item->type] = $item->type;
-        }
-
-        return $options;
+        return DB::table('movies')->distinct('type')->pluck('type', 'type')->toArray();
     }
 }
