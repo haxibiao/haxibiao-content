@@ -46,6 +46,11 @@ trait CollectionAttrs
 
     public function getUpdatedToEpisodeAttribute()
     {
-        return $this->posts()->count();
+        // return $this->posts()->count();
+
+        //FIXME: 修复collection的 count_posts
+
+        //先简单返回一个集数
+        return 1;
     }
 }

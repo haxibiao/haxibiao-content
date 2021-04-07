@@ -46,9 +46,17 @@ trait PostResolvers
         return $post;
     }
 
+    public function resolveFastRecommendPosts($root, $args, $context, $info)
+    {
+        app_track_event("首页", "推荐视频快速版");
+        //标记请求为快速首页模式
+        request()->request->add(['fast_recommend_mode' => true]);
+        return Post::getRecommendPosts();
+    }
+
     public function resolveRecommendPosts($root, $args, $context, $info)
     {
-        app_track_event("首页", "获取学习视频");
+        app_track_event("首页", "推荐视频刷");
         return Post::getRecommendPosts();
     }
 
