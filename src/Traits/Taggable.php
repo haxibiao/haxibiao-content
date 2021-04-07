@@ -73,8 +73,10 @@ trait Taggable
     public function getTagNamesAttribute()
     {
         //FIXME: 可以冗余 tags name 到 post的字段 tag_names转换的数组
-        $tag_names = $this->tag_names ?? '';
-        return explode(',', $tag_names);
+        if ($tag_names = $this->getRawOriginal('tag_names') ?? null) {
+            return explode(',', $tag_names);
+        }
+        return [];
     }
 
     /**
