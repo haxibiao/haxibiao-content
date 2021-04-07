@@ -166,33 +166,6 @@ trait PostResolvers
     }
 
     /**
-     * 关注用户发布的视频
-     *
-     * note:安保联盟在使用它
-     * @param $rootValue
-     * @param array $args
-     * @param $context
-     * @param $resolveInfo
-     * @return array|\Illuminate\Database\Eloquent\Builder
-     */
-    public function resolveFollowing($rootValue, array $args, $context, $resolveInfo)
-    {
-        //1.前置准备
-        $loginUser = getUser();
-
-        //关注类型
-        $filter = 'users';
-
-        //2.获取用户关注列表
-        $followedUserIds = Follow::follows($loginUser, $filter)->pluck('followed_id');
-
-        //3.获取关注用户发布的视频
-        return Post::query()
-            ->whereIn('user_id', $followedUserIds)
-            ->orderByDesc('created_at');
-    }
-
-    /**
      * postWithMovies 关联电影的视频刷
      * @return void
      */
