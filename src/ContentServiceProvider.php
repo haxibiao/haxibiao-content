@@ -17,6 +17,7 @@ use Haxibiao\Content\Console\RefactorCollection;
 use Haxibiao\Content\Console\RefactorPost;
 use Haxibiao\Content\Console\SelectCollection;
 use Haxibiao\Content\Console\StatisticVideoViewsCommand;
+use Haxibiao\Content\Console\SyncDouBanComments;
 use Haxibiao\Content\Console\SyncPostWithMovie;
 use Haxibiao\Content\Http\Middleware\SeoTraffic;
 use Illuminate\Console\Scheduling\Schedule;
@@ -75,6 +76,7 @@ class ContentServiceProvider extends ServiceProvider
             FixContent::class,
             ImportCollections::class,
             SyncPostWithMovie::class,
+            SyncDouBanComments::class,
 
             FixTagNamesToPosts::class,
 
