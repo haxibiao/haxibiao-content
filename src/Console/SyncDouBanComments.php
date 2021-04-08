@@ -68,43 +68,28 @@ class SyncDouBanComments extends Command
                         //同步相关的movie
                         $sourceMovie = Movie::on($origin)->find($sourceComments->commentable_id);
                         if (!isset($sourceMovie)) {
+                            $this->warn("原电影数据不存在，跳过");
                             continue;
                         }
-                        $movie = Movie::updateOrCreate([
+
+                        $movie = Movie::where([
                             'name'       => $sourceMovie->name,
                             'source_key' => $sourceMovie->id,
-                        ], [
-                            'introduction' => $sourceMovie->introduction,
-                            'user_id'      => $user_id,
-                            'cover'        => $sourceMovie->cover,
-                            'producer'     => $sourceMovie->producer,
-                            'year'         => $sourceMovie->year,
-                            'region'       => $sourceMovie->region,
-                            'actors'       => $sourceMovie->actors,
-                            'miner'        => $sourceMovie->miner,
-                            'count_series' => $sourceMovie->count_series,
-                            'rank'         => $sourceMovie->rank,
-                            'country'      => $sourceMovie->country,
-                            'subname'      => $sourceMovie->subname,
-                            'score'        => $sourceMovie->score,
-                            'tags'         => $sourceMovie->tags,
-                            'hits'         => $sourceMovie->hits,
-                            'lang'         => $sourceMovie->lang,
-                            'data'         => json_encode($sourceMovie->data),
-                            'data_source'  => json_encode($sourceMovie->data_source),
-                            'status'       => Movie::PUBLISH,
-                        ]);
+                        ])->first();
+                        if (!isset($movie)) {
+                            $this->warn("未曾导入过的电影，跳过");
+                            continue;
+                        }
                         $this->info("保存movie->id:" . $movie->id . ' ' . $movie->name . '成功');
 
                         //同步相关comments
                         $comment = Comment::updateOrCreate([
                             'commentable_type' => 'movies',
                             'commentable_id'   => $movie->id,
+                            'body'             => $sourceComments->content,
                         ], [
                             'user_id'    => $user_id,
-                            'body'       => $sourceComments->content,
                             'created_at' => $sourceComments->created_at,
-
                         ]);
                         $this->info("comments->id:" . $comment->id . ' ' . $comment->body . '成功');
 
