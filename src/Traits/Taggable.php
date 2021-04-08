@@ -4,6 +4,7 @@ namespace Haxibiao\Content\Traits;
 
 use Haxibiao\Content\Tag;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Facades\Schema;
 
 trait Taggable
 {
@@ -60,10 +61,10 @@ trait Taggable
     /**
      * 通过属性获取标签名，例如 $model->tag_names = '经典电影, 音乐欣赏';
      */
-    public function setTagNamesAttribute($value, $delimiter = ', ')
-    {
-        return implode($delimiter, $this->tagNames());
-    }
+//    public function setTagNamesAttribute($value, $delimiter = ', ')
+//    {
+//        return implode($delimiter, $this->tagNames());
+//    }
 
     /**
      * 返回标签名的数组
@@ -72,9 +73,8 @@ trait Taggable
      */
     public function getTagNamesAttribute()
     {
-        //FIXME: 可以冗余 tags name 到 post的字段 tag_names转换的数组
         if ($tag_names = $this->getRawOriginal('tag_names') ?? null) {
-            return explode(',', $tag_names);
+            return explode(', ', $tag_names);
         }
         return [];
     }
@@ -126,6 +126,8 @@ trait Taggable
         }
         $this->tags()->sync($syncData);
 
+        $this->pivotSaved();
+
         return $this;
     }
 
@@ -137,7 +139,7 @@ trait Taggable
     public function untagByIds($tags)
     {
         $this->tags()->detach($tags);
-
+        $this->pivotSaved();
         return $this;
     }
 
@@ -157,6 +159,7 @@ trait Taggable
             ];
         }
         $this->tags()->sync($syncData, false);
+        $this->pivotSaved();
 
         return $this;
     }
@@ -185,7 +188,7 @@ trait Taggable
      */
     public function tagNames()
     {
-        return $this->tags()->pluck('name')->all();
+        return $this->tags()->pluck('name','tags.id')->all();
     }
 
     /**
@@ -204,7 +207,7 @@ trait Taggable
         foreach ($tagNames as $tagName) {
             $this->removeTagByName($tagName);
         }
-
+        $this->pivotSaved();
         return $this;
     }
 
@@ -229,7 +232,7 @@ trait Taggable
         foreach ($additions as $tagName) {
             $this->addTagByName($tagName);
         }
-
+        $this->pivotSaved();
         return $this;
     }
 
@@ -304,5 +307,21 @@ trait Taggable
         $tagNames = array_map('trim', $tagNames);
 
         return array_values($tagNames);
+    }
+
+    /**
+     * 当model与tag中间表发生修改，这个方法将会被调度
+     */
+    private function pivotSaved(){
+        if (!Schema::hasColumn($this->getTable(), 'tag_names'))
+        {
+            return;
+        }
+        $this->tag_names =  implode(', ',$this->tagNames());
+        $dispatcher = $this->getEventDispatcher();
+        $this->unsetEventDispatcher();
+        $this->timestamps = false;
+        $this->save();
+        $this->setEventDispatcher($dispatcher);
     }
 }

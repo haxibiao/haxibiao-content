@@ -6,6 +6,7 @@ use Haxibiao\Content\Console\ArticleClear;
 use Haxibiao\Content\Console\ClearCache;
 use Haxibiao\Content\Console\CrawlCollection;
 use Haxibiao\Content\Console\FixContent;
+use Haxibiao\Content\Console\FixTagNamesToPosts;
 use Haxibiao\Content\Console\ImportCollections;
 use Haxibiao\Content\Console\InstallCommand;
 use Haxibiao\Content\Console\NovelPush;
@@ -74,6 +75,8 @@ class ContentServiceProvider extends ServiceProvider
             FixContent::class,
             ImportCollections::class,
             SyncPostWithMovie::class,
+
+            FixTagNamesToPosts::class,
 
             ClearCache::class,
             SelectCollection::class,
