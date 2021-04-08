@@ -61,33 +61,34 @@ class ContentServiceProvider extends ServiceProvider
             __DIR__ . '/../config/content.php',
             'content'
         );
+		if ($this->app->runningInConsole()) {
+			$this->commands([
+				InstallCommand::class,
+				PublishCommand::class,
+				NovelPush::class,
+				NovelSync::class,
+				ArticleClear::class,
+				RefactorCategorizable::class,
+				RefactorPost::class,
+				RefactorCollection::class,
+				StatisticVideoViewsCommand::class,
+				CrawlCollection::class,
+				FixContent::class,
+				ImportCollections::class,
+				SyncPostWithMovie::class,
+				SyncDouBanComments::class,
 
-        $this->commands([
-            InstallCommand::class,
-            PublishCommand::class,
-            NovelPush::class,
-            NovelSync::class,
-            ArticleClear::class,
-            RefactorCategorizable::class,
-            RefactorPost::class,
-            RefactorCollection::class,
-            StatisticVideoViewsCommand::class,
-            CrawlCollection::class,
-            FixContent::class,
-            ImportCollections::class,
-            SyncPostWithMovie::class,
-            SyncDouBanComments::class,
+				FixTagNamesToPosts::class,
 
-            FixTagNamesToPosts::class,
+				ClearCache::class,
+				SelectCollection::class,
 
-            ClearCache::class,
-            SelectCollection::class,
-
-            Console\Cms\SitemapGenerate::class,
-            Console\Cms\ArchiveTraffic::class,
-            Console\Cms\SeoWorker::class,
-            Console\Cms\CmsUpdate::class,
-        ]);
+				Console\Cms\SitemapGenerate::class,
+				Console\Cms\ArchiveTraffic::class,
+				Console\Cms\SeoWorker::class,
+				Console\Cms\CmsUpdate::class,
+			]);
+		}
 
         $this->app->singleton(Cache::class, function () {
             $instance = new Cache($this->app->make('files'));
@@ -104,37 +105,30 @@ class ContentServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // 更新每日播放量
-        $enabled = config('media.enabled_statistics_video_views', false);
-        if ($enabled) {
-            $this->app->booted(function () {
-                $schedule = $this->app->make(Schedule::class);
-                $schedule->command('haxibiao:statistic:video_viewers')->dailyAt('2:30');;
-            });
-        }
-
         if (!app()->configurationIsCached()) {
             $this->mergeConfigFrom(__DIR__ . '/../config/database.php', 'database.connections');
             $this->mergeConfigFrom(__DIR__ . '/../config/cms.php', 'cms');
         }
 
+		$this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
+			// 每天定时归档seo流量
+			$schedule->command('archive:traffic')->dailyAt('1:00');
+
+			// 自动更新站群首页资源
+			$schedule->command('cms:update')->dailyAt('2:00');
+
+			// 生成新的SiteMap
+			$schedule->command('sitemap:generate')->dailyAt('3:00');
+
+			// 更新每日播放量
+			$enabled = config('media.enabled_statistics_video_views', false);
+			if ($enabled) {
+				$schedule->command('haxibiao:statistic:video_viewers')->dailyAt('2:30');;
+			}
+		});
+
         //安装/console模式时需要
         if ($this->app->runningInConsole()) {
-
-            if (config('cms.multi_domains')) {
-                //cms定时任务代码让普通app boot time 增加2s, console模式才需要
-                $this->app->booted(function () {
-                    $schedule = $this->app->make(Schedule::class);
-                    // 每天定时归档seo流量
-                    $schedule->command('archive:traffic')->dailyAt('1:00');
-
-                    // 自动更新站群首页资源
-                    $schedule->command('cms:update')->dailyAt('2:00');
-
-                    // 生成新的SiteMap
-                    $schedule->command('sitemap:generate')->dailyAt('3:00');
-                });
-            }
 
             // FIXME:临时添加了一个开关，兼容不migration的项目复用content能力。
             if (config('content.migration_autoload')) {
