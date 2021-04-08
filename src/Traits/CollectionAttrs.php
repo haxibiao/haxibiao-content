@@ -51,6 +51,6 @@ trait CollectionAttrs
         //FIXME: 修复collection的 count_posts
 
         //先简单返回一个集数
-        return 1;
+        return $this->count_posts;
     }
 }
