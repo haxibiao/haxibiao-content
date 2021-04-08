@@ -836,7 +836,7 @@ trait PostRepo
         $query          = Post::publish()
             ->whereBetWeen('created_at', [now()->subDay(7), now()])
             ->inRandomOrder();
-        if ($query) {
+        if ($query->count() <= 0) {
             $query = Post::publish()->inRandomOrder();
         }
         if (($user = getUser(false)) && class_exists("App\\UserBlock", true)) {
@@ -859,8 +859,8 @@ trait PostRepo
             if ($user_id) {
                 $query->where("user_id", $user_id);
             }
-            return $query;
         }
+        return $query;
     }
 
     public static function newPublicPosts($user_id, $page = 1, $count = 10)
