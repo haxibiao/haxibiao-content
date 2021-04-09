@@ -23,6 +23,11 @@ class Category extends Model
 
     const LOGO_PATH = '/images/category.logo.jpg';
 
+    // 专题的3个常用状态
+    const STATUS_TRASH  = -1;
+    const STATUS_DRAFT  = 0;
+    const STATUS_PUBLIC = 1;
+
     protected $guarded = [];
 
     protected $table = 'categories';
