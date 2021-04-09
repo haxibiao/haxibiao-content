@@ -172,10 +172,12 @@ if (!function_exists('cms_icp_info')) {
 			$copyRight  = data_get($icpInfoOfMultiDomains, 'copyright');
 			$recordCode = data_get($icpInfoOfMultiDomains, 'record_code');
 			$policeCode = data_get($icpInfoOfMultiDomains, 'police_code');
+			$policeCodeNumber = data_get($icpInfoOfMultiDomains, 'police_code_number');
 		} else {
 			$copyRight  = seo_value('备案', 'copyright');
 			$recordCode = seo_value('备案', '备案号');
 			$policeCode = seo_value('备案', '公安网备号');
+			$policeCodeNumber = seo_value('备案', '公安网备号(数字)');
 			if(!$copyRight || !$recordCode){
 				return;
 			}
@@ -183,13 +185,13 @@ if (!function_exists('cms_icp_info')) {
 		$html = [];
 		$html[] = "<div>";
 		$html[] = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\" rel=\"nofollow\">{$copyRight}</a><br>";
-		$html[] = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\"  rel=\"nofollow\">{$recordCode}<br>";
 		if ($policeCode) {
-			$html[] = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\" rel=\"nofollow\">";
+			$html[] = "<a target=\"_blank\" href=\"http://www.beian.gov.cn/portal/registerSystemInfo?recordcode={$policeCodeNumber}\" rel=\"nofollow\">";
 			$html[] = "<img src=\"http://cos.haxibiao.com/images/yyzz.png\" rel=\"nofollow\" alt=\"电子安全监督\">";
 			$html[] = "{$policeCode}";
 			$html[] = "</a><br>";
 		}
+		$html[] = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\"  rel=\"nofollow\">{$recordCode}<br>";
 		$html[] = "</div>";
 		return implode(PHP_EOL, $html);
 	}
