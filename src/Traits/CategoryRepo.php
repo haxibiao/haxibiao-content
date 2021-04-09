@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Content\Traits;
 
+use App\User;
 use Haxibiao\Content\Category;
 use Haxibiao\Helpers\utils\QcloudUtils;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,13 @@ trait CategoryRepo
         $this->url         = $this->url;
         $this->logo        = $this->logoUrl;
         $this->description = $this->description();
+    }
+
+    public function addAdminUser(User $user)
+    {
+        $this->admins()->syncWithoutDetaching([
+            $user->id => ['is_admin' => 1],
+        ]);
     }
 
     public function topAdmins()

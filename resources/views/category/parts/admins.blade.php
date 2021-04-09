@@ -1,7 +1,7 @@
 <div class="administrator distance">
 	<p class="plate-title">管理员</p>
 	<ul>
-	    @foreach($category->topAdmins() as $admin) 
+	    @foreach($category->top_admins as $admin)
 	    	<li class="author">
 				<a href="/user/{{ $admin->id }}" class="avatar">
 					<img src="{{ $admin->avatarUrl }}" alt=""></a>
@@ -9,7 +9,7 @@
 				@if($admin->isCreator)
 					<span class="extrude">创建者</span>
 				@endif
-			</li> 
+			</li>
 	    @endforeach
 	</ul>
 	@if($category->admins()->count() > 10)

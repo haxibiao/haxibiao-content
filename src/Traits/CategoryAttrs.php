@@ -96,7 +96,9 @@ trait CategoryAttrs
 
     public function getTopAdminsAttribute()
     {
-        return $this->admins()->take(9)->get();
+        $admins = $this->admins()->take(8)->get();
+        $owner  = $this->user;
+        return $admins->merge([$owner]);
     }
 
     public function getTopAuthorsAttribute()

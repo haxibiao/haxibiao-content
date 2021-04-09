@@ -160,7 +160,7 @@ class CategoryController extends Controller
      */
     public function store(CategoryRequest $request)
     {
-        $category = new Category($request->except('uids','categories'));
+        $category = new Category($request->except('uids', 'categories'));
         $category->save();
         //save logo
         $category->saveLogo($request);
@@ -177,6 +177,7 @@ class CategoryController extends Controller
         return redirect()->to('/category');
     }
 
+    //专题管理员维护
     public function saveAdmins($category, $request)
     {
         $admins = json_decode($request->uids, true);
@@ -196,10 +197,7 @@ class CategoryController extends Controller
             }
             $category->admins()->sync($data);
         }
-        //自己默认还是加成管理
-        /*$category->admins()->syncWithoutDetaching([
-    $request->user()->id => ['is_admin' => 1],
-     */
+        //创建者默认还是加成管理 ? 不需要了，$owner可以随时填充过去显示，无需冗余
     }
 
     public function name_en(Request $request, $name_en)
@@ -328,7 +326,7 @@ class CategoryController extends Controller
         if (!canEdit($category)) {
             abort(403);
         }
-        $category->update($request->except('uids','categories'));
+        $category->update($request->except('uids', 'categories'));
         //save logo
         $category->saveLogo($request);
         $category->updated_at = now();
