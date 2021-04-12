@@ -200,11 +200,11 @@ trait PostRepo
                     'video_id' => $video->id,
                 ]);
                 if (!$post->exists) {
-                    $post->content    = $body;
-                    $post->status     = Post::PUBLISH_STATUS;
-                    $post->spider_id  = $spider->id;
-                    $post->review_id  = Post::makeNewReviewId();
-                    $post->review_day = Post::makeNewReviewDay();
+                    $post->description = $body;
+                    $post->status      = Post::PUBLISH_STATUS;
+                    $post->spider_id   = $spider->id;
+                    $post->review_id   = Post::makeNewReviewId();
+                    $post->review_day  = Post::makeNewReviewDay();
                     $post->save();
                     if ('dongdianyi' != (config('app.name'))) {
                         //默认添加抖音中的标签
@@ -253,9 +253,9 @@ trait PostRepo
                         } else {
                             $post->status = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
                         }
-                        $post->content    = $body;
-                        $post->review_id  = Post::makeNewReviewId();
-                        $post->review_day = Post::makeNewReviewDay();
+                        $post->description = $body;
+                        $post->review_id   = Post::makeNewReviewId();
+                        $post->review_day  = Post::makeNewReviewDay();
                         $post->save();
                         //添加定位信息
                         if (in_array(config('app.name'), ['dongwaimao', 'jinlinle']) && !empty(data_get($inputs, 'location'))) {
@@ -284,11 +284,11 @@ trait PostRepo
                         if (!$post) {
                             $post = new static();
                         }
-                        $post->content    = $body;
-                        $post->review_id  = Post::makeNewReviewId();
-                        $post->review_day = Post::makeNewReviewDay();
-                        $post->video_id   = $video_id; //关联上视频
-                        $post->user_id    = $user->id;
+                        $post->description = $body;
+                        $post->review_id   = Post::makeNewReviewId();
+                        $post->review_day  = Post::makeNewReviewDay();
+                        $post->video_id    = $video_id; //关联上视频
+                        $post->user_id     = $user->id;
 
                         //安保联盟post进行了分类
                         if ('ablm' == (config('app.name'))) {
@@ -312,10 +312,11 @@ trait PostRepo
                     }
                 } else {
                     //带图片
-                    $post          = new static();
-                    $post->content = $body;
-                    $post->user_id = $user->id;
-                    $post->status  = Post::PUBLISH_STATUS;
+                    $post = new static();
+                    //FIXME: 修复原来content不空，description为空的，主要维护description字段 https: //pm.haxifang.com/browse/YXSP-195
+                    $post->description = $body;
+                    $post->user_id     = $user->id;
+                    $post->status      = Post::PUBLISH_STATUS;
                     $post->save();
 
                     //添加定位信息
@@ -340,10 +341,10 @@ trait PostRepo
 
             // Sync分类关系
             if ($inputs['category_ids'] ?? null) {
-                $post->categorize($inputs['category_ids']);
+                $post->addCategories($inputs['category_ids']);
             }
             if ($inputs['collection_ids'] ?? null) {
-                $post->collectivize($inputs['collection_ids']);
+                $post->addCollections($inputs['collection_ids']);
             }
             if ($inputs['community_id'] ?? null) {
                 $post->communities()->sync($inputs['community_id'], false);
@@ -561,10 +562,9 @@ trait PostRepo
         if (!isset($post->id)) {
             $post->user_id = $spider->user_id;
             if (!config('app.name') == 'yinxiangshipin') {
-                $post->content = Arr::get($spider->data, 'title', '');
+                $post->description = Arr::get($spider->data, 'title', '');
             }
             if (config('app.name') == 'datizhuanqian') {
-                $post->content     = $spider->title;
                 $post->description = $spider->title;
             }
             $post->status     = Post::PRIVARY_STATUS; //草稿，爬虫抓取中
@@ -728,9 +728,8 @@ trait PostRepo
         $tagList     = data_get($spider, 'data.raw.item_list.0.text_extra', []);
         $shareTitle  = data_get($spider, 'data.raw.item_list.0.share_info.share_title');
         $description = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音', '@DOU+小助手', '快手', '#快手创作者服务中心', ' @快手小助手', '#快看'], '', $shareTitle);
-        if (!$post->content) {
-            $post->content = trim($description);
-        }
+        //抖音元数据存spider data上了
+
         foreach ($tagList as $tag) {
             $name = $tag['hashtag_name'];
             //移除关键词

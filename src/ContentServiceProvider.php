@@ -61,34 +61,34 @@ class ContentServiceProvider extends ServiceProvider
             __DIR__ . '/../config/content.php',
             'content'
         );
-		if ($this->app->runningInConsole()) {
-			$this->commands([
-				InstallCommand::class,
-				PublishCommand::class,
-				NovelPush::class,
-				NovelSync::class,
-				ArticleClear::class,
-				RefactorCategorizable::class,
-				RefactorPost::class,
-				RefactorCollection::class,
-				StatisticVideoViewsCommand::class,
-				CrawlCollection::class,
-				FixContent::class,
-				ImportCollections::class,
-				SyncPostWithMovie::class,
-				SyncDouBanComments::class,
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                InstallCommand::class,
+                PublishCommand::class,
+                NovelPush::class,
+                NovelSync::class,
+                ArticleClear::class,
+                RefactorCategorizable::class,
+                RefactorPost::class,
+                RefactorCollection::class,
+                StatisticVideoViewsCommand::class,
+                CrawlCollection::class,
+                FixContent::class,
+                ImportCollections::class,
+                SyncPostWithMovie::class,
+                SyncDouBanComments::class,
 
-				FixTagNamesToPosts::class,
+                FixTagNamesToPosts::class,
 
-				ClearCache::class,
-				SelectCollection::class,
+                ClearCache::class,
+                SelectCollection::class,
 
-				Console\Cms\SitemapGenerate::class,
-				Console\Cms\ArchiveTraffic::class,
-				Console\Cms\SeoWorker::class,
-				Console\Cms\CmsUpdate::class,
-			]);
-		}
+                Console\Cms\SitemapGenerate::class,
+                Console\Cms\ArchiveTraffic::class,
+                Console\Cms\SeoWorker::class,
+                Console\Cms\CmsUpdate::class,
+            ]);
+        }
 
         $this->app->singleton(Cache::class, function () {
             $instance = new Cache($this->app->make('files'));
@@ -105,27 +105,29 @@ class ContentServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->bindObservers();
+
         if (!app()->configurationIsCached()) {
             $this->mergeConfigFrom(__DIR__ . '/../config/database.php', 'database.connections');
             $this->mergeConfigFrom(__DIR__ . '/../config/cms.php', 'cms');
         }
 
-		$this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
-			// 每天定时归档seo流量
-			$schedule->command('archive:traffic')->dailyAt('1:00');
+        $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
+            // 每天定时归档seo流量
+            $schedule->command('archive:traffic')->dailyAt('1:00');
 
-			// 自动更新站群首页资源
-			$schedule->command('cms:update')->dailyAt('2:00');
+            // 自动更新站群首页资源
+            $schedule->command('cms:update')->dailyAt('2:00');
 
-			// 生成新的SiteMap
-			$schedule->command('sitemap:generate')->dailyAt('3:00');
+            // 生成新的SiteMap
+            $schedule->command('sitemap:generate')->dailyAt('3:00');
 
-			// 更新每日播放量
-			$enabled = config('media.enabled_statistics_video_views', false);
-			if ($enabled) {
-				$schedule->command('haxibiao:statistic:video_viewers')->dailyAt('2:30');;
-			}
-		});
+            // 更新每日播放量
+            $enabled = config('media.enabled_statistics_video_views', false);
+            if ($enabled) {
+                $schedule->command('haxibiao:statistic:video_viewers')->dailyAt('2:30');;
+            }
+        });
 
         //安装/console模式时需要
         if ($this->app->runningInConsole()) {
@@ -174,6 +176,11 @@ class ContentServiceProvider extends ServiceProvider
             //默认返回最后一个站点
             return $modelStr::latest('id')->first();
         });
+    }
+
+    public function bindObservers()
+    {
+        \Haxibiao\Content\Collectable::observe(\Haxibiao\Content\Observers\CollectableObserver::class);
     }
 
     protected function bindPathsInContainer()

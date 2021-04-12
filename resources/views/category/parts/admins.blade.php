@@ -6,7 +6,7 @@
 				<a href="/user/{{ $admin->id }}" class="avatar">
 					<img src="{{ $admin->avatarUrl }}" alt=""></a>
 				<a href="/user/{{ $admin->id }}" class="info">{{ $admin->name }}</a>
-				@if($admin->isCreator)
+				@if($category->isCreator($admin))
 					<span class="extrude">创建者</span>
 				@endif
 			</li>

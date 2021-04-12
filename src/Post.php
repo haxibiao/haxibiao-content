@@ -167,13 +167,10 @@ class Post extends Model implements Collectionable
 
     public function replaceContentBadWord()
     {
-        $content = $this->content;
-        if (!empty($content)) {
-            $content       = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音小助手', '抖音', '@DOU+小助手', '快手', '#快手创作者服务中心', ' @快手小助手', '#快看'], '', $content);
-            $this->content = $content;
-            if (!$this->description) {
-                $this->description = $content;
-            }
+        $description = $this->description;
+        if (!empty($description)) {
+            $description       = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音小助手', '抖音', '@DOU+小助手', '快手', '#快手创作者服务中心', ' @快手小助手', '#快看'], '', $description);
+            $this->description = $description;
         }
     }
 

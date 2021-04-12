@@ -91,8 +91,10 @@ class RefactorPost extends Command
         $post->status      = $article->status;
         $post->video_id    = $article->video_id;
         $post->description = $article->description;
-        $post->content     = $article->body;
-        $post->hot         = $article->is_hot;
+        //冗余文章系统转动态之后，唯一让content text字段存数据的情况
+        //FIXME: 短视频相关阅读，这个情况冗余 article_id 字段更合理
+        $post->content = $article->body;
+        $post->hot     = $article->is_hot;
         if ($article->review_id) {
             $post->review_id  = $article->review_id;
             $post->review_day = substr($article->review_id, 0, 8);
@@ -129,7 +131,7 @@ class RefactorPost extends Command
                 'updated_at' => now(),
             ];
         }
-        $post->categorize($syncData);
+        $post->addCategories($syncData);
     }
 
     private function handleImage($article, $post)

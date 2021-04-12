@@ -212,7 +212,7 @@ class CategoryController extends Controller
         return $this->showCate($request, $category);
     }
 
-    public function showCate($request, $category)
+    public function showCate($request, Category $category)
     {
         $qb = $category->publishedWorks()
             ->with('user')->with('category');

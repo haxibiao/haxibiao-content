@@ -10,22 +10,15 @@ class CollectionTest extends TestCase
 {
     use DatabaseTransactions;
 
-    protected function setUp(): void
-    {
-    }
-
     /**
-     * 合集大全主页
+     * 访问合集主页
      * @group collection
      */
-    public function testCollectionWeb()
+    public function testCollectionPage()
     {
-        $response = $this->get("/collection");
+        $max_collection_id = Collection::max('id');
+        $response          = $this->get("/collection/" . $max_collection_id);
         $response->assertStatus(200);
     }
 
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-    }
 }

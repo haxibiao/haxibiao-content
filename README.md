@@ -110,7 +110,7 @@ _Released on 2020-09-01_
 namespace App;
 $article = Article::find(1);
 
-$article->categorize([1, 2, 3, 4, 5]);
+$article->addCategories([1, 2, 3, 4, 5]);
 
 return $article;
 ```
@@ -124,7 +124,7 @@ return $article;
 namespace App;
 $article = Article::find(1);
 
-$article->uncategorize([3, 5]);
+$article->removeCategories([3, 5]);
 
 return $article;
 ```
@@ -139,7 +139,7 @@ return $article;
 namespace App;
 $article = Article::find(1);
 
-$article->recategorize([1, 5]);
+$article->updateCategories([1, 5]);
 
 return $article;
 ```

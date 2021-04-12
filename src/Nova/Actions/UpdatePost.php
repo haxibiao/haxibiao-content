@@ -65,20 +65,20 @@ class UpdatePost extends Action
                     }
                 }
                 if ($tag) {
-                    $model->collectivize([$tag->id]);
+                    $model->addCollections([$tag->id]);
                     $tag->increment('count');
                 }
                 // if (isset($fields->tag2)) {
                 //     $tag = AppCollection::find($fields->tag2);
                 //     if ($tag) {
-                //         $model->collectivize([$tag->id]);
+                //         $model->addCollections([$tag->id]);
                 //         $tag->increment('count');
                 //     }
                 // }
                 // if (isset($fields->tag3)) {
                 //     $tag = AppCollection::find($fields->tag3);
                 //     if ($tag) {
-                //         $model->collectivize([$tag->id]);
+                //         $model->addCollections([$tag->id]);
                 //         $tag->increment('count');
                 //     }
                 // }

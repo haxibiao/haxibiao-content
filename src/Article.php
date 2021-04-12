@@ -11,6 +11,7 @@ use Haxibiao\Content\Traits\ArticleResolvers;
 use Haxibiao\Content\Traits\Contentable;
 use Haxibiao\Content\Traits\WithCms;
 use Haxibiao\Sns\Traits\WithSns;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Article extends Model implements Collectionable
@@ -59,13 +60,23 @@ class Article extends Model implements Collectionable
         return 'articles';
     }
 
-    public function issue()
+    public function movie(): BelongsTo
+    {
+        return $this->belongsTo('App\Movie');
+    }
+
+    public function video(): BelongsTo
+    {
+        return $this->belongsTo('App\Video');
+    }
+
+    public function issue(): BelongsTo
     {
         return $this->belongsTo('App\Issue');
     }
 
     //relations
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo('App\User');
     }

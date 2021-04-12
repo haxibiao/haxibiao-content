@@ -131,13 +131,12 @@ class SyncPostWithMovie extends Command
                             'video_id' => $video->id,
                         ], [
                             'user_id'     => $user_id,
-                            'content'     => $sourcePost->content,
                             'description' => $sourcePost->description,
                             'review_id'   => $review_id,
                             'review_day'  => $review_day,
                             'status'      => Post::PUBLISH_STATUS,
                         ]);
-                        $this->info("保存post->id:" . $post->id . ' ' . $post->content . '成功');
+                        $this->info("保存post->id:" . $post->id . ' ' . $post->description . '成功');
 
                         //关联post with movie
                         $post->update(["movie_id" => $movie->id]);

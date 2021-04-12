@@ -76,7 +76,7 @@ class ArticleController extends Controller
 
     public function store(ArticleRequest $request)
     {
-    	// 校验
+        // 校验
         $user = $request->user();
         if ($slug = $request->slug) {
             $validator = Validator::make(
@@ -94,26 +94,25 @@ class ArticleController extends Controller
         $article = new Article($request->all());
 
         // description
-		$description = $request->input('description');
-		if(!$description){
-			$description = str_purify($request->input('body'));
-			$description = Str::limit($description, 100);
-		}
-		$article->description 	= $description;
+        $description = $request->input('description');
+        if (!$description) {
+            $description = str_purify($request->input('body'));
+            $description = Str::limit($description, 100);
+        }
+        $article->description = $description;
         $article->save();
 
-		$article->saveRelatedImagesFromBody();
+        $article->saveRelatedImagesFromBody();
 
-		// cover
-		$article->cover_path =  data_get($article,'images.0.url');
-		$article->save();
+        // cover
+        $article->cover_path = data_get($article, 'images.0.url');
+        $article->save();
 
         //categories
         $article->saveCategories(request('categories'));
 
         //tags
         $this->save_article_tags($article);
-
 
         return redirect()->to('/article/' . $article->id);
     }
@@ -136,11 +135,6 @@ class ArticleController extends Controller
             is_numeric($id) ? $query->whereId($id) : $query->whereSlug($id);
         })->firstOrFail();
         $article->load(['user.profile']);
-
-        //type is video redirect
-        if ($article->video_id) {
-            return redirect('/video/' . $article->video_id);
-        }
 
         //SEO站群暂时不care草稿状态内容 ?
         // if (!config('cms.multi_domains'))
@@ -228,20 +222,20 @@ class ArticleController extends Controller
         $article->source_url  = null; //手动编辑过的文章，都不再是爬虫文章
         $article->save();
 
-		// description
-		$description = $request->input('description');
-		if(!$description || data_get($article,'cover_path',null)){
-			$description = str_purify($request->input('body'));
-			$description = Str::limit($description, 100);
-		}
-		$article->description 	= $description;
-		$article->save();
+        // description
+        $description = $request->input('description');
+        if (!$description || data_get($article, 'cover_path', null)) {
+            $description = str_purify($request->input('body'));
+            $description = Str::limit($description, 100);
+        }
+        $article->description = $description;
+        $article->save();
 
-		$article->saveRelatedImagesFromBody();
+        $article->saveRelatedImagesFromBody();
 
-		// cover
-		$article->cover_path =  data_get($article,'images.0.url');
-		$article->save();
+        // cover
+        $article->cover_path = data_get($article, 'images.0.url');
+        $article->save();
 
         //改变动态
         $article->changeAction();

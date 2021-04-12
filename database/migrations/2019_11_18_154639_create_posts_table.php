@@ -24,8 +24,10 @@ class CreatePostsTable extends Migration
             $table->unsignedInteger('video_id')->nullable()->index()->comment('视频ID');
             $table->integer('spider_id')->index()->nullable()->comment('动态的爬虫id');
 
-            $table->string('description')->nullable()->comment('描述');
-            $table->text('content')->nullable()->comment('内容');
+            $table->string('description')->nullable()->comment('动态配文，主要使用场景');
+
+            //FIXME: 这个字段最后是全面淘汰的，APP答赚，印象视频已确定冗余，文章系统转动态的，可以重构 article_id字段，最后这个字段全nullable
+            $table->text('content')->nullable()->comment('兼容文章转动态过来的正文');
 
             $table->tinyInteger('status')->default(0)->comment('状态');
 

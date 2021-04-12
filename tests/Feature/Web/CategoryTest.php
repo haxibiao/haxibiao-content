@@ -10,22 +10,24 @@ class CategoryTest extends TestCase
 {
     use DatabaseTransactions;
 
-    protected function setUp(): void
-    {
-    }
-
     /**
      * 专题大全页
      * @group category
      */
-    public function testCategoryWeb()
+    public function testCategoryIndex()
     {
         $response = $this->get("/category");
         $response->assertStatus(200);
     }
 
-    protected function tearDown(): void
+    /**
+     * 专题页
+     * @group category
+     */
+    public function testCategoryPage()
     {
-        parent::tearDown();
+        $response = $this->get("/category/" . Category::max('id'));
+        $response->assertStatus(200);
     }
+
 }

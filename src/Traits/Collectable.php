@@ -14,7 +14,7 @@ trait Collectable
     {
         static::deleting(function ($model) {
             $collectionIds = $model->collections()->get()->pluck('id');
-            $model->uncollectivize($collectionIds);
+            $model->dropCollections($collectionIds);
         });
     }
 
@@ -54,7 +54,7 @@ trait Collectable
     /**
      * 内容增加到几个合集
      */
-    public function collectivize($collection_ids)
+    public function addCollections($collection_ids)
     {
         $syncData    = [];
         $collections = Collection::byCollectionIds($collection_ids)->get();
@@ -75,7 +75,7 @@ trait Collectable
     /**
      * 内容强制刷新为当前几个合集，丢掉以前的合集关联
      */
-    public function recollectivize($collection_ids = [])
+    public function updateCollections($collection_ids = [])
     {
         $syncData    = [];
         $collections = Collection::byCollectionIds($collection_ids)->get();
@@ -93,7 +93,7 @@ trait Collectable
         return $this;
     }
 
-    public function uncollectivize($collections)
+    public function dropCollections($collections)
     {
         $this->collections()->detach($collections);
         $collections = Collection::byCollectionIds($collections)->get();

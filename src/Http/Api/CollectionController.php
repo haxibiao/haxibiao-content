@@ -15,7 +15,7 @@ class CollectionController extends Controller
         $user = $request->user();
         //限制最多加载最近的100个合集
         $collections = $user->hasCollections()
-			->whereType(\App\Collection::TYPE_OF_ARTICLE)
+            ->whereType(\App\Collection::TYPE_OF_ARTICLE)
             ->where('status', '>=', 0)
             ->latest('id')
             ->take(100)
@@ -47,7 +47,7 @@ class CollectionController extends Controller
     {
         $collection          = new Collection($request->all());
         $collection->user_id = $request->user()->id;
-        $collection->type 	 = \App\Collection::TYPE_OF_ARTICLE;
+        $collection->type    = \App\Collection::TYPE_OF_ARTICLE;
         $collection->save();
         $collection->load('articles');
         return $collection;
@@ -82,7 +82,7 @@ class CollectionController extends Controller
         $article->timestamps    = false;
         $article->save();
 
-		$article->collectivize(Arr::wrap($id));
+        $article->addCollections(Arr::wrap($id));
 
         return $article;
     }
@@ -94,7 +94,7 @@ class CollectionController extends Controller
         $article->collection_id = $id;
         $article->save();
 
-		$article->recollectivize(Arr::wrap($id));
+        $article->updateCollections(Arr::wrap($id));
 
         return $article;
     }

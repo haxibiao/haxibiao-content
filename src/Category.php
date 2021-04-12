@@ -59,10 +59,8 @@ class Category extends Model
 
     public function authors()
     {
-        return $this->belongsToMany('App\User')
-            ->withTimestamps()->withPivot('count_approved')
-            ->wherePivot('count_approved', '>', 0)
-            ->orderBy('pivot_count_approved', 'desc');
+        //投稿了发生了关联，就算专题的编辑用户
+        return $this->users();
     }
 
     public function videoArticles()

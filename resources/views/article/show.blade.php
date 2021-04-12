@@ -26,6 +26,13 @@
                 <div class="show-content">
                     <p>@include('article.parts.body')</p>
 
+                    {{-- 视频播放 --}}
+                    @if($video = $article->video)
+                     <div class="h5-player">
+                        <dplayer style="height: 500px;" source="{{ $video->url }}" />
+                    </div>
+                    @endif
+
                     {{-- 动态的图片 --}}
                     @if ($article->type == 'post')
                         @foreach ($article->images as $image)

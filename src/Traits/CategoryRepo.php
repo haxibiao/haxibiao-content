@@ -16,19 +16,34 @@ trait CategoryRepo
         $this->description = $this->description();
     }
 
-    public function addAdminUser(User $user)
+    /**
+     * 添加专题管理员
+     */
+    public function addAdmin(User $user)
     {
         $this->admins()->syncWithoutDetaching([
             $user->id => ['is_admin' => 1],
         ]);
     }
 
+    /**
+     * 添加专题编辑作者
+     */
+    public function addAuthor(User $user)
+    {
+        $this->authors()->syncWithoutDetaching([
+            $user->id,
+        ]);
+    }
+
+    public function isCreator($admin)
+    {
+        return $admin->id == $this->user_id;
+    }
+
     public function topAdmins()
     {
         $topAdmins = $this->admins()->orderBy('id', 'desc')->take(10)->get();
-        foreach ($topAdmins as $admin) {
-            $admin->isCreator = $admin->id == $this->user_id;
-        }
         return $topAdmins;
     }
 

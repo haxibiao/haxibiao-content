@@ -68,8 +68,8 @@ trait Categorizable
     public function allCategories()
     {
         return $this->morphToMany(Category::class, 'categorizable');
-            // ->withPivot(['id', 'submit'])
-            // ->withTimestamps();
+        // ->withPivot(['id', 'submit'])
+        // ->withTimestamps();
     }
 
     //FIXME: 冗余categories()
@@ -85,24 +85,46 @@ trait Categorizable
             ->withTimestamps();
     }
 
-    public function categorize($categories)
+    /**
+     * 加入专题(可重)
+     */
+    public function addCategories($cate_ids = [])
     {
-        $this->categories()->sync($categories, false);
-
+        $cate_data = [];
+        foreach ($cate_ids as $cate_id) {
+            $cate_data = [
+                $cate_id => [
+                    'submit' => '已收录',
+                ],
+            ];
+        }
+        $this->categories()->sync($cate_data, false);
         return $this;
     }
 
-    public function recategorize($categories = [])
+    /**
+     * 更新专题(排重)
+     */
+    public function updateCategories($cate_ids = [])
     {
-        $this->categories()->sync($categories);
-
+        $cate_data = [];
+        foreach ($cate_ids as $cate_id) {
+            $cate_data = [
+                $cate_id => [
+                    'submit' => '已收录',
+                ],
+            ];
+        }
+        $this->categories()->sync($cate_data);
         return $this;
     }
 
-    public function uncategorize($categories)
+    /**
+     * 脱离专题
+     */
+    public function removeCategories($cate_ids)
     {
-        $this->categories()->detach($categories);
-
+        $this->categories()->detach($cate_ids);
         return $this;
     }
 

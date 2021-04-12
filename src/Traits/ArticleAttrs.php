@@ -57,9 +57,9 @@ trait ArticleAttrs
     public function getUrlAttribute()
     {
         $path = '/%s/%d';
-        if ($this->type == 'video') {
-            return sprintf($path, $this->type, $this->video_id);
-        }
+        // if ($this->type == 'video') {
+        //     return sprintf($path, $this->type, $this->video_id);
+        // }
         $path = sprintf($path, 'article', $this->id);
         return seo_url($path);
     }
@@ -108,26 +108,35 @@ trait ArticleAttrs
     //兼容大部分文章系统的封面URL逻辑，特殊情况的APP层覆盖本方法
     public function getCoverAttribute()
     {
-        $cover_url = $this->cover_path;
+        $cover_path = $this->cover_path;
 
-        if(strpos($cover_url,'https') !== false){
-            return $cover_url;
+        if (strpos($cover_path, 'https') !== false) {
+            return $cover_path;
         }
-         if(strpos($cover_url,'http') !== false){
-            return str_replace('http', 'https', $cover_url);
+        //避免旧http cdn url 的混合内容问题
+        if (strpos($cover_path, 'http') !== false) {
+            return str_replace('http', 'https', $cover_path);
         }
 
         //为空返回默认图片
-        if (empty($cover_url)) {
+        if (empty($cover_path)) {
             if ($this->type == 'article') {
-                //返回null兼容has_image 等旧文章系统attrs的判断
+                //FIXME: 返回null兼容has_image 等旧文章系统attrs的判断，重构清理has_image代码后删除
                 return null;
+            }
+            if ($this->movie) {
+                //电影剪辑
+                return $this->movie->cover;
+            }
+            if ($this->video) {
+                //短视频动态
+                return $this->video->cover;
             }
             return url("/images/cover.png");
         }
 
         //文章的图片都应该已存cos,没有的修复文件+数据, 强制返回cdn全https url，兼容多端
-        $cover_path = parse_url($cover_url, PHP_URL_PATH);
+        $cover_path = parse_url($cover_path, PHP_URL_PATH);
         return cdnurl($cover_path);
     }
 
