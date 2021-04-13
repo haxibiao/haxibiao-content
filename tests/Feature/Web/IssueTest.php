@@ -51,7 +51,7 @@ class IssueTest extends TestCase
      */
     public function testIssueIndex()
     {
-        $response = $this->get("/question");
+        $response = $this->get("/issue");
         $response->assertStatus(200);
     }
 
@@ -59,14 +59,14 @@ class IssueTest extends TestCase
      * @group webIssue
      * @group testIssueStore
      */
-    protected function testIssueStore()
+    public function testIssueStore()
     {
         $issue             = new \App\Issue;
         $issue->user_id    = 1;
         $issue->title      = "测试";
         $issue->background = "测试";
         $data              = $issue->toArray();
-        $response          = $this->post("/question", $data
+        $response          = $this->post("/issue", $data
             , ['api_token' => $this->user->api_token]);
         $response->assertStatus(302);
     }
@@ -77,7 +77,7 @@ class IssueTest extends TestCase
      */
     public function testIssueShow()
     {
-        $response = $this->get("/question/{$this->issue->id}");
+        $response = $this->get("/issue/{$this->issue->id}");
         $response->assertStatus(200);
     }
 
@@ -85,9 +85,9 @@ class IssueTest extends TestCase
      * @group webIssue
      * @group testIssueDestroy
      */
-    protected function testIssueDestroy()
+    public function testIssueDestroy()
     {
-        $response = $this->delete("/question/{$this->issue->id}");
+        $response = $this->delete("/issue/{$this->issue->id}");
         $response->assertStatus(302);
     }
 
