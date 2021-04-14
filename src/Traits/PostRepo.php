@@ -816,7 +816,7 @@ trait PostRepo
         $post = Post::find($id);
         throw_if(is_null($post), GQLException::class, '该动态不存在哦~,请稍后再试');
 
-        $shareMag = config('haxibiao-content.share_config.share_msg', '#%s/share/post/%d#, #%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,');
+        $shareMag = config('haxibiao-content.share_config.share_msg', '%s/share/post/%d#, #%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,');
         if (checkUser() && class_exists("App\\Helpers\\Redis\\RedisSharedCounter", true)) {
             $user = getUser();
             \App\Helpers\Redis\RedisSharedCounter::updateCounter($user->id);
