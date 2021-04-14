@@ -865,8 +865,8 @@ trait PostRepo
     public static function newPublicPosts($user_id, $page = 1, $count = 10)
     {
         $total = $page * $count;
-        // 先刷快手的视频
-        $query = \App\Post::whereIn('spider_id', function ($query) {
+        // 先刷快手的视频,快手一周内的视频（避免出现展示的都是几个月前的动态
+        $query = \App\Post::where('created_at', '>', now()->subDay(7))->whereIn('spider_id', function ($query) {
             $query->select('id')->from('spiders')->where('spiders.source_url', 'like', 'https://v.kuaishou.com/%');
         })->publish();
         if ($query->count() < $total) {
