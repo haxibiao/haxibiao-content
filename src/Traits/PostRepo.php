@@ -855,9 +855,7 @@ trait PostRepo
             if ($articleBlockId) {
                 $query->whereNotIn('id', $articleBlockId);
             }
-            if ($user_id) {
-                $query->where("user_id", $user_id);
-            }
+        
         }
         return $query;
     }
