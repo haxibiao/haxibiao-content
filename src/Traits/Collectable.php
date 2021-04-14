@@ -106,6 +106,9 @@ trait Collectable
 
     public function getCurrentEpisodeAttribute()
     {
-        return $this->pivot->sort_rank;
+        if ($this->pivot) {
+            return $this->pivot->sort_rank;
+        }
+        return 1;
     }
 }
