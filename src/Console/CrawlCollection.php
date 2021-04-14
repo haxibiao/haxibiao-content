@@ -173,6 +173,10 @@ class CrawlCollection extends Command
             //将视频归入合集中
             $collection = $collections[$mixId];
             $collection->posts()->sync($postIds);
+            //冗余一下collection_id
+            $collection->posts()->each(function ($item, $key)use($collection) {
+                $item->update(['collection_id' => $collection->id]);
+            });
 
             $collection->updateCountPosts();
             info($collection->name . "爬取完毕");
