@@ -19,7 +19,7 @@ if (!function_exists('content_path')) {
  */
 function indexTopMovies($top = 4)
 {
-    return Movie::latest('id')->take($top)->get();
+    return Movie::latest('updated_at')->take($top)->get();
 }
 
 /**
@@ -28,7 +28,7 @@ function indexTopMovies($top = 4)
 function indexTopVideos($top = 4)
 {
     return Post::has('video')
-        ->where('status', '>', 0)
+        ->publish()
         ->latest('updated_at')
         ->take($top)
         ->get();
