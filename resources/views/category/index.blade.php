@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title')专题首页 - {{ seo_site_name() }} @endsection
+@section('title')专题首页 -  @endsection
 
 @section('content')
     <div id="categories">

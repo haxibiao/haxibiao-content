@@ -48,9 +48,11 @@ class CollectionController extends Controller
     public function show($id)
     {
         $collection       = \App\Collection::with(['user', 'followables'])->findOrFail($id);
-        $data['posts']    = $collection->posts()->orderBy('id', 'desc')->paginate(10);
-        $data['articles'] = $collection->hasManyArticles()->orderBy('id', 'desc')->paginate(10);
-        return view('collection.show')->withCollection($collection)->withData($data);
+        $data['posts']    = $collection->posts()->latest('id')->paginate(10);
+        $data['articles'] = $collection->publishedArticles()->latest('id')->paginate(10);
+        return view('collection.show')
+            ->with('collection', $collection)
+            ->with('data', $data);
     }
 
     /**

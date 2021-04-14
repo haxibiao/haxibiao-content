@@ -34,8 +34,8 @@ class Collection extends Model
     /* 置顶集合 */
     const TOP_COLLECTION = 1;
 
-    const TYPE_OF_ARTICLE = 'articles';// 文集
-    const TYPE_OF_POST    = 'posts';  // 视频合集
+    const TYPE_OF_ARTICLE = 'articles'; // 文集
+    const TYPE_OF_POST    = 'posts'; // 视频合集
 
     //置顶合集图片
     public static function TOP_COVER()
@@ -112,12 +112,12 @@ class Collection extends Model
 
     public function hasManyArticles()
     {
-        return $this->articles()->where('status', '>=', '0');
+        return $this->hasMany(\App\Article::class);
     }
 
     public function publishedArticles()
     {
-        return $this->articles()->where('status', '>=', '0');
+        return $this->hasManyArticles()->where('status', '>', '0');
     }
 
     public function scopeByCollectionIds($query, $collectionIds)

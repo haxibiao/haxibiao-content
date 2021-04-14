@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title') {{ $category->name }} - {{ seo_site_name() }} @endsection
+@section('title') {{ $category->name }} @endsection
 @section('keywords') {{ $category->name }} @endsection
 @section('description') {{ $category->description ? $category->description : get_seo_description() }} @endsection
 

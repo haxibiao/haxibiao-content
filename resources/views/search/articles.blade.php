@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title') 搜索 - {{ seo_site_name() }}  @endsection
+@section('title') 搜索 -  @endsection
 
 @section('content')
 	<div id="search-content" class="articles">
@@ -60,13 +60,13 @@
 							<a href="/search/movies{{ request('q') ? '?q='.request('q') : '' }}" class="all right">查看全部<i class="iconfont icon-youbian"></i></a>
 						</div>
 						<div class="container-fluid list">
-							<div class="row">
+							<div class="">
 								@foreach($data['movies'] as $movie)
-								<div class="col-sm-4 col-xs-12">
-									<div class="user-info user-sm">
-										<div class="avatar">
+								<div class="note-list">
+									<div class="note-info">
+										<a href="/movie/{{ $movie->id }}" class="avatar-category">
 											<img src="{{ $movie->cover }}" alt="">
-										</div>
+										</a>
 										<div class="title">
 											<a href="/movie/{{ $movie->id }}" class="name">{{ $movie->name }}</a>
 										</div>

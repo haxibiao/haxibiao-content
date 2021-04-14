@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title') {{ $article->subject }} -{{ seo_site_name() }} @endsection
+@section('title') {{ $article->subject }} -  @endsection
 @section('keywords') {{ $article->keywords }} @endsection
 @section('description') {{ $article->summary }} @endsection
 
@@ -73,8 +73,14 @@
                     @include('article.parts.supporters')
                 </div>
 
+
+                {{-- 来自影片 --}}
+                @if($article->movie)
+                    @include('video.parts.movie_item', ['movie'=>$article->movie])
+                @endif
+
                 {{-- 喜欢和分享 --}}
-                <div class="mate-bottom">
+                <div class="mate-bottom clear">
                     <like id="{{ $article->id }}" type="article" is-login="{{ Auth::check() }}"></like>
 
                     <div class="share-circle">

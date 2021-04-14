@@ -7,7 +7,6 @@ use App\Category;
 use App\Post;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Collection;
 
 class PostController extends Controller
 {
@@ -126,7 +125,8 @@ class PostController extends Controller
             return redirect()->to($article->url);
         }
 
-        $post                 = Post::with('video')->findOrFail($id);
+        $post = Post::has('video')->with('collection')->findOrFail($id);
+        // dd($post->collection);
         $data['related_page'] = request()->get('related_page') ?? 0;
 
         //暂时用video.show兼容视频动态

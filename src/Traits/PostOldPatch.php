@@ -59,11 +59,6 @@ trait PostOldPatch
 
     }
 
-    public function getCollectionAttribute()
-    {
-
-    }
-
     public function getCategoryAttribute()
     {
         return $this->categories()->first();

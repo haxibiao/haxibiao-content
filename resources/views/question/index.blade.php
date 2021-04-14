@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title')问答 - {{ seo_site_name() }} @stop
+@section('title')问答 -  @stop
 @section('description') {{ get_seo_description() }} @stop
 @section('keywords') {{ get_seo_keywords() }} @stop
 

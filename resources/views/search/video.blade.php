@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title') 搜索 - {{ seo_site_name() }}  @endsection
+@section('title') 搜索 -  @endsection
 
 @section('content')
 	<div id="search-content" class="articles">

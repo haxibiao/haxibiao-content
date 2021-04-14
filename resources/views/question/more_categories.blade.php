@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    热门问答分类 - {{ seo_site_name() }}
+    热门问答分类 -
 @stop
 @section('content')
     <div class="recommend-content">
