@@ -22,9 +22,9 @@ type Collection {
     合集类型
     """
     type: String
-    count_articles: Int
-    count_follows: Int
-    count_posts: Int
+    count_articles: Int!
+    count_follows: Int!
+    count_posts: Int!
     followed: Int
     user: User!
     """
