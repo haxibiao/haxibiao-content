@@ -17,8 +17,8 @@ return [
 
     // 分享模版
     'share_config'            => [
-        'share_msg'            => '%s/share/post/%d#, #%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,',
-        'share_collection_msg' => '%s/share/collection/%d#, #%s#,打开【%s】,直接观看视频合集,玩视频就能赚钱~,',
+        'share_msg'            => '%s/share/post/%d?s= #%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,',
+        'share_collection_msg' => '%s/share/collection/%d?s= #%s#,打开【%s】,直接观看视频合集,玩视频就能赚钱~,',
     ],
 
     // 动态是否开启马甲号分发
