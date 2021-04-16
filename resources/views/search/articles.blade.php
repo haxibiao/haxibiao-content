@@ -19,7 +19,7 @@
 								<div class="col-sm-4 col-xs-12">
 									<div class="user-info user-sm">
 										<div class="avatar">
-											<img src="{{ $user->avatarUrl }}" alt="">
+											<img src="{{ $user->avatar }}" alt="">
 										</div>
 										<div class="title">
 											<a href="/user/{{ $user->id }}" class="name">{{ $user->name }}</a>
@@ -100,7 +100,7 @@
 						  <div class="content">
 						    <div class="author">
 						      <a class="avatar"   href="/user/{{ $article->user_id }}">
-						        <img src="{{ $article->user->avatarUrl }}" alt="">
+						        <img src="{{ $article->user->avatar }}" alt="">
 						      </a>
 						      <div class="info">
 						        <a class="nickname"   href="/user/{{ $article->user_id }}">{{ $article->user->name }}</a>
