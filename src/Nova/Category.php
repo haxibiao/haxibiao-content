@@ -4,6 +4,7 @@ namespace Haxibiao\Content\Nova;
 
 use App\Category as AppCategory;
 use App\Nova\Resource;
+use Haxibiao\Breeze\Nova\Metrics\CategoryCount;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\HasMany;
@@ -43,7 +44,7 @@ class Category extends Resource
                 1 => '上架',
                 0 => '隐藏',
             ])->displayUsingLabels(),
-            BelongsTo::make('作者', 'user', User::class),
+            BelongsTo::make('作者', 'user', \App\Nova\User::class),
             HasMany::make('文章', 'hasManyArticles', Article::class),
             Text::make('视频数量', function () {
                 return $this->containedVideoPosts()->count();
