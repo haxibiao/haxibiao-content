@@ -34,7 +34,7 @@ class Article extends Resource
             ID::make()->sortable(),
             Textarea::make('标题', 'title')->rules('required')->hideFromIndex(),
             BelongsTo::make('作者', 'user', 'App\Nova\User')->exceptOnForms(),
-            BelongsTo::make('视频', 'video', Video::class)->exceptOnForms(),
+            // BelongsTo::make('视频', 'video', Video::class)->exceptOnForms(),
             Text::make('描述', 'description')->exceptOnForms(),
             Text::make('热度', 'hits')->exceptOnForms(),
             Text::make('点赞', 'count_likes')->exceptOnForms(),
@@ -45,12 +45,12 @@ class Article extends Resource
                 -1 => '下架',
             ])->displayUsingLabels(),
 
-            Text::make('视频', function () {
-                if ($this->video) {
-                    return "<div style='width:150px; overflow:hidden;'><video controls style='widht:150px; height:300px' src='" . $this->video->url . "?t=" . time() . "'></video></div>";
-                }
-                return '';
-            })->asHtml(),
+            // Text::make('视频', function () {
+            //     if ($this->video) {
+            //         return "<div style='width:150px; overflow:hidden;'><video controls style='widht:150px; height:300px' src='" . $this->video->url . "?t=" . time() . "'></video></div>";
+            //     }
+            //     return '';
+            // })->asHtml(),
         ];
     }
 

@@ -79,22 +79,22 @@ class SiteArticle extends Resource
                 return time_ago($this->created_at);
             })->onlyOnIndex(),
             // Number::make('总评论数', 'count_comments')->exceptOnForms()->sortable(),
-            File::make('上传视频', 'video_id')->onlyOnForms()->store(
-                function (Request $request, $model) {
-                    $file      = $request->file('video_id');
-                    $validator = Validator::make($request->all(), [
-                        'video' => 'mimetypes:video/avi,video/mp4,video/mpeg,video/quicktime',
-                    ]);
-                    if ($validator->fails()) {
-                        return '视频格式有问题';
-                    }
-                    return $model->saveVideoFile($file);
-                }
-            ),
+            // File::make('上传视频', 'video_id')->onlyOnForms()->store(
+            //     function (Request $request, $model) {
+            //         $file      = $request->file('video_id');
+            //         $validator = Validator::make($request->all(), [
+            //             'video' => 'mimetypes:video/avi,video/mp4,video/mpeg,video/quicktime',
+            //         ]);
+            //         if ($validator->fails()) {
+            //             return '视频格式有问题';
+            //         }
+            //         return $model->saveVideoFile($file);
+            //     }
+            // ),
 
-            ArrayImages::make('图片', function () {
-                return $this->screenshots;
-            }),
+            // ArrayImages::make('图片', function () {
+            //     return $this->screenshots;
+            // }),
             Text::make('百度提交', 'baidu_pushed_at'),
             Text::make('备注', 'remark')->onlyOnDetail(),
         ];
