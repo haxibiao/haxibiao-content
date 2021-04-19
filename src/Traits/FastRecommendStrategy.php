@@ -28,7 +28,6 @@ trait FastRecommendStrategy
         $posts = collect([]);
         //登录用户
         $user = getUser();
-
         //基础推荐数据 - 全部有视频的动态
         if (is_null($query)) {
             $query = Post::has('video')->with(['video', 'user.profile'])->publish();
@@ -61,7 +60,6 @@ trait FastRecommendStrategy
         //2.找出指针：最新，随机 每个用户的推荐视频推荐表，就是日刷指针记录表，找到最近未刷完的指针（指针含日期和review_id）
         $reviewId  = Post::getNextReviewId($postRecommend->day_review_ids, $maxReviewIdInDays);
         $reviewDay = substr($reviewId, 0, 8);
-
         //视频刷光了,随机返回4个
         if (is_null($reviewId)) {
             // 优先编辑的精品
@@ -78,6 +76,10 @@ trait FastRecommendStrategy
         $qb = $qb->where('review_day', $reviewDay)
             ->where('review_id', '>', $reviewId)
             ->orderBy('review_id');
+
+        if($qb){
+            $qb = $qb->where('status',Post::PUBLISH_STATUS)->whereNotNull('video_id')->inRandomOrder();
+        }
 
         //获取数据
         $posts = $qb->get();
