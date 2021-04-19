@@ -77,10 +77,6 @@ trait FastRecommendStrategy
             ->where('review_id', '>', $reviewId)
             ->orderBy('review_id');
 
-        if($qb){
-            $qb = $qb->where('status',Post::PUBLISH_STATUS)->whereNotNull('video_id')->inRandomOrder();
-        }
-
         //获取数据
         $posts = $qb->get();
 
