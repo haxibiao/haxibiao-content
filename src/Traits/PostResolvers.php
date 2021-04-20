@@ -177,29 +177,30 @@ trait PostResolvers
 
         $posts = collect([]);
 
+        $qb = Post::has('video');
         //1.优先来1个有电影的
-        $qb = Post::where('movie_id', '>', 0);
+        $qb = (clone $qb)->where('movie_id', '>', 0);
         if (!$qb->exists()) {
             $movie_posts = Post::getRecommendPosts(1, $qb->with('movie'), '电影剪辑');
             $posts       = $posts->merge($movie_posts);
         }
 
         //2.再填充1个有合集的
-        $qb = Post::where('collection_id', '>', 0);
+        $qb = (clone $qb)->where('collection_id', '>', 0);
         if ($qb->exists()) {
             $collection_posts = Post::getRecommendPosts(1, $qb->with('collection'), '视频合集');
             $posts            = $posts->merge($collection_posts);
         }
 
         //3. 再填充1个有题目的
-        $qb = Post::where('question_id', '>', 0);
+        $qb = (clone $qb)->where('question_id', '>', 0);
         if ($qb->exists()) {
             $question_posts = Post::getRecommendPosts(1, $qb->with('question'), '视频答题');
             $posts          = $posts->merge($question_posts);
         }
 
         //4. 最后补充普通的动态 = 也许有美女，不过影视剪辑更多..
-        $qb = Post::query()->with('movie');
+        $qb = (clone $qb)->query()->with('movie');
         if ($qb->exists()) {
             $latest_take  = $limit - $posts->count();
             $latest_posts = Post::getRecommendPosts($latest_take, $qb);
