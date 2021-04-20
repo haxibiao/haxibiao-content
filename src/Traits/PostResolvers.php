@@ -200,7 +200,7 @@ trait PostResolvers
         }
 
         //4. 最后补充普通的动态 = 也许有美女，不过影视剪辑更多..
-        $qb = (clone $query)->query()->with('movie');
+        $qb = (clone $query)->with('movie');
         if ($qb->exists()) {
             $latest_take  = $limit - $posts->count();
             $latest_posts = Post::getRecommendPosts($latest_take, $qb);
