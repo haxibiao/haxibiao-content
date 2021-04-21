@@ -19,14 +19,6 @@ class ArticleController extends Controller
         $this->middleware('auth')->except('show', 'shareVideo');
     }
 
-    /**
-     * 创作编辑器
-     */
-    public function write()
-    {
-        return view('write');
-    }
-
     public function storePost(Request $request)
     {
         $article = new Article();
