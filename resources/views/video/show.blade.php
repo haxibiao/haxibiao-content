@@ -1,6 +1,12 @@
 @php
 $post = $video->post;
-$collection = $post->collection;
+if(!$post){
+    $post = $video->article;
+    $collection = null;
+}else{
+    $collection = $post->collection;
+}
+
 @endphp
 
 {{-- 短视频动态时代的，关联动态+合集为主 --}}
