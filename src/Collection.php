@@ -8,6 +8,7 @@ use Haxibiao\Breeze\Traits\HasFactory;
 use Haxibiao\Content\Traits\CollectionAttrs;
 use Haxibiao\Content\Traits\CollectionResolvers;
 use Haxibiao\Helpers\Traits\Searchable;
+use Haxibiao\Media\Image;
 use Haxibiao\Sns\Traits\Followable;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -213,34 +214,22 @@ class Collection extends Model
         if (config('app.env') == 'testing') {
             return;
         }
-        return cdnurl(Collection::TOP_COVER());
-        // $update_time = Storage::lastModified(Collection::TOP_COVER());
-        // // $update_time = Storage::cloud()->lastModified(Collection::TOP_COVER());
-        // $interval    = ceil((time() - $update_time));
-
-        // //如果今天更新过，则拷贝一份新的更新名字
-        // $newCover = 'storage/collection/new_top_cover.png';
-        // if ($interval <= 1000) {
-        //     Storage::cloud()->copy(Collection::TOP_COVER(), $newCover);
-        //     return cdnurl($newCover);
-        // }
-        // //如果在规定时间内没有访问更新后的图片，更新缓存
-        // if (mt_rand(1, 100) > 50) {
-        //     return cdnurl($newCover);
-        // } else {
-        //     return cdnurl(Collection::TOP_COVER());
-        // }
+        $topCover = Image::where('title', Collection::TOP_COVER())
+            ->latest('id')
+            ->first();
+        return isset($topCover) ? cdnurl($topCover->path) : cdnurl(Collection::TOP_COVER());
     }
 
     public static function setTopCover($file)
     {
+        //将置顶合集图片存到images表中，通过title了标识
         if ($file) {
-            //UploadedFile
-            $cover       = Collection::TOP_COVER();
-            $imageStream = file_get_contents($file->getRealPath());
-            return Storage::cloud()->put($cover, $imageStream);
+            $image        = Image::saveImage($file);
+            $image->title = Collection::TOP_COVER();
+            $image->save();
+            return cdnurl($image->path);
         }
-        return cdnurl(Collection::TOP_COVER());
+        return Collection::getTopCover();
     }
 
     /**
