@@ -2,9 +2,7 @@
 
 namespace Haxibiao\Content\Nova;
 
-use App\Category as AppCategory;
 use App\Nova\Resource;
-use Haxibiao\Breeze\Nova\Metrics\CategoryCount;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\HasMany;
@@ -64,11 +62,11 @@ class Category extends Resource
     public function cards(Request $request)
     {
         return [
-            (new \Hxb\CategoryCount\CategoryCount)
-                ->withName("分类下的视频数量前十个统计")
-                ->withLegend("视频数量")
-                ->withColor("#FF00FF")
-                ->withData(AppCategory::getTopCategory(10)),
+            // (new \Hxb\CategoryCount\CategoryCount)
+            //     ->withName("分类下的视频数量前十个统计")
+            //     ->withLegend("视频数量")
+            //     ->withColor("#FF00FF")
+            //     ->withData(AppCategory::getTopCategory(10)),
         ];
     }
 
