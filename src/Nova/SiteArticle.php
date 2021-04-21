@@ -36,7 +36,7 @@ class SiteArticle extends Resource
     //过滤草稿状态的
     public static function indexQuery(NovaRequest $request, $query)
     {
-        return $query->whereStatus(1);
+        return $query->whereStatus(\Haxibiao\Content\Article::STATUS_ONLINE);
     }
 
     public function fields(Request $request)

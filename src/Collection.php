@@ -26,9 +26,11 @@ class Collection extends Model
     protected $table = 'collections';
 
     /**
-     * 上架状态
+     * 状态机
      */
-    const STATUS_ONLINE = 1;
+	const STATUS_DELETED = -1; // 删除
+    const STATUS_ONLINE  = 1;  // 上架（默认）
+
     /* 推荐集合 */
     const RECOMMEND_COLLECTION = 2;
     /* 置顶集合 */

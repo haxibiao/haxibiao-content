@@ -23,7 +23,7 @@ class CreateNovelsTable extends Migration
             $table->string('cover')->nullable();
             $table->string('author')->nullable();
             $table->unsignedInteger('words')->nullable();
-            $table->tinyInteger('status')->index()->default(0);
+            $table->tinyInteger('status')->index()->default(\Haxibiao\Content\Novel::STATUS_WATING);
             $table->unsignedInteger('category_id')->nullable()->index();
             $table->unsignedInteger('count_user')->default(0);
             $table->unsignedInteger('rank')->nullable()->index();

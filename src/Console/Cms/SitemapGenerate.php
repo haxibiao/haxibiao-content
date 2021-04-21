@@ -5,6 +5,7 @@ namespace Haxibiao\Content\Console\Cms;
 use App\Category;
 use App\Movie;
 use App\Site;
+use Haxibiao\Content\Article;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -135,7 +136,7 @@ class SitemapGenerate extends Command
     {
         $siteMapIndexUrls = [];
         $ci               = 0;
-        $qb               = Category::where('status', 1)->where('count', '>', 0);
+        $qb               = Category::where('status', Category::STATUS_PUBLIC)->where('count', '>', 0);
         //先只提交前1000个
         $qb = $qb->where('id', '<=', 1000);
         $qb->chunk(10000, function ($categories) use (&$ci, &$siteMapIndexUrls, $domain) {
@@ -170,7 +171,7 @@ class SitemapGenerate extends Command
         $siteMapIndexUrls = [];
         $ai               = 0;
         $qb               = DB::table('articles')->select(['id'])
-            ->where('status', 1)
+            ->where('status', Article::STATUS_ONLINE)
             ->whereIn('type', ['article', 'diagrams'])->orderBy('id', 'desc');
         //先只提交前1000个
         $qb = $qb->where('id', '<=', 1000);

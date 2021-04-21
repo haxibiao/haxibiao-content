@@ -12,13 +12,13 @@ trait UseArticle
     public function articles()
     {
         return $this->hasMany(Article::class)
-            ->where('status', '>', 0)
+            ->where('status', '>', Article::STATUS_REVIEW)
             ->exclude(['body', 'json']);
     }
 
     public function removedArticles()
     {
-        return $this->hasMany(Article::class)->where('status', -1);
+        return $this->hasMany(Article::class)->where('status', Article::STATUS_REFUSED);
     }
 
     public function allArticles()
@@ -34,7 +34,7 @@ trait UseArticle
 
     public function publishedArticles()
     {
-        return $this->allArticles()->where('status', '>', 0);
+        return $this->allArticles()->where('status', '>', Article::STATUS_REVIEW);
     }
 
     public function videoPosts()
@@ -50,6 +50,6 @@ trait UseArticle
 
     public function drafts()
     {
-        return $this->hasMany(Article::class)->where('status', 0);
+        return $this->hasMany(Article::class)->where('status',Article::STATUS_REVIEW);
     }
 }

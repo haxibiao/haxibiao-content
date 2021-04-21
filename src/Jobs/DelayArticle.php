@@ -35,7 +35,7 @@ class DelayArticle implements ShouldQueue
     {
         $article = $this->article;
         if($article) {
-            $article->status = 1;
+            $article->status = Article::STATUS_ONLINE;
             $article->save();
             //更新动态
             $article->recordAction();

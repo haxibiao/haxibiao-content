@@ -15,8 +15,8 @@ class CollectionController extends Controller
         $user = $request->user();
         //限制最多加载最近的100个合集
         $collections = $user->hasCollections()
-            ->whereType(\App\Collection::TYPE_OF_ARTICLE)
-            ->where('status', '>=', 0)
+            ->whereType(Collection::TYPE_OF_ARTICLE)
+            ->where('status',Collection::STATUS_ONLINE)
             ->latest('id')
             ->take(100)
             ->get();
@@ -63,12 +63,12 @@ class CollectionController extends Controller
     public function delete(Request $request, $id)
     {
         $collection         = Collection::findOrFail($id);
-        $collection->status = -1;
+        $collection->status = Collection::STATUS_DELETED;
         $collection->save();
 
         //delete articles to trash
         foreach ($collection->articles as $article) {
-            $article->status = -1;
+            $article->status = Article::STATUS_REFUSED;
             $article->save();
         }
 
@@ -108,7 +108,7 @@ class CollectionController extends Controller
         if ($collection = Collection::find($collection_id)) {
             $posts = $collection->posts()->with('video')
                 ->where('video_id', '!=', $video_id)
-                ->whereStatus(1)
+                ->whereStatus(Collection::STATUS_ONLINE)
                 ->paginate($num);
             foreach ($posts as $post) {
                 $post->fillForJs();

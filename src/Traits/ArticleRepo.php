@@ -76,7 +76,7 @@ trait ArticleRepo
                     $video->save();
                     //创建article
                     $article              = new Article();
-                    $article->status      = 0;
+                    $article->status      = Article::STATUS_REVIEW;
                     $article->submit      = Article::REVIEW_SUBMIT;
                     $article->title       = Str::limit($inputs['body'], 50);
                     $article->description = Str::limit($inputs['body'], 280);
@@ -180,7 +180,7 @@ trait ArticleRepo
 
                     $article              = $video->article;
                     $article->body        = $body;
-                    $article->status      = 1;
+                    $article->status      = Article::STATUS_ONLINE;
                     $article->description = $body;
                     $article->title       = $body;
                     //新创建的视频动态需要审核
@@ -202,7 +202,7 @@ trait ArticleRepo
 
                     //创建article
                     $article              = new Article();
-                    $article->status      = 0;
+                    $article->status      = Article::STATUS_REVIEW;
                     $article->submit      = Article::REVIEW_SUBMIT;
                     $article->title       = Str::limit($inputs['body'], 50);
                     $article->description = Str::limit($inputs['body'], 280);
@@ -218,7 +218,7 @@ trait ArticleRepo
 
                 $article              = new Article();
                 $article->body        = $body;
-                $article->status      = 1;
+                $article->status      = Article::STATUS_ONLINE;
                 $article->description = $body;
                 $article->title       = $body;
                 $article->issue_id    = $issue->id;
@@ -258,7 +258,7 @@ trait ArticleRepo
                         'type'        => 'issue',
                         'issue_id'    => $issue->id,
                         'user_id'     => $user->id,
-                        'status'      => Article::SUBMITTED_SUBMIT,
+                        'status'      => Article::STATUS_ONLINE,
                         'submit'      => Article::SUBMITTED_SUBMIT,
                     ]);
                     $article->save();
@@ -851,7 +851,7 @@ trait ArticleRepo
         ]);
         if (!$category->id) {
             $category->name_en = 'woyaoshangremeng';
-            $category->status  = 1;
+            $category->status  = Category::STATUS_PUBLIC;
             $category->user_id = 1;
             $category->save();
         }

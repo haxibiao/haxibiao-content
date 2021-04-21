@@ -96,7 +96,7 @@ trait ArticleResolvers
     public function restoreArticle($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
         $article = Article::findOrFail($args['id']);
-        $article->update(['status' => 0]);
+        $article->update(['status' => Article::STATUS_REVIEW]);
         $article->changeAction();
 
         return $article;
@@ -135,7 +135,7 @@ trait ArticleResolvers
         ResolveInfo $resolveInfo
     ) {
         //FIXME: 日后真的按当前登录用户改进推荐算法...
-        $qb = \App\Article::whereStatus(1)
+        $qb = \App\Article::whereStatus(Article::STATUS_ONLINE)
             ->whereNotNull('title')
             ->whereNotNull('cover_path');
         return $qb->latest('id');

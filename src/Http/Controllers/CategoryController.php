@@ -28,7 +28,7 @@ class CategoryController extends Controller
     专题管理列表
      */
     function list(Request $request) {
-        $qb               = Category::where('status', '>=', 0)->orderBy('id', 'desc');
+        $qb               = Category::where('status', '>=', Category::STATUS_DRAFT)->orderBy('id', 'desc');
         $data['keywords'] = '';
         if ($request->get('q')) {
             $keywords         = $request->get('q');
@@ -38,10 +38,10 @@ class CategoryController extends Controller
             //如果使用sortBy() 来回调排序的话 无法使用paginate()
             //由于是编辑需求 故简单处理 后期优化
             //精准匹配
-            $accurateCategory         = Category::where('status', '>=', 0)->where('name', $keywords)->orderBy('id', 'desc')->paginate(5);
+            $accurateCategory         = Category::where('status', '>=', Category::STATUS_DRAFT)->where('name', $keywords)->orderBy('id', 'desc')->paginate(5);
             $data['accurateCategory'] = $accurateCategory;
             //模糊匹配
-            $qb = Category::orderBy('name', 'asc')->where('status', '>=', 0)
+            $qb = Category::orderBy('name', 'asc')->where('status', '>=', Category::STATUS_DRAFT)
                 ->where('name', 'like', "%$keywords%")->where('name', '!=', $keywords);
         }
         $type = $request->get('type') ?: 'article';
@@ -70,7 +70,7 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $qb   = Category::where('status', '>=', 0)->orderByDesc('count');
+        $qb   = Category::where('status', '>=', Category::STATUS_DRAFT)->orderByDesc('count');
         $type = 'article';
         if ($request->get('type')) {
             $type = $request->get('type');
@@ -86,7 +86,7 @@ class CategoryController extends Controller
         }
 
         //推荐
-        $categories = $qb->where('status', 1)->where('parent_id', 0)->paginate(12);
+        $categories = $qb->where('status', Category::STATUS_PUBLIC)->where('parent_id', 0)->paginate(12);
         if (ajaxOrDebug() && request('recommend')) {
             foreach ($categories as $category) {
                 $category->followed = $category->isFollowed();
@@ -103,10 +103,10 @@ class CategoryController extends Controller
         $categories = Category::whereExists(function ($query) use ($week_start) {
             return $query->from('articles')
                 ->whereRaw('categories.id = articles.category_id')
-                ->where('articles.status', '>=', 0)
+                ->where('articles.status', '>=', Article::STATUS_REVIEW)
                 ->where('updated_at', '<=', $week_start);
         })
-            ->where('status', 1)
+            ->where('status', Category::STATUS_PUBLIC)
             ->where('parent_id', 0)
             ->paginate(24);
         if (ajaxOrDebug() && request('hot')) {
@@ -306,7 +306,7 @@ class CategoryController extends Controller
         // dd(json_encode($category->admins->pluck('name','id')));
         //$categories = get_categories(0, $type, 1);
         $categories = Category::where('parent_id', $id)
-            ->whereStatus(1)
+            ->whereStatus(Category::STATUS_PUBLIC)
             ->get();
         return view('category.edit')->withUser($user)
             ->withCategory($category)
@@ -333,7 +333,7 @@ class CategoryController extends Controller
         $category->save();
         //维护子分类
         $old_category_ids = Category::where('parent_id', $id)
-            ->whereStatus(1)
+            ->whereStatus(Category::STATUS_PUBLIC)
             ->pluck('id')
             ->toArray();
         if (request()->filled('categories')) {
@@ -376,12 +376,12 @@ class CategoryController extends Controller
             abort(403);
         }
         if ($category) {
-            $count = \App\Article::where('category_id', $category->id)->where('status', '>', 0)->count();
+            $count = \App\Article::where('category_id', $category->id)->where('status', '>', Article::STATUS_REVIEW)->count();
             if ($count == 0) {
                 if (Category::where('parent_id', $id)->count()) {
                     return '该分类下还有分类，不能删除';
                 }
-                $category->status = -1;
+                $category->status = Category::STATUS_TRASH;
                 $category->save();
             } else {
                 return '该分类下还有文章，不能删除';

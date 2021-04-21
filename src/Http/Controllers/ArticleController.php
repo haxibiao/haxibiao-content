@@ -30,7 +30,7 @@ class ArticleController extends Controller
     public function drafts(Request $request)
     {
         $query = Article::orderBy('id', 'desc')
-            ->where('status', 0)
+            ->where('status', Article::STATUS_REVIEW)
             ->whereType('article');
         if (!Auth::user()->is_admin) {
             $query = $query->where('user_id', Auth::user()->id);
@@ -41,14 +41,14 @@ class ArticleController extends Controller
 
     public function index(Request $request)
     {
-        $query = Article::orderBy('id', 'desc')->where('status', '>', 0)->whereType('article');
+        $query = Article::orderBy('id', 'desc')->where('status', '>', Article::STATUS_REVIEW)->whereType('article');
         //Search Articles
         $data['keywords'] = '';
         if ($request->get('q')) {
             $keywords         = $request->get('q');
             $data['keywords'] = $keywords;
             $query            = Article::orderBy('id', 'desc')
-                ->where('status', '>', 0)
+                ->where('status', '>', Article::STATUS_REVIEW)
                 ->whereType('article')
                 ->where('title', 'like', "%$keywords%");
         }
@@ -131,7 +131,7 @@ class ArticleController extends Controller
         //SEO站群暂时不care草稿状态内容 ?
         // if (!config('cms.multi_domains'))
         {
-            if ($article->status < 1) {
+            if ($article->status < Article::STATUS_ONLINE) {
                 if (!canEdit($article)) {
                     return abort(404);
                 }
@@ -150,7 +150,7 @@ class ArticleController extends Controller
 
         $data['recommended'] = Article::whereIn('category_id', $article->categories->pluck('id'))
             ->where('id', '<>', $article->id)
-            ->where('status', 1)
+            ->where('status', Article::STATUS_ONLINE)
             ->orderBy('updated_at', 'desc')
             ->take(10)
             ->get();
@@ -260,9 +260,9 @@ class ArticleController extends Controller
     {
         $article = Article::findOrFail($id);
         if (request('restore')) {
-            $article->update(['status' => 1]);
+            $article->update(['status' => Article::STATUS_ONLINE]);
         } else {
-            $article->update(['status' => -1]);
+            $article->update(['status' => Article::STATUS_REFUSED]);
         }
         //改变动态
         // $article->changeAction();
@@ -273,7 +273,7 @@ class ArticleController extends Controller
     {
         if (request()->delay) {
             $article->user_id    = Auth::id();
-            $article->status     = 0; //草稿
+            $article->status     = Article::STATUS_REVIEW; //草稿
             $article->delay_time = now()->addDays(request()->delay);
             $article->save();
 

@@ -31,7 +31,7 @@ class CreateCategoriesTable extends Migration
             $table->boolean('has_child')->default(0);
             $table->integer('level')->nullable()->index();
             $table->integer('order')->nullable()->index()->comment('分类需要排序时用');
-            $table->integer('status')->default(0)->comment('0: 不让投稿, 1: allow');
+            $table->integer('status')->default(\Haxibiao\Content\Category::STATUS_DRAFT)->comment('0: 不让投稿, 1: allow');
             $table->integer('request_status')->default(0)->comment('0: 投稿无需审核, 1: need approve');
 
             $table->integer('new_requests')->default(0)->comment('新投稿数');

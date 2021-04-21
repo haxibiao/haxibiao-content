@@ -29,7 +29,7 @@ class CreateArticlesTable extends Migration
             $table->string('author', 255)->nullable();
             $table->integer('author_id')->nullable();
             $table->integer('user_id');
-            $table->integer('status')->default(0)->index();
+            $table->integer('status')->default(\Haxibiao\Content\Article::STATUS_REVIEW)->index();
 
             $table->integer('category_id')->nullable()->index();
             $table->integer('collection_id')->nullable()->index();

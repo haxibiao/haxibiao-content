@@ -56,7 +56,7 @@ function indexTopCategories($top = 7)
             ->whereExists(function ($query) {
                 return $query->from('categories')
                     ->whereRaw('categories.id = follows.followable_id')
-                    ->where('categories.status', '>', 0)
+                    ->where('categories.status', '>', Category::STATUS_DRAFT)
                     ->where('categories.is_official', 0);
             })->take($top_count)->pluck('followable_id')->toArray();
         $category_ids = array_merge($stick_categorie_ids, $all_follow_category_ids);
@@ -65,7 +65,7 @@ function indexTopCategories($top = 7)
         if (count($category_ids) != $top) {
             $official_category_ids = Category::where('is_official', 0)
                 ->where('count', '>=', 0)
-                ->where('status', '>', 0)
+                ->where('status', '>', Category::STATUS_DRAFT)
                 ->where('parent_id', 0) //0代表顶级分类
                 ->whereNotIn('id', $category_ids)
                 ->take($top - count($category_ids))
@@ -77,7 +77,7 @@ function indexTopCategories($top = 7)
         //未登录，随机取官方专题
         $categories = Category::where('is_official', 0)
             ->where('count', '>=', 0)
-            ->where('status', '>', 0)
+            ->where('status', '>', Category::STATUS_DRAFT)
             ->where('parent_id', 0) //0代表顶级分类
             ->whereNotIn('id', $stick_categorie_ids)
             ->orderBy(DB::raw('RAND()'))
@@ -98,7 +98,7 @@ function indexArticles()
 {
     $qb = Article::from('articles')
         ->exclude(['body', 'json'])
-        ->where('status', '>', 0)
+        ->where('status', '>', Article::STATUS_REVIEW)
         ->whereNull('source_url') //非采集文章..
         ->latest('updated_at');
     return smartPager($qb);

@@ -42,10 +42,12 @@ class Article extends Model implements Collectionable
     const REVIEW_SUBMIT    = 0; //待审核
     const SUBMITTED_SUBMIT = 1; //已收录
 
-    //  动态状态
-    const STATUS_REFUSED = -1;
-    const STATUS_REVIEW  = 0;
-    const STATUS_ONLINE  = 1;
+	/**
+	 * 状态机
+	 */
+    const STATUS_REFUSED = -1; // 私密
+    const STATUS_REVIEW  = 0;  // 审核中（默认）
+    const STATUS_ONLINE  = 1;  // 公开
 
     protected $touches = ['category', 'collection', 'categories'];
 
@@ -92,7 +94,7 @@ class Article extends Model implements Collectionable
 
     public function scopePublish($query)
     {
-        return $query->where('status', 1);
+        return $query->where('status', static::STATUS_ONLINE);
     }
 
     public static function getSubmitStatus()

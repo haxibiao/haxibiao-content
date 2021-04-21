@@ -30,7 +30,7 @@ class ArticleObserver
             //黑名单用户禁言处理
             if ($user->isBlack()) {
                 // $article->delete();
-                $article->status = -1;
+                $article->status = Article::STATUS_REFUSED;
                 $article->save();
                 // throw new GQLException('发布失败,你以被禁言');
 
@@ -50,7 +50,7 @@ class ArticleObserver
             $article->hasCategories()->syncWithoutDetaching([$category->id]);
         }
 
-        if ($article->status == 1) {
+        if ($article->status == Article::STATUS_ONLINE) {
             //可能是发布了文章，需要统计文集的文章数，字数
             if ($collection = $article->collection) {
                 $collection->count       = $collection->articles()->count();
@@ -65,7 +65,7 @@ class ArticleObserver
     {
         //TODO: 更多需要更新文章数和字数的场景需要写这里...
         //TODO: 文章软删除时
-        if ($article->status = 0) {
+        if ($article->status = Article::STATUS_REVIEW) {
             $article->update([
                 'submit' => Article::REFUSED_SUBMIT,
             ]);

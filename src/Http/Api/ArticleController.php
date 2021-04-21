@@ -109,7 +109,7 @@ class ArticleController extends Controller
     public function delete(Request $request, $id)
     {
         $article         = Article::findOrFail($id);
-        $article->status = -1;
+        $article->status = Article::STATUS_REFUSED;
         $article->save();
         return $article;
     }
@@ -117,7 +117,7 @@ class ArticleController extends Controller
     public function restore(Request $request, $id)
     {
         $article         = Article::findOrFail($id);
-        $article->status = 0;
+        $article->status = Article::STATUS_REVIEW;
         $article->save();
         //如果文集也被删除了，恢复出来
         if ($article->collection->status == -1) {

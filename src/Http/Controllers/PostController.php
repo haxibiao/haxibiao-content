@@ -66,7 +66,7 @@ class PostController extends Controller
             ->with('category')
             ->with('video')
             ->orderBy('id', 'desc')
-            ->where('status', '>=', 0)
+            ->where('status', '>=',  Article::STATUS_REVIEW)
             ->where('type', '=', 'video');
 
         //Search videos
@@ -78,7 +78,7 @@ class PostController extends Controller
                 ->with('category')
                 ->with('video')
                 ->orderBy('id', 'desc')
-                ->where('status', '>=', 0)
+                ->where('status', '>=', Article::STATUS_REVIEW)
                 ->where(function ($query) use ($keywords) {
                     $query->where('title', 'like', "%$keywords%")
                         ->orWhere('description', 'like', "%$keywords%");
