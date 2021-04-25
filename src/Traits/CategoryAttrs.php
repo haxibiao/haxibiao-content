@@ -61,6 +61,9 @@ trait CategoryAttrs
         return false;
     }
 
+    /**
+     * 专题封面
+     */
     public function getLogoUrlAttribute()
     {
         $logo         = $this->logo;
@@ -75,10 +78,20 @@ trait CategoryAttrs
         }
     }
 
-    // 小图标
+    /**
+     * 专题封面，只返回url
+     */
+    public function getLogoAttribute()
+    {
+        return $this->logo_url;
+    }
+
+    /**
+     * 专题小图标
+     */
     public function getIconUrlAttribute()
     {
-        $logo = $this->logo;
+        $logo = $this->logo ?? '';
         // 存URL的是云资源同步，没裁剪小图
         if (str_contains($logo, 'http')) {
             return $this->logoUrl;
