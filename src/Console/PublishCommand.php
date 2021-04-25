@@ -33,16 +33,6 @@ class PublishCommand extends Command
 
         $this->comment("发布 content");
         $this->call('vendor:publish', ['--provider' => 'Haxibiao\Content\ContentServiceProvider', '--force' => $force]);
-
-        $this->call('vendor:publish', [
-            '--tag'   => 'cms-config',
-            '--force' => $this->option('force'),
-        ]);
-
-        $this->call('vendor:publish', [
-            '--tag'   => 'cms-resources',
-            '--force' => $this->option('force'),
-        ]);
     }
 
 }

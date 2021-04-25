@@ -139,10 +139,7 @@ class ContentServiceProvider extends ServiceProvider
 
             $this->publishes([
                 __DIR__ . '/../config/content.php' => config_path('content.php'),
-            ], 'content-config');
-
-            $this->publishes([
-                __DIR__ . '/../config/cms.php' => config_path('cms.php'),
+                __DIR__ . '/../config/cms.php'     => config_path('cms.php'),
             ], 'content-config');
 
             //发布 graphql
@@ -150,10 +147,6 @@ class ContentServiceProvider extends ServiceProvider
                 __DIR__ . '/../graphql' => base_path('graphql/content'),
             ], 'content-graphql');
 
-            //发布 resoucre
-            $this->publishes([
-                // __DIR__ . '/../public/fonts' => public_path('/fonts'),
-            ], 'content-assets');
         }
 
         //中间件

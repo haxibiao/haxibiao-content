@@ -155,7 +155,7 @@ class RefactorPost extends Command
         if ($article->cover_path && filter_var($article->cover_path, FILTER_VALIDATE_URL)) {
             $fullUrl = str_replace('https', 'http', $article->cover_path);
             if (!str_contains($article->cover_path, 'http')) {
-                $fullUrl = Storage::disk('cosv5')->url($fullUrl);
+                $fullUrl = Storage::url($fullUrl);
             }
             // 处理图片关系
             try {
@@ -166,7 +166,7 @@ class RefactorPost extends Command
                 ], [
                     'user_id'   => 1,
                     'path'      => $article->cover_path,
-                    'disk'      => 'cosv5',
+                    'disk'      => config('filesystems.cloud'),
                     'extension' => pathinfo($article->cover_path, PATHINFO_EXTENSION),
                     'width'     => $width,
                     'height'    => $height,

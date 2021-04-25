@@ -31,17 +31,17 @@ class InstallCommand extends Command
     {
         $force = $this->option('force');
 
-        $this->info('发布资源 ...');
+        $this->info('发布 content 资源 ...');
         $this->call('content:publish', ['--force' => $force]);
 
-        $this->comment("复制 stubs ...");
+        $this->comment("复制 content stubs ...");
         copyStubs(__DIR__, $force);
 
         //FIXME: 为啥不敢install的时候提供 App/Category 基于 Haxibiao\Content\Category?
         // 新答题产品里的category字段有差别，haxibiao/question里通过migrate修复结构
         // 通过playWithQuestion补充即可，重构question包时，先兼容并基于content系统
 
-        $this->comment('迁移数据库变化...');
+        $this->comment('迁移 content 数据库变化...');
         $this->call('migrate');
     }
 }
