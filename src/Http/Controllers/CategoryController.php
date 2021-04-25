@@ -326,11 +326,13 @@ class CategoryController extends Controller
         if (!canEdit($category)) {
             abort(403);
         }
-        $category->update($request->except('uids', 'categories'));
+        $formData = $request->only(['name', 'name_en', 'description']);
+        $category->update($formData);
         //save logo
         $category->saveLogo($request);
         $category->updated_at = now();
         $category->save();
+
         //维护子分类
         $old_category_ids = Category::where('parent_id', $id)
             ->whereStatus(Category::STATUS_PUBLIC)

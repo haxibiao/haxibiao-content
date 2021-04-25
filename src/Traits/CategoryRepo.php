@@ -4,8 +4,10 @@ namespace Haxibiao\Content\Traits;
 
 use App\User;
 use Haxibiao\Content\Category;
-use Haxibiao\Helpers\utils\QcloudUtils;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 
 trait CategoryRepo
 {
@@ -63,56 +65,46 @@ trait CategoryRepo
         return $topFollowers;
     }
 
-    //TODO:待重构repo
-    public function saveLogo($request)
+    /**
+     * 保存专题的2种logo?
+     */
+    public function saveLogo(Request $request)
     {
         $name = $this->id . '_' . time();
         if ($request->logo) {
-            $file                = $request->logo;
+            $file                = $request->file('logo');
             $extension           = $file->getClientOriginalExtension();
             $file_name_formatter = $name . '.%s.' . $extension;
-            //save logo
-            $file_name_big = sprintf($file_name_formatter, 'logo');
-            $tmp_big       = '/tmp/' . $file_name_big;
-            $img           = \ImageMaker::make($file->path());
+            $file_name_big       = sprintf($file_name_formatter, 'logo');
+
+            //裁剪180
+            $tmp_big = '/tmp/' . $file_name_big;
+            $img     = Image::make($file->path());
             $img->fit(180);
             $img->save($tmp_big);
-            $cos_file_info = QcloudUtils::uploadFile($tmp_big, $file_name_big, 'category');
-            //上传到COS失败
-            if (empty($cos_file_info) || $cos_file_info['code'] != 0) {
-                return;
-            }
-            //save small logo
-            $img->fit(32);
-            $file_name_small = sprintf($file_name_formatter, 'logo.small');
-            $tmp_small       = '/tmp/' . $file_name_small;
-            $img->save($tmp_small);
-            QcloudUtils::uploadFile($tmp_small, $file_name_small, 'category');
-            $this->logo = $cos_file_info['data']['custom_url'];
+
+            //区分APP的storage目录，支持多个APP用一个bucket
+            $stored_path = 'storage/' . env('APP_NAME') . '/category/' . $file_name_big;
+            Storage::put($stored_path, file_get_contents($tmp_big));
+            $this->logo = $stored_path;
         }
 
         if ($request->logo_app) {
-            $file                = $request->logo_app;
+            $file                = $request->file('logo_app');
             $extension           = $file->getClientOriginalExtension();
             $file_name_formatter = $name . '.%s.' . $extension;
-            //save logo_app
-            $file_name_big = sprintf($file_name_formatter, 'logo.app');
-            $tmp_big       = '/tmp/' . $file_name_big;
-            $img           = \ImageMaker::make($file->path());
+            $file_name_big       = sprintf($file_name_formatter, 'logo');
+
+            //裁剪180
+            $tmp_big = '/tmp/' . $file_name_big;
+            $img     = Image::make($file->path());
             $img->fit(180);
             $img->save($tmp_big);
-            $cos_file_info = QcloudUtils::uploadFile($tmp_big, $file_name_big, 'category');
-            //上传到COS失败
-            if (empty($cos_file_info) || $cos_file_info['code'] != 0) {
-                return;
-            }
-            //save small logo_app
-            $img->fit(32);
-            $file_name_small = sprintf($file_name_formatter, 'logo.small.app');
-            $tmp_small       = '/tmp/' . $file_name_small;
-            $img->save($tmp_small);
-            QcloudUtils::uploadFile($tmp_small, $file_name_small, 'test');
-            $this->logo_app = $cos_file_info['data']['custom_url'];
+
+            //区分APP的storage目录，支持多个APP用一个bucket
+            $stored_path = 'storage/' . env('APP_NAME') . '/category/' . $file_name_big;
+            Storage::put($stored_path, file_get_contents($tmp_big));
+            $this->logo = $stored_path;
         }
     }
 
