@@ -20,11 +20,6 @@ trait CategoryAttrs
         return Auth::check() && Auth::user()->isFollow('categories', $this->id);
     }
 
-    public function logo_app()
-    {
-        return cdnurl($this->logo_app);
-    }
-
     public function checkAdmin()
     {
         return Auth::check() && $this->isAdmin(Auth::user());
@@ -59,6 +54,15 @@ trait CategoryAttrs
             return $this->user_id == $user_id;
         }
         return false;
+    }
+
+    /**
+     * 专题的APP内部图标定制 - 编辑权限上传
+     */
+    public function getLogoAppAttribute()
+    {
+        $logo_path = parse_url($this->getRawOriginal('logo_app') ?? '', PHP_URL_PATH);
+        return cdnurl($logo_path);
     }
 
     /**
