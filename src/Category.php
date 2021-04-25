@@ -23,21 +23,16 @@ class Category extends Model
 
     const LOGO_PATH = '/images/category.logo.jpg';
 
-	/**
-	 * 状态机：专题的3个常用状态
-	 */
+    /**
+     * 状态机：专题的3个常用状态
+     */
     const STATUS_TRASH  = -1; // 删除
-    const STATUS_DRAFT  = 0;  // 草稿（默认）
-    const STATUS_PUBLIC = 1;  // 公开
+    const STATUS_DRAFT  = 0; // 草稿（默认）
+    const STATUS_PUBLIC = 1; // 公开
 
     protected $guarded = [];
 
     protected $table = 'categories';
-
-    private function categorizableModel(): string
-    {
-        return config('haxibiao-content.models.category');
-    }
 
     public function getMorphClass()
     {
@@ -123,7 +118,7 @@ class Category extends Model
         //FIXME:暂时兼容一下haxibiao博客
         if (config('app.name') == 'haxibiao') {
             return $this->belongsToMany('App\Article')
-                ->where('articles.status', '>',  Article::STATUS_REVIEW)
+                ->where('articles.status', '>', Article::STATUS_REVIEW)
                 ->wherePivotIn('submit', ['已收录', 1])
                 ->withPivot('submit')
                 ->withTimestamps();
@@ -150,12 +145,12 @@ class Category extends Model
 
     public function parent()
     {
-        return $this->belongsTo($this->categorizableModel(), 'parent_id');
+        return $this->belongsTo(App\Category::class, 'parent_id');
     }
 
     public function subCategory()
     {
-        return $this->hasMany($this->categorizableModel(), 'parent_id', 'id');
+        return $this->hasMany(App\Category::class, 'parent_id', 'id');
     }
 
     public function issues()
