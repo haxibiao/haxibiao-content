@@ -67,7 +67,7 @@
                     <td>
                         <category-select
                             categories="{{ json_encode($categories->pluck('name','id') ) }}">
-                    </category-select>
+                        </category-select>
                     </td>
                 </tr>
                 @if($parent_category = $category->parent)
