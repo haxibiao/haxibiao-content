@@ -75,8 +75,14 @@ trait CategoryAttrs
         }
     }
 
+    // 小图标
     public function getIconUrlAttribute()
     {
+        $logo = $this->logo;
+        // 存URL的是云资源同步，没裁剪小图
+        if (str_contains($logo, 'http')) {
+            return $this->logoUrl;
+        }
         return str_replace('.logo.jpg', '.logo.small.jpg', $this->logoUrl);
     }
 
