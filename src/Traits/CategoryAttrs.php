@@ -66,10 +66,10 @@ trait CategoryAttrs
      */
     public function getLogoUrlAttribute()
     {
-        $logo         = $this->logo;
-        $defaultImage = config('haxibiao-content.collection_default_logo');
+        $logo        = $this->getRawOriginal('logo');
+        $defaultLogo = url('images/collection.png');
         if (is_null($logo)) {
-            return $defaultImage;
+            return $defaultLogo;
         }
         if (str_contains($logo, 'http')) {
             return $logo;
