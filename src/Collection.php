@@ -29,8 +29,8 @@ class Collection extends Model
     /**
      * 状态机
      */
-	const STATUS_DELETED = -1; // 删除
-    const STATUS_ONLINE  = 1;  // 上架（默认）
+    const STATUS_DELETED = -1; // 删除
+    const STATUS_ONLINE  = 1; // 上架（默认）
 
     /* 推荐集合 */
     const RECOMMEND_COLLECTION = 2;
@@ -250,11 +250,9 @@ class Collection extends Model
     public function saveDownloadImage($file)
     {
         if ($file) {
-            $cover   = '/collect' . $this->id . '_' . time() . '.png';
-            $cosDisk = Storage::cloud();
-            $cosDisk->put($cover, \file_get_contents($file->path()));
-
-            return cdnurl($cover);
+            $cloud_path = 'storage/app-' . env('APP_NAME') . '/collecttion/' . $this->id . '_' . time() . '.png';
+            Storage::put($cloud_path, file_get_contents($file->path()));
+            return cdnurl($cloud_path);
         }
     }
 }

@@ -317,7 +317,7 @@ trait ArticleRepo
         }
 
         $this->description = $this->summary;
-		$this->cover       = $this->getCoverAttribute();
+        $this->cover       = $this->getCoverAttribute();
 
         if ($this->video) {
             $this->duration     = gmdate('i:s', $this->video->duration);
@@ -361,55 +361,55 @@ trait ArticleRepo
 
     public function saveRelatedImagesFromBody()
     {
-		$body = $this->body;
-		if(!$body){
-			return;
-		}
-		$imageUrls = $this->findHtmlImageUrls($body);
+        $body = $this->body;
+        if (!$body) {
+            return;
+        }
+        $imageUrls = $this->findHtmlImageUrls($body);
 
-		// 保存外链图片
-		$images = [];
+        // 保存外链图片
+        $images = [];
         foreach ($imageUrls as $url) {
-			try {
-				$image = Image::saveImage($url);
-				$images[$url] = $image;
-			} catch (\Exception $e){
-				error_log($e->getMessage());
-			}
+            try {
+                $image        = Image::saveImage($url);
+                $images[$url] = $image;
+            } catch (\Exception $e) {
+                error_log($e->getMessage());
+            }
         }
 
-        if( !$images ){
-        	return;
-		}
-        $imageIds = data_get($images,'*.id');
+        if (!$images) {
+            return;
+        }
+        $imageIds = data_get($images, '*.id');
         $this->images()->sync($imageIds);
 
-		// 替换外域图片
-		foreach ($images as $originImageUrl=>$imageModel){
-			if(str_contains($originImageUrl,env('COS_DOMAIN'))){
-				continue;
-			}
-			$body = str_replace($originImageUrl,data_get($imageModel,'url'),$body);
-		}
-		$this->body = $body;
-		$this->save();
-		return $this;
+        // 替换外域图片
+        foreach ($images as $originImageUrl => $imageModel) {
+            if (str_contains($originImageUrl, cdn_domain())) {
+                continue;
+            }
+            $body = str_replace($originImageUrl, data_get($imageModel, 'url'), $body);
+        }
+        $this->body = $body;
+        $this->save();
+        return $this;
     }
 
-    private function findHtmlImageUrls($html){
+    private function findHtmlImageUrls($html)
+    {
 
-		$doc = new DOMDocument();
-		$doc->loadHTML($this->body);
-		$xml = simplexml_import_dom($doc);
-		$tags = $xml->xpath('//img');
+        $doc = new DOMDocument();
+        $doc->loadHTML($this->body);
+        $xml  = simplexml_import_dom($doc);
+        $tags = $xml->xpath('//img');
 
-		$imageUrls = [];
-		foreach ($tags as $tag)
-		{
-			$imageUrls[] = $tag['src']->__toString();
-		}
-		return $imageUrls;
-	}
+        $imageUrls = [];
+        foreach ($tags as $tag) {
+            $imageUrls[] = $tag['src']->__toString();
+        }
+        return $imageUrls;
+    }
 
     public function report($type, $reason)
     {
@@ -521,10 +521,6 @@ trait ArticleRepo
      */
     public function saveExternalImage()
     {
-        //线上环境 使用
-        if (!is_prod()) {
-            return null;
-        }
         $images     = [];
         $image_tags = [];
         //匹配出所有Image
@@ -546,17 +542,17 @@ trait ArticleRepo
 
         //保存外部链接图片
         if ($images) {
-            foreach ($images as $index => $image) {
+            foreach ($images as $index => $image_url) {
                 //匹配URL格式是否正常
                 $regx = "/^http(s?):\/\/(?:[A-za-z0-9-]+\.)+[A-za-z]{2,4}(?:[\/\?#][\/=\?%\-&~`@[\]\':+!\.#\w]*)?$/";
-                if (preg_match($regx, $image)) {
-                    $image_model          = new Image();
-                    $image_model->user_id = getUser()->id;
-                    $image_model->save();
-                    $path = $image_model->save_image($image, $this->title);
+                if (preg_match($regx, $image_url)) {
+                    $innerImage          = new Image();
+                    $innerImage->user_id = getUser()->id;
+                    $innerImage->save();
+                    $path = $innerImage->saveRemoteImage($image_url, $this->title);
 
                     //替换正文Image 标签 保守办法 只替换Image
-                    $new_image_tag = str_replace($image, $path, $image_tags[$index]);
+                    $new_image_tag = str_replace($image_url, $path, $image_tags[$index]);
                     $this->body    = str_replace($image_tags[$index], $new_image_tag, $this->body);
                     $this->save();
                 }

@@ -84,9 +84,9 @@ trait CategoryRepo
             $img->save($tmp_big);
 
             //区分APP的storage目录，支持多个APP用一个bucket
-            $stored_path = 'storage/' . env('APP_NAME') . '/category/' . $file_name_big;
-            Storage::put($stored_path, file_get_contents($tmp_big));
-            $this->logo = $stored_path;
+            $cloud_path = 'storage/app-' . env('APP_NAME') . '/category/' . $file_name_big;
+            Storage::put($cloud_path, file_get_contents($tmp_big));
+            $this->logo = $cloud_path;
         }
 
         if ($request->logo_app) {
@@ -102,9 +102,9 @@ trait CategoryRepo
             $img->save($tmp_big);
 
             //区分APP的storage目录，支持多个APP用一个bucket
-            $stored_path = 'storage/' . env('APP_NAME') . '/category/' . $file_name_big;
-            Storage::put($stored_path, file_get_contents($tmp_big));
-            $this->logo = $stored_path;
+            $cloud_path = 'storage/app-' . env('APP_NAME') . '/category/' . $file_name_big;
+            Storage::put($cloud_path, file_get_contents($tmp_big));
+            $this->logo = $cloud_path;
         }
     }
 
