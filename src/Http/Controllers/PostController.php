@@ -66,7 +66,7 @@ class PostController extends Controller
             ->with('category')
             ->with('video')
             ->orderBy('id', 'desc')
-            ->where('status', '>=',  Article::STATUS_REVIEW)
+            ->where('status', '>=', Article::STATUS_REVIEW)
             ->where('type', '=', 'video');
 
         //Search videos
@@ -120,12 +120,13 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        //因为APP二维码分享用了 /post/{id} - 需要暂时兼容article 查询
-        if ($article = Article::find($id)) {
-            return redirect()->to($article->url);
-        }
-
         $post = Post::has('video')->with('collection')->findOrFail($id);
+
+        // //因为APP二维码分享用了 /post/{id} - 需要暂时兼容article 查询
+        // if ($article = $post->ar) {
+        //     return redirect()->to($article->url);
+        // }
+
         // dd($post->collection);
         $data['related_page'] = request()->get('related_page') ?? 0;
 
