@@ -6,14 +6,13 @@ use App\Category;
 
 trait ArticleAttrs
 {
-
     public function getBodyAttribute()
     {
         $body = null;
         // 开启哈希云
         if (config('content.enable_haxiyun')) {
             // media database 获取body
-            $body = optional(\DB::connection('media')->table('articles')
+            $cloud_body = optional(\DB::connection('media')->table('articles')
                     ->where([
                         'source_id' => $this->id,
                         'source'    => config('app.domain'),
@@ -21,7 +20,10 @@ trait ArticleAttrs
                     ->select('body')
                     ->first())
                 ->body;
-            return is_null($body) ? $this->attributes['body'] : $body;
+            if (is_null($cloud_body)) {
+                return $this->getRawOriginal['body'];
+            }
+            return $cloud_body;
         }
         return data_get($this->attributes, 'body');
     }
@@ -47,9 +49,9 @@ trait ArticleAttrs
     public function getSummaryAttribute()
     {
         $description = $this->description;
+        //body 已复用哈希云，这里性能风险，只能靠title description数据了
         if (empty($description) || strlen($description) < 2) {
-            $body        = html_entity_decode($this->body);
-            $description = str_limit(strip_tags($body), 130);
+            return $this->title;
         }
         return str_limit($description, 130);
     }
