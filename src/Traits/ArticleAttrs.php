@@ -21,7 +21,7 @@ trait ArticleAttrs
                     ->first())
                 ->body;
             if (is_null($cloud_body)) {
-                return $this->getRawOriginal['body'];
+                return $this->getRawOriginal['body'] ?? null;
             }
             return $cloud_body;
         }
