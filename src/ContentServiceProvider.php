@@ -175,6 +175,7 @@ class ContentServiceProvider extends ServiceProvider
     {
         \Haxibiao\Content\Collectable::observe(\Haxibiao\Content\Observers\CollectableObserver::class);
         \Haxibiao\Content\Collection::observe(\Haxibiao\Content\Observers\CollectionObserver::class);
+        \Haxibiao\Content\Post::observe(\Haxibiao\Content\Observers\PostObserver::class);
     }
 
     protected function bindPathsInContainer()
