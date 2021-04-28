@@ -798,7 +798,14 @@ trait PostRepo
     //个人主页动态
     public static function posts($user_id, $keyword = null, $type = null)
     {
-        $qb = Post::latest('id')->publish()->where('user_id', $user_id)
+
+        //用户本人可查看未发布的动态
+        if (checkUser() && getUser()->id == $user_id) {
+            $qb = Post::query();
+        } else {
+            $qb = Post::publish();
+        }
+        $qb = $qb->latest('id')->where('user_id', $user_id)
             ->when('VIDEO' == $type, function ($q) {
                 return $q->whereNotNull('video_id');
             })->when('IMAGE' == $type, function ($q) {
