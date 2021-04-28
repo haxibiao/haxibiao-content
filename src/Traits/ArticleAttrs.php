@@ -8,24 +8,26 @@ trait ArticleAttrs
 {
     public function getBodyAttribute()
     {
-        $body = null;
-        // 开启哈希云
-        if (config('content.enable_haxiyun')) {
-            // media database 获取body
-            $cloud_body = optional(\DB::connection('media')->table('articles')
-                    ->where([
-                        'source_id' => $this->id,
-                        'source'    => config('app.domain'),
-                    ])
-                    ->select('body')
-                    ->first())
-                ->body;
-            if (is_null($cloud_body)) {
-                return $this->getRawOriginal['body'] ?? null;
+        //应该优先尊重本地body
+        $local_body = data_get($this->attributes, 'body');
+        if (blank($local_body)) {
+            // 开启哈希云
+            if (config('content.enable_haxiyun')) {
+                // media database 获取body
+                $cloud_body = optional(\DB::connection('media')->table('articles')
+                        ->where([
+                            'source_id' => $this->id,
+                            'source'    => config('app.domain'),
+                        ])
+                        ->select('body')
+                        ->first())
+                    ->body;
+                if (!is_null($cloud_body)) {
+                    return $cloud_body;
+                }
             }
-            return $cloud_body;
         }
-        return data_get($this->attributes, 'body');
+        return $local_body;
     }
 
     public function getSubjectAttribute()
