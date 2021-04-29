@@ -21,7 +21,6 @@ class CategoryController extends Controller
     public function __construct()
     {
         $this->middleware('auth', ['only' => ['store', 'create', 'update', 'destroy', 'edit']]);
-        $this->middleware('auth.admin', ['only' => ['list']]);
     }
 
     /**
@@ -303,12 +302,13 @@ class CategoryController extends Controller
         if (!canEdit($category)) {
             abort(403);
         }
-        // dd(json_encode($category->admins->pluck('name','id')));
-        //$categories = get_categories(0, $type, 1);
+
         $categories = Category::where('parent_id', $id)
             ->whereStatus(Category::STATUS_PUBLIC)
             ->get();
-        return view('category.edit')->withUser($user)
+
+        return view('category.edit')
+            ->withUser($user)
             ->withCategory($category)
             ->withCategories($categories);
     }

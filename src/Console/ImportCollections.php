@@ -150,15 +150,14 @@ class ImportCollections extends Command
                         $intoPost->tags()->syncWithoutDetaching($tag_ids);
 
                         //更新post的user_id,video_id,spider_id
-                        $intoPost->review_id  = Post::makeNewReviewId();
-                        $intoPost->review_day = Post::makeNewReviewDay();
                         $intoPost->video_id   = $intoVideo->id;
                         $intoPost->user_id    = $intoUser->id;
                         $intoPost->spider_id  = $intoSpider->id;
                         $intoPost->created_at = now();
                         $intoPost->updated_at = now();;
 
-                        $intoPost->saveDataOnly();
+                        // PostObserver自动更新快速推荐排序游标
+                        $intoPost->save();
 
                     }
                     //同步post到collection中

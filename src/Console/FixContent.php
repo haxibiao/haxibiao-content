@@ -88,7 +88,7 @@ class FixContent extends Command
             foreach ($videos as $video) {
                 $this->info("视频 $video->id $video->title $video->cover");
 
-                $post = Post::firstOrNew([
+                $post = \Haxibiao\Content\Post::firstOrNew([
                     'video_id' => $video->id,
                 ]);
 
@@ -100,22 +100,20 @@ class FixContent extends Command
                 $editor = User::role(User::EDITOR_STATUS)->inRandomOrder()->first();
 
                 //同步对应的post
-                $review_id  = Post::makeNewReviewId();
-                $review_day = Post::makeNewReviewDay();
+
                 $postFields = [
                     'user_id'     => $editor ? $editor->id : 1, //马甲编辑用户
                     'content'     => $video->title,
                     'description' => $video->title,
                     'video_id'    => $video->id,
-                    'review_id'   => $review_id,
-                    'review_day'  => $review_day,
+
                     'status'      => 1,
                     'created_at'  => now(),
                     'updated_at'  => now(),
                 ];
-                $post->forceFill(
-                    $postFields
-                )->saveDataOnly();
+                $post->forceFill($postFields);
+                // PostObserver自动更新快速推荐排序游标
+                $post->save();
 
                 //合集
                 if ($video->collection_key) {

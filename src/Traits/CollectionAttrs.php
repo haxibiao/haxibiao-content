@@ -7,10 +7,18 @@ use Illuminate\Support\Facades\Storage;
 trait CollectionAttrs
 {
 
+    /**
+     * 合集封面
+     */
     public function getLogoAttribute()
     {
+        return $this->logo_url;
+    }
+
+    public function getLogoUrlAttribute()
+    {
         //默认封面
-        $defaultLogo = config('haxibiao-content.collection_default_logo', 'https://haxibiao-1251052432.cos.ap-guangzhou.myqcloud.com/images/collection.png');
+        $defaultLogo = url('images/collection.png');
         $logo        = $this->getRawOriginal('logo');
         if (!$logo) {
             return $defaultLogo;
@@ -24,6 +32,14 @@ trait CollectionAttrs
 
         //自定义上传的logoPath
         return cdnurl($logo);
+    }
+
+    /**
+     * 合集小图标，暂时未裁剪
+     */
+    public function getIconUrlAttribute()
+    {
+        return $this->logo_url;
     }
 
     public function getImageAttribute()

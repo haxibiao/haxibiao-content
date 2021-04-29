@@ -20,11 +20,6 @@ trait CategoryAttrs
         return Auth::check() && Auth::user()->isFollow('categories', $this->id);
     }
 
-    public function logo_app()
-    {
-        return cdnurl($this->logo_app);
-    }
-
     public function checkAdmin()
     {
         return Auth::check() && $this->isAdmin(Auth::user());
@@ -61,12 +56,24 @@ trait CategoryAttrs
         return false;
     }
 
+    /**
+     * 专题的APP内部图标定制 - 编辑权限上传
+     */
+    public function getLogoAppAttribute()
+    {
+        $logo_path = parse_url($this->getRawOriginal('logo_app') ?? '', PHP_URL_PATH);
+        return cdnurl($logo_path);
+    }
+
+    /**
+     * 专题封面
+     */
     public function getLogoUrlAttribute()
     {
-        $logo         = $this->logo;
-        $defaultImage = config('haxibiao-content.collection_default_logo');
+        $logo        = $this->getRawOriginal('logo');
+        $defaultLogo = url('images/collection.png');
         if (is_null($logo)) {
-            return $defaultImage;
+            return $defaultLogo;
         }
         if (str_contains($logo, 'http')) {
             return $logo;
@@ -75,8 +82,24 @@ trait CategoryAttrs
         }
     }
 
+    /**
+     * 专题封面，只返回url
+     */
+    public function getLogoAttribute()
+    {
+        return $this->logo_url;
+    }
+
+    /**
+     * 专题小图标
+     */
     public function getIconUrlAttribute()
     {
+        $logo = $this->logo ?? '';
+        // 存URL的是云资源同步，没裁剪小图
+        if (str_contains($logo, 'http')) {
+            return $this->logoUrl;
+        }
         return str_replace('.logo.jpg', '.logo.small.jpg', $this->logoUrl);
     }
 

@@ -82,11 +82,18 @@ trait CategoryRepo
             $img     = Image::make($file->path());
             $img->fit(180);
             $img->save($tmp_big);
+            $cloud_path = 'storage/app-' . env('APP_NAME') . '/category/' . $file_name_big;
+            Storage::put($cloud_path, @file_get_contents($tmp_big));
+            $this->logo = $cloud_path;
 
-            //区分APP的storage目录，支持多个APP用一个bucket
-            $stored_path = 'storage/' . env('APP_NAME') . '/category/' . $file_name_big;
-            Storage::put($stored_path, file_get_contents($tmp_big));
-            $this->logo = $stored_path;
+            //裁剪32 兼容web
+            $file_name_small = sprintf($file_name_formatter, 'logo.small');
+            $tmp_small       = '/tmp/' . $file_name_small;
+            $img_small       = Image::make($tmp_big);
+            $img_small->fit(32);
+            $img_small->save($tmp_small);
+            $cloud_path = 'storage/app-' . env('APP_NAME') . '/category/' . $file_name_small;
+            Storage::put($cloud_path, @file_get_contents($tmp_small));
         }
 
         if ($request->logo_app) {
@@ -102,9 +109,9 @@ trait CategoryRepo
             $img->save($tmp_big);
 
             //区分APP的storage目录，支持多个APP用一个bucket
-            $stored_path = 'storage/' . env('APP_NAME') . '/category/' . $file_name_big;
-            Storage::put($stored_path, file_get_contents($tmp_big));
-            $this->logo = $stored_path;
+            $cloud_path = 'storage/app-' . env('APP_NAME') . '/category/' . $file_name_big;
+            Storage::put($cloud_path, file_get_contents($tmp_big));
+            $this->logo = $cloud_path;
         }
     }
 

@@ -14,7 +14,12 @@ class PostObserver
  */
     public function created(Post $post)
     {
-
+        //自动更新快速推荐排序游标
+        if (blank($post->review_id)) {
+            $post->review_id  = Post::makeNewReviewId();
+            $post->review_day = Post::makeNewReviewDay();
+            $post->saveQuietly();
+        }
     }
 
     /**

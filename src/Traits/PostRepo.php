@@ -195,7 +195,7 @@ trait PostRepo
                     $spider->updated_at  = now();
                     $spider->saveDataOnly();
                 }
-                $post = Post::firstOrNew([
+                $post = \Haxibiao\Content\Post::firstOrNew([
                     'user_id'  => $user->id,
                     'video_id' => $video->id,
                 ]);
@@ -203,8 +203,7 @@ trait PostRepo
                     $post->description = $body;
                     $post->status      = Post::PUBLISH_STATUS;
                     $post->spider_id   = $spider->id;
-                    $post->review_id   = Post::makeNewReviewId();
-                    $post->review_day  = Post::makeNewReviewDay();
+                    // PostObserver自动更新快速推荐排序游标
                     $post->save();
                     if ('dongdianyi' != (config('app.name'))) {
                         //默认添加抖音中的标签
@@ -254,8 +253,8 @@ trait PostRepo
                             $post->status = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
                         }
                         $post->description = $body;
-                        $post->review_id   = Post::makeNewReviewId();
-                        $post->review_day  = Post::makeNewReviewDay();
+
+                        // PostObserver自动更新快速推荐排序游标
                         $post->save();
                         //添加定位信息
                         if (in_array(config('app.name'), ['dongwaimao', 'jinlinle']) && !empty(data_get($inputs, 'location'))) {
@@ -285,8 +284,6 @@ trait PostRepo
                             $post = new static();
                         }
                         $post->description = $body;
-                        $post->review_id   = Post::makeNewReviewId();
-                        $post->review_day  = Post::makeNewReviewDay();
                         $post->video_id    = $video_id; //关联上视频
                         $post->user_id     = $user->id;
 
@@ -304,6 +301,7 @@ trait PostRepo
                             $post->tag_id = $inputs['tag_id'];
                         }
 
+                        // PostObserver自动更新快速推荐排序游标
                         $post->save();
                         //添加定位信息
                         if (in_array(config('app.name'), ['dongwaimao', 'jinlinle']) && !empty(data_get($inputs, 'location'))) {
@@ -606,8 +604,7 @@ trait PostRepo
         if (config('app.name') == 'ablm') {
             $post->tag_id = 2;
         }
-        // $post->review_id  = Post::makeNewReviewId(); //定时发布时决定，有定时任务处理一定数量或者时间后随机打乱
-        // $post->review_day = Post::makeNewReviewDay();
+        // PostObserver自动更新快速推荐排序游标
         $post->save();
 
         //FIXME: 这个逻辑要放到 content 系统里，PostObserver updated ...
@@ -798,7 +795,14 @@ trait PostRepo
     //个人主页动态
     public static function posts($user_id, $keyword = null, $type = null)
     {
-        $qb = Post::latest('id')->publish()->where('user_id', $user_id)
+
+        //用户本人可查看未发布的动态
+        if (checkUser() && getUser()->id == $user_id) {
+            $qb = Post::query();
+        } else {
+            $qb = Post::publish();
+        }
+        $qb = $qb->latest('id')->where('user_id', $user_id)
             ->when('VIDEO' == $type, function ($q) {
                 return $q->whereNotNull('video_id');
             })->when('IMAGE' == $type, function ($q) {
@@ -855,7 +859,7 @@ trait PostRepo
             if ($articleBlockId) {
                 $query->whereNotIn('id', $articleBlockId);
             }
-        
+
         }
         return $query;
     }
