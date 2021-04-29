@@ -75,6 +75,8 @@ trait CollectionResolvers
 
     public function resolveCollection($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
+        //标记获取详情数据信息模式
+        request()->request->add(['fetch_sns_detail' => true]);
         $collection_id = Arr::get($args, 'collection_id');
         app_track_event('合集玩法', '查看合集内视频', '合集id:' . $collection_id);
         if (checkUser()) {
