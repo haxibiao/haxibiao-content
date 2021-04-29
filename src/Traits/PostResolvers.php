@@ -90,18 +90,31 @@ trait PostResolvers
     public function resolvePublicPosts($root, $args, $context, $info)
     {
         app_track_event("首页", "访问动态广场");
-        if (in_array(config('app.name'), ['dongmeiwei'])) {
-            if (checkUser()) {
-                $visited = Visit::create([
-                    'visited_type' => 'publicPosts',
-                    'visited_id'   => 'publicPosts',
-                    'user_id'      => getUser()->id,
-                    'created_at'   => now(),
-                    'updated_at'   => now(),
-                ]);
+        $page  = $args['page'] ?? 1;
+        $first = $args['first'] ?? $args['count'] ?? 10;
+        $total = $page * $first;
+
+        // 更新时间倒排 - 默认访客
+        $query = \App\Post::publish()->latest('updated_at');
+
+        //FIXME: 印象视频团队给这段代码迁移出去
+        if (config('app.name') == 'yinxiangshipin') {
+            // 先刷快手的视频（避免出现展示的都是几个月前的动态)
+            $qb_kuaishou = $query->whereIn('spider_id', function ($query) {
+                $query->select('id')->from('spiders')->where('spiders.source_url', 'like', 'https://v.kuaishou.com/%');
+            });
+            //如果有的话
+            if ($qb_kuaishou->count()) {
+                $query = $qb_kuaishou;
             }
         }
-        return Post::newPublicPosts($args['user_id'] ?? null, data_get($args, 'page'), data_get($args, 'count'));
+
+        // 登录用户，尊重个人兴趣
+        if ($user = checkUser()) {
+            $query = Post::publicPosts($user->id);
+        }
+
+        return $query;
     }
 
     /**

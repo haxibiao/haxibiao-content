@@ -830,25 +830,21 @@ trait PostRepo
         return sprintf($shareMag, config('app.url'), $post->id, $post->description, config('app.name_cn'));
     }
 
-    //动态广场
+    /**
+     * 动态广场 - 尊重用户喜欢
+     */
     public static function publicPosts($user_id)
     {
         //排除用户拉黑（屏蔽）的用户发布的视频,排除拉黑（不感兴趣）的动态
-        $userBlockId    = [];
-        $articleBlockId = [];
-        $query          = Post::publish()
-            ->whereBetWeen('created_at', [now()->subDay(7), now()])
-            ->inRandomOrder();
-        if ($query->count() <= 0) {
-            $query = Post::publish()->inRandomOrder();
-        }
-        if (($user = getUser(false)) && class_exists("App\\UserBlock", true)) {
-            $userBlockId = \App\UserBlock::where("user_id", $user->id)
+        $query = Post::publish()->latest('updated_at');
+        //尊重用户拉黑的人和不感兴趣的动态
+        if ($user_id && class_exists("App\\UserBlock", true)) {
+            $userBlockId = \App\UserBlock::where("user_id", $user_id)
                 ->where('blockable_type', 'users')
                 ->pluck('blockable_id')
                 ->toArray();
 
-            $articleBlockId = \App\UserBlock::where("user_id", $user->id)
+            $postBlockId = \App\UserBlock::where("user_id", $user_id)
                 ->where('blockable_type', 'posts')
                 ->pluck('blockable_id')
                 ->toArray();
@@ -856,26 +852,11 @@ trait PostRepo
             if ($userBlockId) {
                 $query->whereNotIn('user_id', $userBlockId);
             }
-            if ($articleBlockId) {
-                $query->whereNotIn('id', $articleBlockId);
+            if ($postBlockId) {
+                $query->whereNotIn('id', $postBlockId);
             }
-
         }
         return $query;
-    }
-
-    public static function newPublicPosts($user_id, $page = 1, $count = 10)
-    {
-        $total = $page * $count;
-        // 先刷快手的视频,快手一周内的视频（避免出现展示的都是几个月前的动态
-        $query = \App\Post::where('created_at', '>', now()->subDay(7))->whereIn('spider_id', function ($query) {
-            $query->select('id')->from('spiders')->where('spiders.source_url', 'like', 'https://v.kuaishou.com/%');
-        })->publish();
-        if ($query->count() < $total) {
-            return Post::publicPosts($user_id);
-        }
-
-        return $query->inRandomOrder();
     }
 
     public static function relationQuestion($post_id, $content)
