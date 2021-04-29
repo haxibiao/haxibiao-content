@@ -65,6 +65,10 @@ type Post {
     review_day: String
     is_ad: Int
     """
+    播放次数
+    """
+    count_plays: Int
+    """
     标签名
     """
     tag_names: [String!]

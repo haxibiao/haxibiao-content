@@ -66,7 +66,7 @@ class PostController extends Controller
             ->with('category')
             ->with('video')
             ->orderBy('id', 'desc')
-            ->where('status', '>=',  Article::STATUS_REVIEW)
+            ->where('status', '>=', Article::STATUS_REVIEW)
             ->where('type', '=', 'video');
 
         //Search videos
@@ -129,6 +129,7 @@ class PostController extends Controller
         // dd($post->collection);
         $data['related_page'] = request()->get('related_page') ?? 0;
 
+        $post->increment('count_plays');
         //暂时用video.show兼容视频动态
         return view('video.show')
             ->with('video', $post->video)
