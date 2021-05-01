@@ -155,11 +155,11 @@ trait PostRepo
                     $video->saveDataOnly();
 
                     $coversUrl = data_get($result, 'raw.raw.item_list.0.video.origin_cover.url_list.0');
-                    $imagePath = 'images/' . genrate_uuid('jpg');
+                    $imagePath = 'images/' . generate_uuid('jpg');
                     Storage::cloud()->put($imagePath, file_get_contents($coversUrl));
 
                     $dynamicCoverUrl  = data_get($result, 'raw.raw.item_list.0.video.dynamic_cover.url_list.0');
-                    $dynamicCoverPath = 'images/' . genrate_uuid('webp');
+                    $dynamicCoverPath = 'images/' . generate_uuid('webp');
                     Storage::cloud()->put($dynamicCoverPath, file_get_contents($dynamicCoverUrl));
 
                     $width    = data_get($result, 'raw.raw.item_list.0.video.width');
