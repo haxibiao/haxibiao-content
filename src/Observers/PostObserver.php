@@ -20,6 +20,20 @@ class PostObserver
             $post->review_day = Post::makeNewReviewDay();
             $post->saveQuietly();
         }
+
+        //createPost 重构出来的冗余操作
+        // 记录用户操作
+        // Action::createAction('posts', $post->id, $post->user->id);
+
+        //添加定位信息
+        // if (in_array(config('app.name'), ['dongwaimao', 'jinlinle']) && !empty(data_get($inputs, 'location'))) {
+        //     \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
+        // }
+
+        //FIXME: 触发更新事件-扣除精力点？
+
+        app_track_event('发布', '发布Post动态');
+
     }
 
     /**

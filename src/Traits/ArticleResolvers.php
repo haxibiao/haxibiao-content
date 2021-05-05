@@ -7,10 +7,10 @@ use App\Scopes\ArticleSubmitScope;
 use App\Visit;
 use GraphQL\Type\Definition\ResolveInfo;
 use Haxibiao\Breeze\Exceptions\GQLException;
-use Haxibiao\Sns\UserBlock;
 use Haxibiao\Content\Post;
 use Haxibiao\Helpers\Facades\SensitiveFacade;
 use Haxibiao\Helpers\utils\BadWordUtils;
+use Haxibiao\Sns\UserBlock;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -54,6 +54,7 @@ trait ArticleResolvers
         });
         return $query;
     }
+
     public function createContent($root, array $args, $context)
     {
         if (in_array(config('app.name'), ['dongmeiwei', 'yinxiangshipin', 'caohan'])) {

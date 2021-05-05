@@ -11,6 +11,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 
+/**
+ * m3u8转mp4
+ * @deprecated FIXME: 这个也需要重构去哈希云
+ */
 class MakeMp4ByM3U8 implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable;
@@ -71,10 +75,10 @@ class MakeMp4ByM3U8 implements ShouldQueue
             if ($post = $video->post) {
                 $post->update([
                     'cover'  => $cover,
-                    'status' => Post::STATUS_ENABLE,
+                    'status' => Post::PUBLISH_STATUS,
                 ]);
             }
-            ProcessQCVideo::pushUrlCacheWithVODUrl($path);
+            // ProcessQCVideo::pushUrlCacheWithVODUrl($path);
         } catch (\Throwable $th) {
             info($th->getMessage());
             if (isset($video)) {

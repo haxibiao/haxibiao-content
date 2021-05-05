@@ -14,12 +14,11 @@ use App\Visit;
 use Carbon\Carbon;
 use DOMDocument;
 use Exception;
-use GuzzleHttp\Client;
 use Haxibiao\Breeze\Exceptions\GQLException;
 use Haxibiao\Breeze\Exceptions\UserException;
 use Haxibiao\Breeze\Ip;
 use Haxibiao\Breeze\Notifications\ReceiveAward;
-use Haxibiao\Media\Jobs\ProcessVod;
+use Haxibiao\Media\Spider;
 use Haxibiao\Sns\Tip;
 use Haxibiao\Wallet\Gold;
 use Illuminate\Http\UploadedFile;
@@ -66,9 +65,9 @@ trait ArticleRepo
                     $article->video_id    = $video->id; //关联上视频
                     $article->save();
                 } else {
-                    $qcvod_fileid = $inputs['qcvod_fileid'];
-                    $video        = Video::firstOrNew([
-                        'qcvod_fileid' => $qcvod_fileid,
+                    $fileid = $inputs['qcvod_fileid'];
+                    $video  = Video::firstOrNew([
+                        'fileid' => $fileid,
                     ]);
                     $video->user_id = $user->id;
                     $video->path    = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
@@ -87,7 +86,6 @@ trait ArticleRepo
                     $article->cover_path  = 'video/black.jpg';
                     $article->save();
 
-                    ProcessVod::dispatch($video);
                 }
 
                 //存文字动态或图片动态
@@ -190,9 +188,9 @@ trait ArticleRepo
                     $article->type      = 'issue';
                     $article->save();
                 } else if ($inputs['qcvod_fileid'] != null) {
-                    $qcvod_fileid = $inputs['qcvod_fileid'];
-                    $video        = Video::firstOrNew([
-                        'qcvod_fileid' => $qcvod_fileid,
+                    $fileid = $inputs['qcvod_fileid'];
+                    $video  = Video::firstOrNew([
+                        'fileid' => $fileid,
                     ]);
                     //这个地方需要做成异步
                     $video->user_id = $user->id;
@@ -212,7 +210,7 @@ trait ArticleRepo
                     $article->video_id    = $video->id;
                     $article->cover_path  = 'video/black.jpg';
                     $article->save();
-                    ProcessVod::dispatch($video);
+
                 }
             } else if ($inputs['images']) {
 
@@ -822,9 +820,9 @@ trait ArticleRepo
             $video->user_id = $this->user_id;
 
             //更改VOD地址
-            $video->disk         = 'vod';
-            $video->qcvod_fileid = Arr::get($json, 'vod.FileId');
-            $video->path         = $mediaUrl;
+            $video->disk   = 'vod';
+            $video->fileid = Arr::get($json, 'vod.FileId');
+            $video->path   = $mediaUrl;
             $video->save();
 
             //保存视频截图 && 同步填充信息
@@ -870,32 +868,10 @@ trait ArticleRepo
         return $this->status == Article::STATUS_REVIEW;
     }
 
-    public function spiderParse($url)
-    {
-        $hookUrl  = url('api/media/hook');
-        $data     = [];
-        $client   = new Client();
-        $response = $client->request('GET', 'http://media.haxibiao.com/api/v1/spider/store', [
-            'http_errors' => false,
-            'query'       => [
-                'source_url' => trim($url),
-                'hook_url'   => $hookUrl,
-            ],
-        ]);
-        throw_if($response->getStatusCode() == 404, GQLException::class, '您分享的链接不存在,请稍后再试!');
-        $contents = $response->getBody()->getContents();
-        if (!empty($contents)) {
-            $contents = json_decode($contents, true);
-            $data     = Arr::get($contents, 'data');
-        }
-
-        return $data;
-    }
-
     public function startSpider()
     {
         if ($this->isReviewing() && $this->isSpider()) {
-            $data  = $this->spiderParse($this->source_url);
+            $data  = Spider::parse($this->source_url);
             $video = Arr::get($data, 'video');
             if (is_array($video)) {
                 $this->processSpider($data);

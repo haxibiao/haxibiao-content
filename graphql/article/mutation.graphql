@@ -1,8 +1,13 @@
 extend type Mutation @guard {
+    """
+    创建文章(带视频，暂时没用，将用)
+    """
     createPost(body: String!, image_urls: [String!], video_id: Int, category_ids: [Int!]): Article!
-        @field(resolver: "App\\Post@resolveCreateContent")
-        @deprecated(reason: "请使用createPostContent")
+        @field(resolver: "App\\Article@resolveCreatePost")
 
+    """
+    创建文章(暂时没用，将用)
+    """
     createContent(
         body: String!
         image_urls: [String!]
@@ -12,7 +17,7 @@ extend type Mutation @guard {
         images: [String!]
         type: ContenType!
         issueInput: IssueInfo
-    ): Article! @field(resolver: "App\\Post@resolveCreateContent") @deprecated(reason: "请使用createPostContent")
+    ): Article! @field(resolver: "App\\Article@resolveCreatePost")
 
     restoreArticle(id: Int!): Article @field(resolver: "App\\Article@restoreArticle")
 

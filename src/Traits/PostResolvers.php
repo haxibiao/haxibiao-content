@@ -14,6 +14,47 @@ use Illuminate\Support\Arr;
 trait PostResolvers
 {
 
+    /**
+     * 最常用的发布动态接口，不需要考虑其他content的发布，文章，问答，走其他接口
+     */
+    public function resolveCreateContent($root, array $args, $context, $info)
+    {
+        //参数格式化
+        $inputs = [
+            'body'           => Arr::get($args, 'body'),
+            'category_ids'   => Arr::get($args, 'category_ids', null),
+            'product_id'     => Arr::get($args, 'product_id', null),
+            'images'         => Arr::get($args, 'images', null),
+            'video_id'       => Arr::get($args, 'video_id', null),
+            'qcvod_fileid'   => Arr::get($args, 'qcvod_fileid', null),
+            'share_link'     => data_get($args, 'share_link', null),
+            'collection_ids' => data_get($args, 'collection_ids', null),
+            'community_id'   => data_get($args, 'community_id', null),
+            'location'       => data_get($args, 'location', null),
+
+        ];
+
+        //FIXME:  安保联盟的 tag_id 与 category_ids 同含义?
+        // 这个前端传参小坑，不要继续留下去了，
+        // 自己resolvers层修复兼容，不给createPost增加逻辑
+
+        // 这里已经写死createPost了
+        $post = Post::createPost($inputs);
+
+        //标签处理
+        $tagNames = data_get($args, 'tag_names', []);
+        if ($tagNames) {
+            //FIXME: 答赚tag表里有部分数据是 前端tabs定义的用途，需要和前端一起重构掉
+            if (!env('APP_NAME') == "datizhuanqian") {
+                $post->tagByNames($tagNames);
+            }
+
+            $post->save();
+        }
+
+        return $post;
+    }
+
     public static function MakePostByMovie($rootValue, array $args, $context, $resolveInfo)
     {
         $series_id = $args['series_id'];

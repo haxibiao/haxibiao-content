@@ -81,17 +81,17 @@ class SyncPostWithMovie extends Command
                         $video = Video::updateOrCreate([
                             'path' => $sourceVideo->path,
                         ], [
-                            'user_id'      => $user_id,
-                            'title'        => $sourceVideo->filename,
-                            'duration'     => $sourceVideo->json->duration,
-                            'hash'         => $sourceVideo->hash,
-                            'cover'        => $sourceVideo->cover,
-                            'status'       => $sourceVideo->status,
-                            'json'         => $sourceVideo->json,
-                            'disk'         => $sourceVideo->disk,
-                            'qcvod_fileid' => $sourceVideo->fileid,
-                            'created_at'   => now(),
-                            'updated_at'   => now(),
+                            'user_id'    => $user_id,
+                            'title'      => $sourceVideo->filename,
+                            'duration'   => $sourceVideo->json->duration,
+                            'hash'       => $sourceVideo->hash,
+                            'cover'      => $sourceVideo->cover,
+                            'status'     => $sourceVideo->status,
+                            'json'       => $sourceVideo->json,
+                            'disk'       => $sourceVideo->disk,
+                            'fileid'     => $sourceVideo->fileid,
+                            'created_at' => now(),
+                            'updated_at' => now(),
                         ]
                         );
                         $this->info("保存video->id:" . $video->id . ' ' . $video->path . ' 成功');

@@ -2,7 +2,6 @@
 
 namespace Haxibiao\Content\Traits;
 
-use App\Action;
 use App\AppConfig;
 use App\Collection;
 use App\Comment;
@@ -19,85 +18,13 @@ use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Jobs\PublishNewPosts;
 use Haxibiao\Helpers\Facades\SensitiveFacade;
 use Haxibiao\Helpers\utils\BadWordUtils;
-use Haxibiao\Helpers\utils\QcloudUtils;
 use Haxibiao\Media\Events\PostPublishSuccess;
-use Haxibiao\Media\Jobs\ProcessVod;
 use Haxibiao\Media\Video;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 trait PostRepo
 {
-
-    //创建post（video和image），不处理issue问答创建了
-    public function resolveCreateContent($root, array $args, $context, $info)
-    {
-
-        if (in_array(config('app.name'), ['dongmeiwei', 'yinxiangshipin', 'caohan'])) {
-            $islegal = SensitiveFacade::islegal(Arr::get($args, 'body'));
-            if ($islegal) {
-                throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
-            }
-        } else {
-            if (BadWordUtils::check(Arr::get($args, 'body'))) {
-                throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
-            }
-        }
-        //参数格式化
-        $inputs = [
-            'body'           => Arr::get($args, 'body'),
-            'category_ids'   => Arr::get($args, 'category_ids', null),
-            'product_id'     => Arr::get($args, 'product_id', null),
-            'images'         => Arr::get($args, 'images', null),
-            'video_id'       => Arr::get($args, 'video_id', null),
-            'qcvod_fileid'   => Arr::get($args, 'qcvod_fileid', null),
-            'share_link'     => data_get($args, 'share_link', null),
-            'collection_ids' => data_get($args, 'collection_ids', null),
-            'community_id'   => data_get($args, 'community_id', null),
-            'location'       => data_get($args, 'location', null),
-
-        ];
-
-        //FIXME:  安保联盟的 tag_id 与 category_ids 同含义
-        if ('ablm' == config('app.name')) {
-
-            $inputs = [
-                'body'         => Arr::get($args, 'body'),
-                'gold'         => Arr::get($args, 'issueInput.gold', 0),
-                'tag_id'       => Arr::get($args, 'category_ids', null),
-                'images'       => Arr::get($args, 'images', null),
-                'video_id'     => Arr::get($args, 'video_id', null),
-                'qcvod_fileid' => Arr::get($args, 'qcvod_fileid', null),
-            ];
-        }
-        //FIXME:  yyjieyou的 tag_id 与 category_ids 同含义
-        if ('yyjieyou' == config('app.name')) {
-            $arr    = $args['category_ids'] ?? null;
-            $tag_id = $arr['0'];
-            $inputs = [
-                'body'     => Arr::get($args, 'body'),
-                'tag_id'   => $tag_id,
-                'video_id' => Arr::get($args, 'video_id', null),
-
-            ];
-        }
-        $post = Post::createPost($inputs);
-
-        $tagNames = data_get($args, 'tag_names', []);
-        if ($tagNames) {
-            //答转tag表可能还有用，先不存标签
-            if (!env('APP_NAME') == "datizhuanqian") {
-                $post->tagByNames($tagNames);
-            }
-
-            $post->save();
-        }
-
-        return $post;
-    }
-
     /**
      * 创建动态
      * body:    文字描述
@@ -107,248 +34,114 @@ trait PostRepo
      */
     public static function createPost($inputs)
     {
-        if (in_array(config('app.name'), ['dongmeiwei', 'yinxiangshipin', 'caohan'])) {
-            $islegal = SensitiveFacade::islegal(data_get($inputs, 'body'));
-            if ($islegal) {
-                throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
-            }
-        }
-
         try {
             $user = getUser();
+            // 禁言
             if ($user->isBlack()) {
-                throw new GQLException('发布失败,你以被禁言');
+                throw new GQLException('发布失败,你已被禁言');
             }
 
-            //带视频
-            $video_id     = $inputs['video_id'] ?? null;
-            $qcvod_fileid = $inputs['qcvod_fileid'] ?? null;
-            $body         = $inputs['body'] ?? null;
-            $images       = $inputs['images'] ?? null;
-            $shareLink    = data_get($inputs, 'share_link');
+            //视频
+            $video_id = $inputs['video_id'] ?? null; //这个参数全栈检查后发现没用
+            $fileid   = $inputs['qcvod_fileid'] ?? null; //这是才是视频动态的标识
 
-            if ($shareLink) {
-                throw_if(is_null($qcvod_fileid), GQLException::class, '收藏失败,请稍后重试!');
+            //图片
+            $images = $inputs['images'] ?? null;
+            //文字
+            $body = $inputs['body'] ?? null;
+            //分享链接
+            $shareLink = data_get($inputs, 'share_link');
 
-                $videoInfo = QcloudUtils::getVideoInfo($qcvod_fileid);
-                throw_if(is_null($videoInfo), GQLException::class, '收藏失败,请稍后重试!');
-
-                //                //精力点校验
-                //                throw_if($user->ticket < 1, UserException::class, '分享视频失败,精力点不足,请补充精力点!');
-
-                $sourceVideoUrl = data_get($videoInfo, 'basicInfo.sourceVideoUrl');
-                $dyUrl          = Spider::extractURL($shareLink);
-                $result         = @file_get_contents('http://media.haxibiao.com/api/v1/spider/parse?share_link=' . $dyUrl);
-                throw_if(!$result, GQLException::class, '收藏失败,请稍后重试!');
-
-                $result = json_decode($result);
-                $video  = Video::firstOrNew([
-                    'hash' => hash_file('md5', $sourceVideoUrl),
-                ]);
-                if (!$video->exists) {
-                    $video->user_id      = $user->id;
-                    $video->qcvod_fileid = $qcvod_fileid;
-                    $video->path         = $sourceVideoUrl;
-                    $video->disk         = 'vod';
-                    $video->created_at   = now();
-                    $video->updated_at   = now();
-                    $video->saveDataOnly();
-
-                    $coversUrl = data_get($result, 'raw.raw.item_list.0.video.origin_cover.url_list.0');
-                    $imagePath = 'images/' . generate_uuid('jpg');
-                    Storage::cloud()->put($imagePath, file_get_contents($coversUrl));
-
-                    $dynamicCoverUrl  = data_get($result, 'raw.raw.item_list.0.video.dynamic_cover.url_list.0');
-                    $dynamicCoverPath = 'images/' . generate_uuid('webp');
-                    Storage::cloud()->put($dynamicCoverPath, file_get_contents($dynamicCoverUrl));
-
-                    $width    = data_get($result, 'raw.raw.item_list.0.video.width');
-                    $height   = data_get($result, 'raw.raw.item_list.0.video.height');
-                    $duration = data_get($result, 'raw.raw.item_list.0.video.duration', 0);
-
-                    $video->json = [
-                        'cover'          => cdnurl($imagePath),
-                        'width'          => $width,
-                        'height'         => $height,
-                        'duration'       => intval($duration / 1000),
-                        'sourceVideoUrl' => $sourceVideoUrl,
-                        'dynamic_cover'  => cdnurl($dynamicCoverPath),
-                        'share_link'     => $dyUrl,
-                    ];
-                    $video->status = Video::TRANSCODE_STATUS;
-                    $video->saveDataOnly();
+            //清理所有冗余的过滤敏感词逻辑后，还剩下这些
+            if (in_array(config('app.name'), ['dongmeiwei', 'yinxiangshipin', 'caohan'])) {
+                $islegal = SensitiveFacade::islegal($body);
+                if ($islegal) {
+                    throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
                 }
-
-                $spider = Spider::firstOrNew([
-                    'source_url' => $dyUrl,
-                ]);
-                if (!$spider->exists) {
-                    $spider->data = [
-                        'title' => $body,
-                        'raw'   => data_get($result, 'raw.raw'),
-                    ];
-                    $spider->status      = Spider::PROCESSED_STATUS;
-                    $spider->spider_type = 'videos';
-                    $spider->spider_id   = $video->id;
-                    $spider->user_id     = $user->id;
-                    $spider->created_at  = now();
-                    $spider->updated_at  = now();
-                    $spider->saveDataOnly();
-                }
-                $post = \Haxibiao\Content\Post::firstOrNew([
-                    'user_id'  => $user->id,
-                    'video_id' => $video->id,
-                ]);
-                if (!$post->exists) {
-                    $post->description = $body;
-                    $post->status      = Post::PUBLISH_STATUS;
-                    $post->spider_id   = $spider->id;
-                    // PostObserver自动更新快速推荐排序游标
-                    $post->save();
-                    if ('dongdianyi' != (config('app.name'))) {
-                        //默认添加抖音中的标签
-                        self::extractTag($post);
-                        // 动态是否开启默认生成合集
-                        $postOpenCollection = config('haxibiao-content.post_open_collection', true);
-                        if ($postOpenCollection) {
-                            if ($post instanceof Collectionable) {
-                                //默认添加抖音中的合集
-                                self::extractCollect($post);
-                            }
-                        }
-                    }
-                    //添加定位信息
-                    if (in_array(config('app.name'), ['dongwaimao', 'jinlinle']) && !empty(data_get($inputs, 'location'))) {
-                        \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
-                    }
-                }
-                //触发更新事件-扣除精力点
-                $spider->updated_at = now();
-                $spider->save();
             } else {
-                if ($video_id || $qcvod_fileid) {
-                    if ($qcvod_fileid) {
-                        //先给前端直接返回一个可播放的url
-                        $videoInfo      = QcloudUtils::getVideoInfo($qcvod_fileid);
-                        $defalutPath    = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
-                        $sourceVideoUrl = Arr::get($videoInfo, 'basicInfo.sourceVideoUrl', $defalutPath);
-                        $video          = Video::firstOrNew([
-                            'hash' => hash_file('md5', $sourceVideoUrl),
-                        ]);
-                        throw_if($video->exists, GQLException::class, '该视频已经被上传过啦，换一个试试');
-                        $video->qcvod_fileid = $qcvod_fileid;
-                        $video->user_id      = $user->id;
-                        //$video->hash         = hash_file('md5',$sourceVideoUrl);
-                        $video->path = $sourceVideoUrl;
-                        // $video->cover = '...'; //TODO: 待王彬新 sdk 提供封面cdn url
-                        $video->title = Str::limit($body, 50);
-                        $video->save();
-                        //创建post
-                        $post           = new static();
-                        $post->user_id  = $user->id;
-                        $post->video_id = $video->id;
-                        if ('dongdianyi' == (config('app.name'))) {
-                            $post->status = Post::PUBLISH_STATUS;
-                        } else {
-                            $post->status = Post::PRIVARY_STATUS; //vod视频动态刚发布时是草稿状态
-                        }
-                        $post->description = $body;
-
-                        // PostObserver自动更新快速推荐排序游标
-                        $post->save();
-                        //添加定位信息
-                        if (in_array(config('app.name'), ['dongwaimao', 'jinlinle']) && !empty(data_get($inputs, 'location'))) {
-                            \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
-                        }
-
-                        //                        $chain = [];
-                        //                        if(config('haxibiao-content.enabled_video_share',false)){
-                        //                            // 如果视频大于video_threshold_size,不处理metadata
-                        //                            $fileSize = data_get($videoInfo,'metaData.size',null);
-                        //                            $flag     = $fileSize && $fileSize < config('haxibiao-content.video_threshold_size',100*1024*1024);
-                        //                            if( $flag){
-                        //                                $chain = [
-                        //                                    new VideoAddMetadata($video),// 修改视频的metadata信息
-                        //                                ];
-                        //                            }
-                        //                        }
-                        //                        ProcessVod::withChain($chain)->dispatch($video);
-                        ProcessVod::dispatch($video);
-
-                        // 记录用户操作
-                        Action::createAction('posts', $post->id, $post->user->id);
-                        // Ip::createIpRecord('users', $user->id, $user->id);
-                    } else if ($video_id) {
-                        $post = Post::where('video_id', $video_id)->first();
-                        if (!$post) {
-                            $post = new static();
-                        }
-                        $post->description = $body;
-                        $post->video_id    = $video_id; //关联上视频
-                        $post->user_id     = $user->id;
-
-                        //安保联盟post进行了分类
-                        if ('ablm' == (config('app.name'))) {
-                            $post->tag_id = $inputs['tag_id'][0];
-
-                            //保证下面返回的两个字段不为Null，数据库已设置默认值为0
-                            $post->count_likes    = 0;
-                            $post->comments_count = 0;
-                        }
-
-                        //yyjieyou
-                        if ('yyjieyou' == (config('app.name'))) {
-                            $post->tag_id = $inputs['tag_id'];
-                        }
-
-                        // PostObserver自动更新快速推荐排序游标
-                        $post->save();
-                        //添加定位信息
-                        if (in_array(config('app.name'), ['dongwaimao', 'jinlinle']) && !empty(data_get($inputs, 'location'))) {
-                            \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
-                        }
-                    }
-                } else {
-                    //带图片
-                    $post = new static();
-                    //FIXME: 修复原来content不空，description为空的，主要维护description字段 https: //pm.haxifang.com/browse/YXSP-195
-                    $post->description = $body;
-                    $post->user_id     = $user->id;
-                    $post->status      = Post::PUBLISH_STATUS;
-                    $post->save();
-
-                    //添加定位信息
-                    if (in_array(config('app.name'), ['dongwaimao', 'jinlinle']) && !empty(data_get($inputs, 'location'))) {
-                        \App\Location::storeLocation(data_get($inputs, 'location'), 'posts', $post->id);
-                    }
-
-                    if ($images) {
-                        $imageIds = [];
-                        foreach ($images as $image) {
-                            $model      = Image::saveImage($image);
-                            $imageIds[] = $model->id;
-                        }
-                        $post->images()->sync($imageIds);
-                    }
+                if (BadWordUtils::check($body)) {
+                    throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
                 }
             }
 
-            if (env('APP_NAME') == "dianmoge") {
-                Post::createArticle($inputs, $user);
+            //动态
+            $post              = new Post();
+            $post->description = $body;
+            $post->user_id     = $user->id;
+            $post->status      = Post::PUBLISH_STATUS;
+            //视频
+            $post->fileid = $fileid;
+            // 已上传vod，同步video
+            if ($fileid) {
+                //主动上传视频排重
+                $video = Video::firstOrNew([
+                    'fileid' => $fileid,
+                ]);
+                if ($video->exists) {
+                    //重复发布？支持！上传vod成功返回fileid不容易
+                }
+                $vodJson        = Video::getVodJson($fileid);
+                $video->user_id = $user->id;
+                //vod 播放地址
+                $video->path  = data_get($vodJson, 'basicInfo.sourceVideoUrl');
+                $video->title = Str::limit($body, 50);
+                $video->disk  = 'vod';
+                $video->save();
+                $post->video_id = $video->id;
+            }
+            //分享视频连接方式发布作品
+            if ($shareLink) {
+                //前端需已上传到vod
+                throw_if(is_null($video), GQLException::class, '收藏失败,请稍后重试!');
+
+                //秒粘贴结果
+                $dyUrl    = Spider::extractURL($shareLink);
+                $fastJson = Spider::getFastDouyinVideoInfo($dyUrl);
+
+                //乐观更新 封面
+                $video->json = array_merge(json_decode($video->json), [
+                    'dynamic_cover' => data_get($fastJson, 'dynamic_cover'),
+                    'cover'         => data_get($fastJson, 'cover'),
+                ]);
+                $video->sharelink = $dyUrl;
+                $video->saveQuietly();
+            }
+            $post->save();
+
+            //图片
+            if ($images) {
+                $imageIds = [];
+                foreach ($images as $image) {
+                    $model      = Image::saveImage($image);
+                    $imageIds[] = $model->id;
+                }
+                $post->images()->sync($imageIds);
             }
 
-            // Sync分类关系
+            // 专题
             if ($inputs['category_ids'] ?? null) {
                 $post->addCategories($inputs['category_ids']);
             }
+            // 合集
             if ($inputs['collection_ids'] ?? null) {
                 $post->addCollections($inputs['collection_ids']);
             }
+            // 社区
             if ($inputs['community_id'] ?? null) {
                 $post->communities()->sync($inputs['community_id'], false);
             }
 
-            app_track_event('发布', '发布Post动态');
+            //同步抖音中的标签
+            Post::extractTag($post);
+            // 同步合集的开关
+            $postOpenCollection = config('haxibiao-content.post_open_collection', true);
+            if ($postOpenCollection) {
+                if ($post instanceof Collectionable) {
+                    //同步抖音中的合集
+                    Post::extractCollect($post);
+                }
+            }
+
             return $post;
         } catch (\Exception $ex) {
             Log::error($ex->getMessage());
@@ -377,14 +170,13 @@ trait PostRepo
                 $article->video_id    = $video->id; //关联上视频
                 $article->save();
             } else {
-                $qcvod_fileid = $inputs['qcvod_fileid'];
-                $video        = Video::firstOrNew([
-                    'qcvod_fileid' => $qcvod_fileid,
+                $fileid = $inputs['qcvod_fileid'];
+                $video  = Video::firstOrNew([
+                    'fileid' => $fileid,
                 ]);
-                $video->qcvod_fileid = $qcvod_fileid;
-                $video->user_id      = $user->id;
-                $video->path         = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
-                $video->title        = Str::limit($inputs['body'], 50);
+                $video->user_id = $user->id;
+                $video->path    = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
+                $video->title   = Str::limit($inputs['body'], 50);
                 $video->save();
                 //创建article
                 $article              = new \App\Article();
@@ -399,7 +191,6 @@ trait PostRepo
                 $article->cover_path  = 'video/black.jpg';
                 $article->save();
 
-                ProcessVod::dispatch($video);
             }
 
             //存文字动态或图片动态
@@ -558,16 +349,13 @@ trait PostRepo
 
         //创建动态 避免重复创建..
         if (!isset($post->id)) {
-            $post->user_id = $spider->user_id;
-            if (!config('app.name') == 'yinxiangshipin') {
-                $post->description = Arr::get($spider->data, 'title', '');
-            }
-            if (config('app.name') == 'datizhuanqian') {
-                $post->description = $spider->title;
-            }
-            $post->status     = Post::PRIVARY_STATUS; //草稿，爬虫抓取中
-            $post->created_at = now();
-            $post->save();
+            $post->user_id     = $spider->user_id;
+            $post->description = $spider->title;
+            $post->status      = Post::PRIVARY_STATUS; //草稿，爬虫抓取中
+            $post->created_at  = now();
+            //视频
+            $post->video_id = $spider->spider_id;
+            $post->saveQuietly();
         }
     }
 
@@ -726,7 +514,6 @@ trait PostRepo
         $shareTitle  = data_get($spider, 'data.raw.item_list.0.share_info.share_title');
         $description = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '抖音', '@DOU+小助手', '快手', '#快手创作者服务中心', ' @快手小助手', '#快看'], '', $shareTitle);
         //抖音元数据存spider data上了
-
         foreach ($tagList as $tag) {
             $name = $tag['hashtag_name'];
             //移除关键词
@@ -740,12 +527,9 @@ trait PostRepo
         if (!$post->description) {
             $post->description = trim($description);
         }
-        // 标签
-        //答转tag表可能还有用，先不存标签
-        if (!env('APP_NAME') == "datizhuanqian") {
-            $post->tagByNames($tagNames);
-        }
 
+        // 标签
+        $post->tagByNames($tagNames);
         $post->save();
     }
 
@@ -821,12 +605,15 @@ trait PostRepo
         throw_if(is_null($post), GQLException::class, '该动态不存在哦~,请稍后再试');
 
         $shareMag = config('haxibiao-content.share_config.share_msg', '%s/share/post/%d?s=#%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,');
-        if (checkUser() && class_exists("App\\Helpers\\Redis\\RedisSharedCounter", true)) {
-            $user = getUser();
-            \App\Helpers\Redis\RedisSharedCounter::updateCounter($user->id);
-            //触发分享任务
-            $user->reviewTasksByClass('Share');
-        }
+
+        //FIXME: 直接用redis逻辑的,都先用普通Cache Facade !!!!
+        // if (checkUser() && class_exists("App\\Helpers\\Redis\\RedisSharedCounter", true)) {
+        //     $user = getUser();
+        //     \App\Helpers\Redis\RedisSharedCounter::updateCounter($user->id);
+        //     //触发分享任务
+        //     $user->reviewTasksByClass('Share');
+        // }
+
         return sprintf($shareMag, config('app.url'), $post->id, $post->description, config('app.name_cn'));
     }
 

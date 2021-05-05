@@ -8,7 +8,7 @@ use App\Post;
 use App\Spider;
 use App\User;
 use GuzzleHttp\Client;
-use Haxibiao\Media\Jobs\MediaProcess;
+use Haxibiao\Media\Jobs\SpiderProcess;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -161,7 +161,7 @@ class CrawlCollection extends Command
                     Auth::login($vestUser);
                     try {
                         //爬取对应的数据
-                        dispatch(new MediaProcess($spider->id));
+                        dispatch(new SpiderProcess($spider->id));
                     } catch (\Exception $ex) {
                         $info = $ex->getMessage();
                         info("异常信息" . $info);
@@ -174,7 +174,7 @@ class CrawlCollection extends Command
             $collection = $collections[$mixId];
             $collection->posts()->sync($postIds);
             //冗余一下collection_id
-            $collection->posts()->each(function ($item, $key)use($collection) {
+            $collection->posts()->each(function ($item, $key) use ($collection) {
                 $item->update(['collection_id' => $collection->id]);
             });
 

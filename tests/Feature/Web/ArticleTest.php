@@ -42,7 +42,7 @@ class ArticleTest extends TestCase
         $article = $this->article;
 
         //关联专题
-        $categories = Category::factory(3)->create();
+        $categories   = Category::factory(3)->create();
         $category_ids = [];
         foreach ($categories as $category) {
             $category_ids[] = $category->id;
@@ -52,7 +52,7 @@ class ArticleTest extends TestCase
         $data  = [
             'categories'   => $categories,
             'video_id'     => $video->id,
-            'qcvod_fileid' => $video->qcvod_fileid,
+            'fileid'       => $video->fileid,
             'body'         => $article->body,
             'category_ids' => $category_ids,
         ];
