@@ -70,9 +70,10 @@ trait PostRepo
             $post->user_id     = $user->id;
             $post->status      = Post::PUBLISH_STATUS;
             //视频
-            $post->fileid = $fileid;
-            // 已上传vod，同步video
+
+            // 本地上传video
             if ($fileid) {
+                $post->fileid = $fileid;
                 //主动上传视频排重
                 $video = Video::firstOrNew([
                     'fileid' => $fileid,
@@ -91,19 +92,27 @@ trait PostRepo
             }
             //分享视频连接方式发布作品
             if ($shareLink) {
-                //前端需已上传到vod
-                throw_if(is_null($video), GQLException::class, '收藏失败,请稍后重试!');
 
                 //秒粘贴结果
-                $dyUrl    = Spider::extractURL($shareLink);
-                $fastJson = Spider::getFastDouyinVideoInfo($dyUrl);
+                $dyUrl            = Spider::extractURL($shareLink);
+                $fastJson         = Spider::getFastDouyinVideoInfo($dyUrl);
+                $video->sharelink = $dyUrl;
+
+                //粘贴视频排重
+                $video = Video::firstOrNew([
+                    'sharelink' => $dyUrl,
+                ]);
+                $video->user_id = $user->id;
+                $video->title   = Str::limit($body, 50);
+                $video->disk    = 'vod';
+                $video->save();
 
                 //乐观更新 封面
                 $video->json = array_merge(json_decode($video->json), [
                     'dynamic_cover' => data_get($fastJson, 'dynamic_cover'),
                     'cover'         => data_get($fastJson, 'cover'),
                 ]);
-                $video->sharelink = $dyUrl;
+
                 $video->saveQuietly();
             }
             $post->save();
