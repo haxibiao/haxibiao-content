@@ -17,7 +17,6 @@ use Haxibiao\Breeze\Exceptions\GQLException;
 use Haxibiao\Content\Constracts\Collectionable;
 use Haxibiao\Content\Jobs\PublishNewPosts;
 use Haxibiao\Helpers\Facades\SensitiveFacade;
-use Haxibiao\Helpers\utils\BadWordUtils;
 use Haxibiao\Media\Events\PostPublishSuccess;
 use Haxibiao\Media\Video;
 use Illuminate\Support\Facades\Log;
@@ -52,7 +51,7 @@ trait PostRepo
             //分享链接
             $shareLink = data_get($inputs, 'share_link');
 
-            throw_if(SensitiveFacade::islegal($body),new GQLException('发布的内容中含有包含非法内容,请删除后再试!'));
+            throw_if(SensitiveFacade::islegal($body), new GQLException('发布的内容中含有包含非法内容,请删除后再试!'));
 
             //动态
             $post              = new Post();
@@ -70,10 +69,10 @@ trait PostRepo
                 if ($video->exists) {
                     //重复发布？支持！上传vod成功返回fileid不容易
                 }
-                $vodJson        = Video::getVodJson($fileid);
+                $cloudVideoInfo = Video::getCloudVideoInfo($fileid);
                 $video->user_id = $user->id;
                 //vod 播放地址, 无封面
-                $video->path  = data_get($vodJson, 'basicInfo.sourceVideoUrl');
+                $video->path  = data_get($cloudVideoInfo, 'url');
                 $video->title = Str::limit($body, 50);
                 $video->disk  = 'vod';
                 $video->save();
