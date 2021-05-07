@@ -63,7 +63,6 @@ trait PostRepo
 
             // 本地上传video
             if ($fileid) {
-                $post->fileid = $fileid;
                 //主动上传视频排重
                 $video = Video::firstOrNew([
                     'fileid' => $fileid,
@@ -73,7 +72,7 @@ trait PostRepo
                 }
                 $vodJson        = Video::getVodJson($fileid);
                 $video->user_id = $user->id;
-                //vod 播放地址
+                //vod 播放地址, 无封面
                 $video->path  = data_get($vodJson, 'basicInfo.sourceVideoUrl');
                 $video->title = Str::limit($body, 50);
                 $video->disk  = 'vod';
@@ -85,7 +84,7 @@ trait PostRepo
 
                 //秒粘贴结果
                 $dyUrl            = Spider::extractURL($shareLink);
-                $fastJson         = Spider::getFastDouyinVideoInfo($dyUrl);
+                $pasteVideoInfo   = Spider::getPasteVideoInfo($dyUrl);
                 $video->sharelink = $dyUrl;
 
                 //粘贴视频排重
@@ -95,15 +94,17 @@ trait PostRepo
                 $video->user_id = $user->id;
                 $video->title   = Str::limit($body, 50);
                 $video->disk    = 'vod';
+
+                //乐观更新 粘贴的播放地址 + 封面
+                $video->json = array_merge(json_decode($video->json), [
+                    'dynamic_cover' => data_get($pasteVideoInfo, 'dynamic_cover'),
+                    'cover'         => data_get($pasteVideoInfo, 'cover'),
+                ]);
+                $video->path  = data_get($pasteVideoInfo, 'play_ur');
+                $video->cover = data_get($pasteVideoInfo, 'cover');
+
                 $video->save();
 
-                //乐观更新 封面
-                $video->json = array_merge(json_decode($video->json), [
-                    'dynamic_cover' => data_get($fastJson, 'dynamic_cover'),
-                    'cover'         => data_get($fastJson, 'cover'),
-                ]);
-
-                $video->saveQuietly();
             }
             $post->save();
 
@@ -341,29 +342,10 @@ trait PostRepo
         return $posts;
     }
 
-    //粘贴时：保存抖音爬虫视频动态
-    public static function saveSpiderVideoPost($spider)
-    {
-        $post = Post::firstOrNew(['spider_id' => $spider->id]);
-
-        //创建动态 避免重复创建..
-        if (!isset($post->id)) {
-            $post->user_id     = $spider->user_id;
-            $post->description = $spider->title;
-            $post->status      = Post::PRIVARY_STATUS; //草稿，爬虫抓取中
-            $post->created_at  = now();
-            //视频
-            $post->video_id = $spider->spider_id;
-            $post->saveQuietly();
-        }
-    }
-
     //抖音爬虫成功时：发布视频动态
     public static function publishSpiderVideoPost($spider)
     {
-        $post = Post::where(['spider_id' => $spider->id])->first();
-        if ($post) {
-            $post->video_id = $spider->spider_id; //爬虫的类型spider_type="videos",这个video_id只有爬虫成功后才有...
+        if ($post = $spider->post) {
             Post::publishPost($post);
 
             // 延迟发布评论
