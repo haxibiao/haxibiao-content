@@ -52,17 +52,7 @@ trait PostRepo
             //分享链接
             $shareLink = data_get($inputs, 'share_link');
 
-            //清理所有冗余的过滤敏感词逻辑后，还剩下这些
-            if (in_array(config('app.name'), ['dongmeiwei', 'yinxiangshipin', 'caohan'])) {
-                $islegal = SensitiveFacade::islegal($body);
-                if ($islegal) {
-                    throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
-                }
-            } else {
-                if (BadWordUtils::check($body)) {
-                    throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
-                }
-            }
+            throw_if(SensitiveFacade::islegal($body),new GQLException('发布的内容中含有包含非法内容,请删除后再试!'));
 
             //动态
             $post              = new Post();
