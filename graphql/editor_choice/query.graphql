@@ -12,5 +12,5 @@ extend type Query {
   """
   根据名字查询小编精选
   """
-  editorChoice(title: String! @eq): EditorChoice @find
+  editorChoice(title: String! @eq): EditorChoice @field(resolver: "App\\EditorChoice@resolveEditorChoice")
 }
