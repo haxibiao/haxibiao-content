@@ -58,7 +58,7 @@ trait FastRecommendStrategy
 
         $postRecommend = PostRecommend::fetchByScope($user, $scope);
         //2.找出指针：最新，随机 每个用户的推荐视频推荐表，就是日刷指针记录表，找到最近未刷完的指针（指针含日期和review_id）
-        $reviewId  = Post::getNextReviewId($postRecommend->day_review_ids, $maxReviewIdInDays);
+        $reviewId = Post::getNextReviewId($postRecommend->day_review_ids, $maxReviewIdInDays);
         $reviewDay = substr($reviewId, 0, 8);
         //视频刷光了,随机返回4个
         if (is_null($reviewId)) {
@@ -70,7 +70,6 @@ trait FastRecommendStrategy
             $result = $qb->latest('id')->skip(rand(1, 100))->take(4)->get();
             return $qb->latest('id')->skip(rand(1, 100))->take(4)->get();
         }
-
         //3.取未刷完的这天的指针后的视频
         $qb = $qb->take($limit);
         $qb = $qb->where('review_day', $reviewDay)
@@ -209,6 +208,7 @@ trait FastRecommendStrategy
     {
         $maxRviewIds = \Haxibiao\Content\Post::selectRaw("review_day,max(review_id) as max_review_id")
             ->whereStatus(1) //只考虑已上架发布的动态
+            ->whereNotNull('video_id') //只考虑有视频的
             ->groupBy('review_day')
             ->latest('review_day')
             ->get();
