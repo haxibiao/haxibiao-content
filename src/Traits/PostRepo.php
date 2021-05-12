@@ -278,26 +278,35 @@ trait PostRepo
 
     /**
      * 混合广告视频
-     * @param $posts Collection
+     * @param \Illuminate\Support\Collection $posts
      */
     public static function mixPosts($posts)
     {
-        //不够4个不参入广告
-        if ($posts->count() < 4) {
-            return $posts;
-        }
         $mixPosts = [];
-        $index    = 0;
-        foreach ($posts as $post) {
-            $index++;
-            $mixPosts[] = $post;
-            if ($index % 4 == 0) {
-                //每隔4个插入一个广告
-                $adPost          = clone $post;
-                $adPost->id      = random_str(7);
-                $adPost->is_ad   = true;
-                $adPost->ad_type = Post::diyAdShow() ?? "tt";
-                $mixPosts[]      = $adPost;
+        //只1个，加入1个广告避免前端刷不动
+        if ($posts->count() == 1) {
+            $post            = $posts->first();
+            $adPost          = clone $post;
+            $adPost->id      = random_str(7);
+            $adPost->is_ad   = true;
+            $adPost->ad_type = Post::diyAdShow() ?? "tt";
+            $mixPosts[]      = $adPost;
+        } else if ($posts->count() < 4) {
+            //少于4个，不加广告
+            return $posts;
+        } else {
+            $index = 0;
+            foreach ($posts as $post) {
+                $index++;
+                $mixPosts[] = $post;
+                if ($index % 4 == 0) {
+                    //每隔4个插入一个广告
+                    $adPost          = clone $post;
+                    $adPost->id      = random_str(7);
+                    $adPost->is_ad   = true;
+                    $adPost->ad_type = Post::diyAdShow() ?? "tt";
+                    $mixPosts[]      = $adPost;
+                }
             }
         }
 

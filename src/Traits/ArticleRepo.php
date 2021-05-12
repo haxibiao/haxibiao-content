@@ -30,110 +30,66 @@ use Illuminate\Support\Str;
 
 trait ArticleRepo
 {
+    /**
+     * 发布视频文章， 目前只有Breeze web用
+     *
+     * @param array $inputs 发布动态ModelPost.vue 提交的form data
+     * @return Article
+     */
     public function createPost($inputs)
     {
-
-        DB::beginTransaction();
-
         try {
             $user = getUser();
 
-            $todayPublishVideoNum = $user->articles()
-                ->whereIn('type', ['post', 'issue'])
-                ->whereNotNull('video_id')
-                ->whereDate('created_at', Carbon::now())->count();
-            if ($todayPublishVideoNum == 10) {
-                throw new GQLException('每天只能发布10个视频动态!');
+            //视频文章
+            $post = $this;
+
+            //视频
+            $video_id = $inputs['video_id'] ?? null; //这个参数全栈检查后发现没用
+            //图片
+            $images = $inputs['images'] ?? null;
+            //文字
+            $body = $inputs['body'] ?? null;
+
+            $post->user_id = $user->id;
+            $post->status  = Article::STATUS_REVIEW;
+            $post->submit  = Article::REVIEW_SUBMIT;
+
+            //视频动态配文
+            $post->description = Str::limit($body, 280);
+
+            $post->type = 'post';
+
+            // $post->review_id = Article::makeNewReviewId();
+
+            $post->status = Article::STATUS_ONLINE;
+            //视频
+
+            // 本地上传video
+            if ($video = Video::find($video_id)) {
+                // 播放地址 $video->path 有(api/video/store)
+                // 无封面？ video created已出发哈希云api 等待hook 更新即可
+                //关联视频
+                $post->video_id = $video->id;
+            }
+            $post->saveQuietly();
+
+            dd($post);
+
+            // 图片
+            if ($images) {
+                $imageIds = [];
+                foreach ($images as $image) {
+                    $model      = Image::saveImage($image);
+                    $imageIds[] = $model->id;
+                }
+                $post->images()->sync($imageIds);
             }
 
-            if ($user->isBlack()) {
-                throw new GQLException('发布失败,你以被禁言');
-            }
-            //带视频动态
-            if ($inputs['video_id'] || $inputs['qcvod_fileid']) {
-                if ($inputs['video_id']) {
-                    $video   = Video::findOrFail($inputs['video_id']);
-                    $article = $video->article;
-                    if (!$article) {
-                        $article = new Article();
-                    }
-                    $article->type        = 'post';
-                    $article->title       = Str::limit($inputs['body'], 50);
-                    $article->description = Str::limit($inputs['body'], 280);
-                    $article->body        = $inputs['body'];
-                    $article->review_id   = Article::makeNewReviewId();
-                    $article->video_id    = $video->id; //关联上视频
-                    $article->save();
-                } else {
-                    $fileid = $inputs['qcvod_fileid'];
-                    $video  = Video::firstOrNew([
-                        'fileid' => $fileid,
-                    ]);
-                    $video->user_id = $user->id;
-                    $video->path    = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
-                    $video->title   = Str::limit($inputs['body'], 50);
-                    $video->save();
-                    //创建article
-                    $article              = new Article();
-                    $article->status      = Article::STATUS_REVIEW;
-                    $article->submit      = Article::REVIEW_SUBMIT;
-                    $article->title       = Str::limit($inputs['body'], 50);
-                    $article->description = Str::limit($inputs['body'], 280);
-                    $article->body        = $inputs['body'];
-                    $article->type        = 'post';
-                    $article->review_id   = Article::makeNewReviewId();
-                    $article->video_id    = $video->id;
-                    $article->cover_path  = 'video/black.jpg';
-                    $article->save();
-
-                }
-
-                //存文字动态或图片动态
-            } else {
-                $article              = new Article();
-                $body                 = $inputs['body'];
-                $article->body        = $body;
-                $article->description = Str::limit($body, 280); //截取微博那么长的内容存简介
-                $article->type        = 'post';
-                $article->user_id     = $user->id;
-                $article->save();
-
-                if ($inputs['images']) {
-                    $imageIds = [];
-                    foreach ($inputs['images'] as $image) {
-                        $model      = Image::saveImage($image);
-                        $imageIds[] = $model->id;
-                    }
-                    $article->images()->sync($imageIds);
-                    $article->cover_path = $article->images()->first()->path;
-                    $article->save();
-                }
-            };
-
-            //直接关联到专题
-            if ($inputs['category_ids']) {
-                //排除重复专题
-                $category_ids = array_unique($inputs['category_ids']);
-                $category_id  = reset($category_ids);
-                //第一个专题为主专题
-                $article->category_id = $category_id;
-                $article->save();
-
-                if ($category_ids) {
-                    $article->hasCategories()->sync($category_ids);
-                }
-            }
-
-            // 记录用户操作
-            Action::createAction('articles', $article->id, $article->user->id);
-            Ip::createIpRecord('articles', $article->id, $article->user->id);
-
-            DB::commit();
-            app_track_event('用户', "发布动态");
-            return $article;
+            return $post;
         } catch (\Exception $ex) {
+            Log::error($ex->getMessage());
             if ($ex->getCode() == 0) {
-                Log::error($ex->getMessage());
                 throw new GQLException('程序小哥正在加紧修复中!');
             }
             throw new GQLException($ex->getMessage());

@@ -35,7 +35,10 @@ trait ArticleAttrs
         if (!empty($this->title)) {
             return $this->title;
         }
-
+        //兼容视频文章
+        if (empty($this->title) && !empty($this->description)) {
+            return str_limit($this->description, 60);
+        }
         return str_limit($this->body);
     }
 
@@ -114,34 +117,27 @@ trait ArticleAttrs
     {
         $cover_path = $this->cover_path;
 
-        if (strpos($cover_path, 'https') !== false) {
+        //已处理好的cdn地址(乐观更新的外部链接)
+        if (filter_var($cover_path, FILTER_VALIDATE_URL)) {
             return $cover_path;
         }
-        //避免旧http cdn url 的混合内容问题
-        if (strpos($cover_path, 'http') !== false) {
-            return str_replace('http', 'https', $cover_path);
-        }
 
-        //为空返回默认图片
-        if (empty($cover_path)) {
-            if ($this->type == 'article') {
-                //FIXME: 返回null兼容has_image 等旧文章系统attrs的判断，重构清理has_image代码后删除
-                return null;
-            }
-            if ($this->movie) {
-                //电影剪辑
-                return $this->movie->cover;
-            }
-            if ($this->video) {
-                //短视频动态
-                return $this->video->cover;
-            }
-            return url("/images/cover.png");
-        }
-
-        //文章的图片都应该已存cos,没有的修复文件+数据, 强制返回cdn全https url，兼容多端
+        //cloud path 的
         $cover_path = parse_url($cover_path, PHP_URL_PATH);
-        return cdnurl($cover_path);
+        if (!blank($cover_path)) {
+            return cdnurl($cover_path);
+        }
+
+        //尊重关联的媒体的封面
+        if ($this->movie) {
+            //电影剪辑
+            return $this->movie->cover;
+        }
+        if ($this->video) {
+            //短视频动态
+            return $this->video->cover;
+        }
+        return null;
     }
 
     public function getVideoUrlAttribute()

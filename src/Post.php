@@ -97,6 +97,10 @@ class Post extends Model implements Collectionable
             $post->transferToVest();
         });
     }
+    public function image(): BelongsTo
+    {
+        return $this->belongsTo(Image::class, 'image_id');
+    }
 
     public function user(): BelongsTo
     {
