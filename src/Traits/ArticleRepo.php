@@ -74,8 +74,6 @@ trait ArticleRepo
             }
             $post->saveQuietly();
 
-            dd($post);
-
             // 图片
             if ($images) {
                 $imageIds = [];
