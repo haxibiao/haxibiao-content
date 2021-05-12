@@ -2,12 +2,7 @@
 
 namespace Haxibiao\Content;
 
-use App\Comment;
-use App\Movie;
-use App\PostRecommended;
-use App\Question;
 use App\User;
-use App\Video;
 use Carbon\Carbon;
 use Haxibiao\Breeze\Model;
 use Haxibiao\Breeze\Traits\HasFactory;
@@ -22,10 +17,14 @@ use Haxibiao\Content\Traits\WithCms;
 use Haxibiao\Helpers\Traits\Searchable;
 use Haxibiao\Media\Image;
 use Haxibiao\Media\Spider;
+use Haxibiao\Media\Video;
 use Haxibiao\Sns\Traits\WithSns;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class Post extends Model implements Collectionable
@@ -321,5 +320,192 @@ class Post extends Model implements Collectionable
     public function question()
     {
         return $this->belongsTo(Question::class);
+    }
+
+    const SHARE_DOIYIN_VIDEO_REWARD = 10;
+    const MIN_HOT_RECOMMEND_COUNT   = 5;
+
+    public function postData(): HasOne
+    {
+        return $this->hasOne(PostData::class);
+    }
+
+    public function syncPost($Ids, $postable, $type = false)
+    {
+        $modelStr = Relation::getMorphedModel($postable);
+        $modelIds = $modelStr::select('id')->whereIn('id', $Ids)->get()->pluck('id')->toArray();
+        $this->postable($modelStr)
+            ->sync($modelIds, $type);
+
+        // 同步到source_type字段
+        if (!empty($this->source_type)) {
+            $this->update(['source_type' => $postable]);
+        }
+
+        return $this;
+    }
+
+    public function postable($related)
+    {
+        return $this->morphedByMany($related, 'postable')
+            ->withTimestamps();
+    }
+
+    public function movies()
+    {
+        return $this->postable(\App\Movie::class);
+    }
+
+    public function resolveSearchPosts($root, array $args, $context)
+    {
+        $userId       = data_get($args, 'user_id');
+        $tagId        = data_get($args, 'tag_id');
+        $collectionId = data_get($args, 'collection_id');
+        $type         = data_get($args, 'type');
+        return static::publish()->search(data_get($args, 'query'))
+            ->when($type == 'VIDEO', function ($q) use ($userId) {
+                return $q->whereNotNull('video_id');
+            })->when($type == 'IMAGE', function ($q) use ($userId) {
+            return $q->whereNull('video_id');
+        })->when($userId, function ($q) use ($userId) {
+            return $q->where('posts.user_id', $userId);
+        })->when($tagId, function ($q) use ($tagId) {
+            return $q->whereHas('tags', function ($q) use ($tagId) {
+                $q->where('tags.id', $tagId);
+            });
+        })->when($collectionId, function ($q) use ($collectionId) {
+            return $q->whereHas('collections', function ($q) use ($collectionId) {
+                $q->where('collections.id', $collectionId);
+            });
+        })->with('video');
+    }
+
+    public function resolveUserPosts($root, $args, $context, $info)
+    {
+        $filter = data_get($args, 'filter');
+
+        if ($filter == 'spider') {
+            return static::posts($args['user_id'])->whereNotNull('spider_id');
+        } elseif ($filter == 'normal') {
+            return static::posts($args['user_id'])->whereNull('spider_id');
+        }
+        return static::posts($args['user_id']);
+    }
+
+    public function resolveUpdatePost($root, $args, $context, $info)
+    {
+        $postId = data_get($args, 'post_id');
+        $post   = static::findOrFail($postId);
+        $post->update(
+            Arr::only($args, ['content', 'description'])
+        );
+
+        // 同步标签
+        $tagNames = data_get($args, 'tag_names', []);
+        $post->retagByNames($tagNames);
+
+        return $post;
+    }
+
+    //关注用户的收藏列表
+    public function resolveFollowPosts($rootValue, array $args, $context, $resolveInfo)
+    {
+        $filter = data_get($args, 'filter');
+        $user   = getUser();
+        //2.获取用户关注列表
+        $followedUserIds = $user->follows()->pluck('followable_id');
+        //3.获取关注用户发布的视频
+        $qb = static::whereNotNull('video_id')
+            ->whereIn('user_id', $followedUserIds)
+            ->orderByDesc('id');
+
+        if (in_array(
+            ['video', 'collections', 'images'],
+            data_get($resolveInfo->getFieldSelection(1), 'data')
+        )) {
+            $qb->with(['video', 'collections', 'images']);
+        }
+
+        if ($filter == 'spider') {
+            return $qb->whereNotNull('spider_id');
+        } elseif ($filter == 'normal') {
+            return $qb->whereNull('spider_id');
+        }
+        return $qb;
+    }
+
+    public function postByVideoId($rootValue, array $args, $context, $resolveInfo)
+    {
+        $videoId = data_get($args, 'video_id');
+        return \App\Post::where('video_id', $videoId)->first();
+    }
+
+    public function resolveRecommendPosts($root, $args, $context, $info)
+    {
+        app_track_event("首页", "获取学习视频");
+
+        $user = checkUser();
+
+        if (!is_null($user)) {
+            return static::hotRecommendPosts($user->id);
+        } else {
+            return static::getRecommendPosts();
+        }
+    }
+
+    public static function fastCreatePost($videoId, $description, $status = Post::PRIVARY_STATUS, $source = [])
+    {
+        $video = Video::find($videoId);
+        throw_if(is_null($video), UserException::class, '发布失败,视频不存在!');
+
+        $data = array_merge([
+            'video_id'    => $video->id,
+            'content'     => $description,
+            'description' => $description,
+            'user_id'     => $video->user_id,
+            'status'      => $status,
+        ], $source);
+        $post = Post::create($data);
+
+        return $post;
+    }
+
+    public function reScore()
+    {
+        $hot   = $this->hot;
+        $hot   = $hot > 0 ? $hot : 1;
+        $score = bcdiv($this->count_comments, $hot, 7) + bcdiv($this->count_likes, $hot, 7);
+        $score = intval($score * 100000);
+
+        // 优先去推荐视频题
+        if ($this->source_type == 'questions') {
+            $score += mt_rand(1000, 10000);
+        }
+
+        // 优先去推荐长视频
+        if ($this->source_type == 'movies' || $this->movies()->count() > 0) {
+            $score += mt_rand(1500, 10000);
+        }
+
+        $this->score = $score;
+    }
+
+    public function hasColumn($column)
+    {
+        return in_array($column, config('db-table.1' . $this->getTable(), []));
+    }
+
+    public function fillSourceField()
+    {
+        $hasSourceField = $this->hasColumn('source_id') && $this->hasColumn('source_type');
+        $isFilled       = !empty($this->source_id) && !empty($this->source_type);
+        $emptySpiderId  = empty($this->spider_id);
+        if (!$hasSourceField || $isFilled || $emptySpiderId) {
+            return;
+        }
+
+        $this->source_id   = $this->spider_id;
+        $this->source_type = 'spiders';
+
     }
 }
