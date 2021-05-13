@@ -19,6 +19,7 @@ use Haxibiao\Media\Image;
 use Haxibiao\Media\Movie;
 use Haxibiao\Media\Spider;
 use Haxibiao\Media\Video;
+use Haxibiao\Sns\Comment;
 use Haxibiao\Sns\Traits\WithSns;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
