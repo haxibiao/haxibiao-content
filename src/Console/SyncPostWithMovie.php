@@ -125,15 +125,11 @@ class SyncPostWithMovie extends Command
                         $this->info("保存movie->id:" . $movie->id . ' ' . $movie->name . '成功');
 
                         //同步相关post
-                        $review_id  = Post::makeNewReviewId();
-                        $review_day = Post::makeNewReviewDay();
-                        $post       = Post::updateOrCreate([
+                        $post = Post::updateOrCreate([
                             'video_id' => $video->id,
                         ], [
                             'user_id'     => $user_id,
                             'description' => $sourcePost->description,
-                            'review_id'   => $review_id,
-                            'review_day'  => $review_day,
                             'status'      => Post::PUBLISH_STATUS,
                         ]);
                         $this->info("保存post->id:" . $post->id . ' ' . $post->description . '成功');

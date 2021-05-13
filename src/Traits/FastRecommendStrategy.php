@@ -7,6 +7,7 @@ use App\PostRecommend;
 use App\User;
 use App\UserBlock;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 /**
@@ -14,7 +15,6 @@ use Illuminate\Support\Str;
  */
 trait FastRecommendStrategy
 {
-
     /**
      * 目前最简单的错日排重推荐视频算法(FastRecommend)，人人可以看最新，随机，过滤，不重复的视频流了
      *
@@ -28,16 +28,16 @@ trait FastRecommendStrategy
         $posts = collect([]);
         //登录用户
         $user = getUser();
-        //基础推荐数据 - 全部有视频的动态
+        //0.准备 刷的内容范围加载
         if (is_null($query)) {
             $query = Post::has('video')->with(['video', 'user.profile'])->publish();
         }
         $qb = $query->with(['video', 'user.profile'])->publish();
 
-        //开始推荐 - 把每天的最大指针拿进一个数组
+        //0.准备 提取刷过的位置记录
         $maxReviewIdInDays = Post::getMaxReviewIdInDays();
 
-        //1.过滤 过滤掉自己 和 不喜欢或拉黑过的用户的作品
+        //1.过滤 不喜欢和拉黑过的用户的作品
         if (!request('fast_recommend_mode')) {
             $notLikIds = [];
             if (class_exists("App\Dislike")) {
@@ -51,34 +51,31 @@ trait FastRecommendStrategy
 
                 $notLikIds = array_unique(array_filter(array_merge($notLikIds, $blockIds)));
             }
-            //默认不喜欢刷到自己的视频动态? 我看可以，性能更好
-            // $notLikIds[] = $user->id;
-            // $qb          = $qb->whereNotIn('user_id', $notLikIds);
+            //默认不喜欢刷到自己的视频动态? 我看可以，少个notin性能更好
         }
 
         $postRecommend = PostRecommend::fetchByScope($user, $scope);
-        //2.找出指针：最新，随机 每个用户的推荐视频推荐表，就是日刷指针记录表，找到最近未刷完的指针（指针含日期和review_id）
-        $reviewId = Post::getNextReviewId($postRecommend->day_review_ids, $maxReviewIdInDays);
+        //2.找出最后刷到的位置
+        $reviewId  = Post::getNextReviewId($postRecommend->day_review_ids, $maxReviewIdInDays);
         $reviewDay = substr($reviewId, 0, 8);
-        //视频刷光了,随机返回4个
+        //视频刷光时
         if (is_null($reviewId)) {
-            // 优先编辑的精品
-            if (in_array(config('app.name'), ['yinxiangshipin', 'caohan'])) {
+            // 优先刷编辑用户的精品内容
+            if (User::where('role_id', User::EDITOR_STATUS)->exists()) {
                 $vestIds = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
                 $qb      = $qb->whereIn('user_id', $vestIds);
             }
-            $result = $qb->latest('id')->skip(rand(1, 100))->take(4)->get();
+            // 最新100个中的4个
             return $qb->latest('id')->skip(rand(1, 100))->take(4)->get();
         }
-        //3.取未刷完的这天的指针后的视频
+        //3.从最后刷到的位置取内容
         $qb = $qb->take($limit);
         $qb = $qb->where('review_day', $reviewDay)
             ->where('review_id', '>', $reviewId)
             ->orderBy('review_id');
 
-        //获取数据
+        //4.获取数据
         $posts = $qb->get();
-
         if (!request('fast_recommend_mode')) {
             //更新点赞状态
             $posts = Post::likedPosts($user, $posts);
@@ -86,15 +83,74 @@ trait FastRecommendStrategy
             $posts = Post::followedPostsUsers($user, $posts);
         }
 
-        //4.更新指针
-        $postRecommend->updateCursor($posts);
+        //5.保存最后刷的位置
+        FastRecommendStrategy::updateCursor($posts, $postRecommend);
+        //6.混合广告视频
+        $posts = FastRecommendStrategy::mixAdPosts($posts);
+        //7.混合教学视频
+        $posts = FastRecommendStrategy::mixGuidPosts($posts, $qb);
+        return $posts;
+    }
 
-        //混合广告视频
-        $mixPosts = $posts;
-        if (adIsOpened()) {
-            $mixPosts = Post::mixPosts($posts);
+    /**
+     * 混合教学视频
+     * @param \Illuminate\Support\Collection $posts
+     */
+    public static function mixGuidPosts($posts, $qb)
+    {
+        $mixedPosts = [];
+        foreach ($posts as $post) {
+            $mixedPosts[] = $post;
         }
 
+        //遇到只取到1个，加入1个教学视频避免前端刷不动
+        if ($posts->count() == 1) {
+            if (adIsOpened()) {
+                $post            = $posts->first();
+                $adPost          = clone $post;
+                $adPost->id      = random_str(7);
+                $adPost->is_ad   = true;
+                $adPost->ad_type = "guid"; //教学视频
+                $mixedPosts[]    = $adPost;
+            } else {
+                // 兼容前端没开启广告 也没录制好教学视频的情况 追加随机推荐的4个
+                $randNewPosts = $qb->latest('id')->skip(rand(1, 100))->take(4)->get();
+                foreach ($randNewPosts as $post) {
+                    $mixedPosts[] = $post;
+                }
+            }
+        }
+        return $mixedPosts;
+    }
+
+    /**
+     * 混合广告视频
+     * @param \Illuminate\Support\Collection $posts
+     */
+    public static function mixAdPosts($posts)
+    {
+        if (!adIsOpened()) {
+            return $posts;
+        }
+        $mixPosts = [];
+        if ($posts->count() < 4) {
+            //少于4个，不加广告
+            return $posts;
+        } else {
+            $index = 0;
+            foreach ($posts as $post) {
+                $index++;
+                $mixPosts[] = $post;
+                if ($index % 4 == 0) {
+                    //每隔4个插入一个广告
+                    $adPost          = clone $post;
+                    $adPost->id      = random_str(7);
+                    $adPost->is_ad   = true;
+                    $adPost->ad_type = Post::diyAdShow() ?? "tt";
+                    $mixPosts[]      = $adPost;
+                }
+            }
+        }
         return $mixPosts;
     }
 
@@ -102,55 +158,116 @@ trait FastRecommendStrategy
      * 查询该刷哪天的哪个位置了...
      *
      * @param $userReviewIds 用户刷过的指针记录
-     * @param $maxReviewIdInDays 全动态表里所有的每天的最大review_ids
+     * @param $maxReviewIdInDays 内容范围里所有的每天的最大review_ids
      * @return int|mixed|null
      */
     public static function getNextReviewId($userReviewIds, $maxReviewIdInDays)
     {
-        //用户每日刷的 reviewid 指针
+        //用户刷到的最近停留位置，null 表示刷完了该范围全部内容...
         $reviewId      = null;
         $userReviewIds = $userReviewIds ?: [];
+        //按日期倒排
         rsort($userReviewIds);
-        $userReviewIdsByDay = [];
-        //FIXME: UserAttr(userReviewIdsByDay) = 返回用户刷过的每天的指针记录的数组
 
+        //通过指针算出来用户每天的内容已刷的位置
+        $userReviewIdsByDay = [];
         foreach ($userReviewIds as $userDayReviewId) {
             $reviewDay = substr($userDayReviewId, 0, 8);
             //生成数组
             $userReviewIdsByDay[$reviewDay] = $userDayReviewId;
         }
 
+        //逐天查询未刷完日期的最后位置
         foreach ($maxReviewIdInDays as $item) {
             //当前reviewDay
             $reviewDay = $item->review_day;
-            //里最大的review_id
+            //最后位置
             $maxReviewId = $item->max_review_id;
 
             //获取用户刷的（当前reviewDay）日指针
             $userDayReviewId = Arr::get($userReviewIdsByDay, $reviewDay);
 
-            //未刷过该日视频
+            //未刷过该日视频 - 直接返回最小的
             if (is_null($userDayReviewId)) {
-
                 $reviewId = Post::where('review_day', $reviewDay)->min('review_id') - 1;
                 break;
             }
 
-            //未刷完该日视频
+            //未刷完该日视频 - 找到位置返回
             if ($maxReviewId > $userDayReviewId) {
-
                 $reviewId = $userDayReviewId;
                 break;
             }
-
-            //刷完了该日的，查询下一天的.. 直到找到review_id
         }
-
-        return $reviewId; //null 表示刷完了全站视频...
+        return $reviewId;
     }
 
-    //按日期生成review_id
-    public static function makeNewReviewId($reviewDay = null)
+    /**
+     * 每取一次内容推荐，保存下最后刷的位置(按日期的)
+     */
+    public static function updateCursor($posts, $postRecommend)
+    {
+        $reviewIds = $posts->pluck('review_id')->toArray();
+        if (!blank($reviewIds)) {
+            //拿到最后一次刷提取内容的位置
+            $maxReviewId = max($reviewIds);
+
+            //获取review_day
+            $maxReviewDay = substr($maxReviewId, 0, 8);
+
+            //获取 记录的所有天的刷的位置
+            $dayReviewIds = $postRecommend->day_review_ids ?? [];
+            $isExisted    = false;
+            foreach ($dayReviewIds as &$dayReviewId) {
+                $day = substr($dayReviewId, 0, 8);
+                if ($day == $maxReviewDay && $maxReviewId > $dayReviewId) {
+                    //更新最后一次刷的位置
+                    $dayReviewId = $maxReviewId;
+                    $isExisted   = true;
+                }
+            }
+            if (!$isExisted) {
+                //增加你在这一天的最后刷的位置
+                $dayReviewIds[] = $maxReviewId;
+            }
+
+            //更新 记录的所有天的刷的位置
+            $postRecommend->day_review_ids = array_unique($dayReviewIds);
+            $postRecommend->save();
+        }
+    }
+
+    /**
+     * 归档并随机化今日新动态
+     */
+    public static function archiveTodayPosts()
+    {
+        $reviewDay = Post::genReviewDay();
+        Post::where('review_day', 0)->chunk(100, function ($posts) use ($reviewDay) {
+            //找到今日最大的review_id
+            $maxPostReviewId = Post::where('review_day', $reviewDay)->max('review_id');
+            if (is_null($maxPostReviewId)) {
+                //默认开始用今日最小归档id
+                $maxPostReviewId = FastRecommendStrategy::makeTodayMinReviewId();
+            };
+            //批量生成一堆新的随机review_id(比最新max的都大)
+            $reviewIds = FastRecommendStrategy::makeReviewIds($maxPostReviewId, count($posts));
+            foreach ($posts as $index => $post) {
+                //统一下架更新review_id,避免用户刷到高位id,导致错过部分视频(当这个小时内批量更新的数量多时，有可能)
+                $post->review_id  = $reviewIds[$index];
+                $post->review_day = Post::genReviewDay();
+                $post->status     = Post::PRIVARY_STATUS; //先不上架，避免被刷到了....
+                $post->save();
+            }
+            //再重新上架回去(一次上架100个，避免刷的指针飘了)
+            Post::whereIn('id', $posts->pluck('id'))->update(['status' => Post::PUBLISH_STATUS]);
+        });
+    }
+
+    /**
+     * 按日期生成review_id - 修复归档用
+     */
+    public static function makeNewReviewId($reviewDay = null, $capacity = 100, $maxId = null)
     {
         //随机范围10w,如果一天内新增内容数量超过10w，需要增加这个数值...
         $maxNum    = 100000;
@@ -160,23 +277,35 @@ trait FastRecommendStrategy
         return $reviewId;
     }
 
-    //旧数据补充review_id
-    public function reviewId()
+    /**
+     * 旧数据补充修复 review_id 归档 - 修复数据用
+     */
+    public function reviewId(Post $post = null)
     {
-        $reviewId = $this->review_id;
-        if (is_null($reviewId)) {
-            $reviewDay = is_null($this->created_at) ? null : $this->created_at->format('Ymd');
-            $reviewId  = self::makeNewReviewId($reviewDay);
+        $post = $post ?? $this;
+        if ($post) {
+            $reviewId = $post->review_id;
+            if (is_null($reviewId)) {
+                $reviewDay = is_null($post->created_at) ? null : $post->created_at->format('Ymd');
+                $reviewId  = FastRecommendStrategy::makeNewReviewId($reviewDay);
+            }
+            return $reviewId;
         }
-        return $reviewId;
+        return null;
     }
 
+    /**
+     * 是否今日归档id
+     */
     public static function isTodayReviewId($reviewId)
     {
         $prefix = today()->format('Ymd') . '*';
         return Str::is($prefix, $reviewId);
     }
 
+    /**
+     * 获取今日最小归档id
+     */
     public static function todayMinReviewId()
     {
         $minReviewPost = Post::select('review_id')
@@ -184,26 +313,36 @@ trait FastRecommendStrategy
             ->orderBy('review_id')
             ->first();
         $reviewId = data_get($minReviewPost, 'review_id', 0);
-
         return $reviewId;
     }
 
+    /**
+     * 范围允许的今日最大归档id
+     */
     public static function makeTodayMaxReviewId()
     {
-        $reviewDay = Post::makeNewReviewDay();
-        $maxNum    = Post::TODAY_MAX_POST_NUM;
+        $reviewDay = Post::genReviewDay();
+        $maxNum    = Post::TODAY_MAX_POST_NUM - 1;
 
-        return $reviewDay * $maxNum + $maxNum - 1;
+        return ($reviewDay * $maxNum) + $maxNum;
     }
 
+    /**
+     * 范围允许的今日最小归档id
+     */
     public static function makeTodayMinReviewId()
     {
-        $reviewDay = Post::makeNewReviewDay();
+        $reviewDay = Post::genReviewDay();
         $maxNum    = Post::TODAY_MAX_POST_NUM;
 
-        return $reviewDay * $maxNum;
+        return ($reviewDay * $maxNum) + 1;
     }
 
+    /**
+     * 每天最大归档id结果分布
+     *
+     * @return Collection
+     */
     public static function getMaxReviewIdInDays()
     {
         $maxRviewIds = \Haxibiao\Content\Post::selectRaw("review_day,max(review_id) as max_review_id")
@@ -212,16 +351,21 @@ trait FastRecommendStrategy
             ->groupBy('review_day')
             ->latest('review_day')
             ->get();
-
         return $maxRviewIds;
     }
 
-    public static function makeNewReviewDay()
+    /**
+     * 格式化归档日期字符串
+     */
+    public static function genReviewDay($date = null)
     {
-        return today()->format('Ymd');
+        $date = $date ?? today();
+        return $date->format('Ymd');
     }
 
-    //给每小时批量生成review_ids用
+    /**
+     * 给每小时批量生成review_ids用
+     */
     public static function makeReviewIds($maxRviewId, $count)
     {
         $reviewIds = [];

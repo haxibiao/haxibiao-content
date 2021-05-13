@@ -112,7 +112,6 @@ class FixContent extends Command
                     'updated_at'  => now(),
                 ];
                 $post->forceFill($postFields);
-                // PostObserver自动更新快速推荐排序游标
                 $post->save();
 
                 //合集

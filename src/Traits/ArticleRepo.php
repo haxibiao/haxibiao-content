@@ -55,17 +55,12 @@ trait ArticleRepo
             $post->status  = Article::STATUS_REVIEW;
             $post->submit  = Article::REVIEW_SUBMIT;
 
-            //视频动态配文
+            // 配文
             $post->description = Str::limit($body, 280);
+            $post->type        = 'post';
+            $post->status      = Article::STATUS_ONLINE;
 
-            $post->type = 'post';
-
-            // $post->review_id = Article::makeNewReviewId();
-
-            $post->status = Article::STATUS_ONLINE;
-            //视频
-
-            // 本地上传video
+            // 视频
             if ($video = Video::find($video_id)) {
                 // 播放地址 $video->path 有(api/video/store)
                 // 无封面？ video created已出发哈希云api 等待hook 更新即可
@@ -83,7 +78,6 @@ trait ArticleRepo
                 }
                 $post->images()->sync($imageIds);
             }
-
             return $post;
         } catch (\Exception $ex) {
             Log::error($ex->getMessage());
@@ -92,7 +86,6 @@ trait ArticleRepo
             }
             throw new GQLException($ex->getMessage());
         }
-
     }
 
     protected function createIssue($inputs)
@@ -136,10 +129,9 @@ trait ArticleRepo
                     $article->description = $body;
                     $article->title       = $body;
                     //新创建的视频动态需要审核
-                    $article->submit    = Article::REVIEW_SUBMIT;
-                    $article->issue_id  = $issue->id;
-                    $article->review_id = Article::makeNewReviewId();
-                    $article->type      = 'issue';
+                    $article->submit   = Article::REVIEW_SUBMIT;
+                    $article->issue_id = $issue->id;
+                    $article->type     = 'issue';
                     $article->save();
                 } else if ($inputs['qcvod_fileid'] != null) {
                     $fileid = $inputs['qcvod_fileid'];
@@ -160,7 +152,6 @@ trait ArticleRepo
                     $article->description = Str::limit($inputs['body'], 280);
                     $article->body        = $inputs['body'];
                     $article->type        = 'issue';
-                    $article->review_id   = Article::makeNewReviewId();
                     $article->video_id    = $video->id;
                     $article->cover_path  = 'video/black.jpg';
                     $article->save();
@@ -703,14 +694,6 @@ trait ArticleRepo
         return str_limit($this->title, 10);
     }
 
-    public static function makeNewReviewId($prefixNum = null)
-    {
-        $maxNum    = 100000;
-        $prefixNum = is_null($prefixNum) ? today()->format('Ymd') : $prefixNum;
-        $reviewId  = intval($prefixNum) * $maxNum + mt_rand(1, $maxNum - 1);
-        return $reviewId;
-    }
-
     public function processSpider(array $data)
     {
         //同步爬虫标签
@@ -726,7 +709,6 @@ trait ArticleRepo
         $this->cover_path = data_get($video, 'cover');
         $this->setStatus(Article::STATUS_ONLINE);
         $this->category_id = data_get($category, 'id');
-        $this->review_id   = Article::makeNewReviewId();
         $this->save();
         $this->categories()->sync([$category->id]);
 

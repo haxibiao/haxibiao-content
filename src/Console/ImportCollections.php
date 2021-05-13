@@ -155,10 +155,7 @@ class ImportCollections extends Command
                         $intoPost->spider_id  = $intoSpider->id;
                         $intoPost->created_at = now();
                         $intoPost->updated_at = now();;
-
-                        // PostObserver自动更新快速推荐排序游标
                         $intoPost->save();
-
                     }
                     //同步post到collection中
                     $intoCollection->posts()->syncWithoutDetaching($post_ids);

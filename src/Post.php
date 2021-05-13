@@ -16,6 +16,7 @@ use Haxibiao\Content\Traits\PostResolvers;
 use Haxibiao\Content\Traits\WithCms;
 use Haxibiao\Helpers\Traits\Searchable;
 use Haxibiao\Media\Image;
+use Haxibiao\Media\Movie;
 use Haxibiao\Media\Spider;
 use Haxibiao\Media\Video;
 use Haxibiao\Sns\Traits\WithSns;

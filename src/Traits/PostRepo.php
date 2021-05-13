@@ -15,7 +15,6 @@ use App\User;
 use App\Visit;
 use Haxibiao\Breeze\Exceptions\GQLException;
 use Haxibiao\Content\Constracts\Collectionable;
-use Haxibiao\Content\Jobs\PublishNewPosts;
 use Haxibiao\Helpers\Facades\SensitiveFacade;
 use Haxibiao\Media\Events\PostPublishSuccess;
 use Haxibiao\Media\Video;
@@ -151,72 +150,6 @@ trait PostRepo
         }
     }
 
-    public static function createArticle($inputs, $user)
-    {
-        //带视频动态
-        if ($inputs['video_id'] || $inputs['qcvod_fileid']) {
-            if ($inputs['video_id']) {
-                $video   = Video::findOrFail($inputs['video_id']);
-                $article = $video->article;
-                if (!$article) {
-                    $article = new \App\Article();
-                }
-                $article->type        = 'post';
-                $article->title       = Str::limit($inputs['body'], 50);
-                $article->description = Str::limit($inputs['body'], 280);
-                $article->body        = $inputs['body'];
-                $article->review_id   = \App\Article::makeNewReviewId();
-                $article->video_id    = $video->id; //关联上视频
-                $article->save();
-            } else {
-                $fileid = $inputs['qcvod_fileid'];
-                $video  = Video::firstOrNew([
-                    'fileid' => $fileid,
-                ]);
-                $video->user_id = $user->id;
-                $video->path    = 'http://1254284941.vod2.myqcloud.com/e591a6cavodcq1254284941/74190ea85285890794946578829/f0.mp4';
-                $video->title   = Str::limit($inputs['body'], 50);
-                $video->save();
-                //创建article
-                $article              = new \App\Article();
-                $article->status      = 1;
-                $article->submit      = \App\Article::REVIEW_SUBMIT;
-                $article->title       = Str::limit($inputs['body'], 50);
-                $article->description = Str::limit($inputs['body'], 280);
-                $article->body        = $inputs['body'];
-                $article->type        = 'post';
-                $article->review_id   = \App\Article::makeNewReviewId();
-                $article->video_id    = $video->id;
-                $article->cover_path  = 'video/black.jpg';
-                $article->save();
-
-            }
-
-            //存文字动态或图片动态
-        } else {
-            $article              = new \App\Article();
-            $body                 = $inputs['body'];
-            $article->body        = $body;
-            $article->description = Str::limit($body, 280); //截取微博那么长的内容存简介
-            $article->type        = 'post';
-            $article->user_id     = $user->id;
-            $article->save();
-
-            if ($inputs['images']) {
-                foreach ($inputs['images'] as $image) {
-                    $image = Image::saveImage($image);
-                    $article->images()->attach($image->id);
-                }
-
-                $article->cover_path = $article->images()->first()->path;
-                $article->save();
-            }
-        };
-        if (isset($inputs['product_id'])) {
-            $article->update(['product_id' => $inputs['product_id']]);
-        }
-    }
-
     /**
      * @deprecated
      */
@@ -272,43 +205,6 @@ trait PostRepo
 
         //混合广告视频
         $mixPosts = Post::mixPosts($posts);
-
-        return $mixPosts;
-    }
-
-    /**
-     * 混合广告视频
-     * @param \Illuminate\Support\Collection $posts
-     */
-    public static function mixPosts($posts)
-    {
-        $mixPosts = [];
-        //只1个，加入1个广告避免前端刷不动
-        if ($posts->count() == 1) {
-            $post            = $posts->first();
-            $adPost          = clone $post;
-            $adPost->id      = random_str(7);
-            $adPost->is_ad   = true;
-            $adPost->ad_type = Post::diyAdShow() ?? "tt";
-            $mixPosts[]      = $adPost;
-        } else if ($posts->count() < 4) {
-            //少于4个，不加广告
-            return $posts;
-        } else {
-            $index = 0;
-            foreach ($posts as $post) {
-                $index++;
-                $mixPosts[] = $post;
-                if ($index % 4 == 0) {
-                    //每隔4个插入一个广告
-                    $adPost          = clone $post;
-                    $adPost->id      = random_str(7);
-                    $adPost->is_ad   = true;
-                    $adPost->ad_type = Post::diyAdShow() ?? "tt";
-                    $mixPosts[]      = $adPost;
-                }
-            }
-        }
 
         return $mixPosts;
     }
@@ -381,18 +277,7 @@ trait PostRepo
         if (config('app.name') == 'ablm') {
             $post->tag_id = 2;
         }
-        // PostObserver自动更新快速推荐排序游标
         $post->save();
-
-        //FIXME: 这个逻辑要放到 content 系统里，PostObserver updated ...
-        //超过100个动态或者已经有1个小时未归档了，自动发布.
-        $canPublished = Post::where('review_day', 0)
-            ->where('created_at', '<=', now()->subHour())->exists()
-        || Post::where('review_day', 0)->count() >= 100;
-
-        if ($canPublished) {
-            dispatch_now(new PublishNewPosts);
-        }
 
         //抖音爬的视频，可直接奖励
         // 推荐这里改成通过event来监听实现不同项目的奖励发放
