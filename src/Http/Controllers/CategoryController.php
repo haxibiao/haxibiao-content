@@ -85,7 +85,7 @@ class CategoryController extends Controller
         }
 
         //推荐
-        $categories = $qb->where('status', Category::STATUS_PUBLIC)->where('parent_id', 0)->paginate(12);
+        $categories = $qb->where('status', Category::STATUS_PUBLISH)->where('parent_id', 0)->paginate(12);
         if (ajaxOrDebug() && request('recommend')) {
             foreach ($categories as $category) {
                 $category->followed = $category->isFollowed();
@@ -105,7 +105,7 @@ class CategoryController extends Controller
                 ->where('articles.status', '>=', Article::STATUS_REVIEW)
                 ->where('updated_at', '<=', $week_start);
         })
-            ->where('status', Category::STATUS_PUBLIC)
+            ->where('status', Category::STATUS_PUBLISH)
             ->where('parent_id', 0)
             ->paginate(24);
         if (ajaxOrDebug() && request('hot')) {
@@ -304,7 +304,7 @@ class CategoryController extends Controller
         }
 
         $categories = Category::where('parent_id', $id)
-            ->whereStatus(Category::STATUS_PUBLIC)
+            ->whereStatus(Category::STATUS_PUBLISH)
             ->get();
 
         return view('category.edit')
@@ -335,7 +335,7 @@ class CategoryController extends Controller
 
         //维护子分类
         $old_category_ids = Category::where('parent_id', $id)
-            ->whereStatus(Category::STATUS_PUBLIC)
+            ->whereStatus(Category::STATUS_PUBLISH)
             ->pluck('id')
             ->toArray();
         if (request()->filled('categories')) {

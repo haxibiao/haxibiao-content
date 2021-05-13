@@ -49,7 +49,7 @@ trait Categorizable
     {
         return $this->hasMany(Category::class, 'user_id', 'id')
             ->where('type', 'diagrams')
-            ->where('status', Category::STATUS_PUBLIC);
+            ->where('status', Category::STATUS_PUBLISH);
     }
 
     public function getCountCategoriesAttribute()

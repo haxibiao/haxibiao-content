@@ -799,7 +799,7 @@ trait ArticleRepo
         ]);
         if (!$category->id) {
             $category->name_en = 'woyaoshangremeng';
-            $category->status  = Category::STATUS_PUBLIC;
+            $category->status  = Category::STATUS_PUBLISH;
             $category->user_id = 1;
             $category->save();
         }

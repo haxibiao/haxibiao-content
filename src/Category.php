@@ -26,10 +26,14 @@ class Category extends Model
     /**
      * 状态机：专题的3个常用状态
      */
-    const STATUS_TRASH  = -1; // 删除
-    const STATUS_DRAFT  = 0; // 草稿（默认）
-    const STATUS_PUBLIC = 1; // 公开
+    const STATUS_TRASH   = -1; // 删除
+    const STATUS_DRAFT   = 0; // 草稿（默认）
+    const STATUS_PUBLISH = 1; // 公开
 
+    //兼容答赚
+    const TRASH        = -1; // 删除
+    const DRAFT        = 0; // 草稿（默认）
+    const PUBLISH      = 1; // 公开
     protected $guarded = [];
 
     protected $table = 'categories';

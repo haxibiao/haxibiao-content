@@ -136,7 +136,7 @@ class SitemapGenerate extends Command
     {
         $siteMapIndexUrls = [];
         $ci               = 0;
-        $qb               = Category::where('status', Category::STATUS_PUBLIC)->where('count', '>', 0);
+        $qb               = Category::where('status', Category::STATUS_PUBLISH)->where('count', '>', 0);
         //先只提交前1000个
         $qb = $qb->where('id', '<=', 1000);
         $qb->chunk(10000, function ($categories) use (&$ci, &$siteMapIndexUrls, $domain) {
