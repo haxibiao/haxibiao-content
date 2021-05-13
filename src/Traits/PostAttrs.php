@@ -41,7 +41,7 @@ trait PostAttrs
     //     //检查下是否预加载了,预加载后,则无需重复查询
     //     $isPredloaded = isset($this->attributes['liked']);
     //     $liked        = $isPredloaded ? $this->attributes['liked'] : false;
-    //     if (!$isPredloaded && $user = checkUser()) {
+    //     if (!$isPredloaded && $user = currentUser()) {
     //         $liked = $user->isLiked('posts', $this->id);
     //     }
 
@@ -50,7 +50,7 @@ trait PostAttrs
 
     public function getDistanceAttribute()
     {
-        if (checkUser() && !empty(getUser(false)->location) && !empty($this->location)) {
+        if (currentUser() && !empty(getUser(false)->location) && !empty($this->location)) {
             $user       = getUser();
             $longitude1 = $user->location->longitude;
             $latitude1  = $user->location->latitude;

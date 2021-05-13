@@ -29,7 +29,7 @@ trait CollectionResolvers
 
         $shareMag = config('haxibiao-content.share_config.share_collection_msg', '#%s/share/post/%d#, #%s#,打开【%s】,直接观看合集视频,玩视频就能赚钱~,');
 
-        if (checkUser() && class_exists("App\\Helpers\\Redis\\RedisSharedCounter", true)) {
+        if (currentUser() && class_exists("App\\Helpers\\Redis\\RedisSharedCounter", true)) {
             $user = getUser();
             \App\Helpers\Redis\RedisSharedCounter::updateCounter($user->id);
             //触发分享任务
@@ -58,7 +58,7 @@ trait CollectionResolvers
         }
 
         $collection = Collection::firstOrCreate([
-            'user_id' => getUser()->id,
+            'user_id' => getUserId(),
             'name'    => $name,
         ], [
             'description' => $description,
@@ -79,7 +79,7 @@ trait CollectionResolvers
         request()->request->add(['fetch_sns_detail' => true]);
         $collection_id = Arr::get($args, 'collection_id');
         app_track_event('合集玩法', '查看合集内视频', '合集id:' . $collection_id);
-        if (checkUser()) {
+        if (currentUser()) {
             //添加集合浏览记录
             $user = getUser();
             Visit::createVisit($user->id, $collection_id, 'collections');
@@ -220,7 +220,7 @@ trait CollectionResolvers
         // $qb = Collection::whereNull('sort_rank')->orWhere('sort_rank', 0);
 
         //登录用户
-        if (checkUser()) {
+        if (currentUser()) {
             $user = getUser(false);
             //过滤掉自己 和 不喜欢用户的作品
             if (class_exists("App\Dislike")) {

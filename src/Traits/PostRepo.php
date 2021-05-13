@@ -535,7 +535,7 @@ trait PostRepo
         }
 
         $name       = data_get($mixInfo, 'mix_name');
-        $user_id    = checkUser() ? getUser()->id : $post->user_id;
+        $user_id    = currentUser() ? getUserId() : $post->user_id;
         $img        = data_get($mixInfo, 'cover_url.url_list.0');
         $collection = Collection::firstOrNew([
             'name'    => $name,
@@ -568,9 +568,8 @@ trait PostRepo
     //个人主页动态
     public static function posts($user_id, $keyword = null, $type = null)
     {
-
         //用户本人可查看未发布的动态
-        if (checkUser() && getUser()->id == $user_id) {
+        if (currentUser() && getUserId() == $user_id) {
             $qb = Post::query();
         } else {
             $qb = Post::publish();
@@ -596,7 +595,7 @@ trait PostRepo
         $shareMag = config('haxibiao-content.share_config.share_msg', '%s/share/post/%d?s=#%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,');
 
         //FIXME: 直接用redis逻辑的,都先用普通Cache Facade !!!!
-        // if (checkUser() && class_exists("App\\Helpers\\Redis\\RedisSharedCounter", true)) {
+        // if (currentUser() && class_exists("App\\Helpers\\Redis\\RedisSharedCounter", true)) {
         //     $user = getUser();
         //     \App\Helpers\Redis\RedisSharedCounter::updateCounter($user->id);
         //     //触发分享任务

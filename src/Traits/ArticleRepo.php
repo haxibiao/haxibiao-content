@@ -287,7 +287,7 @@ trait ArticleRepo
     {
         if ($this->status > 0) {
             $action = Action::updateOrCreate([
-                'user_id'         => getUser()->id,
+                'user_id'         => getUserId(),
                 'actionable_type' => 'articles',
                 'actionable_id'   => $this->id,
                 'status'          => 1,
@@ -449,7 +449,7 @@ trait ArticleRepo
             //非爬虫请求才统计热度
             $this->hits = $this->hits + 1;
             //记录浏览历史
-            if (checkUser()) {
+            if (currentUser()) {
                 $user = getUser();
                 //如果重复浏览只更新纪录的时间戳
                 $visit = Visit::firstOrNew([
@@ -499,7 +499,7 @@ trait ArticleRepo
                 $regx = "/^http(s?):\/\/(?:[A-za-z0-9-]+\.)+[A-za-z]{2,4}(?:[\/\?#][\/=\?%\-&~`@[\]\':+!\.#\w]*)?$/";
                 if (preg_match($regx, $image_url)) {
                     $innerImage          = new Image();
-                    $innerImage->user_id = getUser()->id;
+                    $innerImage->user_id = getUserId();
                     $innerImage->save();
                     $path = $innerImage->saveRemoteImage($image_url, $this->title);
 
@@ -678,7 +678,7 @@ trait ArticleRepo
                 $this->description = $info['desc'];
                 $this->body        = $info['desc'];
 
-                $this->user_id = checkUser()->id;
+                $this->user_id = currentUser()->id;
                 $this->type    = 'video';
                 $this->save();
 

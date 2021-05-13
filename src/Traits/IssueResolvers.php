@@ -55,7 +55,7 @@ trait IssueResolvers
         $order = array_get($args, 'orderBy.0.order') ?: 'DESC';
         $qb    = Issue::orderBy($field, $order);
         //用户的问答黑名单
-        if (checkUser()) {
+        if (currentUser()) {
             //获取登录用户
             $user     = getUser();
             $issueIds = $user->userBlock()->where('block_type', 'issues')->pluck("block_id");

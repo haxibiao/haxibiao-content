@@ -23,7 +23,7 @@ trait ArticleResolvers
         //排除用户拉黑（屏蔽）的用户发布的视频,排除拉黑（不感兴趣）的动态
         $userBlockId    = [];
         $articleBlockId = [];
-        if ($user = checkUser()) {
+        if ($user = currentUser()) {
             $userBlockId    = UserBlock::select('user_block_id')->whereNotNull('user_block_id')->where('user_id', $user->id)->get();
             $articleBlockId = UserBlock::select('article_block_id')->whereNotNull('article_block_id')->where('user_id', $user->id)->get();
         }
@@ -185,7 +185,7 @@ trait ArticleResolvers
         GraphQLContext $context,
         ResolveInfo $resolveInfo
     ) {
-        $user      = checkUser();
+        $user      = currentUser();
         $pageCount = $args['count'];
 
         $qb = Article::with(['video', 'user', 'categories'])->whereNotNull('video_id')->publish()->orderByDesc('review_id');
@@ -332,7 +332,7 @@ trait ArticleResolvers
         $post = Post::has('video')->find($args['id']);
         throw_if(is_null($post), GQLException::class, '该动态不存在哦~,请稍后再试');
         $shareMag = config('haxibiao-content.share_config.share_msg', '%s/share/post/%d?s= #%s#,打开【%s】,直接观看视频,玩视频就能赚钱~,');
-        if (checkUser() && class_exists("App\\Helpers\\Redis\\RedisSharedCounter", true)) {
+        if (currentUser() && class_exists("App\\Helpers\\Redis\\RedisSharedCounter", true)) {
             $user = getUser();
             \App\Helpers\Redis\RedisSharedCounter::updateCounter($user->id);
             //触发分享任务

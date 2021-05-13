@@ -118,7 +118,7 @@ trait CategoryRepo
     public function recordBrowserHistory()
     {
         //记录浏览历史
-        if (checkUser()) {
+        if (currentUser()) {
             $user = getUser();
             //如果重复浏览只更新纪录的时间戳
             $visited = \App\Visit::firstOrNew([

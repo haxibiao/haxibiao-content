@@ -180,7 +180,7 @@ class Post extends Model implements Collectionable
     public static function getRecommendPosts($limit = 4, $query = null, $scope = null)
     {
         //登录
-        if (checkUser()) {
+        if (currentUser()) {
             return Post::fastRecommendPosts($limit, $query, $scope);
         }
         //游客
@@ -208,7 +208,7 @@ class Post extends Model implements Collectionable
         $posts = [];
         if (is_null($userId)) {
             //视频刷
-            if (checkUser()) {
+            if (currentUser()) {
                 //登录
                 $posts = Post::fastRecommendPosts($limit);
                 return $posts;
@@ -448,7 +448,7 @@ class Post extends Model implements Collectionable
     {
         app_track_event("首页", "获取学习视频");
 
-        $user = checkUser();
+        $user = currentUser();
 
         if (!is_null($user)) {
             return static::hotRecommendPosts($user->id);

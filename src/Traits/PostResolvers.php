@@ -103,11 +103,11 @@ trait PostResolvers
     public function resolvePosts($root, $args, $context, $info)
     {
         app_track_event("用户页", "我发布的视频动态");
-        if (checkUser()) {
+        if (currentUser()) {
             $visited = Visit::create([
                 'visited_type' => 'users',
                 'visited_id'   => data_get($args, 'user_id'),
-                'user_id'      => getUser()->id,
+                'user_id'      => getUserId(),
                 'created_at'   => now(),
                 'updated_at'   => now(),
             ]);
@@ -151,7 +151,7 @@ trait PostResolvers
         }
 
         // 登录用户，尊重个人兴趣
-        if ($user = checkUser()) {
+        if ($user = currentUser()) {
             $query = Post::publicPosts($user->id);
         }
 
@@ -330,7 +330,7 @@ trait PostResolvers
         $filter  = data_get($args, 'filter');
         $user_id = data_get($args, 'user_id');
 
-        $user = checkUser() ? getUser() : User::find($user_id);
+        $user = $user_id ? User::find($user_id) : getUser();
         //2.获取用户关注列表
         $followedUserIds = $user->follows()->pluck('followable_id');
         //3.获取关注用户发布的视频
