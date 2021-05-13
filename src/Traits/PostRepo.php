@@ -204,7 +204,7 @@ trait PostRepo
         // }
 
         //混合广告视频
-        $mixPosts = Post::mixPosts($posts);
+        $mixPosts = Post::mixAdPosts($posts);
 
         return $mixPosts;
     }
