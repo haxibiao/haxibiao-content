@@ -79,30 +79,7 @@ trait PostRepo
             }
             //分享视频连接方式发布作品
             if ($shareLink) {
-
-                //秒粘贴结果
-                $dyUrl            = Spider::extractURL($shareLink);
-                $pasteVideoInfo   = Spider::getPasteVideoInfo($dyUrl);
-                $video->sharelink = $dyUrl;
-
-                //粘贴视频排重
-                $video = Video::firstOrNew([
-                    'sharelink' => $dyUrl,
-                ]);
-                $video->user_id = $user->id;
-                $video->title   = Str::limit($body, 50);
-                $video->disk    = 'vod';
-
-                //乐观更新 粘贴的播放地址 + 封面
-                $video->json = array_merge(json_decode($video->json), [
-                    'dynamic_cover' => data_get($pasteVideoInfo, 'dynamic_cover'),
-                    'cover'         => data_get($pasteVideoInfo, 'cover'),
-                ]);
-                $video->path  = data_get($pasteVideoInfo, 'play_ur');
-                $video->cover = data_get($pasteVideoInfo, 'cover');
-
-                $video->save();
-
+                $post = Spider::pasteDouyinVideo($user, $shareLink, $body);
             }
             $post->save();
 
