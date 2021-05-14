@@ -70,8 +70,8 @@ trait FastRecommendStrategy
         }
         //3.从最后刷到的位置取内容
         $qb = $qb->where('review_day', $reviewDay)
-        ->where('review_id', '>', $reviewId)
-        ->orderBy('review_id');
+            ->where('review_id', '>', $reviewId)
+            ->orderBy('review_id');
         $qb = $qb->take($limit);
 
         //4.获取数据
@@ -104,7 +104,7 @@ trait FastRecommendStrategy
         }
 
         //遇到只取到1个，加入1个教学视频避免前端刷不动
-        if ($posts->count() == 1) {
+        if (count($posts) == 1) {
             if (adIsOpened()) {
                 $post            = $posts->first();
                 $adPost          = clone $post;
