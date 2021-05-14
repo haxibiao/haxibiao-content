@@ -69,10 +69,10 @@ trait FastRecommendStrategy
             return $qb->latest('id')->skip(rand(1, 100))->take(4)->get();
         }
         //3.从最后刷到的位置取内容
-        $qb = $qb->take($limit);
         $qb = $qb->where('review_day', $reviewDay)
-            ->where('review_id', '>', $reviewId)
-            ->orderBy('review_id');
+        ->where('review_id', '>', $reviewId)
+        ->orderBy('review_id');
+        $qb = $qb->take($limit);
 
         //4.获取数据
         $posts = $qb->get();
@@ -98,7 +98,7 @@ trait FastRecommendStrategy
      */
     public static function mixGuidPosts($posts, $qb)
     {
-        $mixedPosts = [];
+        $mixedPosts = collect([]);
         foreach ($posts as $post) {
             $mixedPosts[] = $post;
         }
@@ -132,7 +132,7 @@ trait FastRecommendStrategy
         if (!adIsOpened()) {
             return $posts;
         }
-        $mixPosts = [];
+        $mixPosts = collect([]);
         if ($posts->count() < 4) {
             //少于4个，不加广告
             return $posts;
