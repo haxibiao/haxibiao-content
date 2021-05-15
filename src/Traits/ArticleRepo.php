@@ -603,25 +603,6 @@ trait ArticleRepo
     }
 
     /**
-     * @Desc     资源类型
-     * @DateTime 2018-07-24
-     * @return   [type]     [description]
-     */
-    public function resoureTypeCN()
-    {
-        $type = $this->type;
-        switch ($type) {
-            case 'video':
-                return '视频';
-            case 'post':
-                return '动态';
-            default:
-                break;
-        }
-        return '文章';
-    }
-
-    /**
      * 根据抖音视频信息 转存到 公司的cos
      * FIXME  待 article 与 video 模块重构后，这也需要变化
      * @param array $info
