@@ -22,7 +22,7 @@ class Stick extends Resource
     public static $perPageOptions = [25, 50, 100, 500, 1000];
     public static function label()
     {
-        return '定制';
+        return '置顶';
     }
 
     /**
@@ -58,7 +58,10 @@ class Stick extends Resource
     {
         return [
             ID::make(__('ID'), 'id')->sortable(),
-            Text::make('展示位置', 'place'),
+            Text::make('展示位置', 'place')->suggestions([
+                '影厅顶部',
+                '合集顶部',
+            ]),
             Text::make('app名字', 'app_name'),
             Image::make('封面', 'cover')
                 ->thumbnail(function () {

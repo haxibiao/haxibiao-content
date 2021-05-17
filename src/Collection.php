@@ -212,12 +212,19 @@ class Collection extends Model
     {
         // 测试环境跳过
         if (config('app.env') == 'testing') {
-            return;
+            return null;
         }
-        $topCover = Image::where('title', Collection::TOP_COVER())
+
+        //有配置这样的合集封面的项目,比如印象视频...
+        if ($topCover = Image::where('title', Collection::TOP_COVER())
             ->latest('id')
-            ->first();
-        return isset($topCover) ? cdnurl($topCover->path) : cdnurl(Collection::TOP_COVER());
+            ->first()) {
+            return $topCover->url;
+        }
+
+        //依赖cos每个项目传一个封面？太费劲了
+        // cdnurl(Collection::TOP_COVER());
+        return null;
     }
 
     public static function setTopCover($file)

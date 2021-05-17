@@ -30,7 +30,6 @@ type Article {
     artilceImages: [Image!]
     category: Category
     categories: [Category!]
-    collection: Collection
     tips: [Tip!]
     comments: [Comment]!
     created_at: DateTime!
@@ -41,7 +40,11 @@ type Article {
     issue: Issue
     remark: String
     """
-    合集
+    主合集
+    """
+    collection: Collection
+    """
+    关联合集
     """
     collections: [Collection]
 }

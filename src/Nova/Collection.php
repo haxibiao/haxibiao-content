@@ -11,7 +11,6 @@ use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\Textarea;
 
 class Collection extends Resource
 {
@@ -34,7 +33,7 @@ class Collection extends Resource
     {
         return [
             ID::make()->sortable(),
-            Textarea::make('名称', 'name')->rules('required')->hideFromIndex(),
+            Text::make('名称', 'name')->rules('required'),
             BelongsTo::make('作者', 'user', 'App\Nova\User')->exceptOnForms(),
             Text::make('说明', 'description')->exceptOnForms(),
             Text::make('集数', 'count')->exceptOnForms(),

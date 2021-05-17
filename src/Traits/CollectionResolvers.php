@@ -284,7 +284,7 @@ trait CollectionResolvers
 
         $result = [];
         //构建返回结果
-        $result['topCover']              = Collection::getTopCover();
+        $result['topCover']              = Collection::getTopCover() ?? $topCollection->logo;
         $result['topCollection']         = $topCollection;
         $result['recommendCollectionsA'] = $recommendCollectionsA;
         $result['recommendCollectionsB'] = $recommendCollectionsB;

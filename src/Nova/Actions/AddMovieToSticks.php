@@ -27,7 +27,6 @@ class AddMovieToSticks extends Action
      */
     public function handle(ActionFields $fields, Collection $models)
     {
-        $user   = \Auth::user();
         $choice = EditorChoice::where('title', $fields->title)->first();
         $site   = Site::where('name', $fields->sitename)->first();
         if (!$choice) {
@@ -39,7 +38,7 @@ class AddMovieToSticks extends Action
                 'stickable_id'     => $movie->id,
                 'place'            => $fields->place,
                 'editor_choice_id' => $choice->id,
-                'editor_id'        => $user->id,
+                'editor_id'        => getUserId(),
                 'site_id'          => optional($site)->id,
                 'app_name'         => $fields->app,
             ]);
@@ -54,8 +53,14 @@ class AddMovieToSticks extends Action
     public function fields()
     {
         return [
-            Text::make('精选名称', 'title'),
-            Text::make('展示位置', 'place'),
+            Text::make('精选名称', 'title')->suggestions([
+                '影厅推荐',
+                '精选合集',
+            ]),
+            Text::make('展示位置', 'place')->suggestions([
+                '影厅顶部',
+                '合集顶部',
+            ]),
             Text::make('展示站点（可为空）', 'sitename'),
             Text::make('展示app（可为空）', 'app'),
         ];
