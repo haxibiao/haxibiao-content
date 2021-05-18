@@ -96,21 +96,21 @@ trait FastRecommendStrategy
      * 混合教学视频
      * @param \Illuminate\Support\Collection $posts
      */
-    public static function mixGuidPosts($posts, $qb)
+    public static function mixGuidPosts($posts, $qb): Collection
     {
-        $mixedPosts = collect([]);
+        $mixedPosts = [];
         foreach ($posts as $post) {
             $mixedPosts[] = $post;
         }
 
-        //遇到只取到1个，加入1个教学视频避免前端刷不动
-        if (count($posts) == 1) {
+        //遇到只取到<=1个，加入1个视频避免前端刷不动
+        if ($posts->count() == 1) {
             if (adIsOpened()) {
                 $post            = $posts->first();
                 $adPost          = clone $post;
                 $adPost->id      = random_str(7);
                 $adPost->is_ad   = true;
-                $adPost->ad_type = "guid"; //教学视频
+                $adPost->ad_type = "tt"; //FIXME: 后面新增 教学视频 type: guid
                 $mixedPosts[]    = $adPost;
             } else {
                 // 兼容前端没开启广告 也没录制好教学视频的情况 追加随机推荐的4个
@@ -120,19 +120,19 @@ trait FastRecommendStrategy
                 }
             }
         }
-        return $mixedPosts;
+        return collect($mixedPosts);
     }
 
     /**
      * 混合广告视频
      * @param \Illuminate\Support\Collection $posts
      */
-    public static function mixAdPosts($posts)
+    public static function mixAdPosts($posts): Collection
     {
         if (!adIsOpened()) {
             return $posts;
         }
-        $mixPosts = collect([]);
+        $mixPosts = [];
         if ($posts->count() < 4) {
             //少于4个，不加广告
             return $posts;
@@ -151,7 +151,7 @@ trait FastRecommendStrategy
                 }
             }
         }
-        return $mixPosts;
+        return collect($mixPosts);
     }
 
     /**
