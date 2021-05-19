@@ -29,9 +29,9 @@ class Stickable extends Resource
             ID::make()->sortable(),
             Text::make('名称', 'name'),
             Select::make('置顶类型', 'stickable_type')->options([
-                'Video'   => '短视频',
-                'Article' => '图文',
-                'Movie'   => '电影',
+                'videos'   => '短视频',
+                'articles' => '图文',
+                'movies'   => '电影',
             ]),
             Text::make('置顶id', 'stickable_id'),
             Text::make('页面', 'page'),
