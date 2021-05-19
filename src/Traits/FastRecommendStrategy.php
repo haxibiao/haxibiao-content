@@ -30,7 +30,7 @@ trait FastRecommendStrategy
         $user = getUser();
         //0.准备 刷的内容范围加载
         if (is_null($query)) {
-            $query = Post::has('video')->with(['video', 'user.profile'])->publish();
+            $query = Post::has('video');
         }
         $qb = $query->with(['video', 'user.profile'])->publish();
 
@@ -88,7 +88,7 @@ trait FastRecommendStrategy
         //6.混合广告视频
         $posts = FastRecommendStrategy::mixAdPosts($posts);
         //7.混合教学视频
-        $posts = FastRecommendStrategy::mixGuidPosts($posts, $qb);
+        $posts = FastRecommendStrategy::mixGuidPosts($posts);
         return $posts;
     }
 
@@ -96,13 +96,12 @@ trait FastRecommendStrategy
      * 混合教学视频
      * @param \Illuminate\Support\Collection $posts
      */
-    public static function mixGuidPosts($posts, $qb): Collection
+    public static function mixGuidPosts($posts): Collection
     {
         $mixedPosts = [];
         foreach ($posts as $post) {
             $mixedPosts[] = $post;
         }
-
         //遇到只取到<=1个，加入1个视频避免前端刷不动
         if ($posts->count() == 1) {
             if (adIsOpened()) {
@@ -112,12 +111,13 @@ trait FastRecommendStrategy
                 $adPost->is_ad   = true;
                 $adPost->ad_type = "tt"; //FIXME: 后面新增 教学视频 type: guid
                 $mixedPosts[]    = $adPost;
-            } else {
-                // 兼容前端没开启广告 也没录制好教学视频的情况 追加随机推荐的4个
-                $randNewPosts = $qb->latest('id')->skip(rand(1, 100))->take(4)->get();
-                foreach ($randNewPosts as $post) {
-                    $mixedPosts[] = $post;
-                }
+            }
+
+            // 兼容前端没开启广告 也没录制好教学视频的情况 追加随机推荐的4个
+            $qb              = Post::has('video')->with(['video', 'user.profile'])->publish();
+            $randLatestPosts = $qb->latest('id')->skip(rand(1, 100))->take(4)->get();
+            foreach ($randLatestPosts as $post) {
+                $mixedPosts[] = $post;
             }
         }
         return collect($mixedPosts);
