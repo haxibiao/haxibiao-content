@@ -179,58 +179,6 @@ class Post extends Model implements Collectionable
         }
     }
 
-    public static function getRecommendPosts($limit = 4, $query = null, $scope = null)
-    {
-        //登录
-        if (currentUser()) {
-            return Post::fastRecommendPosts($limit, $query, $scope);
-        }
-        //游客
-        return Post::getGuestPosts($limit);
-    }
-
-    public static function getGuestPosts($limit = 5)
-    {
-        $withRelationList = ['video', 'user'];
-        if (class_exists("App\\Role", true)) {
-            $withRelationList = array_merge($withRelationList, ['user.role']);
-        }
-        $qb = \App\Post::with($withRelationList)
-            ->has('video')
-            ->publish();
-        $qb     = $qb->take($limit);
-        $offset = mt_rand(0, 50); //随机感？
-        $qb     = $qb->skip($offset);
-        return $qb->latest('id')->get();
-    }
-
-    //兼容老接口
-    public static function getOldPosts($userId, $offset, $limit)
-    {
-        $posts = [];
-        if (is_null($userId)) {
-            //视频刷
-            if (currentUser()) {
-                //登录
-                $posts = Post::fastRecommendPosts($limit);
-                return $posts;
-            } else {
-                //游客
-                return Post::getGuestPosts($limit);
-            }
-        } else {
-            //获取用户的视频动态
-            $posts = Post::where('user_id', $userId)
-                ->publish()
-                ->latest('id')
-                ->skip($offset)
-                ->take($limit)
-                ->get();
-        }
-
-        return $posts;
-    }
-
     /**
      * 设置 posts 表中 review_id 与 review_day
      *

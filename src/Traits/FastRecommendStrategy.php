@@ -19,23 +19,25 @@ trait FastRecommendStrategy
      * 目前最简单的错日排重推荐视频算法(FastRecommend)，人人可以看最新，随机，过滤，不重复的视频流了
      *
      * @param int $limit 返回动态条数
-     * @param mixed $query 基础推荐数据范围查询
-     * @param mixed $scope 推荐排重游标范围名称(视频刷，电影剪辑)
+     * @param mixed $query 基础推荐数据范围查询,可带with预查询优化，排序等
+     * @param mixed $scope 推荐排重游标范围名称(视频，电影)
+     * @param mixed $scopeQuery 匹配scope的范围用来算刷的位置，无排序和with优化
      * @return array
      */
-    public static function fastRecommendPosts($limit = 4, $query = null, $scope = null)
+    public static function fastRecommendPosts($limit = 4, $query = null, $scope = null, $scopeQuery = null)
     {
         $posts = collect([]);
         //登录用户
         $user = getUser();
         //0.准备 刷的内容范围加载
         if (is_null($query)) {
-            $query = Post::has('video');
+            //默认推荐刷 = 纯未分类的动态，不带影视,不带题目，需要的resolver自己传入query
+            $query = Post::has('video')->whereNull('movie_id')->whereNull('question_id');
         }
-        $qb = $query->with(['video', 'user'])->publish();
+        $qb = (clone $query)->with(['video', 'user'])->publish();
 
         //0.准备 提取刷过的位置记录
-        $maxReviewIdInDays = Post::getMaxReviewIdInDays();
+        $maxReviewIdInDays = Post::getMaxReviewIdInDays($scopeQuery ?? $query);
 
         //1.过滤 不喜欢和拉黑过的用户的作品
         if (!request('fast_recommend_mode')) {
@@ -343,9 +345,10 @@ trait FastRecommendStrategy
      *
      * @return Collection
      */
-    public static function getMaxReviewIdInDays()
+    public static function getMaxReviewIdInDays($scopeQuery = null)
     {
-        $maxRviewIds = \Haxibiao\Content\Post::selectRaw("review_day,max(review_id) as max_review_id")
+        $scopeQuery  = $scopeQuery ?? \Haxibiao\Content\Post::query();
+        $maxRviewIds = $scopeQuery->selectRaw("review_day,max(review_id) as max_review_id")
             ->whereStatus(1) //只考虑已上架发布的动态
             ->whereNotNull('video_id') //只考虑有视频的
             ->groupBy('review_day')

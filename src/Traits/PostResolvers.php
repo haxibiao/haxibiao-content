@@ -228,7 +228,7 @@ trait PostResolvers
 
         $limit = 4; //快速推荐有广告位逻辑
         $qb    = Post::whereNotNull('movie_id')->with('movie');
-        $posts = Post::getRecommendPosts($limit, $qb, '影视');
+        $posts = Post::getRecommendPosts($limit, $qb, '影视', Post::whereNotNull('movie_id'));
 
         // //2.再填充1个有合集的
         // $qb = (clone $query)->where('collection_id', '>', 0);
