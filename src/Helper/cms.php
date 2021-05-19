@@ -248,7 +248,6 @@ function cmsTopMovies($top = 4)
     if (config('cms.multi_domains')) {
         if ($site = cms_get_site()) {
             if ($site->stickyMovies()->byStickableName("网站-首页-电影")->count()) {
-                dd("aa");
                 return $site->stickyMovies()
                     ->byStickableName("网站-首页-电影")
                     ->latest('stickables.updated_at')
