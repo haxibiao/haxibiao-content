@@ -179,11 +179,11 @@ class Post extends Model implements Collectionable
         }
     }
 
-    public static function getRecommendPosts($limit = 4, $query = null, $scope = null)
+    public static function getRecommendPosts($limit = 4, $query = null, $scope = null, $scopeQuery = null)
     {
         //登录
         if (currentUser()) {
-            return Post::fastRecommendPosts($limit, $query, $scope);
+            return Post::fastRecommendPosts($limit, $query, $scope, $scopeQuery);
         }
         //游客
         return Post::getGuestPosts($limit);
