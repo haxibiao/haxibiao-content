@@ -14,21 +14,21 @@ class PostObserver
  */
     public function created(Post $post)
     {
-        //自动更新快速推荐排序游标
-        if (blank($post->review_id)) {
-            $post->review_id  = Post::makeNewReviewId();
-            $post->review_day = Post::genReviewDay();
-            $post->saveQuietly();
+        //自动更新快速推荐排序游标? saving里已处理..
+        // if (blank($post->review_id)) {
+        // $post->review_id  = Post::makeNewReviewId();
+        // $post->review_day = Post::genReviewDay();
+        // $post->saveQuietly();
+        // }
 
-            //FIXME: 超过100个今日新动态或者已经有1个小时未归档了，自动发布归档并刷新推荐排序. 建议增加 review_at字段
-            // $canAutoReview = Post::where('review_day', 0)
-            //     ->where('created_at', '<=', now()->subHour())->exists()
-            // || Post::where('review_day', 0)->count() >= 100;
+        //FIXME: 超过100个今日新动态或者已经有1个小时未归档了，自动发布归档并刷新推荐排序. 建议增加 review_at字段
+        // $canAutoReview = Post::where('review_day', 0)
+        //     ->where('created_at', '<=', now()->subHour())->exists()
+        // || Post::where('review_day', 0)->count() >= 100;
 
-            // if ($canAutoReview) {
-            //     dispatch(new ArchiveTodayPosts);
-            // }
-        }
+        // if ($canAutoReview) {
+        //     dispatch(new ArchiveTodayPosts);
+        // }
 
         //createPost 重构出来的冗余操作
         // 记录用户操作
