@@ -190,7 +190,7 @@ extend type Query {
     """
     获取关联了电影的post列表
     """
-    postWithMovies: [Post] @field(resolver: "App\\Post@postWithMovies")
+    postWithMovies: [Post] @field(resolver: "App\\Post@resolveMovies")
 }
 
 enum PostFilter {

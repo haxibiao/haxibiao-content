@@ -2,7 +2,6 @@
 
 namespace Haxibiao\Content\Traits;
 
-use App\Movie;
 use App\Visit;
 use Haxibiao\Breeze\User;
 use Haxibiao\Content\Jobs\MakeMp4ByM3U8;
@@ -219,10 +218,10 @@ trait PostResolvers
     }
 
     /**
-     * postWithMovies 关联电影的视频刷
+     * 视频刷-影视
      * @return void
      */
-    public function postWithMovies($rootValue, array $args, $context, $resolveInfo)
+    public function resolveMovies($rootValue, array $args, $context, $resolveInfo)
     {
         //标记请求为快速推荐模式
         request()->request->add(['fast_recommend_mode' => true]);
@@ -232,34 +231,34 @@ trait PostResolvers
         $posts = collect([]);
 
         $query = Post::has('video');
-        //1.优先来1个有电影的
-        $qb = (clone $query)->where('movie_id', '>', 0);
+        //1.只看影视的
+        $qb = (clone $query)->whereNotNull('movie_id');
         if (!$qb->exists()) {
-            $movie_posts = Post::getRecommendPosts(1, $qb->with('movie'), '电影剪辑');
+            $movie_posts = Post::getRecommendPosts($limit, $qb->with('movie'), '影视');
             $posts       = $posts->merge($movie_posts);
         }
 
-        //2.再填充1个有合集的
-        $qb = (clone $query)->where('collection_id', '>', 0);
-        if ($qb->exists()) {
-            $collection_posts = Post::getRecommendPosts(1, $qb->with('collection'), '视频合集');
-            $posts            = $posts->merge($collection_posts);
-        }
+        // //2.再填充1个有合集的
+        // $qb = (clone $query)->where('collection_id', '>', 0);
+        // if ($qb->exists()) {
+        //     $collection_posts = Post::getRecommendPosts(1, $qb->with('collection'), '合集');
+        //     $posts            = $posts->merge($collection_posts);
+        // }
 
-        //3. 再填充1个有题目的
-        $qb = (clone $query)->where('question_id', '>', 0);
-        if ($qb->exists()) {
-            $question_posts = Post::getRecommendPosts(1, $qb->with('question'), '视频答题');
-            $posts          = $posts->merge($question_posts);
-        }
+        // //3. 再填充1个有题目的
+        // $qb = (clone $query)->where('question_id', '>', 0);
+        // if ($qb->exists()) {
+        //     $question_posts = Post::getRecommendPosts(1, $qb->with('question'), '答题');
+        //     $posts          = $posts->merge($question_posts);
+        // }
 
-        //4. 最后补充普通的动态 = 也许有美女，不过影视剪辑更多..
-        $qb = (clone $query)->with('movie');
-        if ($qb->exists()) {
-            $latest_take  = $limit - $posts->count();
-            $latest_posts = Post::getRecommendPosts($latest_take, $qb);
-            $posts        = $posts->merge($latest_posts);
-        }
+        // //4. 最后补充普通的动态 = 也许有美女，不过影视剪辑更多..
+        // $qb = (clone $query)->with('movie');
+        // if ($qb->exists()) {
+        //     $latest_take  = $limit - $posts->count();
+        //     $latest_posts = Post::getRecommendPosts($latest_take, $qb);
+        //     $posts        = $posts->merge($latest_posts);
+        // }
 
         return $posts;
     }
