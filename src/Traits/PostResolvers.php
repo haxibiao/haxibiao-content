@@ -227,16 +227,8 @@ trait PostResolvers
         request()->request->add(['fast_recommend_mode' => true]);
 
         $limit = 4; //快速推荐有广告位逻辑
-
-        $posts = collect([]);
-
-        $query = Post::has('video');
-        //1.只看影视的
-        $qb = (clone $query)->whereNotNull('movie_id');
-        if (!$qb->exists()) {
-            $movie_posts = Post::getRecommendPosts($limit, $qb->with('movie'), '影视');
-            $posts       = $posts->merge($movie_posts);
-        }
+        $qb    = Post::whereNotNull('movie_id')->with('movie');
+        $posts = Post::getRecommendPosts($limit, $qb, '影视');
 
         // //2.再填充1个有合集的
         // $qb = (clone $query)->where('collection_id', '>', 0);

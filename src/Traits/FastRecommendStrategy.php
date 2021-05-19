@@ -32,7 +32,7 @@ trait FastRecommendStrategy
         if (is_null($query)) {
             $query = Post::has('video');
         }
-        $qb = $query->with(['video', 'user.profile'])->publish();
+        $qb = $query->with(['video', 'user'])->publish();
 
         //0.准备 提取刷过的位置记录
         $maxReviewIdInDays = Post::getMaxReviewIdInDays();
@@ -77,10 +77,10 @@ trait FastRecommendStrategy
         //4.获取数据
         $posts = $qb->get();
         if (!request('fast_recommend_mode')) {
-            //更新点赞状态
-            $posts = Post::likedPosts($user, $posts);
-            //更新关注状态
-            $posts = Post::followedPostsUsers($user, $posts);
+            //更新点赞状态？点过赞的，以后刷不到了，临时状态前端已缓存点赞状态，UI来回点赞状态不消失
+            // $posts = Post::likedPosts($user, $posts);
+            //更新关注状态? UI都没有
+            // $posts = Post::followedPostsUsers($user, $posts);
         }
 
         //5.保存最后刷的位置
@@ -114,7 +114,7 @@ trait FastRecommendStrategy
             }
 
             // 兼容前端没开启广告 也没录制好教学视频的情况 追加随机推荐的4个
-            $qb              = Post::has('video')->with(['video', 'user.profile'])->publish();
+            $qb              = Post::has('video')->with(['video', 'user'])->publish();
             $randLatestPosts = $qb->latest('id')->skip(rand(1, 100))->take(4)->get();
             foreach ($randLatestPosts as $post) {
                 $mixedPosts[] = $post;
