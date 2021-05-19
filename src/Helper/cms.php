@@ -1,8 +1,6 @@
 <?php
 
-use App\Movie;
 use Haxibiao\Content\Siteable;
-use Haxibiao\Content\Stick;
 use Illuminate\Support\Str;
 
 /**
@@ -157,44 +155,44 @@ if (!function_exists('cms_seo_meta')) {
  */
 if (!function_exists('cms_icp_info')) {
     function cms_icp_info()
-	{
-		$isMultiDomainsMode = config('cms.multi_domains');
-		$site = cms_get_site();
-		$icpInfoOfMultiDomains = data_get(
-			config('cms.icp'),
-			data_get($site, 'company')
-		);
+    {
+        $isMultiDomainsMode    = config('cms.multi_domains');
+        $site                  = cms_get_site();
+        $icpInfoOfMultiDomains = data_get(
+            config('cms.icp'),
+            data_get($site, 'company')
+        );
 
-		if ($isMultiDomainsMode) {
-			if(!$icpInfoOfMultiDomains){
-				return;
-			}
-			$copyRight  = data_get($icpInfoOfMultiDomains, 'copyright');
-			$recordCode = data_get($icpInfoOfMultiDomains, 'record_code');
-			$policeCode = data_get($icpInfoOfMultiDomains, 'police_code');
-			$policeCodeNumber = data_get($icpInfoOfMultiDomains, 'police_code_number');
-		} else {
-			$copyRight  = seo_value('备案', 'copyright');
-			$recordCode = seo_value('备案', '备案号');
-			$policeCode = seo_value('备案', '公安网备号');
-			$policeCodeNumber = seo_value('备案', '公安网备号(数字)');
-			if(!$copyRight || !$recordCode){
-				return;
-			}
-		}
-		$html = [];
-		$html[] = "<div>";
-		$html[] = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\" rel=\"nofollow\">{$copyRight}</a><br>";
-		if ($policeCode) {
-			$html[] = "<a target=\"_blank\" href=\"http://www.beian.gov.cn/portal/registerSystemInfo?recordcode={$policeCodeNumber}\" rel=\"nofollow\">";
-			$html[] = "<img src=\"http://cos.haxibiao.com/images/yyzz.png\" rel=\"nofollow\" alt=\"电子安全监督\">";
-			$html[] = "{$policeCode}";
-			$html[] = "</a><br>";
-		}
-		$html[] = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\"  rel=\"nofollow\">{$recordCode}<br>";
-		$html[] = "</div>";
-		return implode(PHP_EOL, $html);
-	}
+        if ($isMultiDomainsMode) {
+            if (!$icpInfoOfMultiDomains) {
+                return;
+            }
+            $copyRight        = data_get($icpInfoOfMultiDomains, 'copyright');
+            $recordCode       = data_get($icpInfoOfMultiDomains, 'record_code');
+            $policeCode       = data_get($icpInfoOfMultiDomains, 'police_code');
+            $policeCodeNumber = data_get($icpInfoOfMultiDomains, 'police_code_number');
+        } else {
+            $copyRight        = seo_value('备案', 'copyright');
+            $recordCode       = seo_value('备案', '备案号');
+            $policeCode       = seo_value('备案', '公安网备号');
+            $policeCodeNumber = seo_value('备案', '公安网备号(数字)');
+            if (!$copyRight || !$recordCode) {
+                return;
+            }
+        }
+        $html   = [];
+        $html[] = "<div>";
+        $html[] = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\" rel=\"nofollow\">{$copyRight}</a><br>";
+        if ($policeCode) {
+            $html[] = "<a target=\"_blank\" href=\"http://www.beian.gov.cn/portal/registerSystemInfo?recordcode={$policeCodeNumber}\" rel=\"nofollow\">";
+            $html[] = "<img src=\"http://cos.haxibiao.com/images/yyzz.png\" rel=\"nofollow\" alt=\"电子安全监督\">";
+            $html[] = "{$policeCode}";
+            $html[] = "</a><br>";
+        }
+        $html[] = "<a target=\"_blank\" href=\"http://beian.miit.gov.cn/\"  rel=\"nofollow\">{$recordCode}<br>";
+        $html[] = "</div>";
+        return implode(PHP_EOL, $html);
+    }
 }
 
 /**
@@ -249,13 +247,12 @@ function cmsTopMovies($top = 4)
     //站群模式
     if (config('cms.multi_domains')) {
         if ($site = cms_get_site()) {
-            $place   = "网页-首页-置顶";
-            $movieid = Stick::where([
-                'place'          => $place,
-                'stickable_type' => 'movies',
-            ])->take(4)->select('stickable_id')->get()->pluck('stickable_id')->toArray();
-            if (count($movieid) >= 4) {
-                return Movie::whereIn('id', $movieid)->get();
+            if ($site->stickyMovies()->byStickableName("网站-首页-电影")->count()) {
+                dd("aa");
+                return $site->stickyMovies()
+                    ->byStickableName("网站-首页-电影")
+                    ->latest('stickables.updated_at')
+                    ->take($top)->get();
             }
         }
     }
