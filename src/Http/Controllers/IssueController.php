@@ -64,7 +64,6 @@ class IssueController extends Controller
         $questions  = $qb->paginate(10);
         $categories = Category::where('count_questions', '>', 0)->orderBy('updated_at', 'desc')->take(7)->get();
         $hot        = Issue::with('latestResolution.article')
-            ->whereNotNull('image1')
             ->orderBy('hits', 'desc')
             ->inRandomOrder()
             ->take(3)
