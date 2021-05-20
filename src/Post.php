@@ -394,18 +394,6 @@ class Post extends Model implements Collectionable
         return \App\Post::where('video_id', $videoId)->first();
     }
 
-    public function resolveRecommendPosts($root, $args, $context, $info)
-    {
-        app_track_event("首页", "获取学习视频");
-
-        $user = currentUser();
-
-        if (!is_null($user)) {
-            return static::hotRecommendPosts($user->id);
-        } else {
-            return static::getRecommendPosts();
-        }
-    }
 
     public static function fastCreatePost($videoId, $description, $status = Post::PRIVARY_STATUS, $source = [])
     {
