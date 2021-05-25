@@ -98,7 +98,6 @@ trait ArticleResolvers
     {
         $article = Article::findOrFail($args['id']);
         $article->update(['status' => Article::STATUS_REVIEW]);
-        $article->changeAction();
 
         return $article;
     }

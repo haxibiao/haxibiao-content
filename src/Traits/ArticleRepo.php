@@ -512,9 +512,13 @@ trait ArticleRepo
      * @DateTime    2018-11-11
      * @description [改变相关的动态 后期将这块放进队列中处理]
      * @return      [null]
+     *
+     * @deprecated ivan: 这个操作有点复杂，暂时不维护操作动态记录先，主要场景编辑文章暂时不用
      */
     public function changeAction()
     {
+        return;
+
         //改变 发表文章的动态
         $action = $this->morphMany(\App\Action::class, 'actionable')->first();
         if ($action) {
@@ -523,7 +527,7 @@ trait ArticleRepo
         }
 
         //改变评论 动态
-        $comments = $this->comments;
+        $comments = $this->comments ?? [];
         foreach ($comments as $comment) {
             $comment_action = $comment->morphMany(\App\Action::class, 'actionable')->first();
             if ($comment_action) {
@@ -531,7 +535,7 @@ trait ArticleRepo
                 $comment_action->save(['timestamps' => false]);
             }
             //改变被喜欢的评论 动态
-            foreach ($comment->likes as $comment_like) {
+            foreach ($comment->likes ?? [] as $comment_like) {
                 $comment_like_action = $comment_like->morphMany(\App\Action::class, 'actionable')->first();
                 if ($comment_like_action) {
                     $comment_like_action->status = $this->status;
@@ -541,7 +545,7 @@ trait ArticleRepo
         }
 
         //改变喜欢 动态
-        $likes = $this->likes;
+        $likes = $this->likes ?? [];
         foreach ($likes as $like) {
             $like_action = $like->morphMany(\App\Action::class, 'actionable')->first();
             if ($like_action) {
@@ -551,7 +555,7 @@ trait ArticleRepo
         }
 
         //改变收藏
-        $favorites = $this->favorites;
+        $favorites = $this->favorites ?? [];
         foreach ($favorites as $favorite) {
             $favorite_action = $favorite->morphMany(\App\Action::class, 'actionable')->first();
             if ($favorite_action) {

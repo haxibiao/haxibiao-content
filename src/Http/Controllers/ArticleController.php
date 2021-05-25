@@ -229,8 +229,8 @@ class ArticleController extends Controller
         $article->cover_path = data_get($article, 'images.0.url');
         $article->save();
 
-        //改变动态
-        $article->changeAction();
+        //编辑保存文章 改变动态？ XXM这个操作有点复杂，暂时不启用
+        // $article->changeAction();
 
         //images
         $article->saveRelatedImagesFromBody();
@@ -264,8 +264,6 @@ class ArticleController extends Controller
         } else {
             $article->update(['status' => Article::STATUS_REFUSED]);
         }
-        //改变动态
-        // $article->changeAction();
         return redirect()->back();
     }
 
