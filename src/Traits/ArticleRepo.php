@@ -343,12 +343,16 @@ trait ArticleRepo
     {
         $imageUrls = [];
         if (!empty($html)) {
-            $doc = new DOMDocument();
-            $doc->loadHTML($html);
-            $xml  = simplexml_import_dom($doc);
-            $tags = $xml->xpath('//img');
-            foreach ($tags as $tag) {
-                $imageUrls[] = $tag['src']->__toString();
+            try {
+                $doc = new DOMDocument();
+                $doc->loadHTML($html);
+                $xml  = simplexml_import_dom($doc);
+                $tags = $xml->xpath('//img');
+                foreach ($tags as $tag) {
+                    $imageUrls[] = $tag['src']->__toString();
+                }
+            } catch (\Throwable $ex) {
+
             }
         }
         return $imageUrls;
