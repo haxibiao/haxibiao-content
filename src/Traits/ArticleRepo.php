@@ -305,7 +305,7 @@ trait ArticleRepo
     public function saveRelatedImagesFromBody()
     {
         $body = $this->body;
-        if (!$body) {
+        if (empty($body)) {
             return;
         }
         $imageUrls = $this->findHtmlImageUrls($body);
@@ -341,15 +341,15 @@ trait ArticleRepo
 
     private function findHtmlImageUrls($html)
     {
-
-        $doc = new DOMDocument();
-        $doc->loadHTML($this->body);
-        $xml  = simplexml_import_dom($doc);
-        $tags = $xml->xpath('//img');
-
         $imageUrls = [];
-        foreach ($tags as $tag) {
-            $imageUrls[] = $tag['src']->__toString();
+        if (!empty($html)) {
+            $doc = new DOMDocument();
+            $doc->loadHTML($html);
+            $xml  = simplexml_import_dom($doc);
+            $tags = $xml->xpath('//img');
+            foreach ($tags as $tag) {
+                $imageUrls[] = $tag['src']->__toString();
+            }
         }
         return $imageUrls;
     }
