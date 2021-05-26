@@ -36,6 +36,7 @@ class SeoTraffic
 
         //搜索来路
         $referer = $request->get('referer') ?? $request->header('referer');
+        $referer = str_limit($referer, 250, '');
         if ($referer) {
             if (str_contains($referer, 'baidu.com')) {
                 $engine = 'baidu';
