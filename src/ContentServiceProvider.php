@@ -9,8 +9,6 @@ use Haxibiao\Content\Console\FixContent;
 use Haxibiao\Content\Console\FixTagNamesToPosts;
 use Haxibiao\Content\Console\ImportCollections;
 use Haxibiao\Content\Console\InstallCommand;
-use Haxibiao\Content\Console\NovelPush;
-use Haxibiao\Content\Console\NovelSync;
 use Haxibiao\Content\Console\PublishCommand;
 use Haxibiao\Content\Console\RefactorCategorizable;
 use Haxibiao\Content\Console\RefactorCollection;
@@ -65,8 +63,6 @@ class ContentServiceProvider extends ServiceProvider
             $this->commands([
                 InstallCommand::class,
                 PublishCommand::class,
-                NovelPush::class,
-                NovelSync::class,
                 ArticleClear::class,
                 RefactorCategorizable::class,
                 RefactorPost::class,
