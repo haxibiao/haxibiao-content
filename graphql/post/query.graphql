@@ -85,6 +85,10 @@ type Post {
     关联的长电影
     """
     movie: Movie
+    """
+    题目
+    """
+    question: Question 
 }
 type Certification {
     id: Int
@@ -191,6 +195,10 @@ extend type Query {
     获取关联了电影的post列表
     """
     postWithMovies: [Post] @field(resolver: "App\\Post@resolveMovies")
+    """
+    question 视频刷
+    """
+    questionPosts: [Post!] @field(resolver: "App\\Post@resolveQuestionPosts")
 }
 
 enum PostFilter {

@@ -12,6 +12,12 @@ use Illuminate\Support\Arr;
 
 trait PostResolvers
 {
+    public function resolveQuestionPosts($root, $args, $context, $info)
+    {
+        app_track_event("首页", "推荐视频刷");
+        $query = Post::has('video')->whereNotNull("question_id");
+        return Post::getRecommendPosts($limit = 4, $query);
+    }
 
     /**
      * 最常用的发布动态接口，不需要考虑其他content的发布，文章，问答，走其他接口
