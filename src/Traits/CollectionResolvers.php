@@ -64,7 +64,7 @@ trait CollectionResolvers
             'description' => $description,
             'logo'        => $logo,
             'type'        => $collectableType,
-            'status'      => Collection::STATUS_ONLINE,
+            'status'      => Collection::STATUS_UNSIGN,
         ]);
         if ($collectableIds) {
             $collection->collect($collectableIds, $collectableType);
@@ -199,7 +199,7 @@ trait CollectionResolvers
      */
     public function resolveTypeCollections($rootValue, $args, $context, $resolveInfo)
     {
-        $qb = Collection::where('status', Collection::STATUS_ONLINE)->where('type', $args['type']);
+        $qb = Collection::where('status', Collection::STATUS_UNSIGN)->where('type', $args['type']);
         if ($args['user_id'] ?? null) {
             $qb->where('user_id', $args['user_id']);
         }

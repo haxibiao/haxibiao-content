@@ -182,7 +182,7 @@ class ImportCollections extends Command
     public static function copyModel($fromObject, $toModel, $index = null, $user_id = null)
     {
         $object_attributes           = array_except($fromObject->getAttributes(), ['id', 'created_at', 'updated_at']);
-        $object_attributes['status'] = Collection::STATUS_ONLINE;
+        $object_attributes['status'] = Collection::STATUS_UNSIGN;
         $a                           = array_filter($object_attributes);
         info($a);
         foreach ($object_attributes as $key => $value) {

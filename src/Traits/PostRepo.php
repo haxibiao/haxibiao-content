@@ -411,7 +411,7 @@ trait PostRepo
                 'description' => data_get($mixInfo, 'desc') ?? "",
                 'logo'        => data_get($img, 'path'),
                 'type'        => 'posts',
-                'status'      => Collection::STATUS_ONLINE,
+                'status'      => Collection::STATUS_UNSIGN,
                 'json'        => [
                     'mix_info' => $mixInfo,
                 ],

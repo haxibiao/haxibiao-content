@@ -29,8 +29,11 @@ class Collection extends Model
     /**
      * 状态机
      */
-    const STATUS_DELETED = -1; // 删除
-    const STATUS_ONLINE  = 1; // 上架（默认）
+    const STATUS_ONLINE   = 2; // 上架
+    const STATUS_UNSIGN   = 1; // 未标识
+    const STATUS_DOMESTIC = -1; //国产内容
+    const STATUS_NOTFINE  = -2; // 低质量合集
+    const STATUS_SELECTED = -3; // 脚本筛查为不合格的
 
     /* 推荐集合 */
     const RECOMMEND_COLLECTION = 2;
@@ -39,6 +42,18 @@ class Collection extends Model
 
     const TYPE_OF_ARTICLE = 'articles'; // 文集
     const TYPE_OF_POST    = 'posts'; // 视频合集
+
+    public static function getStatus()
+    {
+        return [
+            Collection::STATUS_ONLINE   => '可使用合集',
+            Collection::STATUS_UNSIGN   => '未标记合集',
+            Collection::STATUS_DOMESTIC => '国产内容合集',
+            Collection::STATUS_NOTFINE  => '低质量合集',
+            Collection::STATUS_SELECTED => '脚本筛查为不合格的',
+        ];
+
+    }
 
     //置顶合集图片
     public static function TOP_COVER()

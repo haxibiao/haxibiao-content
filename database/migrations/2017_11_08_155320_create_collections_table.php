@@ -19,7 +19,7 @@ class CreateCollectionsTable extends Migration
         Schema::create('collections', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id')->index();
-            $table->integer('status')->default(\Haxibiao\Content\Collection::STATUS_ONLINE)->index();
+            $table->integer('status')->default(\Haxibiao\Content\Collection::STATUS_UNSIGN)->index();
             $table->string('type', 255)->default('article')->index();
             $table->string('name', 255);
             $table->string('description', 255)->nullable();

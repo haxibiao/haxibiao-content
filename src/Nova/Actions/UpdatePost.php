@@ -60,7 +60,7 @@ class UpdatePost extends Action
                     if (empty($tag->id)) {
                         $tag->description = "暂无简介";
                         $tag->user_id     = $user->id;
-                        $tag->status      = AppCollection::STATUS_ONLINE;
+                        $tag->status      = AppCollection::STATUS_UNSIGN;
                         $tag->save();
                     }
                 }
