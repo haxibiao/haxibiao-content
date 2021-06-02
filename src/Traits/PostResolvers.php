@@ -288,7 +288,7 @@ trait PostResolvers
     public function resolveUserPosts($root, $args, $context, $info)
     {
         $filter = data_get($args, 'filter');
-
+        request()->request->add(['fetch_sns_detail' => true]);
         if ('spider' == $filter) {
             return Post::posts($args['user_id'])->whereNotNull('spider_id');
         } elseif ('normal' == $filter) {

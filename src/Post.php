@@ -334,18 +334,6 @@ class Post extends Model implements Collectionable
         })->with('video');
     }
 
-    public function resolveUserPosts($root, $args, $context, $info)
-    {
-        $filter = data_get($args, 'filter');
-
-        if ($filter == 'spider') {
-            return static::posts($args['user_id'])->whereNotNull('spider_id');
-        } elseif ($filter == 'normal') {
-            return static::posts($args['user_id'])->whereNull('spider_id');
-        }
-        return static::posts($args['user_id']);
-    }
-
     public function resolveUpdatePost($root, $args, $context, $info)
     {
         $postId = data_get($args, 'post_id');
@@ -393,7 +381,6 @@ class Post extends Model implements Collectionable
         $videoId = data_get($args, 'video_id');
         return \App\Post::where('video_id', $videoId)->first();
     }
-
 
     public static function fastCreatePost($videoId, $description, $status = Post::PRIVARY_STATUS, $source = [])
     {
