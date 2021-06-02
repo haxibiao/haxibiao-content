@@ -16,7 +16,7 @@ trait PostResolvers
     {
         app_track_event("首页", "推荐视频刷");
         $query = Post::has('video')->whereNotNull("question_id");
-        return Post::getRecommendPosts($limit = 4, $query);
+        return Post::getRecommendPosts($limit = 5, $query);
     }
 
     /**
