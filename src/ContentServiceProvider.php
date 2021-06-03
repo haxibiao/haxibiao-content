@@ -5,6 +5,7 @@ namespace Haxibiao\Content;
 use Haxibiao\Content\Console\ArticleClear;
 use Haxibiao\Content\Console\ClearCache;
 use Haxibiao\Content\Console\CrawlCollection;
+use Haxibiao\Content\Console\FilterCollection;
 use Haxibiao\Content\Console\FixContent;
 use Haxibiao\Content\Console\FixTagNamesToPosts;
 use Haxibiao\Content\Console\ImportCollections;
@@ -73,6 +74,7 @@ class ContentServiceProvider extends ServiceProvider
                 ImportCollections::class,
                 SyncPostWithMovie::class,
                 SyncDouBanComments::class,
+                FilterCollection::class,
 
                 FixTagNamesToPosts::class,
 
@@ -109,7 +111,7 @@ class ContentServiceProvider extends ServiceProvider
         }
 
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
-            if(config('cms.multi_domains', false)){
+            if (config('cms.multi_domains', false)) {
                 // 每天定时归档seo流量
                 $schedule->command('archive:traffic')->dailyAt('1:00');
             }

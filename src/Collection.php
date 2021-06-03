@@ -31,9 +31,9 @@ class Collection extends Model
      */
     const STATUS_ONLINE   = 2; // 上架
     const STATUS_UNSIGN   = 1; // 未标识
+    const STATUS_SELECTED = 0; // 脚本筛查过的
     const STATUS_DOMESTIC = -1; //国产内容
     const STATUS_NOTFINE  = -2; // 低质量合集
-    const STATUS_SELECTED = -3; // 脚本筛查为不合格的
 
     /* 推荐集合 */
     const RECOMMEND_COLLECTION = 2;
