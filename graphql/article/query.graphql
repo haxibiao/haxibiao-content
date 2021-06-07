@@ -86,7 +86,7 @@ extend type Query {
     """
     分享动态(废弃)
     """
-    sharePost(id: ID!): String
+    sharePost(id: Int!): String
         @field(resolver: "App\\Article@getShareLink")
         @deprecated(reason: "该接口已废弃，请使用shareNewPost")
 
