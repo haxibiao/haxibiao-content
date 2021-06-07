@@ -24,9 +24,9 @@
                 @include('article.parts.author')
                 {{-- 内容 --}}
                 <div class="show-content">
-					<p class="lead">
+					{{-- <p class="lead">
 						{{ $article->summary }}
-					</p>
+					</p> --}}
                     <p>@include('article.parts.body')</p>
 
                     {{-- 视频播放 --}}
