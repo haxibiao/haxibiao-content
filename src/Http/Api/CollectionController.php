@@ -16,7 +16,7 @@ class CollectionController extends Controller
         //限制最多加载最近的100个合集
         $collections = $user->hasCollections()
             ->whereType(Collection::TYPE_OF_ARTICLE)
-            ->where('status',Collection::STATUS_ONLINE)
+            ->where('status','>',Collection::STATUS_SELECTED)
             ->latest('id')
             ->take(100)
             ->get();
