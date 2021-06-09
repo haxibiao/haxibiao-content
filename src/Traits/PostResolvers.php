@@ -44,7 +44,7 @@ trait PostResolvers
         // 自己resolvers层修复兼容，不给createPost增加逻辑
 
         // 这里已经写死createPost了
-        $post = Post::createPost($inputs);
+        $post = static::createPost($inputs);
 
         //标签处理
         $tagNames = data_get($args, 'tag_names', []);
