@@ -6,7 +6,10 @@ use Haxibiao\Content\Tag;
 
 trait TagResolvers
 {
-    public function resolverPosts($rootValue, $args, $context, $resolveInfo)
+    /**
+     * 标签下的动态列表
+     */
+    public function resolvePosts($rootValue, $args, $context, $resolveInfo)
     {
 
         $visibility = data_get($args, 'visibility');
