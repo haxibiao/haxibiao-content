@@ -1,5 +1,5 @@
 type EditorChoice {
-  id: ID
+  id: Int
   title: String
   summary: String
   editor: User @belongsTo

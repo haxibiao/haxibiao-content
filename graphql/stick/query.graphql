@@ -1,5 +1,5 @@
 type Stick {
-    id: ID
+    id: Int
     place: String
     cover: String
     stickable: Stickable @morphTo

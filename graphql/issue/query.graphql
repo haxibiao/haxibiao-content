@@ -1,5 +1,5 @@
 type Issue {
-  id: ID
+  id: Int
   title:String
   background:String
   bonus: Int
