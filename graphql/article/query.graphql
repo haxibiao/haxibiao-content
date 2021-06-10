@@ -7,7 +7,6 @@ type Article {
     subjectDescription: String
     body: String
     video_url: String
-    favorited: Int
     time_ago: String!
     liked: Boolean
     liked_id: Int @rename(attribute: "likable_id")
