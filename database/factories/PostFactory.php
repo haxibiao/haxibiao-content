@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use Haxibiao\Content\Post;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PostFactory extends Factory
@@ -12,7 +11,7 @@ class PostFactory extends Factory
      *
      * @var string
      */
-    protected $model = Post::class;
+    protected $model = \App\Post::class;
 
     /**
      * Define the model's default state.
@@ -35,7 +34,7 @@ class PostFactory extends Factory
             'content'     => '测试动态的长篇正文',
 
             // 状态
-            'status'      => Post::PUBLISH_STATUS,
+            'status'      => \App\Post::PUBLISH_STATUS,
         ];
 
     }
