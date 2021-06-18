@@ -11,22 +11,20 @@ type Tag {
     """
     动态总数
     """
-    count_posts:Int
+    count_posts: Int
     """
     播放总数
     """
-    count_plays:String @rename(attribute: "count_views")
+    count_plays: String @rename(attribute: "count_views")
     """
     播放总数
     """
-    count_views:String
+    count_views: String
     """
     动态
     """
-    posts(
-      visibility:TagVisibilityEnum=self,
-      order:PostOrderEnum
-    ):[Post] @paginate(defaultCount: 5, builder: "App\\Tag@resolverPosts")
+    posts(visibility: TagVisibilityEnum = self, order: PostOrderEnum): [Post]
+        @paginate(defaultCount: 5, builder: "App\\Tag@resolvePosts")
     """
     创建时间
     """
@@ -35,7 +33,7 @@ type Tag {
     更新时间
     """
     updated_at: DateTime!
-       """
+    """
     可以展示QQ交流群之类提示信息
     """
     tips: String
@@ -64,8 +62,7 @@ type Tag {
     index_page_tags: [Tag!]
         @field(resolver: "App\\Tag@resolveIndexQuery")
         @deprecated(reason: "这个用起来不舒服，有点野，需要前端单独注意..")
-
- }
+}
 
 extend type Query {
     tag(id: Int @eq): Tag @find
@@ -73,8 +70,7 @@ extend type Query {
     首页查询
     """
     tags(filter: TagFilter!): [Tag!] @cache(maxAge: 3600) @paginate(defaultCount: 10, builder: "App\\Tag@resolveTags")
-    searchTags(query: String!):[Tag]
-      @paginate(defaultCount: 5, builder: "App\\Tag@resolveSearchTags")
+    searchTags(query: String!): [Tag] @paginate(defaultCount: 5, builder: "App\\Tag@resolveSearchTags")
 }
 
 enum TagVisibilityEnum {
