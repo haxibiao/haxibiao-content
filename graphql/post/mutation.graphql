@@ -30,7 +30,7 @@ extend type Mutation @guard {
         """
         category_ids: [Int!]
 
-            """
+        """
         定位信息
         """
         location: LocationInfo
@@ -52,8 +52,8 @@ extend type Mutation @guard {
         合集ID
         """
         collection_ids: [Int!]
-        ): Post! @field(resolver: "App\\Post@resolveCreateContent")
-    
+    ): Post! @field(resolver: "App\\Post@resolveCreateContent")
+
     """
     通过电影创建动态
     """
@@ -96,6 +96,7 @@ extend type Mutation @guard {
     删除动态
     """
     deletePost(id: Int!): Post @delete
+    """
     用户上报视频刷数据
     """
     reportUserPostData(input: [userPostData!]): Boolean @field(resolver: "App\\Post@resolverReportUserPostData")
