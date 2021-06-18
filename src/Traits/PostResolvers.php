@@ -143,7 +143,6 @@ trait PostResolvers
         // 更新时间倒排 - 默认访客
         $query = \App\Post::publish()->latest('updated_at');
 
-
         // 登录用户，尊重个人兴趣
         if ($user = currentUser()) {
             $query = Post::publicPosts($user->id);
@@ -337,5 +336,20 @@ trait PostResolvers
             return $qb->whereNull('spider_id');
         }
         return $qb;
+    }
+
+    /**
+     * 用户上报视频刷数据
+     */
+    public function resolveReportUserPostData($root, $args, $context, $info)
+    {
+        // 这里是达威想做推荐算法，需求提到前端上报完播率等数据，暂时不需要了，需要jobs
+        // if ($user = checkUser()) {
+        //     $postDatas = $args['input'];
+        //     foreach ($postDatas as $postData) {
+        //         dispatch(new ComputeRecommendPostData($postData['post_id'], $user->id, $postData));
+        //     }
+        // }
+        return true;
     }
 }

@@ -99,7 +99,7 @@ extend type Mutation @guard {
     """
     用户上报视频刷数据
     """
-    reportUserPostData(input: [userPostData!]): Boolean @field(resolver: "App\\Post@resolverReportUserPostData")
+    reportUserPostData(input: [userPostData!]): Boolean @field(resolver: "App\\Post@resolveReportUserPostData")
 }
 
 input userPostData {
