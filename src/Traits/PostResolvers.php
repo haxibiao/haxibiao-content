@@ -44,7 +44,7 @@ trait PostResolvers
         // 自己resolvers层修复兼容，不给createPost增加逻辑
 
         // 这里已经写死createPost了
-        $post = Post::createPost($inputs);
+        $post = static::createPost($inputs);
 
         //标签处理
         $tagNames = data_get($args, 'tag_names', []);
@@ -143,17 +143,6 @@ trait PostResolvers
         // 更新时间倒排 - 默认访客
         $query = \App\Post::publish()->latest('updated_at');
 
-        //FIXME: 印象视频团队给这段代码迁移出去
-        if (config('app.name') == 'yinxiangshipin') {
-            // 先刷快手的视频（避免出现展示的都是几个月前的动态)
-            $qb_kuaishou = $query->whereIn('spider_id', function ($query) {
-                $query->select('id')->from('spiders')->where('spiders.source_url', 'like', 'https://v.kuaishou.com/%');
-            });
-            //如果有的话
-            if ($qb_kuaishou->count()) {
-                $query = $qb_kuaishou;
-            }
-        }
 
         // 登录用户，尊重个人兴趣
         if ($user = currentUser()) {

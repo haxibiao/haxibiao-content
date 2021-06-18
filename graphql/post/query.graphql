@@ -97,7 +97,7 @@ type Post {
     """
     题目
     """
-    question: Question 
+    question: Question
 }
 type Certification {
     id: Int
@@ -162,7 +162,7 @@ extend type Query {
     """
     分享post
     """
-    shareNewPost(id: ID!): String @field(resolver: "App\\Post@getShareLink")
+    shareNewPost(id: Int!): String @field(resolver: "App\\Post@getShareLink")
 
     """
     根据标签获取视频列表

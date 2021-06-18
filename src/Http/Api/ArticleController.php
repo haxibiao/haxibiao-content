@@ -64,8 +64,11 @@ class ArticleController extends Controller
 
     public function update(Request $request, $id)
     {
+		$body = $request->get('body');
+		throw_if(is_null($body),new \Exception('文章体不能为空'));
+
         $article              = Article::findOrFail($id);
-        $article->count_words = ceil(strlen(strip_tags($article->body)) / 2);
+		$article->count_words = ceil(strlen(strip_tags($article->body)) / 2);
         $article->update($request->all());
 
         //images

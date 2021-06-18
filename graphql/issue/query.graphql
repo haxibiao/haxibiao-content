@@ -1,5 +1,5 @@
 type Issue {
-  id: ID
+  id: Int
   title:String
   background:String
   bonus: Int
@@ -9,7 +9,6 @@ type Issue {
   count_likes:Int
   count_answers:Int
   closed:Boolean
-  count_answers:Int
   created_at:DateTime
   updated_at:DateTime
   image_urls:[String!],

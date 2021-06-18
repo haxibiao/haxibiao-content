@@ -95,7 +95,6 @@ extend type Mutation @guard {
     """
     删除动态
     """
-    deletePost(id: ID!): Post @delete
     deletePost(id: Int!): Post @delete
     用户上报视频刷数据
     """

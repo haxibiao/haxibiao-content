@@ -154,7 +154,7 @@ trait CollectionResolvers
     /**
      * 查询合集下的资源对象列表
      */
-    public function resolverPosts($rootValue, $args, $context, $resolveInfo)
+    public function resolvePosts($rootValue, $args, $context, $resolveInfo)
     {
 
         $order       = data_get($args, 'order');

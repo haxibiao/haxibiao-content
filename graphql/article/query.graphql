@@ -7,7 +7,6 @@ type Article {
     subjectDescription: String
     body: String
     video_url: String
-    favorited: Int
     time_ago: String!
     liked: Boolean
     liked_id: Int @rename(attribute: "likable_id")
@@ -86,7 +85,7 @@ extend type Query {
     """
     分享动态(废弃)
     """
-    sharePost(id: ID!): String
+    sharePost(id: Int!): String
         @field(resolver: "App\\Article@getShareLink")
         @deprecated(reason: "该接口已废弃，请使用shareNewPost")
 

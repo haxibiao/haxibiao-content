@@ -35,7 +35,7 @@ type Collection {
     合集内的动态
     """
     posts(count: Int = 10, page: Int = 1, order: PostOrderEnum = LATEST): PostPaginator
-        @field(resolver: "App\\Collection@resolverPosts")
+        @field(resolver: "App\\Collection@resolvePosts")
 }
 """
 推荐集合列表
