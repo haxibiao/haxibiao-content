@@ -78,7 +78,7 @@ trait Categorizable
         return $this->morphToMany(Category::class, 'categorizable');
     }
 
-    public function categories(): MorphToMany
+    public function categories()
     {
         return $this->morphToMany(Category::class, 'categorizable')
             ->withPivot(['id', 'submit'])

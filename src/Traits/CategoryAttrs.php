@@ -2,7 +2,9 @@
 
 namespace Haxibiao\Content\Traits;
 
+use Haxibiao\Task\Item;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 trait CategoryAttrs
 {
@@ -41,11 +43,6 @@ trait CategoryAttrs
     public function getUrlAttribute()
     {
         return '/category/' . $this->id;
-    }
-
-    public function link()
-    {
-        return '<a href="/category/' . $this->id . '">' . $this->name . '</a>';
     }
 
     public function getCanEditAttribute()
@@ -90,19 +87,6 @@ trait CategoryAttrs
         return $this->logo_url;
     }
 
-    /**
-     * 专题小图标
-     */
-    public function getIconUrlAttribute()
-    {
-        $logo = $this->logo ?? '';
-        // 存URL的是云资源同步，没裁剪小图
-        if (str_contains($logo, 'http')) {
-            return $this->logoUrl;
-        }
-        return str_replace('.logo.jpg', '.logo.small.jpg', $this->logoUrl);
-    }
-
     public function getFollowIdAttribute()
     {
         if ($user = getUser(false)) {
@@ -131,4 +115,59 @@ trait CategoryAttrs
     {
         return $this->authors()->take(9)->get();
     }
+
+    public function getIconAttribute()
+    {
+        $icon = $this->getRawOriginal('icon');
+        if (!$icon) {
+            $icon = $this->getRawOriginal('logo');
+        }
+        return $icon;
+    }
+
+    public function getCanAuditAttribute()
+    {
+        //不是官方题库，并且后台标记可以审题
+        return !$this->is_official && $this->attributes['can_audit'];
+    }
+
+    public function getCanReviewCountAttribute()
+    {
+        return $this->users()->where('correct_count', '>', 100)->count();
+    }
+
+    public function getIconUrlAttribute()
+    {
+        if (starts_with($this->icon, "http")) {
+            return $this->icon;
+        }
+
+        if (empty($this->icon)) {
+            return config('app.cos_url') . '/storage/app/avatars/avatar.png';
+        }
+        return Storage::disk('public')->url($this->icon);
+    }
+
+    public function getShieldingAdAttribute()
+    {
+        if ($user = currentUser()) {
+            return Item::shieldingCategoryAd($user->id, $this->id);
+        }
+    }
+
+    public function getUserCanSubmitAttribute()
+    {
+        if ($user = currentUser()) {
+            return $this->userCanSubmit($user);
+        }
+    }
+
+    public function getAnswerCountAttribute()
+    {
+        if ($user = currentUser()) {
+            return $this->answerCount($user);
+        }
+        return 0;
+    }
+
 }
