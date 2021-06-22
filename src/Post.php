@@ -349,33 +349,6 @@ class Post extends Model implements Collectionable
         return $post;
     }
 
-    //关注用户的收藏列表
-    public function resolveFollowPosts($rootValue, array $args, $context, $resolveInfo)
-    {
-        $filter = data_get($args, 'filter');
-        $user   = getUser();
-        //2.获取用户关注列表
-        $followedUserIds = $user->follows()->pluck('followable_id');
-        //3.获取关注用户发布的视频
-        $qb = static::whereNotNull('video_id')
-            ->whereIn('user_id', $followedUserIds)
-            ->orderByDesc('id');
-
-        if (in_array(
-            ['video', 'collections', 'images'],
-            data_get($resolveInfo->getFieldSelection(1), 'data')
-        )) {
-            $qb->with(['video', 'collections', 'images']);
-        }
-
-        if ($filter == 'spider') {
-            return $qb->whereNotNull('spider_id');
-        } elseif ($filter == 'normal') {
-            return $qb->whereNull('spider_id');
-        }
-        return $qb;
-    }
-
     public function postByVideoId($rootValue, array $args, $context, $resolveInfo)
     {
         $videoId = data_get($args, 'video_id');

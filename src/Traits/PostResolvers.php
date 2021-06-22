@@ -309,7 +309,9 @@ trait PostResolvers
         })->with('video');
     }
 
-    //关注用户的收藏列表
+    /**
+     * 关注视频刷
+     */
     public function resolveFollowPosts($rootValue, array $args, $context, $resolveInfo)
     {
         $filter  = data_get($args, 'filter');
