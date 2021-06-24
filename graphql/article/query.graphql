@@ -90,14 +90,10 @@ extend type Query {
         @deprecated(reason: "该接口已废弃，请使用shareNewPost")
 
     articles(
-        status: ArticleStatus = all
         user_id: Int
         category_id: Int
-        submit: ArticleSubmitStatus = ALL
-        orderBy: [OrderByClause!] @orderBy
     ): [Article!]
-        @paginate(defaultCount: 10, builder: "App\\Post@resolvePublicPosts")
-        @deprecated(reason: "该接口已废弃")
+        @paginate(defaultCount: 10, builder: "App\\Article@resolveArticle")
 }
 
 enum ArticleStatus {

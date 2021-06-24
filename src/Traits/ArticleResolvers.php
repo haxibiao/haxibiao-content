@@ -376,4 +376,18 @@ trait ArticleResolvers
             throw new GQLException('感谢您的分享，今日分享次数已达30条，休息一会儿明天再来哦~');
         }
     }
+
+
+    public function resolveArticle($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    {
+        $qb = Article::query()->publish()->where("type","article")->latest("updated_at");
+        if($args["user_id"] ?? false){
+            $qb->where("user_id",$args["user_id"]);
+        }
+        if($args["category_id"] ?? false){
+            $qb->where("category_id",$args["category_id"]);
+        }
+
+        return $qb;
+    }
 }
