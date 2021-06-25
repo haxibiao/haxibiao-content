@@ -14,7 +14,7 @@ trait TagResolvers
 
         $visibility = data_get($args, 'visibility');
         $order      = data_get($args, 'order');
-        $user       = getUser(false);
+        $user       = currentUser();
 
         $qb = $rootValue->posts()->publish();
 

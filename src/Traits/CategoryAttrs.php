@@ -89,7 +89,7 @@ trait CategoryAttrs
 
     public function getFollowIdAttribute()
     {
-        if ($user = getUser(false)) {
+        if ($user = currentUser()) {
             $follow = $user->followings()->where('followable_type', 'categories')->where('followable_id', $this->id)->first();
             return $follow ? $follow->id : 0;
         }

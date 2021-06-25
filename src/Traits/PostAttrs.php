@@ -50,15 +50,16 @@ trait PostAttrs
 
     public function getDistanceAttribute()
     {
-        if (currentUser() && !empty(getUser(false)->location) && !empty($this->location)) {
-            $user       = getUser();
-            $longitude1 = $user->location->longitude;
-            $latitude1  = $user->location->latitude;
-            $longitude2 = $this->location->longitude;
-            $latitude2  = $this->location->latitude;
-            if ($longitude1 && $latitude1 && $longitude2 && $latitude2) {
-                $distance = Location::getDistance($longitude1, $latitude1, $longitude2, $latitude2, 1);
-                return numberToReadable($distance) . 'm';
+        if ($user = currentUser()) {
+            if (!empty($user->location) && !empty($this->location)) {
+                $longitude1 = $user->location->longitude;
+                $latitude1  = $user->location->latitude;
+                $longitude2 = $this->location->longitude;
+                $latitude2  = $this->location->latitude;
+                if ($longitude1 && $latitude1 && $longitude2 && $latitude2) {
+                    $distance = Location::getDistance($longitude1, $latitude1, $longitude2, $latitude2, 1);
+                    return numberToReadable($distance) . 'm';
+                }
             }
         } else {
             return null;
