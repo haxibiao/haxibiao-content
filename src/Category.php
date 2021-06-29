@@ -265,27 +265,27 @@ class Category extends Model
 
     public function comments()
     {
-        return $this->morphMany(Comment::class, 'commentable');
+        return $this->morphMany(\App\Comment::class, 'commentable');
     }
 
     public function forkAnswers()
     {
-        return $this->hasMany(ForkAnswer::class, 'fork_question_id');
+        return $this->hasMany(\App\ForkAnswer::class, 'fork_question_id');
     }
 
     public function likes()
     {
-        return $this->morphMany(Like::class, 'likable');
+        return $this->morphMany(\App\Like::class, 'likable');
     }
 
     public function notLikes()
     {
-        return $this->morphMany(NotLike::class, 'not_likable');
+        return $this->morphMany(\App\NotLike::class, 'not_likable');
     }
 
     public function publishedQuestions()
     {
-        return $this->hasMany(Question::class)->publish();
+        return $this->hasMany(\App\Question::class)->publish();
     }
 
     //nova
