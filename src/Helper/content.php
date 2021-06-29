@@ -97,6 +97,7 @@ function indexTopCategories($top = 7)
 function indexArticles()
 {
     $qb = Article::from('articles')
+        ->whereNull('movie_id')
         ->exclude(['body', 'json'])
         ->where('status', '>', Article::STATUS_REVIEW)
         ->whereNull('source_url') //非采集文章..
