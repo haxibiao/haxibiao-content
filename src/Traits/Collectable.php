@@ -58,8 +58,8 @@ trait Collectable
     {
         $syncData    = [];
         $collections = Collection::byCollectionIds($collection_ids)->get();
-        $index       = 1;
         foreach ($collections as $collection) {
+            $index                     = $collection->collectables->count() ?? 0;
             $syncData[$collection->id] = [
                 'sort_rank'       => $index,
                 'collection_name' => $collection->name,
