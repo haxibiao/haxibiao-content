@@ -13,6 +13,7 @@ use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\MorphTo;
+use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 
 class Stick extends Resource
@@ -72,11 +73,18 @@ class Stick extends Resource
             })->preview(function () {
                 return $this->cover;
             })->disableDownload(),
-            MorphTo::make('定制对象', 'stickable')->types([
-                Movie::class,
-                Post::class,
-                Collection::class,
+            // MorphTo::make('定制对象', 'stickable')->types([
+            //     Movie::class,
+            //     Post::class,
+            //     Collection::class,
+            // ]),
+
+            Select::make('定制对象','stickable_type')->options([
+                'movies' => '电影',
+                'posts' => '动态',
+                'collections' => '合集',
             ]),
+            Text::make('定制对象ID', 'stickable_id'),
             BelongsTo::make('精选', 'editorChoice', EditorChoice::class),
             BelongsTo::make('网站', 'site', Site::class)->nullable(),
             BelongsTo::make('小编', 'editor', User::class),
