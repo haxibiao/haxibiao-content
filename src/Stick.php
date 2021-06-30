@@ -27,7 +27,7 @@ class Stick extends BreezeModel
             '今日推荐',
             '精选韩剧',
             '精选日剧',
-            '怀旧港剧',
+            '精选港剧',
         ];
     }
     public function editorChoice(): BelongsTo
