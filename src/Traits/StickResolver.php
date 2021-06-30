@@ -2,7 +2,6 @@
 
 namespace Haxibiao\Content\Traits;
 
-use App\EditorChoice;
 use App\Stick;
 use GraphQL\Type\Definition\ResolveInfo;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
@@ -11,13 +10,18 @@ trait StickResolver
 {
     public function resolveTodayRecommend()
     {
-        $editor = EditorChoice::where('title', '今日推荐')->first();
-        // 数量不多，in random order 解决每次返回的数据不同
-        if ($editor) {
-            return Stick::where('editor_choice_id', $editor->id)->inRandomOrder()->take(4)->get();
-        } else {
+        // $editor = EditorChoice::where('title', '今日推荐')->first();
+        // // 数量不多，in random order 解决每次返回的数据不同
+        // if ($editor) {
+        //     return Stick::where('editor_choice_id', $editor->id)->inRandomOrder()->take(4)->get();
+        // } else {
+        //     return Stick::where('stickable_type', 'movies')->inRandomOrder()->take(4)->get();
+        // }
+        $sticks = Stick::where('place', '今日推荐')->where('stickable_type', 'movies')->inRandomOrder()->take(4)->get();
+        if (empty($sticks)) {
             return Stick::where('stickable_type', 'movies')->inRandomOrder()->take(4)->get();
         }
+        return $sticks;
     }
 
     public function resolveStickyList($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)

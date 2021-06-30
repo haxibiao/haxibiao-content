@@ -18,6 +18,18 @@ class Stick extends BreezeModel
     const CHANNEL_OF_APP = 'APP'; // App频道
     const CHANNEL_OF_PC  = 'WEB'; // 网站频道
 
+    //APP内置顶位置
+    public static function getAppPlaces()
+    {
+        return [
+            '影厅顶部',
+            '合集顶部',
+            '今日推荐',
+            '精选韩剧',
+            '精选日剧',
+            '怀旧港剧',
+        ];
+    }
     public function editorChoice(): BelongsTo
     {
         return $this->belongsTo(EditorChoice::class);
