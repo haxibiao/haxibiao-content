@@ -61,7 +61,7 @@ trait Collectable
         foreach ($collections as $collection) {
             $index                     = $collection->collectables->count() ?? 0;
             $syncData[$collection->id] = [
-                'sort_rank'       => $index,
+                'sort_rank'       => $index + 1,
                 'collection_name' => $collection->name,
             ];
             $collection->updateCountPosts();
