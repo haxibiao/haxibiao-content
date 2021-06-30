@@ -18,7 +18,7 @@ trait StickResolver
         //     return Stick::where('stickable_type', 'movies')->inRandomOrder()->take(4)->get();
         // }
         $sticks = Stick::where('place', '今日推荐')->where('stickable_type', 'movies')->inRandomOrder()->take(4)->get();
-        if (empty($sticks)) {
+        if (!count($sticks)) {
             return Stick::where('stickable_type', 'movies')->inRandomOrder()->take(4)->get();
         }
         return $sticks;
