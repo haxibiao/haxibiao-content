@@ -2,17 +2,13 @@
 
 namespace Haxibiao\Content\Nova;
 
-use App\Nova\Collection;
-use App\Nova\Post;
 use App\Nova\Resource;
 use Haxibiao\Breeze\Nova\User;
-use Haxibiao\Media\Nova\Movie;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Image;
-use Laravel\Nova\Fields\MorphTo;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 
@@ -59,10 +55,7 @@ class Stick extends Resource
     {
         return [
             ID::make(__('ID'), 'id')->sortable(),
-            Text::make('展示位置', 'place')->suggestions([
-                '影厅顶部',
-                '合集顶部',
-            ]),
+            Text::make('展示位置', 'place')->suggestions(\App\Stick::getAppPlaces()),
             Text::make('app名字', 'app_name'),
             Image::make('封面', 'cover')
                 ->thumbnail(function () {
@@ -79,9 +72,9 @@ class Stick extends Resource
             //     Collection::class,
             // ]),
 
-            Select::make('定制对象','stickable_type')->options([
-                'movies' => '电影',
-                'posts' => '动态',
+            Select::make('定制对象', 'stickable_type')->options([
+                'movies'      => '电影',
+                'posts'       => '动态',
                 'collections' => '合集',
             ]),
             Text::make('定制对象ID', 'stickable_id'),
