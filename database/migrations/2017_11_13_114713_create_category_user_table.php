@@ -32,6 +32,7 @@ class CreateCategoryUserTable extends Migration
             $table->integer('correct_count')->default(0)->index()->comment('用户在该题库答对题数');
             $table->integer('answer_count')->default(0)->index()->comment('用户在该题库答题数');
             $table->integer('reviews_today')->default(0)->comment('用户在该题库今日审题数');
+            $table->boolean('can_audit')->default(false)->comment('用户在该题库的审题权限');
             $table->unsignedBigInteger('answers_count_today')->default(0)->comment('每日答题数');
 
             $table->timestamp('last_answer_at')->nullable()->comment('最后一次答题时间');
