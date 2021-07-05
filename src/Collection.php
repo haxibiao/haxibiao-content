@@ -191,7 +191,7 @@ class Collection extends Model
         return $this;
     }
 
-    public function recollect($collectableIds, $collectableType)
+    public function recollect($collectableIds, $collectableType, $useRank = true)
     {
 
         $modelStr = Relation::getMorphedModel($collectableType);
@@ -206,15 +206,22 @@ class Collection extends Model
         foreach ($collectableIds as $collectableId) {
             $maxSortRank++;
 
+            $data = [
+                'collection_name' => $this->name,
+            ];
+            //部分morphs不需要sort_rank
+            if ($useRank) {
+                $data['sort_rank'] = $maxSortRank;
+            }
+
             // 跳过脏数据
             if (!array_key_exists($collectableId, $modelIds)) {
                 continue;
             }
-            $syncData[$collectableId] = [
-                'sort_rank'       => $maxSortRank,
-                'collection_name' => $this->name,
-            ];
+
+            $syncData[$collectableId] = $data;
         }
+
         $this->collectable($modelStr)
             ->sync($syncData, false);
 
