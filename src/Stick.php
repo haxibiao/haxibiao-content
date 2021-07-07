@@ -23,7 +23,7 @@ class Stick extends BreezeModel
         return [
             '影厅顶部',
             '合集顶部',
-            '今日推荐',
+            '每日推荐',
             '精选美剧',
             '精选韩剧',
             '精选日剧',

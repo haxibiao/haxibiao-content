@@ -17,11 +17,15 @@ trait StickResolver
         // } else {
         //     return Stick::where('stickable_type', 'movies')->inRandomOrder()->take(4)->get();
         // }
-        $sticks = Stick::where('place', '今日推荐')->where('stickable_type', 'movies')->inRandomOrder()->take(4)->get();
-        if (!count($sticks)) {
-            return Stick::where('stickable_type', 'movies')->inRandomOrder()->take(4)->get();
+        $stick = Stick::where('place', '每日推荐')->first();
+
+        if ($stick) {
+            $choice = $stick->editorChoice;
+            if ($choice) {
+                return $choice->movies()->inRandomOrder()->take(4)->get();
+            }
         }
-        return $sticks;
+        // return $sticks;
     }
 
     public function resolveStickyList($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)

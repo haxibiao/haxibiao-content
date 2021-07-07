@@ -69,8 +69,8 @@ class Stick extends Resource
 
             BelongsTo::make('精选对象', 'editorChoice', EditorChoice::class),
             BelongsTo::make('置顶人员', 'editor', User::class),
-            DateTime::make('创建时间', 'created_at'),
-            DateTime::make('更新时间', 'updated_at'),
+            DateTime::make('创建时间', 'created_at')->hideWhenCreating(),
+            DateTime::make('更新时间', 'updated_at')->hideWhenCreating(),
         ];
     }
 

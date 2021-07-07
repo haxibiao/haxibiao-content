@@ -59,8 +59,8 @@ class EditorChoice extends Resource
             Text::make('描述', 'summary'),
             BelongsTo::make('小编', 'editor', User::class)->searchable(),
             BelongsToMany::make('精选电影', 'movies', Movie::class),
-            DateTime::make('创建时间', 'created_at'),
-            DateTime::make('更新时间', 'updated_at'),
+            DateTime::make('创建时间', 'created_at')->hideWhenCreating(),
+            DateTime::make('更新时间', 'updated_at')->hideWhenCreating(),
         ];
     }
 
