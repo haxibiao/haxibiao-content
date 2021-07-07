@@ -18,9 +18,9 @@ class CreateEditorChoicesTable extends Migration
         }
         Schema::create('editor_choices', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->string('title')->comment('标题');
             $table->string('summary')->nullable()->comment('描述');
-            $table->string('editor_id')->nullable();
+            $table->string('editor_id')->nullable()->comment('小编id');
             $table->timestamps();
         });
     }

@@ -9,7 +9,6 @@ use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Image;
-use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 
 class Stick extends Resource
@@ -56,7 +55,8 @@ class Stick extends Resource
         return [
             ID::make(__('ID'), 'id')->sortable(),
             Text::make('展示位置', 'place')->suggestions(\App\Stick::getAppPlaces()),
-            Text::make('app名字', 'app_name'),
+            Text::make('app名称', 'app_name')->withMeta(['value' => config('app.name')]),
+            BelongsTo::make('网站名称', 'site', Site::class)->nullable(),
             Image::make('封面', 'cover')
                 ->thumbnail(function () {
                     return $this->cover;
@@ -66,21 +66,9 @@ class Stick extends Resource
             })->preview(function () {
                 return $this->cover;
             })->disableDownload(),
-            // MorphTo::make('定制对象', 'stickable')->types([
-            //     Movie::class,
-            //     Post::class,
-            //     Collection::class,
-            // ]),
 
-            Select::make('定制对象', 'stickable_type')->options([
-                'movies'      => '电影',
-                'posts'       => '动态',
-                'collections' => '合集',
-            ]),
-            Text::make('定制对象ID', 'stickable_id'),
-            BelongsTo::make('精选', 'editorChoice', EditorChoice::class),
-            BelongsTo::make('网站', 'site', Site::class)->nullable(),
-            BelongsTo::make('小编', 'editor', User::class),
+            BelongsTo::make('精选对象', 'editorChoice', EditorChoice::class),
+            BelongsTo::make('置顶人员', 'editor', User::class),
             DateTime::make('创建时间', 'created_at'),
             DateTime::make('更新时间', 'updated_at'),
         ];

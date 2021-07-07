@@ -8,7 +8,6 @@ use Haxibiao\Breeze\User;
 use Haxibiao\Content\Traits\StickRepo;
 use Haxibiao\Content\Traits\StickResolver;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Stick extends BreezeModel
 {
@@ -31,9 +30,10 @@ class Stick extends BreezeModel
             '精选港剧',
         ];
     }
-    public function editorChoice(): BelongsTo
+
+    public function editorChoice()
     {
-        return $this->belongsTo(EditorChoice::class);
+        return $this->belongsTo("App\EditorChoice");
     }
 
     public function editor(): BelongsTo
@@ -44,10 +44,5 @@ class Stick extends BreezeModel
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
-    }
-
-    public function stickable(): MorphTo
-    {
-        return $this->morphTo('stickable');
     }
 }

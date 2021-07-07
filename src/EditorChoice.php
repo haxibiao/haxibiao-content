@@ -2,22 +2,26 @@
 
 namespace Haxibiao\Content;
 
-use App\Stick;
 use Haxibiao\Breeze\Model as BreezeModel;
 use Haxibiao\Breeze\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class EditorChoice extends BreezeModel
 {
+
+    public function sticks()
+    {
+        return $this->belongstoMany('App\Stick', 'stick_place')->withTimestamps();
+    }
+
+    public function movies()
+    {
+        return $this->belongstoMany('App\Movie', 'editor_choice_movie')->withTimestamps();
+    }
+
     public function editor(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function sticks(): HasMany
-    {
-        return $this->hasMany(Stick::class);
     }
 
     public function resolveIndexEditorChoice($root, $args, $content, $info)

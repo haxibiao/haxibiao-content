@@ -2,10 +2,12 @@
 
 namespace Haxibiao\Content\Nova;
 
+use App\Nova\Movie;
 use App\Nova\Resource;
 use App\Nova\User;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\BelongsToMany;
 use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
@@ -56,6 +58,7 @@ class EditorChoice extends Resource
             Text::make('标题', 'title'),
             Text::make('描述', 'summary'),
             BelongsTo::make('小编', 'editor', User::class)->searchable(),
+            BelongsToMany::make('精选电影', 'movies', Movie::class),
             DateTime::make('创建时间', 'created_at'),
             DateTime::make('更新时间', 'updated_at'),
         ];
