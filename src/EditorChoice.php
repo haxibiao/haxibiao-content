@@ -16,7 +16,12 @@ class EditorChoice extends BreezeModel
 
     public function movies()
     {
-        return $this->belongstoMany('App\Movie', 'editor_choice_movie')->withTimestamps();
+        return $this->choiceable('App\Movie');
+    }
+
+    public function choiceable($related)
+    {
+        return $this->morphedByMany($related, 'choiceable')->withTimestamps();
     }
 
     public function editor(): BelongsTo
@@ -37,6 +42,11 @@ class EditorChoice extends BreezeModel
 
         $title = data_get($args, 'title');
         return self::where('title', $title)->first();
+    }
+
+    public function resolveMovies($root, $args, $content, $info)
+    {
+        return $root->movies();
     }
 
 }

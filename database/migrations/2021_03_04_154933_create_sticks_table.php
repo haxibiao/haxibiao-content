@@ -23,6 +23,7 @@ class CreateSticksTable extends Migration
 
             $table->unsignedInteger('editor_choice_id')->comment('编辑精选ID');
             $table->string('place', 30)->comment('应用场景｜置顶位置');
+            $table->integer('rank')->default(0)->comment('权重0-999，控制在页面的展示顺序');
             $table->string('cover')->nullable()->comment('置顶封面');
             $table->unsignedInteger('editor_id')->index()->comment('编辑人员ID||谁置顶的');
             $table->timestamps();

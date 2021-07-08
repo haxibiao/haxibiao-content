@@ -3,12 +3,11 @@ type EditorChoice {
   title: String
   summary: String
   editor: User @belongsTo
-  sticks: [Stick] @hasMany
+  movies: [Movie] @paginate(defaultCount: 9, builder: "App\\EditorChoice@resolveMovies")
 }
 
 extend type Query {
-  indexEditorChoice: [EditorChoice]
-    @field(resolver: "App\\EditorChoice@resolveIndexEditorChoice")
+  indexEditorChoice: [EditorChoice] @field(resolver: "App\\EditorChoice@resolveIndexEditorChoice")
   """
   根据名字查询小编精选
   """

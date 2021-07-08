@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateEditorChoiceMovieTable extends Migration
+class CreateChoiceableTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,13 @@ class CreateEditorChoiceMovieTable extends Migration
      */
     public function up()
     {
-        Schema::create('editor_choice_movie', function (Blueprint $table) {
+        if (Schema::hasTable('choiceables')) {
+            return;
+        }
+        Schema::create('choiceables', function (Blueprint $table) {
             $table->id();
             $table->integer('editor_choice_id')->comment('精选id');
-            $table->integer('movie_id')->comment('电影id');
+            $table->morphs('choiceable');
             $table->timestamps();
         });
     }
@@ -28,6 +31,6 @@ class CreateEditorChoiceMovieTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('editor_choice_movie');
+        Schema::dropIfExists('choiceables');
     }
 }

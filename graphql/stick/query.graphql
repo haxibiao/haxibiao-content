@@ -1,53 +1,52 @@
 type Stick {
-    id: Int
-    place: String
-    cover: String
-    stickable: Stickable @morphTo
-    editorChoice: EditorChoice @belongsTo
+  id: Int
+  place: String
+  cover: String
+  editorChoice: EditorChoice @belongsTo
 }
 
-union Stickable = Movie | Collection|Post
-
 extend type Query {
-    """
-    今日精选推荐
-    """
-    todayRecommend: [Stick] @field(resolver: "App\\Stick@resolveTodayRecommend")
+  stick(id: Int! @eq): Stick @find
+  stciks: [Stick!] @paginate(defaultCount: 10, builder: "App\\Stick@resolveSticks")
+  """
+  今日精选推荐
+  """
+  todayRecommend: Stick @field(resolver: "App\\Stick@resolveTodayRecommend")
 
-    """
-    精选内容查询
-    """
-    stickyRepo(place: PLACE_ENUM!, type: StickType!, app: APP_ENUM, site_id: Int, count: Int = 4): [Stick]
-        @field(resolver: "App\\Stick@resolveStickyList")
+  """
+  精选内容查询
+  """
+  stickyRepo(place: PLACE_ENUM!, type: StickType!, app: APP_ENUM, site_id: Int, count: Int = 4): [Stick]
+    @field(resolver: "App\\Stick@resolveStickyList")
 }
 
 enum APP_ENUM {
-    YXSP @enum(value: "yinxiangshipin")
-    CH @enum(value: "caohan")
-    DTZQ @enum(value: "datizhuanqian")
+  YXSP @enum(value: "yinxiangshipin")
+  CH @enum(value: "caohan")
+  DTZQ @enum(value: "datizhuanqian")
 }
 
 enum StickType {
-    POST @enum(value: "posts")
-    COLLECTION @enum(value: "collections")
-    MOVIE @enum(value: "movies")
+  POST @enum(value: "posts")
+  COLLECTION @enum(value: "collections")
+  MOVIE @enum(value: "movies")
 }
 
 enum PLACE_ENUM {
-    """
-    首页
-    """
-    INDEX @enum(value: "index")
-    """
-    搜索页展示
-    """
-    SEARCH @enum(value: "search")
-    """
-    电影页展示
-    """
-    MOVIE @enum(value: "movie")
-    """
-    合集页展示
-    """
-    COLLECTION @enum(value: "collection")
+  """
+  首页
+  """
+  INDEX @enum(value: "index")
+  """
+  搜索页展示
+  """
+  SEARCH @enum(value: "search")
+  """
+  电影页展示
+  """
+  MOVIE @enum(value: "movie")
+  """
+  合集页展示
+  """
+  COLLECTION @enum(value: "collection")
 }
