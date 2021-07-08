@@ -20,9 +20,12 @@ trait StickResolver
         return Stick::where('place', '每日推荐')->first();
     }
 
-    public function resolveSticks()
+    public function resolveSticks($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
-        return Stick::query()->orderBy('rank', 'desc');
+        $place = $args['place'] ?? null;
+        return Stick::query()->when($place, function ($query) use ($place) {
+            $query->where('place', $place);
+        })->orderBy('rank', 'desc');
     }
 
     public function resolveStickyList($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
