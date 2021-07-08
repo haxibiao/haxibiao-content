@@ -7,7 +7,7 @@ type Stick {
 
 extend type Query {
   stick(id: Int! @eq): Stick @find
-  stciks(place: String): [Stick!] @paginate(defaultCount: 10, builder: "App\\Stick@resolveSticks")
+  sticks(place: String): [Stick!] @paginate(defaultCount: 10, builder: "App\\Stick@resolveSticks")
   """
   今日精选推荐
   """
