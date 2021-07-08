@@ -69,7 +69,7 @@ class Stick extends Resource
             })->disableDownload(),
 
             BelongsTo::make('精选对象', 'editorChoice', EditorChoice::class),
-            Number::make('权重', 'rank')->withMeat(['value' => 0]),
+            Number::make('权重', 'rank')->withMeta(['value' => 0]),
             BelongsTo::make('置顶人员', 'editor', User::class),
             DateTime::make('创建时间', 'created_at')->hideWhenCreating(),
             DateTime::make('更新时间', 'updated_at')->hideWhenCreating(),
