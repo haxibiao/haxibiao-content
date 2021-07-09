@@ -48,6 +48,7 @@ class Category extends Model
     const ARTICLE_TYPE_ENUM        = 1;
     const FORK_QUESTION_TYPE_ENUM  = 2;
     const SCORE_QUESTION_TYPE_ENUM = 3;
+    const MUSIC_TYPE_ENUM          = 4;
 
     const GROUPS = [
         1 => '知识百科',

@@ -50,7 +50,7 @@ trait CategoryResolvers
     //根据类型获取category
     public function resolveCategoriesType($root, array $args, $context, $info)
     {
-        return Category::published()->where('type', $args['type'])->latest('rank');
+        return Category::published()->where('type', $args['type']);
     }
 
     //题库列表

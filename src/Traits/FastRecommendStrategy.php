@@ -186,6 +186,11 @@ trait FastRecommendStrategy
             //最后位置
             $maxReviewId = $item->max_review_id;
 
+            // 脏数据区间,直接跳过！
+            if ($reviewDay <= 0) {
+                continue;
+            }
+
             //获取用户刷的（当前reviewDay）日指针
             $userDayReviewId = Arr::get($userReviewIdsByDay, $reviewDay);
 

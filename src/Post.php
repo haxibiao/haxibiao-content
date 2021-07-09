@@ -15,6 +15,7 @@ use Haxibiao\Content\Traits\PostRepo;
 use Haxibiao\Content\Traits\PostResolvers;
 use Haxibiao\Content\Traits\WithCms;
 use Haxibiao\Helpers\Traits\Searchable;
+use Haxibiao\Media\Audio;
 use Haxibiao\Media\Image;
 use Haxibiao\Media\Movie;
 use Haxibiao\Media\Spider;
@@ -153,6 +154,11 @@ class Post extends Model implements Collectionable
     public function images()
     {
         return $this->morphToMany(Image::class, 'imageable')->withTimestamps();
+    }
+
+    public function audio()
+    {
+        return $this->belongsTo(Audio::class);
     }
 
     public function scopePublish($query)

@@ -43,6 +43,7 @@ class CreatePostsTable extends Migration
             $table->unsignedBigInteger('review_id')->index()->nullable()->comment('快速排重推荐用');
             $table->unsignedBigInteger('review_day')->default(0)->index()->comment('快速排重推荐用');
             $table->string('tag_names')->nullable()->comment('冗余字段标签列表');
+            $table->foreignId('audio_id')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });

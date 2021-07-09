@@ -66,4 +66,9 @@ trait PostAttrs
         }
 
     }
+
+    public function getMediaTypeAttribute()
+    {
+        return $this->audio_id > 0 ? 'music_pictures' : 'videos';
+    }
 }
