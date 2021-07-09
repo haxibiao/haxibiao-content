@@ -1,7 +1,6 @@
 type Stick {
   id: Int
   place: String
-  page_count:Int
   cover: String
   editorChoice: EditorChoice @belongsTo
 }

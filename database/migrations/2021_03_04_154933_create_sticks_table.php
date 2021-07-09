@@ -25,7 +25,6 @@ class CreateSticksTable extends Migration
             $table->string('place', 30)->comment('应用场景｜置顶位置');
             $table->integer('rank')->default(0)->comment('权重0-999，控制在页面的展示顺序');
             $table->string('cover')->nullable()->comment('置顶封面');
-            $table->integer('page_count')->default(9)->comment('每页显示数量（动态控制前端展示）');
             $table->unsignedInteger('editor_id')->index()->comment('编辑人员ID||谁置顶的');
             $table->timestamps();
         });
