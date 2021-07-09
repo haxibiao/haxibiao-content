@@ -25,7 +25,7 @@ trait StickResolver
         $place = $args['place'] ?? null;
         return Stick::query()->when($place, function ($query) use ($place) {
             $query->where('place', $place);
-        })->orderBy('rank', 'desc');
+        })->where('rank', '>=', 0)->orderBy('rank', 'desc');
     }
 
     public function resolveStickyList($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
