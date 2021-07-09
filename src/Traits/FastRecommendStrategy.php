@@ -58,18 +58,25 @@ trait FastRecommendStrategy
 
         $postRecommend = PostRecommend::fetchByScope($user, $scope);
         //2.找出最后刷到的位置
-        $reviewId  = Post::getNextReviewId($postRecommend->day_review_ids, $maxReviewIdInDays);
+        $reviewId  = $postRecommend->getNextReviewId($maxReviewIdInDays);
         $reviewDay = substr($reviewId, 0, 8);
         //视频刷光时
         if (is_null($reviewId)) {
-            // 优先刷编辑用户的精品内容
-            if (User::where('role_id', User::EDITOR_STATUS)->exists()) {
-                $vestIds = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
-                $qb      = $qb->whereIn('user_id', $vestIds);
+            $reviewDay = $postRecommend->resetReviewDayByRandom();
+            $reviewId  = $postRecommend->getNextReviewId($maxReviewIdInDays);
+
+            // 最后补刀到推荐视频中
+            if (is_null($reviewDay)) {
+                // 优先刷编辑用户的精品内容
+                if (User::where('role_id', User::EDITOR_STATUS)->exists()) {
+                    $vestIds = User::whereIn('role_id', [User::VEST_STATUS, User::EDITOR_STATUS])->pluck('id')->toArray();
+                    $qb      = $qb->whereIn('user_id', $vestIds);
+                }
+                // 最新100个中的4个
+                return $qb->latest('id')->skip(rand(1, 100))->take(4)->get();
             }
-            // 最新100个中的4个
-            return $qb->latest('id')->skip(rand(1, 100))->take(4)->get();
         }
+
         //3.从最后刷到的位置取内容
         $qb = $qb->where('review_day', $reviewDay)
             ->where('review_id', '>', $reviewId)
