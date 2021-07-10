@@ -34,7 +34,7 @@ trait FastRecommendStrategy
             //默认推荐刷 = 纯未分类的动态，不带影视,不带题目，需要的resolver自己传入query
             $query = Post::has('video')->whereNull('movie_id')->whereNull('question_id');
         }
-        $qb = (clone $query)->with(['video', 'user'])->publish();
+        $qb = (clone $query)->with(['video', 'user', 'audio'])->publish();
 
         //0.准备 提取刷过的位置记录
         $maxReviewIdInDays = Post::getMaxReviewIdInDays($scopeQuery ?? $query);

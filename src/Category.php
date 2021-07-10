@@ -231,6 +231,13 @@ class Category extends Model
         return $this->morphToMany(Tag::class, 'taggable');
     }
 
+    public function audios()
+    {
+        return $this->categorizable(\App\Audio::class)
+            ->withTimestamps()
+            ->orderBy('pivot_updated_at', 'desc');
+    }
+
     public static function getAllowSubmits()
     {
         return [

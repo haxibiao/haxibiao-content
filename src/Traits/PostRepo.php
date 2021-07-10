@@ -61,6 +61,7 @@ trait PostRepo
 
             if (isset($inputs['audio_id'])) {
                 $post->audio_id = $inputs['audio_id'];
+                $post->video_id = Post::DEFAULT_MUSIC_PICTURES_VIDEO_ID;
             }
 
             //视频

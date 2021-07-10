@@ -82,6 +82,9 @@ class Post extends Model implements Collectionable
     //固定视频
     const FIRST = 3;
 
+    // 音乐图集默认的video_id
+    const DEFAULT_MUSIC_PICTURES_VIDEO_ID = 1;
+
     public static function boot()
     {
         parent::boot();
@@ -174,6 +177,11 @@ class Post extends Model implements Collectionable
     public function scopeDeleted($query)
     {
         return $query->where('status', self::DELETED_STATUS);
+    }
+
+    public function scopeMuiscPictues($query)
+    {
+        return $query->where('video_id', self::DEFAULT_MUSIC_PICTURES_VIDEO_ID)->where('audio_id', '>', 0);
     }
 
     public function replaceContentBadWord()
