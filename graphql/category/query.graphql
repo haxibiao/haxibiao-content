@@ -68,6 +68,7 @@ type Category {
     """
     recentCategories: [Category!]
     created_at: String
+    audios: [Audio!] @morphMany(type: PAGINATOR, defaultCount: 10)
 }
 
 extend type Query {
@@ -126,6 +127,7 @@ enum CategoryType {
     QUESTION @enum(value: 1)
     FORK_QUESTION @enum(value: 2)
     SCORE_QUESTION @enum(value: 3)
+    MUSIC_PICTURES @enum(value: 4)
 }
 
 enum CategoryStatus {

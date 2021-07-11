@@ -52,6 +52,10 @@ extend type Mutation @guard {
         合集ID
         """
         collection_ids: [Int!]
+        """
+        音频ID
+        """
+        audio_id: Int
     ): Post! @field(resolver: "App\\Post@resolveCreateContent")
 
     """

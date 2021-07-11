@@ -98,6 +98,14 @@ type Post {
     题目
     """
     question: Question
+    """
+    媒体类型
+    """
+    media_type: String
+    """
+    音频
+    """
+    audio: Audio
 }
 type Certification {
     id: Int
