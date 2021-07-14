@@ -84,6 +84,14 @@ trait CategoryResolvers
         return Category::allowUserSubmitQuestions($user->id)->search($keyword);
     }
 
+    //可审题的题库
+    public function resolveCategoriesCanAudit($root, $args, $context, $info)
+    {
+        app_track_event('首页', '可审题题库列表');
+        $user = getUser();
+        return Category::allowUserAuditQuestions($user->id);
+    }
+
     //获取用户行为数据中最近浏览的五个分类
     public function resolveLatestCategories($root, $args, $context, $info)
     {

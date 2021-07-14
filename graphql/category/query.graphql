@@ -50,6 +50,14 @@ type Category {
     forkAnswers: [ForkAnswer] @hasMany
     user_can_submit: Int
     """
+    当前用户可否审题
+    """
+    user_can_audit: Int
+    """
+    可否审题
+    """
+    can_audit: Int
+    """
     最小答对数
     """
     min_answer_correct: Int
@@ -97,6 +105,11 @@ extend type Query {
     """
     categoriesCanSubmit(keyword: String): [Category!]
         @paginate(builder: "App\\Category@resolveCategoriesCanSubmit", defaultCount: 10)
+
+    """
+    可审题的题库
+    """
+    categoriesCanAudits: [Category!] @paginate(builder: "App\\Category@resolveCategoriesCanAudit", defaultCount: 10)
 
     """
     最近答题的题库

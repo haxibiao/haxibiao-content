@@ -80,6 +80,23 @@ trait CategoryScopes
         return $query;
     }
 
+    public static function scopeAllowUserAuditQuestions($query, $userId)
+    {
+        $categoryTable     = (new Category)->getTable();
+        $categoryUserTable = (new CategoryUser)->getTable();
+
+        //官方允许出题的
+        $query->select("${categoryTable}.*")
+            ->whereNotIn("${categoryTable}.id", [Category::RECOMMEND_VIDEO_QUESTION_CATEGORY])
+            ->leftJoin("${categoryUserTable}", function ($join) use ($userId, $categoryTable, $categoryUserTable) {
+                $join->on("${categoryTable}.id", "${categoryUserTable}.category_id")
+                    ->on("${categoryUserTable}.user_id", DB::raw($userId))
+                    ->where("${categoryUserTable}.can_audit", true);
+            })->published()->questionType();
+
+        return $query;
+    }
+
     public function scopeSearch($query, $keyword, $field = 'name')
     {
         $field = $this->getTable() . '.' . $field;
