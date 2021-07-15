@@ -45,4 +45,9 @@ class Stick extends BreezeModel
     {
         return $this->belongsTo(Site::class);
     }
+
+    public function scopePublish($query)
+    {
+        return $query->where('rank', '>=', 0);
+    }
 }
