@@ -69,7 +69,7 @@ trait CategoryAttrs
     {
         $logo        = $this->getRawOriginal('logo');
         $defaultLogo = url('images/collection.png');
-        if (is_null($logo)) {
+        if (blank($logo)) {
             return $defaultLogo;
         }
         if (str_contains($logo, 'http')) {
