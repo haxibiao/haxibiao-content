@@ -523,6 +523,14 @@ trait CategoryRepo
         return !is_null($category);
     }
 
+    public function userCanAudit($user): bool
+    {
+        $categoryUsers = $user->categoriesPivot;
+        $category      = $categoryUsers->where('category_id', $this->id)
+            ->firstWhere('can_audit', true);
+        return !is_null($category);
+    }
+
     public function answerCount($user)
     {
         $categoryUsers = $user->categoriesPivot;
