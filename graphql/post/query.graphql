@@ -106,6 +106,10 @@ type Post {
     音频
     """
     audio: Audio
+    """
+    约单
+    """
+    meetup: Meetup
 }
 type Certification {
     id: Int

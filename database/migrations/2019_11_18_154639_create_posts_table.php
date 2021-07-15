@@ -31,6 +31,7 @@ class CreatePostsTable extends Migration
 
             $table->tinyInteger('status')->default(0)->comment('状态');
 
+			$table->boolean('meet_up')->default(false)->comment('是否关联约单');
             $table->unsignedInteger('question_id')->nullable()->comment('关联题目');
             $table->unsignedInteger('movie_id')->nullable()->comment('关联长视频');
 

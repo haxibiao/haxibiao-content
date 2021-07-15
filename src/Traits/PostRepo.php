@@ -58,6 +58,7 @@ trait PostRepo
             $post->description = $body;
             $post->user_id     = $user->id;
             $post->status      = Post::PUBLISH_STATUS;
+            $post->meet_up     = $inputs['meet_up'];
 
             if (isset($inputs['audio_id'])) {
                 $post->audio_id = $inputs['audio_id'];
