@@ -125,7 +125,7 @@ extend type Query {
     """
     搜索专题
     """
-    searchCategories(keyword: String!, order: ResultsOrder): [Category!]!
+    searchCategories(keywords: String!, order: ResultsOrder): [Category!]!
         @paginate(defaultCount: 10, builder: "App\\Category@resolveSearchCategories")
 
     """

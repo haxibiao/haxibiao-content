@@ -68,7 +68,7 @@ extend type Query {
     """
     搜索文章/博客
     """
-    searchArticles(keyword: String!, order: ResultsOrder): [Article!]
+    searchArticles(keywords: String!, order: ResultsOrder): [Article!]
         @paginate(defaultCount: 10, builder: "App\\Article@resolveSearchArticles")
 
     """

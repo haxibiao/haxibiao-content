@@ -182,11 +182,11 @@ trait ArticleResolvers
      */
     public function resolveSearchArticles($root, $args, $content, $info)
     {
-        $keyword = data_get($args, 'keyword');
-        $order   = data_get($args, 'order', 'time');
-        app_track_event('文章', '搜索文章', $keyword);
+        $keywords = data_get($args, 'keywords');
+        $order    = data_get($args, 'order', 'time');
+        app_track_event('文章', '搜索文章', $keywords);
 
-        $qb = Article::publish()->where('title', 'like', '%' . $keyword . '%');
+        $qb = Article::publish()->where('title', 'like', '%' . $keywords . '%');
         //结果排序 - 时间
         if ($order == 'time') {
             $qb->latest('id');

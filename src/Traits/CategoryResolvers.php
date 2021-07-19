@@ -118,9 +118,9 @@ trait CategoryResolvers
      */
     public function resolveSearchCategories($root, $args, $context, $info)
     {
-        $keyword = $args['keyword'];
-        app_track_event('首页', '搜索');
-        return Category::where('name', 'like', '%' . $keyword . '%');
+        $keywords = $args['keywords'];
+        app_track_event('首页', '搜索专题', $keywords);
+        return Category::where('name', 'like', '%' . $keywords . '%');
     }
 
     public function resolveGuestUserLike($root, $args, $context, $info)
