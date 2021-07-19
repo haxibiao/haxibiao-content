@@ -26,9 +26,9 @@ type Post {
     """
     product: Product
     """
-    动态的长内容
+    动态的长内容 —— description字段是主要配文，一般没场景依赖用content
     """
-    content: String @deprecated(reason: "description字段是主要配文，一般没场景依赖用content")
+    content: String
     """
     动态的配文,
     """
@@ -41,14 +41,6 @@ type Post {
     分类
     """
     categories: [Category]
-    """
-    合集
-    """
-    collection: Collection
-    """
-    合集列表
-    """
-    collections: [Collection] @deprecated(reason: "暂时无多合集场景")
     """
     当前集数
     """
@@ -78,9 +70,9 @@ type Post {
     """
     collection: Collection
     """
-    合集列表
+    合集列表 - 暂时无多合集场景
     """
-    collections: [Collection] @deprecated(reason: "暂时无多合集场景")
+    collections: [Collection]
     """
     标签
     """

@@ -29,7 +29,10 @@ extend type Mutation @guard {
 
 enum ContenType {
     POST @enum(value: "post")
-    ISSUE @enum(value: "issue") @deprecated(reason: "已废弃，请使用CreateIssue")
+    """
+    废弃(已废弃，请使用CreateIssue)
+    """
+    ISSUE @enum(value: "issue")
 }
 
 input IssueInfo {

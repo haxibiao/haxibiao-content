@@ -60,17 +60,17 @@ extend type Query @guard {
 extend type Query {
     """
     获取推荐视频(废弃)
+    废弃(该接口已废弃，请使用recommendPosts)
     """
     recommendVideos(count: Int = 5, page: Int = 1): ArticlePaginator
         @field(resolver: "App\\Post@patchResolveRecommendPosts")
-        @deprecated(reason: "该接口已废弃，请使用recommendPosts")
 
     """
     获取推荐视频(废弃)
+    废弃(该接口已废弃，请使用recommendPosts)
     """
     RecommendVideos(count: Int = 5, page: Int = 1): ArticlePaginator
         @field(resolver: "App\\Post@patchResolveRecommendPosts")
-        @deprecated(reason: "该接口已废弃，请使用recommendPosts")
 
     """
     文章详情
@@ -84,10 +84,10 @@ extend type Query {
 
     """
     分享动态(废弃)
+    废弃(该接口已废弃，请使用shareNewPost)
     """
     sharePost(id: Int!): String
         @field(resolver: "App\\Article@getShareLink")
-        @deprecated(reason: "该接口已废弃，请使用shareNewPost")
 
     articles(
         user_id: Int
