@@ -66,11 +66,10 @@ extend type Query {
         @deprecated(reason: "该接口已废弃，请使用recommendPosts")
 
     """
-    获取推荐视频(废弃)
+    搜索文章/博客
     """
-    RecommendVideos(count: Int = 5, page: Int = 1): ArticlePaginator
-        @field(resolver: "App\\Post@patchResolveRecommendPosts")
-        @deprecated(reason: "该接口已废弃，请使用recommendPosts")
+    searchArticles(keyword: String!, order: ResultsOrder): [Article!]
+        @paginate(defaultCount: 10, builder: "App\\Article@resolveSearchArticles")
 
     """
     文章详情
@@ -89,10 +88,7 @@ extend type Query {
         @field(resolver: "App\\Article@getShareLink")
         @deprecated(reason: "该接口已废弃，请使用shareNewPost")
 
-    articles(
-        user_id: Int
-        category_id: Int
-    ): [Article!]
+    articles(user_id: Int, category_id: Int): [Article!]
         @paginate(defaultCount: 10, builder: "App\\Article@resolveArticle")
 }
 

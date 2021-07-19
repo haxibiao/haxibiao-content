@@ -103,12 +103,24 @@ trait CategoryResolvers
         return [];
     }
 
-    //首页题库列表
-    public function resolveSearchCategories($root, $args, $context, $info)
+    /**
+     * 首页题库搜索
+     */
+    public function resolveCategoriesSearch($root, $args, $context, $info)
     {
         $keyword = $args['keyword'];
         app_track_event('首页', '搜索题库');
         return Category::searchCategories(getUser(), $keyword);
+    }
+
+    /**
+     * 搜索专题
+     */
+    public function resolveSearchCategories($root, $args, $context, $info)
+    {
+        $keyword = $args['keyword'];
+        app_track_event('首页', '搜索');
+        return Category::where('name', 'like', '%' . $keyword . '%');
     }
 
     public function resolveGuestUserLike($root, $args, $context, $info)
