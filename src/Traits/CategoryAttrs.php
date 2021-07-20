@@ -162,6 +162,13 @@ trait CategoryAttrs
         }
     }
 
+    public function getUserCanAuditAttribute()
+    {
+        if ($user = currentUser()) {
+            return $this->userCanAudit($user);
+        }
+    }
+
     public function getAnswerCountAttribute()
     {
         if ($user = currentUser()) {
