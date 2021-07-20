@@ -2,11 +2,10 @@
 
 namespace Haxibiao\Content\Traits;
 
-use App\Article;
 use App\Scopes\ArticleSubmitScope;
-use App\Visit;
 use GraphQL\Type\Definition\ResolveInfo;
 use Haxibiao\Breeze\Exceptions\GQLException;
+use Haxibiao\Content\Article;
 use Haxibiao\Content\Post;
 use Haxibiao\Helpers\Facades\SensitiveFacade;
 use Haxibiao\Helpers\utils\BadWordUtils;
@@ -178,84 +177,25 @@ trait ArticleResolvers
         return $article;
     }
 
-    public function resolveRecommendVideos(
-        $rootValue,
-        array $args,
-        GraphQLContext $context,
-        ResolveInfo $resolveInfo
-    ) {
-        $user      = currentUser();
-        $pageCount = $args['count'];
+    /**
+     * 搜索文章
+     */
+    public function resolveSearchArticles($root, $args, $content, $info)
+    {
+        $keywords = data_get($args, 'keywords');
+        $order    = data_get($args, 'order', 'time');
+        app_track_event('文章', '搜索文章', $keywords);
 
-        $qb = Article::with(['video', 'user', 'categories'])->whereNotNull('video_id')->publish()->orderByDesc('review_id');
-
-        if ($user) {
-
-            $qb->whereNotIn('id', function ($query) use ($user) {
-                $query->select('visited_id')->from('visits')
-                    ->where('visits.visited_type', 'articles')
-                    ->where('visits.user_id', $user->id);
-            });
-
-            //过滤拉黑的用户的动态
-            $qb->whereNotIn('user_id', function ($query) use ($user) {
-                $query->select('user_block_id')->from('user_blocks')->whereNotNull('user_block_id')->where('user_id', $user->id);
-            });
-
-            //过滤不感兴趣的动态
-            // $qb->whereNotIn('id', function ($query) use ($user){
-            //     $query->select('article_block_id')->from('user_blocks')->whereNotNull('article_block_id')->where("user_id", $user->id);
-            // });
+        $qb = Article::publish()->where('title', 'like', '%' . $keywords . '%');
+        //结果排序 - 时间
+        if ($order == 'time') {
+            $qb->latest('id');
         }
-        $total = $qb->count();
-
-        //50%概率获取热门视频
-        $seed        = random_int(1, 2);
-        $dataFromHot = $seed % 2 == 1;
-        if ($dataFromHot) {
-            $newQb          = clone $qb;
-            $isHotRecommand = $newQb->where('is_hot', true)->count() > 4;
-            if ($isHotRecommand) {
-                //获取热门标签
-                $qb = $qb->where('is_hot', true);
-            }
+        //结果排序 - 热度
+        if ($order == 'hits') {
+            $qb->latest('hits');
         }
-
-        //分页角标
-        if (!$user && !$dataFromHot) {
-            $offset = mt_rand(0, 50);
-            $qb     = $qb->skip($offset);
-        }
-
-        $limit = $pageCount >= 10 ? 8 : 4;
-        $qb    = $qb->take($limit);
-
-        $articles = $qb->get();
-
-        if ($user) {
-            Visit::saveVisits($user, $articles, 'articles');
-        }
-
-        $mixPosts = $articles;
-        //广告开关判断
-        if (adIsOpened()) {
-            $mixPosts = [];
-            $index    = 0;
-            foreach ($articles as $article) {
-                $index++;
-                $mixPosts[] = $article;
-
-                if ($index % 4 == 0) {
-                    $article               = clone $article;
-                    $article->id           = random_str(7);
-                    $article->isAdPosition = true;
-                    $mixPosts[]            = $article;
-                }
-            }
-        }
-
-        $result = new \Illuminate\Pagination\LengthAwarePaginator($mixPosts, $total, $pageCount, $pageCount);
-        return $result;
+        return $qb;
     }
 
     /**
@@ -377,15 +317,14 @@ trait ArticleResolvers
         }
     }
 
-
     public function resolveArticle($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
-        $qb = Article::query()->publish()->where("type","article")->latest("updated_at");
-        if($args["user_id"] ?? false){
-            $qb->where("user_id",$args["user_id"]);
+        $qb = Article::query()->publish()->where("type", "article")->latest("updated_at");
+        if ($args["user_id"] ?? false) {
+            $qb->where("user_id", $args["user_id"]);
         }
-        if($args["category_id"] ?? false){
-            $qb->where("category_id",$args["category_id"]);
+        if ($args["category_id"] ?? false) {
+            $qb->where("category_id", $args["category_id"]);
         }
 
         return $qb;
