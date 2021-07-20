@@ -22,10 +22,19 @@ trait StickResolver
 
     public function resolveSticks($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
+        //展示位置
         $place = $args['place'] ?? null;
-        return Stick::query()->when($place, function ($query) use ($place) {
-            $query->where('place', $place);
-        })->where('rank', '>=', 0)->orderBy('rank', 'desc');
+        //支撑的app
+        $app_name = $args['app_name'] ?? null;
+
+        //stick没有数据可以用stick:sync同步哈希表的置顶数据
+        return Stick::query()
+            ->when($place, function ($query) use ($place) {
+                $query->where('place', $place);
+            })
+            ->when($app_name, function ($query) use ($app_name) {
+                $query->where('app_name', $app_name);
+            })->publish()->orderBy('rank', 'desc');
     }
 
     public function resolveStickyList($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
