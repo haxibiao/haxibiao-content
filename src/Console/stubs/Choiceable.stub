@@ -1,9 +1,0 @@
-<?php
-
-namespace App;
-
-use Haxibiao\Content\Choiceable as BaseChoiceable;
-
-class Choiceable extends BaseChoiceable
-{
-}
