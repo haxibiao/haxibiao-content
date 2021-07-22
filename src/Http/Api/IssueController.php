@@ -193,7 +193,7 @@ class IssueController extends Controller
                     Transaction::create([
                         'user_id' => $resolution->user->id,
                         'type'    => '付费回答奖励',
-                        'log'     => $issue->link() . '选中了您的回答',
+                        'remark'  => $issue->link() . '选中了您的回答',
                         'amount'  => $bonus_each,
                         'status'  => '已到账',
                         'balance' => $resolution->user->balance + $bonus_each,
@@ -209,7 +209,7 @@ class IssueController extends Controller
                 Transaction::create([
                     'user_id' => $issue->user->id,
                     'type'    => '退回问题奖金',
-                    'log'     => $issue->link() . '您的问题无人回答',
+                    'remark'  => $issue->link() . '您的问题无人回答',
                     'amount'  => $issue->bonus,
                     'status'  => '已到账',
                     'balance' => $issue->user->balance + $issue->bonus,
