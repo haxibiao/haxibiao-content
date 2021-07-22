@@ -1,135 +1,140 @@
 extend type Mutation @guard {
-    createPostContent(
-        """
-        正文
-        """
-        body: String!
-
-        """
-        图片链接
-        """
-        image_urls: [String!]
-
-        """
-        视频ID
-        """
-        video_id: Int
-
-        """
-        商品ID（关联article）
-        """
-        product_id: Int
-
-        """
-        视频文件ID
-        """
-        qcvod_fileid: String
-
-        """
-        分类ID
-        """
-        category_ids: [Int!]
-
-        """
-        定位信息
-        """
-        location: LocationInfo
-
-        """
-        图片链接
-        """
-        images: [String!]
-
-        """
-        标签名
-        """
-        tag_names: [String]
-        """
-        抖音的分享链接
-        """
-        share_link: String
-        """
-        合集ID
-        """
-        collection_ids: [Int!]
-        """
-        音频ID
-        """
-        audio_id: Int
-    ): Post! @field(resolver: "App\\Post@resolveCreateContent")
+  createPostContent(
+    """
+    正文
+    """
+    body: String!
 
     """
-    通过电影创建动态
+    图片链接
     """
-    MakePostByMovie(series_id: Int!, startSec: Int, endSec: Int, title: String): Post
-        @field(resolver: "App\\Post@MakePostByMovie")
-    updatePost(
-        """
-        动态ID
-        """
-        post_id: Int!
-        """
-        正文
-        """
-        content: String
-        """
-        正文
-        """
-        description: String
-        """
-        标签名
-        """
-        tag_names: [String]
-    ): Post! @field(resolver: "App\\Post@resolveUpdatePost")
+    image_urls: [String!]
 
     """
-    出题关联题目，顺便关联电影
+    视频ID
     """
-    relationQuestion(
-        """
-        动态ID
-        """
-        post_id: Int!
-        """
-        正文
-        """
-        content: String
-    ): Post! @field(resolver: "App\\Post@resolveRelationQuestion")
+    video_id: Int
 
     """
-    删除动态
+    商品ID（关联article）
     """
-    deletePost(id: Int!): Post @delete
+    product_id: Int
+
     """
-    用户上报视频刷数据
+    商铺ID
     """
-    reportUserPostData(input: [userPostData!]): Boolean @field(resolver: "App\\Post@resolveReportUserPostData")
+    store_id: Int
+
+    """
+    视频文件ID
+    """
+    qcvod_fileid: String
+
+    """
+    分类ID
+    """
+    category_ids: [Int!]
+
+    """
+    定位信息
+    """
+    location: LocationInfo
+
+    """
+    图片链接
+    """
+    images: [String!]
+
+    """
+    标签名
+    """
+    tag_names: [String]
+    """
+    抖音的分享链接
+    """
+    share_link: String
+    """
+    合集ID
+    """
+    collection_ids: [Int!]
+    """
+    音频ID
+    """
+    audio_id: Int
+  ): Post! @field(resolver: "App\\Post@resolveCreateContent")
+
+  """
+  通过电影创建动态
+  """
+  MakePostByMovie(series_id: Int!, startSec: Int, endSec: Int, title: String): Post
+    @field(resolver: "App\\Post@MakePostByMovie")
+  updatePost(
+    """
+    动态ID
+    """
+    post_id: Int!
+    """
+    正文
+    """
+    content: String
+    """
+    正文
+    """
+    description: String
+    """
+    标签名
+    """
+    tag_names: [String]
+  ): Post! @field(resolver: "App\\Post@resolveUpdatePost")
+
+  """
+  出题关联题目，顺便关联电影
+  """
+  relationQuestion(
+    """
+    动态ID
+    """
+    post_id: Int!
+    """
+    正文
+    """
+    content: String
+  ): Post! @field(resolver: "App\\Post@resolveRelationQuestion")
+
+  """
+  删除动态
+  """
+  deletePost(id: Int!): Post @delete
+  """
+  用户上报视频刷数据
+  """
+  reportUserPostData(input: [userPostData!]): Boolean @field(resolver: "App\\Post@resolveReportUserPostData")
 }
 
 input userPostData {
-    post_id: Int!
-    """
-    是否点赞
-    """
-    is_like: Boolean
-    """
-    是否发布评论
-    """
-    is_create_comment: Boolean
-    """
-    是否查看评论列表
-    """
-    is_show_comment: Boolean
-    """
-    是否查看用户主页
-    """
-    is_click_author: Boolean
-    """
-    是否查看评论用户的主页
-    """
-    is_click_comment_author: Boolean
-    """
-    观看时长
-    """
-    watch_duration: Int
+  post_id: Int!
+  """
+  是否点赞
+  """
+  is_like: Boolean
+  """
+  是否发布评论
+  """
+  is_create_comment: Boolean
+  """
+  是否查看评论列表
+  """
+  is_show_comment: Boolean
+  """
+  是否查看用户主页
+  """
+  is_click_author: Boolean
+  """
+  是否查看评论用户的主页
+  """
+  is_click_comment_author: Boolean
+  """
+  观看时长
+  """
+  watch_duration: Int
 }

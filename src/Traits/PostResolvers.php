@@ -29,6 +29,7 @@ trait PostResolvers
             'body'           => Arr::get($args, 'body'),
             'category_ids'   => Arr::get($args, 'category_ids', null),
             'product_id'     => Arr::get($args, 'product_id', null),
+            'store_id'       => Arr::get($args, 'store_id', null),
             'images'         => Arr::get($args, 'images', null),
             'video_id'       => Arr::get($args, 'video_id', null),
             'qcvod_fileid'   => Arr::get($args, 'qcvod_fileid', null),

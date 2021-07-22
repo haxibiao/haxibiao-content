@@ -101,6 +101,10 @@ trait PostRepo
                 $post->images()->sync($imageIds);
             }
 
+            // 商铺
+            if ($inputs['store_id'] ?? null) {
+                $post->store_id = $inputs['store_id'];
+            }
             // 专题
             if ($inputs['category_ids'] ?? null) {
                 $post->addCategories($inputs['category_ids']);
