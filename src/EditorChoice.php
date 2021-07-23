@@ -54,4 +54,9 @@ class EditorChoice extends BreezeModel
         return $root->movies();
     }
 
+    public function resolveActivities($root, $args, $content, $info)
+    {
+        return $root->activities();
+    }
+
 }
