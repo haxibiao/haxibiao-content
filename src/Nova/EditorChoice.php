@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Content\Nova;
 
+use App\Nova\Activity;
 use App\Nova\Movie;
 use App\Nova\Resource;
 use App\Nova\User;
@@ -59,6 +60,7 @@ class EditorChoice extends Resource
             Text::make('描述', 'summary'),
             BelongsTo::make('小编', 'editor', User::class)->searchable(),
             BelongsToMany::make('精选电影', 'movies', Movie::class),
+            BelongsToMany::make('精选轮播图', 'activities', Activity::class),
             DateTime::make('创建时间', 'created_at')->hideWhenCreating(),
             DateTime::make('更新时间', 'updated_at')->hideWhenCreating(),
         ];
