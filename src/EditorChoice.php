@@ -19,6 +19,11 @@ class EditorChoice extends BreezeModel
         return $this->choiceable('App\Movie');
     }
 
+    public function activities()
+    {
+        return $this->choiceable('App\Activity');
+    }
+
     public function choiceable($related)
     {
         return $this->morphedByMany($related, 'choiceable')->withTimestamps();
