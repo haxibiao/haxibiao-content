@@ -3,9 +3,27 @@
 namespace Haxibiao\Content\Traits;
 
 use App\Category;
+use App\SignUp;
 
 trait ArticleAttrs
 {
+    public function getCountSignUpsAttribute()
+    {
+        if(!currentUser()){
+            return 0;
+        }
+        return SignUp::where('user_id',getUserId())->where('signable_id',$this->id)->count();
+    }
+
+    public function getIsSignUpAttribute()
+    {
+        if(!currentUser()){
+            return false;
+        }
+        $user = getUser();
+        return SignUp::where('user_id',$user->id)->where('signable_id',$this->id)->count() > 0;
+    }
+
     public function getIntroductionAttribute()
     {
         return $this->json->introduction;

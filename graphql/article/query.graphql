@@ -59,6 +59,14 @@ type Article {
     地址
     """
     address:String
+    """
+    是否报名
+    """
+    is_signUp:Boolean
+    """
+    报名人数
+    """
+    count_signUps:Int
 }
 
 extend type Query @guard {
