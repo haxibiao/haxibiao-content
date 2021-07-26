@@ -1,0 +1,36 @@
+# 创建约单
+# 用户电话，微信必须不为空，需提前绑定
+mutation createMeetupMutation(
+$title: String
+$introduction: String
+$address: String!
+$time: String!
+$image: [String!]
+) {
+	createMeetup(
+	title: $title
+	introduction: $introduction
+	address: $address
+	time: $time
+	images: $image
+	) {
+		id
+		user {
+			id
+		}
+		title
+		description
+		json
+		introduction
+		time
+		address
+		images {
+			id
+			url
+			user {
+				id
+				name
+			}
+		}
+	}
+}

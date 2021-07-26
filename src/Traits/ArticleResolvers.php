@@ -2,18 +2,20 @@
 
 namespace Haxibiao\Content\Traits;
 
-use App\Article;
-use App\Scopes\ArticleSubmitScope;
+use App\Image;
+use App\OAuth;
 use App\Visit;
-use GraphQL\Type\Definition\ResolveInfo;
-use Haxibiao\Breeze\Exceptions\GQLException;
+use App\Article;
 use Haxibiao\Content\Post;
-use Haxibiao\Helpers\Facades\SensitiveFacade;
-use Haxibiao\Helpers\utils\BadWordUtils;
 use Haxibiao\Sns\UserBlock;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\Scopes\ArticleSubmitScope;
+use Illuminate\Support\Facades\Log;
+use GraphQL\Type\Definition\ResolveInfo;
+use Haxibiao\Helpers\utils\BadWordUtils;
+use Haxibiao\Breeze\Exceptions\GQLException;
+use Haxibiao\Helpers\Facades\SensitiveFacade;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 trait ArticleResolvers
@@ -389,5 +391,49 @@ trait ArticleResolvers
         }
 
         return $qb;
+    }
+
+    /**
+     * 创建约单
+     */
+    public function resolveCreateMeetup($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    {
+        $user = getUser();
+
+        //判断用户信息是否完整(手机号，微信)
+        $wechat = OAuth::where('user_id',$user->id)->first();
+        // throw_if($user->phone || $wechat,GQLException::class,'用户信息不完整，请先补充好信息');
+        
+		// 获取用户填入的信息，录入到后台
+		$title        = data_get($args,'title');
+		$introduction = data_get($args,'introduction');
+        $images       = data_get($args,'images');
+        $time         = data_get($args,'time');
+        $address      = data_get($args,'address');
+
+        $article = new Article();
+        $article->title = $title;
+        $article->user_id = $user->id;
+        
+        $json = [
+            'introduction' => $introduction,
+            'time'         => $time,
+            'address'      => $address,
+        ];
+        $article->json = $json;
+        $article->type = 'meetup';
+        $article->status = Article::STATUS_ONLINE;
+        $article->submit = Article::SUBMITTED_SUBMIT;
+        $article->save();
+
+        if ($images) {
+			$imageIds = [];
+			foreach ($images as $image) {
+				$model      = Image::saveImage($image);
+				$imageIds[] = $model->id;
+			}
+			$article->images()->sync($imageIds);
+        }
+        return $article;
     }
 }

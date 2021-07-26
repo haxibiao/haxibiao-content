@@ -46,6 +46,19 @@ type Article {
     关联合集
     """
     collections: [Collection]
+    json:JsonType
+    """
+    介绍
+    """
+    introduction:String
+    """
+    举办时间
+    """
+    time:String
+    """
+    地址
+    """
+    address:String
 }
 
 extend type Query @guard {

@@ -6,6 +6,21 @@ use App\Category;
 
 trait ArticleAttrs
 {
+    public function getIntroductionAttribute()
+    {
+        return $this->json->introduction;
+    }
+
+    public function getTimeAttribute()
+    {
+        return $this->json->time;
+    }
+
+    public function getAddressAttribute()
+    {
+        return $this->json->address;
+    }
+    
     public function getBodyAttribute()
     {
         //应该优先尊重本地body

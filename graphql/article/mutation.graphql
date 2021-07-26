@@ -25,6 +25,17 @@ extend type Mutation @guard {
     删除文章
     """
     deleteArticle(id: Int!): Article @delete
+
+    """
+    创建约单
+    """
+    createMeetup(
+        title: String
+        introduction: String
+        images: [String!]
+        time: String!
+        address: String!
+    ): Article @field(resolver: "App\\Article@resolveCreateMeetup")
 }
 
 enum ContenType {
