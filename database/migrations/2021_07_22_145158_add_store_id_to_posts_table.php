@@ -15,7 +15,7 @@ class AddStoreIdToPostsTable extends Migration
     {
         Schema::table('posts', function (Blueprint $table) {
             //
-            if (!Schema::hasColumn('pots', 'store_id')) {
+            if (!Schema::hasColumn('posts', 'store_id')) {
                 $table->unsignedInteger('store_id')->index()->nullable()->comment('关联商铺');
             }
         });
