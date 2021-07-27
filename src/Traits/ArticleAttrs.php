@@ -8,6 +8,14 @@ use Haxibiao\Sns\Meetup;
 
 trait ArticleAttrs
 {
+
+    public function getCountCommentsAttribute()
+    {
+        if(!currentUser()){
+            return 0;
+        }
+        return $this->comments()->count();
+    }
     public function getCountParticipantsAttribute()
     {
         if(!currentUser()){
