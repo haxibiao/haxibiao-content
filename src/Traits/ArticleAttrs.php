@@ -8,7 +8,7 @@ use Haxibiao\Sns\Meetup;
 
 trait ArticleAttrs
 {
-    public function getCountJoinsAttribute()
+    public function getCountParticipantsAttribute()
     {
         if(!currentUser()){
             return 0;
