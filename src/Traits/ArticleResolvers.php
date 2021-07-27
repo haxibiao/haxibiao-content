@@ -4,9 +4,11 @@ namespace Haxibiao\Content\Traits;
 
 use App\Image;
 use App\OAuth;
+use App\User;
 use App\Visit;
 use App\Article;
 use Haxibiao\Content\Post;
+use Haxibiao\Sns\Meetup;
 use Haxibiao\Sns\UserBlock;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -393,47 +395,9 @@ trait ArticleResolvers
         return $qb;
     }
 
-    /**
-     * 创建约单
-     */
-    public function resolveCreateMeetup($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
-    {
-        $user = getUser();
-
-        //判断用户信息是否完整(手机号，微信)
-        $wechat = OAuth::where('user_id',$user->id)->first();
-        // throw_if($user->phone || $wechat,GQLException::class,'用户信息不完整，请先补充好信息');
-
-		// 获取用户填入的信息，录入到后台
-		$title        = data_get($args,'title');
-		$description = data_get($args,'description');
-        $images       = data_get($args,'images');
-        $time         = data_get($args,'time');
-        $address      = data_get($args,'address');
-
-        $article = new Article();
-        $article->title = $title;
-        $article->user_id = $user->id;
-        $article->description = $description;
-
-        $json = [
-            'time'         => $time,
-            'address'      => $address,
-        ];
-        $article->json = $json;
-        $article->type = 'meetup';
-        $article->status = Article::STATUS_ONLINE;
-        $article->submit = Article::SUBMITTED_SUBMIT;
-        $article->save();
-
-        if ($images) {
-			$imageIds = [];
-			foreach ($images as $image) {
-				$model      = Image::saveImage($image);
-				$imageIds[] = $model->id;
-			}
-			$article->images()->sync($imageIds);
-        }
-        return $article;
+    public function resolveParticipants($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo){
+        $articleId = $rootValue->id;
+        $userIds = Meetup::where('meetable_id',$articleId)->get()->pluck('user_id');
+        return User::whereIn('id',$userIds);
     }
 }
