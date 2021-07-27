@@ -4,15 +4,16 @@ namespace Haxibiao\Content\Traits;
 
 use App\Category;
 use App\SignUp;
+use Haxibiao\Sns\Meetup;
 
 trait ArticleAttrs
 {
-    public function getCountSignUpsAttribute()
+    public function getCountJoinsAttribute()
     {
         if(!currentUser()){
             return 0;
         }
-        return SignUp::where('user_id',getUserId())->where('signable_id',$this->id)->count();
+        return Meetup::where('user_id',getUserId())->where('meetable_id',$this->id)->count();
     }
 
     public function getIsSignUpAttribute()
@@ -21,24 +22,24 @@ trait ArticleAttrs
             return false;
         }
         $user = getUser();
-        return SignUp::where('user_id',$user->id)->where('signable_id',$this->id)->count() > 0;
+        return Meetup::where('user_id',$user->id)->where('meetable_id',$this->id)->count() > 0;
     }
 
     public function getIntroductionAttribute()
     {
-        return $this->json->introduction;
+        return data_get($this,'json.introduction');
     }
 
     public function getTimeAttribute()
     {
-        return $this->json->time;
+        return data_get($this,'json.time');
     }
 
     public function getAddressAttribute()
     {
-        return $this->json->address;
+        return data_get($this,'json.address');
     }
-    
+
     public function getBodyAttribute()
     {
         //应该优先尊重本地body
