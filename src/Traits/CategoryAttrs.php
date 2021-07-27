@@ -53,6 +53,17 @@ trait CategoryAttrs
         return false;
     }
 
+    public function getUserCorrectCountAttribute()
+    {
+        if ($user = getUser()) {
+            $pivot = $user->categoriesPivot()->where('category_id', $this->id)->firts();
+            if ($pivot) {
+                return $pivot->correct_count;
+            }
+        }
+        return false;
+    }
+
     /**
      * 专题的APP内部图标定制 - 编辑权限上传
      */
