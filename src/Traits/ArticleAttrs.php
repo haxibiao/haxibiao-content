@@ -16,7 +16,7 @@ trait ArticleAttrs
         return Meetup::where('user_id',getUserId())->where('meetable_id',$this->id)->count();
     }
 
-    public function getIsSignUpAttribute()
+    public function getJoinedAttribute()
     {
         if(!currentUser()){
             return false;
