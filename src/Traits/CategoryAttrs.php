@@ -56,7 +56,7 @@ trait CategoryAttrs
     public function getUserCorrectCountAttribute()
     {
         if ($user = getUser()) {
-            $pivot = $user->categoriesPivot()->where('category_id', $this->id)->firts();
+            $pivot = $user->categoriesPivot()->where('category_id', $this->id)->first();
             if ($pivot) {
                 return $pivot->correct_count;
             }

@@ -39,7 +39,7 @@ type Category {
     """
     用户在题库答对的题数
     """
-    user_correct_count: Int @rename(attribute: "pivot_correct_count")
+    user_correct_count: Int
     """
     题库下的评论
     """
@@ -76,7 +76,7 @@ type Category {
     """
     recentCategories: [Category!]
     created_at: String
-    audios: [Audio!] @morphMany(type: PAGINATOR, defaultCount: 10)
+    # audios: [Audio!] @morphMany(type: PAGINATOR, defaultCount: 10)
 }
 
 extend type Query {
@@ -120,12 +120,6 @@ extend type Query {
     题库搜索
     """
     categoriesSearch(keyword: String!): [Category!]!
-        @paginate(defaultCount: 10, builder: "App\\Category@resolveCategoriesSearch")
-
-    """
-    搜索专题
-    """
-    searchCategories(keywords: String!, order: ResultsOrder): [Category!]!
         @paginate(defaultCount: 10, builder: "App\\Category@resolveSearchCategories")
 
     """
@@ -133,7 +127,7 @@ extend type Query {
     """
     GuestUserLike: [Category!]! @field(resolver: "App\\Category@resolveGuestUserLike")
     """
-    猜你喜欢(简单最新题库版)
+    猜你喜欢
     """
     newestCategories: [Category!]! @field(resolver: "App\\Category@resolveNewestCategories")
     """
