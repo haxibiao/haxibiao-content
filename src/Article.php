@@ -37,6 +37,10 @@ class Article extends Model implements Collectionable
         static::observe(Observers\ArticleObserver::class);
     }
 
+    //文章类型
+    const ARTICLE = 1;  //文章
+    const MEETUP  = 10; //约单
+
     //提交状态
     const REFUSED_SUBMIT   = -1; //已拒绝
     const REVIEW_SUBMIT    = 0; //待审核
