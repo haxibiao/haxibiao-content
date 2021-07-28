@@ -51,13 +51,14 @@ trait PostRepo
             $shareLink = data_get($inputs, 'share_link');
 
             throw_if(SensitiveFacade::islegal($body), new GQLException('发布的内容中含有包含非法内容,请删除后再试!'));
-            throw_if(isset($inputs['audio_id'], $inputs['video_id']), GQLException::class, '发布失败,音频或视频只能发布一种!');
+            throw_if(!blank($inputs['audio_id']) && !blank($inputs['video_id']), GQLException::class, '发布失败,音频或视频只能发布一种!');
 
             //动态
             $post              = new Post();
             $post->description = $body;
             $post->user_id     = $user->id;
             $post->status      = Post::PUBLISH_STATUS;
+            $post->meetup_id     = $inputs['meetup_id'];
 
             if (isset($inputs['audio_id'])) {
                 $post->audio_id = $inputs['audio_id'];

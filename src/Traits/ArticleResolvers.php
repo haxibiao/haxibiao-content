@@ -3,12 +3,14 @@
 namespace Haxibiao\Content\Traits;
 
 use App\Scopes\ArticleSubmitScope;
+use App\User;
 use GraphQL\Type\Definition\ResolveInfo;
 use Haxibiao\Breeze\Exceptions\GQLException;
 use Haxibiao\Content\Article;
 use Haxibiao\Content\Post;
 use Haxibiao\Helpers\Facades\SensitiveFacade;
 use Haxibiao\Helpers\utils\BadWordUtils;
+use App\Meetup;
 use Haxibiao\Sns\UserBlock;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
@@ -328,5 +330,11 @@ trait ArticleResolvers
         }
 
         return $qb;
+    }
+
+    public function resolveParticipants($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo){
+        $articleId = $rootValue->id;
+        $userIds = Meetup::where('meetable_id',$articleId)->get()->pluck('user_id');
+        return User::whereIn('id',$userIds);
     }
 }

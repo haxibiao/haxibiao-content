@@ -3,9 +3,61 @@
 namespace Haxibiao\Content\Traits;
 
 use App\Category;
+use App\SignUp;
+use Carbon\Carbon;
+use DateTimeZone;
+use Haxibiao\Sns\Meetup;
 
 trait ArticleAttrs
 {
+    public function getRegistrationHasClosedAttribute(){
+        return Carbon::createFromTimestamp(data_get($this,'json.expires_at'))->isBefore(now());
+    }
+
+    public function getCountCommentsAttribute()
+    {
+        if(!currentUser()){
+            return 0;
+        }
+        return $this->comments()->count();
+    }
+    public function getCountParticipantsAttribute()
+    {
+        if(!currentUser()){
+            return 0;
+        }
+        return Meetup::where('user_id',getUserId())->where('meetable_id',$this->id)->count();
+    }
+
+    public function getJoinedAttribute()
+    {
+        if(!currentUser()){
+            return false;
+        }
+        $user = getUser();
+        return Meetup::where('user_id',$user->id)->where('meetable_id',$this->id)->count() > 0;
+    }
+
+    public function getIntroductionAttribute()
+    {
+        return data_get($this,'json.introduction');
+    }
+
+    public function getTimeAttribute()
+    {
+        return $this->getExpiresAtAttribute();
+    }
+
+    public function getExpiresAtAttribute()
+    {
+        return Carbon::createFromTimestamp(data_get($this,'json.expires_at'));
+    }
+
+    public function getAddressAttribute()
+    {
+        return data_get($this,'json.address');
+    }
+
     public function getBodyAttribute()
     {
         //应该优先尊重本地body
