@@ -59,7 +59,7 @@ extend type Mutation @guard {
         """
         是否关联约单
         """
-        meet_up: Boolean
+        meetup_id: Int
     ): Post! @field(resolver: "App\\Post@resolveCreateContent")
 
     """

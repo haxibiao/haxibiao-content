@@ -101,7 +101,7 @@ type Post {
     """
     约单
     """
-    meetup: Meetup
+    meetup: Article
 }
 type Certification {
     id: Int

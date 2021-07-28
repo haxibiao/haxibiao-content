@@ -46,15 +46,16 @@ type Article {
     关联合集
     """
     collections: [Collection]
+
     json:JsonType
     """
-    介绍
-    """
-    introduction:String
-    """
-    举办时间
+    举办时间(废弃，请使用expires_at)
     """
     time:String
+    """
+    报名截止时间（开始时间）
+    """
+    expires_at: DateTime
     """
     地址
     """
@@ -62,11 +63,19 @@ type Article {
     """
     是否报名
     """
-    is_signUp:Boolean
+    joined:Boolean
     """
     报名人数
     """
-    count_signUps:Int
+    count_participants:Int
+    """
+    参与者
+    """
+    participants:[User] @paginate(defaultCount: 10, builder: "App\\Article@resolveParticipants")
+    """
+    报名是否结束
+    """
+    registration_has_closed: Boolean
 }
 
 extend type Query @guard {
