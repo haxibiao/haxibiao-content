@@ -20,6 +20,7 @@ use Haxibiao\Media\Image;
 use Haxibiao\Media\Movie;
 use Haxibiao\Media\Spider;
 use Haxibiao\Media\Video;
+use Haxibiao\Question\Question;
 use Haxibiao\Sns\Comment;
 use Haxibiao\Sns\Traits\WithSns;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -202,8 +203,12 @@ class Post extends Model implements Collectionable
      */
     public function initReviewIdAndReviewDay()
     {
-        //模板值，拼接出想要的review_id
-        $temp_num = 100001;
+        $isEditor = !is_null($this->user) ? $this->user->isEditorRole() : false;
+        /**
+         * 模板值，拼接出想要的review_id
+         * 前100个优先展示的视频留给内部编辑账户,编辑账户可获得优先展示曝光的机会。
+         */
+        $temp_num = $isEditor ? 100001 : 100100;
 
         //今日Posts新增数量，用于拼接review_id
         $count = DB::table('videos')
