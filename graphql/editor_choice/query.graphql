@@ -5,6 +5,7 @@ type EditorChoice {
   editor: User @belongsTo
   movies: [Movie] @paginate(defaultCount: 9, builder: "App\\EditorChoice@resolveMovies")
   activities: [Activity] @paginate(defaultCount: 6, builder: "App\\EditorChoice@resolveActivities")
+  collections: [Collection] @paginate(defaultCount: 6, builder: "App\\EditorChoice@resolveCollections")
 }
 
 extend type Query {

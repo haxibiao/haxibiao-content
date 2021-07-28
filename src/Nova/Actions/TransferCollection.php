@@ -56,7 +56,7 @@ class TransferCollection extends Action
             ->pluck('name', 'id')
             ->toArray();
         return [
-            SelectAutoComplete::make(_("选择马甲账户"), 'vest_id')->options(
+            SelectAutoComplete::make("选择马甲账户", 'vest_id')->options(
                 $data
             ),
         ];

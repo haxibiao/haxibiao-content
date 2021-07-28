@@ -24,6 +24,11 @@ class EditorChoice extends BreezeModel
         return $this->choiceable('App\Activity');
     }
 
+    public function collections()
+    {
+        return $this->choiceable('App\Collection');
+    }
+
     public function choiceable($related)
     {
         return $this->morphedByMany($related, 'choiceable')->withTimestamps();
@@ -57,6 +62,11 @@ class EditorChoice extends BreezeModel
     public function resolveActivities($root, $args, $content, $info)
     {
         return $root->activities();
+    }
+
+    public function resolveCollections($root, $args, $content, $info)
+    {
+        return $root->collections();
     }
 
 }

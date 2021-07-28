@@ -3,6 +3,7 @@
 namespace Haxibiao\Content\Nova;
 
 use App\Nova\Resource;
+use Haxibiao\Content\Nova\Actions\AddCollectionsToSticks;
 use Haxibiao\Content\Nova\Actions\RecommendCollection;
 use Haxibiao\Content\Nova\Actions\TopCollection;
 use Haxibiao\Content\Nova\Actions\TransferCollection;
@@ -17,10 +18,12 @@ class Collection extends Resource
 
     public static $model = 'App\\Collection';
 
+    public static $title = 'name';
+
     public static $group = '内容中心';
 
     public static $search = [
-        'id', 'content',
+        'id', 'name',
     ];
 
     public static $with = ['user'];
@@ -66,6 +69,7 @@ class Collection extends Resource
             new TopCollection,
             new RecommendCollection,
             new TransferCollection,
+            new AddCollectionsToSticks,
         ];
     }
 }
