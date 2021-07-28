@@ -204,17 +204,18 @@ class Post extends Model implements Collectionable
     public function initReviewIdAndReviewDay()
     {
         $isEditor = !is_null($this->user) ? $this->user->isEditorRole() : false;
-        /**
-         * 模板值，拼接出想要的review_id
-         * 前100个优先展示的视频留给内部编辑账户,编辑账户可获得优先展示曝光的机会。
-         */
-        $temp_num = $isEditor ? 100001 : 100100;
-
         //今日Posts新增数量，用于拼接review_id
         $count = DB::table('videos')
             ->whereBetWeen('created_at', [today(), today()->addDay()])->count();
 
-        $new_num = $count + $temp_num;
+        /**
+         * 模板值，拼接出想要的review_id
+         * 前100个优先展示的视频留给内部编辑账户,编辑账户可获得优先展示曝光的机会。
+         */
+        $normalUserStartId = 100101;
+        $editorUserStartId = 100001;
+        $temp_num          = $isEditor && $count < ($normalUserStartId - $editorUserStartId) ? $editorUserStartId : $normalUserStartId;
+        $new_num           = $count + $temp_num;
 
         //赋值
         if (is_null($this->review_id)) {
