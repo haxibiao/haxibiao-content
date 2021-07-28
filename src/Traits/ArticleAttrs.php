@@ -40,12 +40,12 @@ trait ArticleAttrs
 
     public function getTimeAttribute()
     {
-        return data_get($this,'json.starting_at');
+        return data_get($this,'json.expires_at');
     }
 
-    public function getStartingAtAttribute()
+    public function getExpiresAtAttribute()
     {
-        return data_get($this,'json.starting_at');
+        return data_get($this,'json.expires_at');
     }
 
     public function getAddressAttribute()
