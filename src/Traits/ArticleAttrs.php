@@ -4,10 +4,15 @@ namespace Haxibiao\Content\Traits;
 
 use App\Category;
 use App\SignUp;
+use Carbon\Carbon;
+use DateTimeZone;
 use Haxibiao\Sns\Meetup;
 
 trait ArticleAttrs
 {
+    public function getRegistrationHasClosedAttribute(){
+        return Carbon::createFromTimestamp(data_get($this,'json.expires_at'))->isBefore(now());
+    }
 
     public function getCountCommentsAttribute()
     {
@@ -40,12 +45,12 @@ trait ArticleAttrs
 
     public function getTimeAttribute()
     {
-        return data_get($this,'json.expires_at');
+        return $this->getExpiresAtAttribute();
     }
 
     public function getExpiresAtAttribute()
     {
-        return data_get($this,'json.expires_at');
+        return Carbon::createFromTimestamp(data_get($this,'json.expires_at'));
     }
 
     public function getAddressAttribute()
