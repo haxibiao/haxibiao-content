@@ -104,6 +104,11 @@ class Post extends Model implements Collectionable
             $post->transferToVest();
         });
     }
+
+    public function meetup(){
+        return $this->belongsTo(\App\Article::class,'meetup_id');
+    }
+
     public function image(): BelongsTo
     {
         return $this->belongsTo(Image::class, 'image_id');
