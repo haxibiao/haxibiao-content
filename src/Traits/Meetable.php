@@ -242,8 +242,11 @@ trait Meetable
             return false;
         }
         $user = getUser();
-        return $this->whereJsonContains('json->users', [['id' => $user->id]])
-            ->exists();
+        $uids = data_get($this,'json.users.*.id',[]);
+        if(in_array($user->id,$uids)){
+            return true;
+        }
+        return false;
     }
 
     public function getExpiresAtAttribute()
