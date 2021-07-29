@@ -111,6 +111,10 @@ trait Meetable
 
         $qb     = Article::whereType(Article::MEETUP)->when(!blank($user_id),function ($qb)use($user_id){
             return $qb->where('user_id',$user_id);
+        })->when(!blank($filter),function($qb) use($filter){
+            if($filter == 'latest'){
+                return $qb->latest();
+            }
         });
         $total  = $qb->count();
         $meetups = $qb->skip(($currentPage * $perPage) - $perPage)
