@@ -8,6 +8,19 @@ use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 trait StickResolver
 {
+    public function resolveStickPlaces($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo){
+        $strings =  Stick::query()->select("place")->groupBy("place")->pluck("place");
+        $res = [];
+        foreach($strings as $string){
+            $temp = [];
+            $temp["name"] = $string;
+            $res[] = $temp;
+        }
+
+        return $res;
+
+    }
+    
     public function resolveTodayRecommend()
     {
         // $editor = EditorChoice::where('title', '今日推荐')->first();
