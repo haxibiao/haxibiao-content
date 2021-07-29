@@ -79,7 +79,7 @@ class Category extends Resource
     public function filters(Request $request)
     {
         return [
-            new \App\Nova\Filters\Content\TaskStatusType,
+            new \Haxibiao\Breeze\Nova\Filters\Task\TaskStatusType,
         ];
     }
 

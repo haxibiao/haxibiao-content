@@ -61,6 +61,10 @@ extend type Mutation @guard {
     音频ID
     """
     audio_id: Int
+    """
+    是否关联约单
+    """
+    meetup_id: Int
   ): Post! @field(resolver: "App\\Post@resolveCreateContent")
 
   """

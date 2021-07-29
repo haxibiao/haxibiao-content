@@ -53,15 +53,14 @@ type Tag {
     subTags: [Tag!] @field(resolver: "App\\Tag@resolveSubTags")
 
     """
-    子标签(3.0后弃用，无需翻页)
+    子标签(3.0后弃用，无需翻页) —— 这里分页太麻烦了
     """
-    tags: [Tag!] @hasMany(type: "paginator", defaultCount: 10) @deprecated(reason: "这里分页太麻烦了")
+    tags: [Tag!] @hasMany(type: "paginator", defaultCount: 10)
     """
-    首页tag
+    首页tag - 这个用起来不舒服，有点野，需要前端单独注意..
     """
     index_page_tags: [Tag!]
         @field(resolver: "App\\Tag@resolveIndexQuery")
-        @deprecated(reason: "这个用起来不舒服，有点野，需要前端单独注意..")
 }
 
 extend type Query {

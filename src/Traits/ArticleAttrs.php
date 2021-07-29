@@ -6,6 +6,15 @@ use App\Category;
 
 trait ArticleAttrs
 {
+
+    public function getCountCommentsAttribute()
+    {
+        if(!currentUser()){
+            return 0;
+        }
+        return $this->comments()->count();
+    }
+
     public function getBodyAttribute()
     {
         //应该优先尊重本地body

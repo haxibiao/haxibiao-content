@@ -18,13 +18,21 @@ use Haxibiao\Content\Console\SelectCollection;
 use Haxibiao\Content\Console\StatisticVideoViewsCommand;
 use Haxibiao\Content\Console\SyncDouBanComments;
 use Haxibiao\Content\Console\SyncPostWithMovie;
+use Haxibiao\Content\Events\MeetupWasUpdated;
 use Haxibiao\Content\Http\Middleware\SeoTraffic;
+use Haxibiao\Content\Listeners\CreateGroupChatFromMeetup;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class ContentServiceProvider extends ServiceProvider
 {
+    protected $listen = [
+        MeetupWasUpdated::class => [
+            CreateGroupChatFromMeetup::class,
+        ]
+    ];
     /**
      * Register services.
      *
@@ -146,7 +154,6 @@ class ContentServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__ . '/../graphql' => base_path('graphql/content'),
             ], 'content-graphql');
-
         }
 
         //中间件
@@ -169,6 +176,9 @@ class ContentServiceProvider extends ServiceProvider
             //默认返回最后一个站点
             return $modelStr::latest('id')->first();
         });
+
+        //注册监听器
+        $this->registerEvent();
     }
 
     public function bindObservers()
@@ -207,5 +217,14 @@ class ContentServiceProvider extends ServiceProvider
     protected function morphMap(array $map = null, bool $merge = true): array
     {
         return Relation::morphMap($map, $merge);
+    }
+
+    public function registerEvent()
+    {
+        foreach ($this->listen as $event => $listeners) {
+            foreach ($listeners as $listener) {
+                Event::listen($event, $listener);
+            }
+        }
     }
 }

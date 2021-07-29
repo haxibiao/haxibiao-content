@@ -9,6 +9,11 @@ use App\Article;
  */
 trait UseArticle
 {
+    public function hasManyArticles()
+    {
+        return $this->hasMany(Article::class);
+    }
+
     public function articles()
     {
         return $this->hasMany(Article::class)

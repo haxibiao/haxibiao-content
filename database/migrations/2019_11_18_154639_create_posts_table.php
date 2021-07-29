@@ -34,6 +34,7 @@ class CreatePostsTable extends Migration
             $table->unsignedInteger('question_id')->nullable()->comment('关联题目');
             $table->unsignedInteger('movie_id')->nullable()->comment('关联长视频');
             $table->unsignedInteger('store_id')->index()->nullable()->comment('关联商铺');
+            $table->unsignedInteger('meetup_id')->nullable()->comment('关联约单');
 
             $table->unsignedInteger('hot')->default(0)->comment('热度');
             $table->unsignedInteger('count_plays')->default(0)->comment('点击数/播放数');

@@ -3,12 +3,14 @@
 namespace Haxibiao\Content\Traits;
 
 use App\Scopes\ArticleSubmitScope;
+use App\User;
 use GraphQL\Type\Definition\ResolveInfo;
 use Haxibiao\Breeze\Exceptions\GQLException;
 use Haxibiao\Content\Article;
 use Haxibiao\Content\Post;
 use Haxibiao\Helpers\Facades\SensitiveFacade;
 use Haxibiao\Helpers\utils\BadWordUtils;
+use App\Meetup;
 use Haxibiao\Sns\UserBlock;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
