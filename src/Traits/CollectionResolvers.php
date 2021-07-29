@@ -283,8 +283,15 @@ trait CollectionResolvers
         $recommendCollectionsB = $qb->take(3)->skip(3)->get();
 
         $result = [];
+
+        if(!$topCollection){
+            $topCover = null;
+        }else{
+            $topCover = $topCollection->logo;
+        }
+
         //构建返回结果
-        $result['topCover']              = Collection::getTopCover() ?? $topCollection->logo;
+        $result['topCover']              = Collection::getTopCover() ?? $topCover;
         $result['topCollection']         = $topCollection;
         $result['recommendCollectionsA'] = $recommendCollectionsA;
         $result['recommendCollectionsB'] = $recommendCollectionsB;
