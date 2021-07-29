@@ -150,7 +150,7 @@ trait Meetable
         $user     = getUser();
         $article  = Article::findOrFail($meetupId);
         $userIds  = data_get($article,'json.users.*.id',[]);
-        throw_if(!in_array($user->id,$userIds),new GraphQLExceptions('进入群聊前请先报名！'));
+        throw_if(!in_array($user->id,$userIds),new GQLException('进入群聊前请先报名！'));
 
         $chat     = Chat::where('article_id',$meetupId)->first();
         return $chat;
