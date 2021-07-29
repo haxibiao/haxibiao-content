@@ -2,8 +2,9 @@
 
 namespace Haxibiao\Content\Traits;
 
-use App\Location;
+use Haxibiao\Content\Location;
 use Illuminate\Support\Facades\DB;
+use Ramsey\Uuid\Type\Decimal;
 use Sk\Geohash\Geohash;
 
 trait LocationRepo
