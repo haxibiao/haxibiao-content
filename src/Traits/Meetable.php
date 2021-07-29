@@ -3,6 +3,7 @@ namespace Haxibiao\Content\Traits;
 
 
 use App\Chat;
+use App\Exceptions\GraphQLExceptions;
 use App\Image;
 use App\OAuth;
 use App\User;
@@ -54,7 +55,7 @@ trait Meetable
         $article->type   = Article::MEETUP;
         $article->status = Article::STATUS_ONLINE;
         $article->submit = Article::SUBMITTED_SUBMIT;
-        $article->saveQuietly();
+        $article->save();
 
         if ($images) {
             $imageIds = [];
@@ -88,7 +89,7 @@ trait Meetable
             });
             $article->forceFill([
                 'json->users'=> $users
-            ])->saveQuietly();
+            ])->save();
             $article->joined = false;
         } else {
             $article->forceFill([
@@ -96,7 +97,7 @@ trait Meetable
                     'id'         => $auth->id,
                     'created_at' => time(),
                 ]])
-            ])->saveQuietly();
+            ])->save();
             $article->joined = true;
         }
         return $article;
@@ -148,27 +149,10 @@ trait Meetable
         $meetupId = data_get($args,'meetup_id');
         $user     = getUser();
         $article  = Article::findOrFail($meetupId);
+        $userIds  = data_get($article,'json.users.*.id');
+        throw_if(!in_array($user->id,$userIds),new GraphQLExceptions('进入群聊前请先报名！'));
 
         $chat     = Chat::where('article_id',$meetupId)->first();
-        if(blank($chat)){
-            $uids = data_get($article,'json.users.*.id',[]);
-            $uids = array_merge([$user->id], $uids);
-            $uids = array_unique($uids);
-            sort($uids);
-            $chat = Chat::firstOrNew([
-                'article_id' => $meetupId,
-            ]);
-            $chat->subject  = $article->title;
-            $chat->uids     = $uids;
-            $chat->user_id  = $article->user_id;
-            $chat->save();
-        } else{
-            $newUids = array_merge([$user->id], $chat->uids);
-            $newUids = array_unique($newUids);
-            sort($newUids);
-            $chat->uids    = $newUids;
-            $chat->save();
-        }
         return $chat;
     }
     // 更新订单

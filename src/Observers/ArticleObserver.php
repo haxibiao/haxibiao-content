@@ -3,6 +3,7 @@
 namespace Haxibiao\Content\Observers;
 
 use Haxibiao\Content\Article;
+use Haxibiao\Content\Events\MeetupWasUpdated;
 
 class ArticleObserver
 {
@@ -85,5 +86,12 @@ class ArticleObserver
     public function forceDeleted(Article $article)
     {
         //
+    }
+
+    public function saved($article)
+    {
+        if(data_get($article,'type') == Article::MEETUP){
+            event(new MeetupWasUpdated($article));
+        }
     }
 }
