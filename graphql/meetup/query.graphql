@@ -1,0 +1,36 @@
+extend type Query {
+    """
+    约单列表
+    """
+    meetups(user_id: Int, first: Int = 10, page: Int = 1, filter:MeetupFilter): ArticlePaginator
+        @field(resolver: "App\\Article@resolveMeetups")
+
+    """
+    我参加的约单
+    """
+    joinedMeetups(status:MeetupStatus, first: Int = 10, page: Int = 1): ArticlePaginator @guard @field(resolver: "App\\Article@resolveJoinedMeetups")
+
+    """
+    约单详情
+    """
+    meetup(id:Int):Article @field(resolver:"App\\Article@resolveMeetup")
+}
+enum MeetupFilter {
+    """
+    热门
+    """
+    HOT
+    """
+    随机
+    """
+    RANDOM
+    """
+    最新
+    """
+    LATEST @enum(value:"latest")
+}
+
+enum MeetupStatus {
+    REGISTERING
+    REGISTERED
+}

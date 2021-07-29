@@ -49,10 +49,6 @@ type Article {
 
     json:JsonType
     """
-    举办时间(废弃，请使用expires_at)
-    """
-    time:String
-    """
     报名截止时间（开始时间）
     """
     expires_at: DateTime
