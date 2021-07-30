@@ -22,6 +22,7 @@ class CreateGroupChatFromMeetup
             'introduction'   => $article->description,
             'uids'      => $uids,
             'user_id'   => $article->user_id,
+            'type'      => Chat::MEET_UP_TYPE,
         ]);
     }
 }

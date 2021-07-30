@@ -170,6 +170,7 @@ trait Meetable
 			'introduction'   => $article->description,
 			'uids'      => $userIds,
 			'user_id'   => $article->user_id,
+			'type'      => Chat::MEET_UP_TYPE,
 		]);
     }
     // 更新订单
