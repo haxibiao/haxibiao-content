@@ -38,7 +38,7 @@ trait PostResolvers
             'community_id'   => data_get($args, 'community_id', null),
             'location'       => data_get($args, 'location', null),
             'audio_id'       => data_get($args, 'audio_id'),
-            'meetup_id'      => data_get($args, 'meetup_id', false),
+            'meetup_id'      => data_get($args, 'meetup_id'),
         ];
 
         //FIXME:  安保联盟的 tag_id 与 category_ids 同含义?

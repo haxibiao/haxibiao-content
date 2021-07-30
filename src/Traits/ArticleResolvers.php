@@ -331,10 +331,4 @@ trait ArticleResolvers
 
         return $qb;
     }
-
-    public function resolveParticipants($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo){
-        $articleId = $rootValue->id;
-        $userIds = Meetup::where('meetable_id',$articleId)->get()->pluck('user_id');
-        return User::whereIn('id',$userIds);
-    }
 }

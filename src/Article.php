@@ -9,6 +9,7 @@ use Haxibiao\Content\Traits\ArticleAttrs;
 use Haxibiao\Content\Traits\ArticleRepo;
 use Haxibiao\Content\Traits\ArticleResolvers;
 use Haxibiao\Content\Traits\Contentable;
+use Haxibiao\Content\Traits\Meetable;
 use Haxibiao\Content\Traits\WithCms;
 use Haxibiao\Sns\Traits\WithSns;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,6 +24,7 @@ class Article extends Model implements Collectionable
     use SoftDeletes;
     use Contentable;
     use WithSns;
+    use Meetable;
 
     use WithCms;
     use \Haxibiao\Content\Traits\Stickable;
@@ -58,7 +60,7 @@ class Article extends Model implements Collectionable
     protected $dates = ['edited_at', 'delay_time', 'commented'];
 
     protected $casts = [
-        'json' => 'object',
+        'json' => 'array',
     ];
 
     public function getMorphClass()

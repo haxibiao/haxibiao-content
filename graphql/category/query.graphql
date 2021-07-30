@@ -80,6 +80,7 @@ type Category {
 }
 
 extend type Query {
+    articleCategories:[Category] @paginate(defaultCount: 10, builder: "App\\Category@resolveArticleCategories")
     category(id: Int! @eq): Category @find(model: "App\\Category")
     categoryAdmins(category_id: Int!): [User!] @paginate(defaultCount: 10, builder: "App\\Category@resolveAdmins")
     categoryAuthors(category_id: Int!): [User!] @paginate(defaultCount: 10, builder: "App\\Category@resolveAuthors")

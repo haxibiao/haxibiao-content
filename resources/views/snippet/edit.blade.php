@@ -17,10 +17,10 @@
 		  </ol>
 		<div class="panel panel-default">
 			<div class="panel-body">
-				
+
 					<div class="col-md-8">
 						{!! Form::open(['method' => 'POST', 'route' => ['snippet.update', $snippet->id], 'class' => 'form-horizontal', 'enctype' => "multipart/form-data"]) !!}
-				
+
 						    <div class="form-group{{ $errors->has('title') ? ' has-error' : '' }}">
 						        {!! Form::label('title', '片段标题') !!}
 						        {!! Form::text('title', $snippet->title, ['class' => 'form-control', 'required' => 'required']) !!}
@@ -40,19 +40,19 @@
 						        <div class="editable"></div>
 						        <p class="help-block">可以是一段编辑好格式的小文本，也可以是图片，视频等...</p>
 						        <small class="text-danger">{{ $errors->first('body') }}</small>
-						    </div>	
-						
+						    </div>
+
 						    <div class="btn-group pull-right">
 						        {!! Form::reset("Reset", ['class' => 'btn btn-warning']) !!}
 						        {!! Form::submit("保存", ['class' => 'btn btn-success']) !!}
 						    </div>
-						
+
 						{!! Form::close() !!}
 					</div>
 					<div class="col-md-4">
 						@include('snippet.parts.add_panel')
 					</div>
-				
+
 			</div>
 		</div>
 	</div>
@@ -62,7 +62,7 @@
 
 @include('article.parts.upload_js')
 
-@include('article.parts.summernote_init')
+
 
 <script type="text/javascript">
 
@@ -80,7 +80,7 @@
                 $('input[type="submit"]').attr('disabled',false);
             },2000);
     });
-    
+
   });
 
 </script>

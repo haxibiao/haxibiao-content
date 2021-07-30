@@ -8,6 +8,14 @@ use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 trait CategoryResolvers
 {
+
+    
+    public function resolveArticleCategories($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    {
+        $categories = Category::query()->where("type","article");
+        return $categories;
+    }
+
     // resolvers
     public function resolveAdmins($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
