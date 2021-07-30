@@ -12,7 +12,7 @@ trait LocationRepo
 
     public static function storeLocation(array $locationInfo, $located_type, $located_id)
     {
-        $location               = Location::create($locationInfo);
+        $location               = new Location($locationInfo);
         $geohash                = new Geohash();
         $geoCode                = $geohash->encode(data_get($locationInfo, 'latitude'), data_get($locationInfo, 'longitude'), 12);
         $location->geo_code     = $geoCode;

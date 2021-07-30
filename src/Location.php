@@ -2,9 +2,9 @@
 
 namespace Haxibiao\Content;
 
-use Illuminate\Database\Eloquent\Model;
 use Haxibiao\Content\Traits\LocationRepo;
 use Haxibiao\Content\Traits\LocationResolvers;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Location extends Model
@@ -19,13 +19,15 @@ class Location extends Model
         'latitude',
         'longitude',
         'geo_code',
+        'located_type',
+        'located_id',
         'post_id',
     ];
 
     //地球半径系数
     const EARTH_RADIUS = 6370.996;
-    const PI = 3.1415926;
-    
+    const PI           = 3.1415926;
+
     public function post()
     {
         return $this->belongsTo(\App\Post::class);
