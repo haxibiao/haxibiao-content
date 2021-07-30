@@ -150,10 +150,27 @@ trait Meetable
         $user     = getUser();
         $article  = Article::findOrFail($meetupId);
         $userIds  = data_get($article,'json.users.*.id',[]);
+		throw_if($user->id == $article->user_id && count($userIds)<2,new GQLException('报名人数未达到2人后才可发起群聊！'));
         throw_if(!in_array($user->id,$userIds),new GQLException('进入群聊前请先报名！'));
 
-        $chat     = Chat::where('article_id',$meetupId)->first();
-        return $chat;
+
+		$chat     = Chat::where('article_id',$meetupId)->first();
+		if($chat){
+			return $chat;
+		}
+
+		$userIds = array_merge([$article->user_id], $userIds);
+		$userIds = array_unique($userIds);
+		sort($userIds);
+
+		return Chat::updateOrCreate([
+			'article_id' => $article->id,
+		],[
+			'subject'        => $article->title,
+			'introduction'   => $article->description,
+			'uids'      => $userIds,
+			'user_id'   => $article->user_id,
+		]);
     }
     // 更新订单
     public function resolveUpdateMeetup($root, $args, $context, $resolveInfo)
