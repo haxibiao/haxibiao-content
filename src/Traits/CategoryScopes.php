@@ -71,7 +71,7 @@ trait CategoryScopes
         //官方允许出题的
         $query->select("${categoryTable}.*")
             ->whereNotIn("${categoryTable}.id", [Category::RECOMMEND_VIDEO_QUESTION_CATEGORY])
-            ->leftJoin("${categoryUserTable}", function ($join) use ($userId, $categoryTable, $categoryUserTable) {
+            ->join("${categoryUserTable}", function ($join) use ($userId, $categoryTable, $categoryUserTable) {
                 $join->on("${categoryTable}.id", "${categoryUserTable}.category_id")
                     ->on("${categoryUserTable}.user_id", DB::raw($userId));
             })->publishedQuestionTypeAndAllowSubmit()

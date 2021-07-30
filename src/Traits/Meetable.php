@@ -158,7 +158,7 @@ trait Meetable
 			return $chat;
 		}
 
-        throw_if($user->id == $article->user_id && count($userIds)<2,new GQLException('报名人数未达到2人后才可发起群聊！'));
+        throw_if($user->id == $article->user_id && count($userIds)<2,new GQLException('报名人数达到2人后才可发起群聊！'));
 
 		$userIds = array_merge([$article->user_id], $userIds);
 		$userIds = array_unique($userIds);
