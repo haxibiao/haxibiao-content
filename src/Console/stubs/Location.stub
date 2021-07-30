@@ -1,0 +1,9 @@
+<?php
+
+namespace App;
+
+use Haxibiao\Content\Location as BaseLocation;
+
+class Location extends BaseLocation
+{
+}
