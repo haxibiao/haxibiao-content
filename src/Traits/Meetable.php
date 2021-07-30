@@ -150,7 +150,6 @@ trait Meetable
         $user     = getUser();
         $article  = Article::findOrFail($meetupId);
         $userIds  = data_get($article,'json.users.*.id',[]);
-		throw_if($user->id == $article->user_id && count($userIds)<2,new GQLException('报名人数未达到2人后才可发起群聊！'));
         throw_if(!in_array($user->id,$userIds),new GQLException('进入群聊前请先报名！'));
 
 
@@ -158,6 +157,8 @@ trait Meetable
 		if($chat){
 			return $chat;
 		}
+
+        throw_if($user->id == $article->user_id && count($userIds)<2,new GQLException('报名人数未达到2人后才可发起群聊！'));
 
 		$userIds = array_merge([$article->user_id], $userIds);
 		$userIds = array_unique($userIds);
