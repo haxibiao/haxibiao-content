@@ -14,11 +14,6 @@ class ArticleObserver
             $article->user_id = Auth()->id();
         }
         $article->count_words = ceil(strlen(strip_tags($article->body)) / 2);
-
-        //TODO: 文章内图片或者视频更新时？ cover要变？
-        if ($article->image) {
-            $article->cover_path = $article->image->path_small();
-        }
         if ($article->video) {
             $article->cover_path = $article->video->cover;
         }
