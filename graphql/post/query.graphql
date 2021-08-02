@@ -5,7 +5,14 @@ type Post {
   视频
   """
   video: Video
+  """
+  商铺
+  """
   store: Store
+  """
+  定位距离信息
+  """
+  distance: String
   """
   视频地址(兼容用)
   """
