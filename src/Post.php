@@ -2,6 +2,7 @@
 
 namespace Haxibiao\Content;
 
+use App\Store;
 use App\User;
 use App\Video;
 use Carbon\Carbon;
@@ -118,6 +119,10 @@ class Post extends Model implements Collectionable
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+    public function store()
+    {
+        return $this->belongsTo(Store::class);
     }
 
     public function owner(): BelongsTo
