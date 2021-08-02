@@ -38,56 +38,47 @@ class ArticleController extends Controller
 
     public function store(Request $request)
     {
-        $article          = new Article($request->all());
+        $article = new Article($request->all());
 
         // 格式化description
-		$body    	 = $request->input('body');
-		$description = $request->input('description');
-		if(!$description){
-			$description = str_purify($body);
-			$description = Str::limit($description, 100);
-		}
-		$article->description 	= $description;
+        $body        = $request->input('body');
+        $description = $request->input('description');
+        if (!$description) {
+            $description = str_purify($body);
+            $description = Str::limit($description, 100);
+        }
+        $article->description = $description;
 
         $article->user_id = $request->user()->id;
         $article->save();
 
-        //images
-        $article->saveRelatedImagesFromBody();
-
-		// 处理封面图
-		$article->cover_path =  data_get($article,'images.0.url');
-		$article->save();
-		$article->fresh();
+        // 处理封面图
+        $article->cover_path = data_get($article, 'images.0.url');
+        $article->save();
+        $article->fresh();
         return $article;
     }
 
     public function update(Request $request, $id)
     {
-		$body = $request->get('body');
-		throw_if(is_null($body),new \Exception('文章体不能为空'));
+        $body = $request->get('body');
+        throw_if(is_null($body), new \Exception('文章体不能为空'));
 
         $article              = Article::findOrFail($id);
-		$article->count_words = ceil(strlen(strip_tags($article->body)) / 2);
+        $article->count_words = ceil(strlen(strip_tags($article->body)) / 2);
         $article->update($request->all());
 
-        //images
-        $article->saveRelatedImagesFromBody();
-
         // 格式化description
-		$body    	 = $request->input('body');
-		$description = $request->input('description');
-		if(!$description){
-			$description = str_purify($body);
-			$description = Str::limit($description, 100);
-		}
-		$article->description 	= $description;
-
-		// 处理封面图
-		$article->cover_path =  data_get($article,'images.0.url');
+        $body        = $request->input('body');
+        $description = $request->input('description');
+        if (!$description) {
+            $description = str_purify($body);
+            $description = Str::limit($description, 100);
+        }
+        $article->description = $description;
 
         $article->save();
-		$article->fresh();
+        $article->fresh();
 
         return $article;
     }
@@ -103,7 +94,7 @@ class ArticleController extends Controller
             $result = Article::destroy($id);
             DB::commit();
             return $result;
-        } catch (\Exception $e) {
+        } catch (\Exception$e) {
             DB::rollBack();
             return 0;
         }

@@ -3,6 +3,7 @@
 namespace Haxibiao\Content\Observers;
 
 use Haxibiao\Content\Article;
+use Haxibiao\Content\Traits\ArticleRepo;
 
 class ArticleObserver
 {
@@ -25,8 +26,8 @@ class ArticleObserver
 
     public function created(Article $article)
     {
-        $user = data_get($article,'user');
-        if($user){
+        $user = data_get($article, 'user');
+        if ($user) {
             //黑名单用户禁言处理
             if ($user->isBlack()) {
                 // $article->delete();
@@ -59,6 +60,8 @@ class ArticleObserver
             }
         }
 
+        //处理图片
+        ArticleRepo::saveRelatedImagesFromBody($article);
     }
 
     public function updated(Article $article)
@@ -70,6 +73,9 @@ class ArticleObserver
                 'submit' => Article::REFUSED_SUBMIT,
             ]);
         }
+
+        //处理图片
+        ArticleRepo::saveRelatedImagesFromBody($article);
     }
 
     public function deleted(Article $article)

@@ -79,7 +79,7 @@ trait ArticleRepo
                 $post->images()->sync($imageIds);
             }
             return $post;
-        } catch (\Exception $ex) {
+        } catch (\Exception$ex) {
             Log::error($ex->getMessage());
             if ($ex->getCode() == 0) {
                 throw new GQLException('程序小哥正在加紧修复中!');
@@ -223,7 +223,7 @@ trait ArticleRepo
             DB::commit();
             app_track_event('用户', "发布问答");
             return $article;
-        } catch (\Exception $ex) {
+        } catch (\Exception$ex) {
             DB::rollBack();
             throw new GQLException($ex->getMessage());
         }
@@ -302,44 +302,69 @@ trait ArticleRepo
         return $this->body;
     }
 
-    public function saveRelatedImagesFromBody()
+    /**
+     * 处理文章正文中的图片(保存外域链接图片)
+     */
+    public static function saveRelatedImagesFromBody($article)
     {
-        $body = $this->body;
-        if (empty($body)) {
+        $body = $article->body;
+        if (blank($body)) {
             return;
         }
-        $imageUrls = $this->findHtmlImageUrls($body);
 
-        // 保存外链图片
+        //找到正文所有图片
+        $imageUrls = static::findHtmlImageUrls($body);
+
+        //检查图片和外链
         $images = [];
         foreach ($imageUrls as $url) {
+            //TODO: 修复base64图片在正文
+            if (str_contains($url, 'base64')) {
+                continue;
+            }
+
+            //跳过非外域图片(当前host/cdn域名)
+            if (str_contains($url, request()->getHost()) || str_contains($url, cdn_domain())) {
+                continue;
+            }
+
+            //跳过已保存
+            $image_path = parse_url($url, PHP_URL_PATH);
+            if ($image = Image::where('path', $image_path)->first()) {
+                $images[$url] = $image;
+                continue;
+            }
+
             try {
+                // 保存外链图片
                 $image        = Image::saveImage($url);
                 $images[$url] = $image;
-            } catch (\Exception $e) {
+
+                // 替换外域图片
+                $body = str_replace($url, data_get($image, 'url'), $body);
+
+            } catch (\Exception$e) {
                 error_log($e->getMessage());
             }
         }
 
-        if (!$images) {
-            return;
+        // 更新图片关系 默认第一图为主配图
+        $article->images()->attach(data_get($images, '*.id', []));
+        if (blank($article->image_id)) {
+            $article->image_id = data_get($article, 'images.0.id');
         }
-        $imageIds = data_get($images, '*.id');
-        $this->images()->sync($imageIds);
 
-        // 替换外域图片
-        foreach ($images as $originImageUrl => $imageModel) {
-            if (str_contains($originImageUrl, cdn_domain())) {
-                continue;
-            }
-            $body = str_replace($originImageUrl, data_get($imageModel, 'url'), $body);
+        // 处理封面 默认第一图为封面
+        if (blank($article->cover_path)) {
+            $article->cover_path = data_get($article, 'images.0.url');
         }
-        $this->body = $body;
-        $this->save();
-        return $this;
+
+        $article->body = $body;
+        $article->saveQuietly();
+        return $article;
     }
 
-    private function findHtmlImageUrls($html)
+    public static function findHtmlImageUrls($html)
     {
         $imageUrls = [];
         if (!empty($html)) {
@@ -351,7 +376,7 @@ trait ArticleRepo
                 foreach ($tags as $tag) {
                     $imageUrls[] = $tag['src']->__toString();
                 }
-            } catch (\Throwable $ex) {
+            } catch (\Throwable$ex) {
 
             }
         }
@@ -665,7 +690,7 @@ trait ArticleRepo
                 // 防止 gql 属性找不到
                 return Article::find($this->id);
 
-            } catch (\Exception $ex) {
+            } catch (\Exception$ex) {
                 Log::error("video save exception" . $ex->getMessage());
             }
 
