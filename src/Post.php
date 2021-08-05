@@ -2,7 +2,9 @@
 
 namespace Haxibiao\Content;
 
+use App\Store;
 use App\User;
+use App\Video;
 use Carbon\Carbon;
 use Haxibiao\Breeze\Model;
 use Haxibiao\Breeze\Traits\HasFactory;
@@ -19,7 +21,6 @@ use Haxibiao\Media\Audio;
 use Haxibiao\Media\Image;
 use Haxibiao\Media\Movie;
 use Haxibiao\Media\Spider;
-use Haxibiao\Media\Video;
 use Haxibiao\Question\Question;
 use Haxibiao\Sns\Comment;
 use Haxibiao\Sns\Traits\WithSns;
@@ -105,8 +106,9 @@ class Post extends Model implements Collectionable
         });
     }
 
-    public function meetup(){
-        return $this->belongsTo(\App\Article::class,'meetup_id');
+    public function meetup()
+    {
+        return $this->belongsTo(\App\Article::class, 'meetup_id');
     }
 
     public function image(): BelongsTo
@@ -117,6 +119,10 @@ class Post extends Model implements Collectionable
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+    public function store()
+    {
+        return $this->belongsTo(Store::class);
     }
 
     public function owner(): BelongsTo

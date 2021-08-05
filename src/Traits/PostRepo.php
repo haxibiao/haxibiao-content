@@ -58,7 +58,7 @@ trait PostRepo
             $post->description = $body;
             $post->user_id     = $user->id;
             $post->status      = Post::PUBLISH_STATUS;
-            $post->meetup_id     = $inputs['meetup_id'];
+            $post->meetup_id   = $inputs['meetup_id'];
 
             if (isset($inputs['audio_id'])) {
                 $post->audio_id = $inputs['audio_id'];
@@ -90,6 +90,11 @@ trait PostRepo
                 $post = Spider::pasteDouyinVideo($user, $shareLink, $body);
             }
 
+            // 商铺
+            if ($inputs['store_id'] ?? null) {
+                $post->store_id = $inputs['store_id'];
+            }
+
             $post->save();
 
             //图片
@@ -102,10 +107,6 @@ trait PostRepo
                 $post->images()->sync($imageIds);
             }
 
-            // 商铺
-            if ($inputs['store_id'] ?? null) {
-                $post->store_id = $inputs['store_id'];
-            }
             // 专题
             if ($inputs['category_ids'] ?? null) {
                 $post->addCategories($inputs['category_ids']);

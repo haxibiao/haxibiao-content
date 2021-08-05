@@ -1,0 +1,8 @@
+extend type Mutation @guard {
+    """
+    保存用户登录位置信息
+    """
+    recordLoginLocation(location:LocationInfo): Boolean
+        @field(resolver: "App\\Location@resolveRecordLoginLocation")
+  
+}

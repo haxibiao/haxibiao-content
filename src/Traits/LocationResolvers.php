@@ -7,7 +7,7 @@ use Haxibiao\Content\Location;
 
 trait LocationResolvers
 {
-    public function recordLoginLocation($root, $args, $context, $info)
+    public function resolveRecordLoginLocation($root, $args, $context, $info)
     {
         $district = data_get($args, 'location.district');
         $user     = getUser();
