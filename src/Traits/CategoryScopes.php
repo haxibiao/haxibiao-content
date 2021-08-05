@@ -71,10 +71,12 @@ trait CategoryScopes
         //官方允许出题的
         $query->select("${categoryTable}.*")
             ->whereNotIn("${categoryTable}.id", [Category::RECOMMEND_VIDEO_QUESTION_CATEGORY])
-            ->join("${categoryUserTable}", function ($join) use ($userId, $categoryTable, $categoryUserTable) {
+            ->leftjoin("${categoryUserTable}", function ($join) use ($userId, $categoryTable, $categoryUserTable) {
                 $join->on("${categoryTable}.id", "${categoryUserTable}.category_id")
                     ->on("${categoryUserTable}.user_id", DB::raw($userId));
-            })->publishedQuestionTypeAndAllowSubmit()
+            })->where("${categoryTable}.status", Category::PUBLISH)
+            ->where("${categoryTable}.type", Category::QUESTION_TYPE_ENUM)
+            ->where("${categoryTable}.allow_submit", Category::ALLOW_SUBMIT)
             ->latest("${categoryUserTable}.correct_count");
 
         return $query;
@@ -85,14 +87,16 @@ trait CategoryScopes
         $categoryTable     = (new Category)->getTable();
         $categoryUserTable = (new CategoryUser)->getTable();
 
-        //官方允许出题的
+        //官方允许审题的
         $query->select("${categoryTable}.*")
             ->whereNotIn("${categoryTable}.id", [Category::RECOMMEND_VIDEO_QUESTION_CATEGORY])
             ->leftJoin("${categoryUserTable}", function ($join) use ($userId, $categoryTable, $categoryUserTable) {
                 $join->on("${categoryTable}.id", "${categoryUserTable}.category_id")
                     ->on("${categoryUserTable}.user_id", DB::raw($userId))
                     ->where("${categoryUserTable}.can_audit", true);
-            })->published()->questionType();
+            })
+            ->where("${categoryTable}.status", Category::PUBLISH)
+            ->where("${categoryTable}.type", Category::QUESTION_TYPE_ENUM);
 
         return $query;
     }
