@@ -258,7 +258,7 @@ trait CategoryRepo
             //获取登录用户最近答题的3个题库
             $visitedCates = $user->recentVisitCategories(3);
             $categories   = $visitedCates->merge($categories);
-            $categories   = $categories->unique(); //排重
+            $categories   = $categories->unique('id'); //排重
         }
         return $categories;
     }
