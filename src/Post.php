@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class Post extends Model implements Collectionable
@@ -118,8 +119,13 @@ class Post extends Model implements Collectionable
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withDefault(function ($query) {
+            return $user = Cache::remember('user:1', 24 * 60 * 60, function () {
+                return User::find(1);
+            });
+        });
     }
+
     public function store()
     {
         return $this->belongsTo(Store::class);
@@ -178,7 +184,7 @@ class Post extends Model implements Collectionable
 
     public function scopePublish($query)
     {
-        return $query->where('status', self::PUBLISH_STATUS);
+        return $query->where($this->getTable() . '.status', self::PUBLISH_STATUS);
     }
 
     public function scopePrivacy($query)
@@ -189,6 +195,11 @@ class Post extends Model implements Collectionable
     public function scopeDeleted($query)
     {
         return $query->where('status', self::DELETED_STATUS);
+    }
+
+    public function scopeOnlyReadSelf($query)
+    {
+        return $query->select($this->getTable() . '.*');
     }
 
     public function scopeMuiscPictues($query)

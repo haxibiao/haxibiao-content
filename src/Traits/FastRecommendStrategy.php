@@ -6,8 +6,10 @@ use App\Post;
 use App\PostRecommend;
 use App\User;
 use App\UserBlock;
+use Haxibiao\Content\Traits\FastRecommendStrategy;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 /**
@@ -32,7 +34,7 @@ trait FastRecommendStrategy
         //0.准备 刷的内容范围加载
         if (is_null($query)) {
             //默认推荐刷 = 纯未分类的动态，不带影视,不带题目，需要的resolver自己传入query
-            $query = Post::has('video')->whereNull('movie_id')->whereNull('question_id');
+            $query = Post::join('videos', 'posts.video_id', 'videos.id')->whereNull('videos.movie_id')->whereNull('question_id');
         }
         $qb = (clone $query)->with(['video', 'user', 'audio'])->publish();
 
@@ -84,7 +86,7 @@ trait FastRecommendStrategy
         $qb = $qb->take($limit);
 
         //4.获取数据
-        $posts = $qb->get();
+        $posts = $qb->onlyReadSelf()->get();
         if (!request('fast_recommend_mode')) {
             //更新点赞状态？点过赞的，以后刷不到了，临时状态前端已缓存点赞状态，UI来回点赞状态不消失
             // $posts = Post::likedPosts($user, $posts);
@@ -359,13 +361,20 @@ trait FastRecommendStrategy
      */
     public static function getMaxReviewIdInDays($scopeQuery = null)
     {
-        $scopeQuery  = $scopeQuery ?? \Haxibiao\Content\Post::query();
-        $maxRviewIds = $scopeQuery->selectRaw("review_day,max(review_id) as max_review_id")
-            ->whereStatus(1) //只考虑已上架发布的动态
+        $scopeQuery = $scopeQuery ?? \Haxibiao\Content\Post::query();
+        // 历史的review_day g跟 max_review_id 极少会更新,所以cache住历史查询结果
+        $baseQuery = clone $scopeQuery->selectRaw("review_day,max(review_id) as max_review_id")
+            ->where('posts.status', 1) //只考虑已上架发布的动态
             ->whereNotNull('video_id') //只考虑有视频的
             ->groupBy('review_day')
-            ->latest('review_day')
-            ->get();
+            ->latest('review_day');
+        // 23:59:59秒时刻就过期
+        $ttl                 = today()->addDay()->diffInSeconds(now()) - 1;
+        $historyMaxReviewIds = Cache::remember('history:reviewids', $ttl, function () use ($baseQuery) {
+            return clone $baseQuery->where('review_day', '<', date('Ymd'))->get();
+        });
+        $todaymaxRviewIds = clone $baseQuery->where('review_day', date('Ymd'))->get();
+        $maxRviewIds      = $historyMaxReviewIds->concat($todaymaxRviewIds);
         return $maxRviewIds;
     }
 
