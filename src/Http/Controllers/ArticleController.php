@@ -94,12 +94,6 @@ class ArticleController extends Controller
         $article->description = $description;
         $article->save();
 
-        $article->saveRelatedImagesFromBody();
-
-        // cover
-        $article->cover_path = data_get($article, 'images.0.url');
-        $article->save();
-
         //categories
         $article->saveCategories(request('categories'));
 
@@ -223,17 +217,12 @@ class ArticleController extends Controller
         $article->description = $description;
         $article->save();
 
-        $article->saveRelatedImagesFromBody();
-
         // cover
         $article->cover_path = data_get($article, 'images.0.url');
         $article->save();
 
         //编辑保存文章 改变动态？ XXM这个操作有点复杂，暂时不启用
         // $article->changeAction();
-
-        //images
-        $article->saveRelatedImagesFromBody();
 
         //允许编辑时定时发布
         $this->process_delay($article);
