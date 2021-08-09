@@ -15,8 +15,8 @@ trait PostResolvers
     public function resolveQuestionPosts($root, $args, $context, $info)
     {
         app_track_event("首页", "推荐视频刷");
-        $query = Post::has('video')->whereNotNull("question_id");
-        return Post::getRecommendPosts($limit = 5, $query);
+        // $query = Post::has('video')->whereNotNull("question_id");
+        return Post::getRecommendPosts($limit = 5);
     }
 
     /**
