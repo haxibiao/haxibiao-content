@@ -25,7 +25,6 @@ type Category {
     icon: String
     count: Int
     parent_id: Int
-    status: Int
     is_official: Boolean
     is_liked: Boolean
     is_notliked: Boolean
