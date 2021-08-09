@@ -332,9 +332,6 @@ if (!function_exists('cmsTopArticles')) {
 if (!function_exists('baidu_include_check')) {
     function baidu_include_check($urls)
     {
-        // $check_url = "https://www.baidu.com/s?wd=site:diudie.com&rn=3&tn=json&ie=UTF-8&cl=3&f=9";
-        // $json = @file_get_contents($check_url);
-
         //批量检查
         if ($urls) {
             $sites = explode("\n", $urls);
