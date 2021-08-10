@@ -122,13 +122,9 @@ class ArticleController extends Controller
         })->firstOrFail();
         $article->load(['user.profile']);
 
-        //SEO站群暂时不care草稿状态内容 ?
-        // if (!config('cms.multi_domains'))
-        {
-            if ($article->status < Article::STATUS_ONLINE) {
-                if (!canEdit($article)) {
-                    return abort(404);
-                }
+        if ($article->status < Article::STATUS_ONLINE) {
+            if (!canEdit($article)) {
+                return abort(404);
             }
         }
 
