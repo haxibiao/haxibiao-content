@@ -2,7 +2,9 @@
 
 namespace Haxibiao\Content\Traits;
 
+use App\Comment;
 use App\Category;
+use Illuminate\Support\Facades\Schema;
 
 trait ArticleAttrs
 {
@@ -11,6 +13,10 @@ trait ArticleAttrs
     {
         if(!currentUser()){
             return 0;
+        }
+        if (Schema::hasColumn('comments', 'status'))
+        {
+            return $this->comments()->where('status','!=',Comment::DELETED_STATUS)->count();
         }
         return $this->comments()->count();
     }
