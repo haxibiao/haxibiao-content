@@ -69,11 +69,11 @@ class ArchiveTraffic extends Command
         }
 
         //归档活跃域名近三天百度索引量
-        for($i=2;$i>=0;$i--){
+        for ($i = 2; $i >= 0; $i--) {
             foreach (Site::active()->get() as $site) {
-                $domain = $site->domain;
-                $data = $site->json;
-                $value = $data['baidu'][today()->subday($i)->toDateString()];
+                $domain    = $site->domain;
+                $data      = $site->json;
+                $value     = $data['baidu'][today()->subday($i)->toDateString()];
                 $dimension = Dimension::firstOrNew([
                     'date'  => today()->subday($i)->toDateString(),
                     'group' => $domain,
@@ -107,7 +107,7 @@ class ArchiveTraffic extends Command
 
     public function getDomainName($domain)
     {
-        $names = neihan_sites_domains();
+        $names = config('seo.sites') ?? [];
         return array_get($names, $domain);
     }
 }
