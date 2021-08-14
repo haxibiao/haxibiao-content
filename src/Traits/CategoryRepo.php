@@ -124,8 +124,7 @@ trait CategoryRepo
     public function recordBrowserHistory()
     {
         //记录浏览历史
-        if (currentUser()) {
-            $user = getUser();
+        if ($user = currentUser()) {
             //如果重复浏览只更新纪录的时间戳
             $visited = \App\Visit::firstOrNew([
                 'user_id'      => $user->id,
@@ -133,7 +132,7 @@ trait CategoryRepo
                 'visited_id'   => $this->id,
             ]);
             $visited->updated_at = now();
-            $visited->save();
+            $visited->saveQuietly();
         }
     }
 

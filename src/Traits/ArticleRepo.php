@@ -480,7 +480,7 @@ trait ArticleRepo
                 $visit->save();
             }
             $this->timestamps = false;
-            $this->save();
+            $this->saveQuietly();
             $this->timestamps = true;
         }
     }
