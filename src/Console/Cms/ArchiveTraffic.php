@@ -27,7 +27,7 @@ class ArchiveTraffic extends Command
                     $this->track(
                         $traffic->bot . '爬取数',
                         1,
-                        $this->getDomainName($traffic->domain) ?? $traffic->domain,
+                        get_app_name($traffic->domain) ?? $traffic->domain,
                         $traffic->created_at->toDateString()
                     );
                 }
@@ -35,7 +35,7 @@ class ArchiveTraffic extends Command
                     $this->track(
                         $traffic->engine . '搜索量',
                         1,
-                        $this->getDomainName($traffic->domain) ?? $traffic->domain,
+                        get_app_name($traffic->domain) ?? $traffic->domain,
                         $traffic->created_at->toDateString()
                     );
                 }
@@ -105,9 +105,4 @@ class ArchiveTraffic extends Command
         }
     }
 
-    public function getDomainName($domain)
-    {
-        $names = config('seo.sites') ?? [];
-        return array_get($names, $domain);
-    }
 }
