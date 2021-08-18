@@ -107,6 +107,8 @@ class EditorChoice extends Resource
      */
     public function actions(Request $request)
     {
-        return [];
+        return [
+            new \Haxibiao\Content\Nova\Actions\SyncCollects,
+        ];
     }
 }
