@@ -9,6 +9,8 @@ class Choiceable extends Pivot
     protected $guarded = [
     ];
 
+    protected $table = 'choiceables';
+
     public function choiceable()
     {
         return $this->morphTo('choiceable');
