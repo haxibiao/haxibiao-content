@@ -38,12 +38,10 @@ return [
     ],
     //站群友情链接
     'friend_links'    => [
-        'example.com' => [
-            [
-                'url'   => 'https://example2.com/',
-                'title' => 'XX视频',
-            ],
-        ],
+        // [
+        //     'url'  => 'https://example2.com/',
+        //     'name' => 'XX视频',
+        // ],
     ],
 
     //matomo ids
