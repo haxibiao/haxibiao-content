@@ -54,7 +54,7 @@ trait Categorizable
 
     public function getCountCategoriesAttribute()
     {
-        return $this->categories()->count() ?? 0;
+        return $this->attributes['count_categories'] ?? $this->categories()->count();
     }
 
     /**
