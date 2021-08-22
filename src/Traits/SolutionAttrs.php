@@ -37,6 +37,6 @@ trait SolutionAttrs
 
     public function getCountVisitsAttribute()
     {
-        return Visit::where('visited_id', $this->id)->where('visited_type', 'solutions')->count();
+        return $this->attributes['count_visits'] ?? Visit::where('visited_id', $this->id)->where('visited_type', 'solutions')->count();
     }
 }
