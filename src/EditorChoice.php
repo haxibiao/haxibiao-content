@@ -56,7 +56,7 @@ class EditorChoice extends BreezeModel
 
     public function resolveMovies($root, $args, $content, $info)
     {
-        return $root->movies();
+        return $root->movies()->orderBy('rank', 'desc');
     }
 
     public function resolveActivities($root, $args, $content, $info)
