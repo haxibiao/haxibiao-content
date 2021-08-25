@@ -64,7 +64,7 @@ class ArticleObserver
     {
         //TODO: 更多需要更新文章数和字数的场景需要写这里...
         //TODO: 文章软删除时
-        if ($article->status = Article::STATUS_REVIEW) {
+        if ($article->status == Article::STATUS_REVIEW) {
             $article->update([
                 'submit' => Article::REFUSED_SUBMIT,
             ]);
