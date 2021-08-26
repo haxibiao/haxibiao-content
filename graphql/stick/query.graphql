@@ -2,21 +2,21 @@ type Stick {
   id: Int
   place: String
   cover: String
+  rank: Int
   editorChoice: EditorChoice @belongsTo
 }
 
-type stickPlaces{
-  name:String
+type stickPlaces {
+  name: String
 }
-
 
 extend type Query {
   stick(id: Int! @eq): Stick @find
 
   sticks(place: String, app_name: String): [Stick!] @paginate(defaultCount: 10, builder: "App\\Stick@resolveSticks")
 
-  stickPlaces :[stickPlaces] @field(resolver: "App\\Stick@resolveStickPlaces")
-  
+  stickPlaces: [stickPlaces] @field(resolver: "App\\Stick@resolveStickPlaces")
+
   """
   今日精选推荐
   """
@@ -40,7 +40,6 @@ enum StickType {
   COLLECTION @enum(value: "collections")
   MOVIE @enum(value: "movies")
 }
-
 
 enum PLACE_ENUM {
   """
