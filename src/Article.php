@@ -40,7 +40,7 @@ class Article extends Model implements Collectionable
     }
 
     //文章类型
-    const ARTICLE = 'article';  //文章
+    const ARTICLE = 'article'; //文章
     const MEETUP  = 'meetup'; //约单
 
     //提交状态
@@ -48,12 +48,12 @@ class Article extends Model implements Collectionable
     const REVIEW_SUBMIT    = 0; //待审核
     const SUBMITTED_SUBMIT = 1; //已收录
 
-	/**
-	 * 状态机
-	 */
+    /**
+     * 状态机
+     */
     const STATUS_REFUSED = -1; // 私密
-    const STATUS_REVIEW  = 0;  // 审核中（默认）
-    const STATUS_ONLINE  = 1;  // 公开
+    const STATUS_REVIEW  = 0; // 审核中（默认）
+    const STATUS_ONLINE  = 1; // 公开
 
     protected $touches = ['category', 'collection', 'categories'];
 
@@ -62,6 +62,19 @@ class Article extends Model implements Collectionable
     protected $casts = [
         'json' => 'array',
     ];
+
+    public function toSearchableArray()
+    {
+        return [
+            'title' => $this->title,
+            'body'  => $this->body,
+        ];
+    }
+
+    public function searchableAs()
+    {
+        return config('app.name') . '_article';
+    }
 
     public function getMorphClass()
     {
