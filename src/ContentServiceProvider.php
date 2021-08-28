@@ -31,7 +31,7 @@ class ContentServiceProvider extends ServiceProvider
     protected $listen = [
         MeetupWasUpdated::class => [
             CreateGroupChatFromMeetup::class,
-        ]
+        ],
     ];
     /**
      * Register services.
@@ -157,7 +157,9 @@ class ContentServiceProvider extends ServiceProvider
         }
 
         //中间件
-        app('router')->pushMiddlewareToGroup('web', SeoTraffic::class);
+        if (config('cms.enable_traffic')) {
+            app('router')->pushMiddlewareToGroup('web', SeoTraffic::class);
+        }
 
         $this->loadRoutesFrom(
             $this->app->make('path.haxibiao-content') . '/router.php'
@@ -167,14 +169,13 @@ class ContentServiceProvider extends ServiceProvider
         $this->app->singleton('cms_site', function ($app) {
             $modelStr = '\Haxibiao\Content\Site';
             if (class_exists('\App\Site')) {
-                // \App\Site 是 \Haxibiao\Cms\Site 的子类
                 $modelStr = '\App\Site';
             }
             if ($site = $modelStr::whereDomain(get_domain())->first()) {
                 return $site;
             }
-            //默认返回最后一个站点
-            return $modelStr::latest('id')->first();
+            //默认返回第一个站点
+            return $modelStr::first();
         });
 
         //注册监听器
