@@ -74,7 +74,7 @@ class Article extends Model implements Collectionable
 
     public function searchableAs()
     {
-        return config('app.name') . '_article';
+        return config('media.meilisearch.index');
     }
 
     public function getMorphClass()
