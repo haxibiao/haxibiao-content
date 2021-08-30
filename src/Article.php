@@ -14,6 +14,7 @@ use Haxibiao\Content\Traits\WithCms;
 use Haxibiao\Sns\Traits\WithSns;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Scout\Searchable;
 
 class Article extends Model implements Collectionable
 {
@@ -25,7 +26,7 @@ class Article extends Model implements Collectionable
     use Contentable;
     use WithSns;
     use Meetable;
-
+    use Searchable;
     use WithCms;
     use \Haxibiao\Content\Traits\Stickable;
 
