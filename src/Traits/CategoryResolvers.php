@@ -9,11 +9,9 @@ use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 trait CategoryResolvers
 {
 
-    
     public function resolveArticleCategories($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
-        $categories = Category::query()->where("type","article");
-        return $categories;
+        return Category::query()->where("type", Category::ARTICLE_TYPE_ENUM);
     }
 
     // resolvers
