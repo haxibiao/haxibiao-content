@@ -23,6 +23,7 @@ trait Meetable
     // 创建Meetup
     public function resolveCreateMeetup($root, $args, $context, $resolveInfo)
     {
+        // 判断类型
         $user = getUser();
 
         $title        = data_get($args,'title');
@@ -110,7 +111,7 @@ trait Meetable
         $filter      = data_get($args,'filter'); //TODO
         $user_id     = data_get($args,'user_id');
 
-        $qb     = Article::whereType(Article::MEETUP)->when(!blank($user_id),function ($qb)use($user_id){
+        $qb     = Article::whereIn('type',[Article::MEETUP,Article::LEAGUE_OF_MEETUP])->when(!blank($user_id),function ($qb)use($user_id){
             return $qb->where('user_id',$user_id);
         })->when(!blank($filter),function($qb) use($filter){
             if($filter == 'latest'){
@@ -226,7 +227,7 @@ trait Meetable
         $perPage     = data_get($args,'first');
         $currentPage = data_get($args,'page');
         $status      = data_get($args,'status');
-        $qb    = Article::whereJsonContains('json->users', [['id' => $user->id]])->whereType(Article::MEETUP);
+        $qb    = Article::whereJsonContains('json->users', [['id' => $user->id]])->whereIn('type',[Article::MEETUP,Article::LEAGUE_OF_MEETUP]);
         if(!blank($status)){
             if($status == 'REGISTERING'){
                 $qb = $qb->where("json->expires_at",'>', now()->getTimestamp());
@@ -305,6 +306,4 @@ trait Meetable
     {
         throw_if($expiresAt->getTimestamp() < time(), GQLException::class , '约单时间不能迟于当前时间!!');
     }
-
-
 }
