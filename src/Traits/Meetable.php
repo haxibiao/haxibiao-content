@@ -29,6 +29,7 @@ trait Meetable
         $title        = data_get($args,'title');
         $description  = data_get($args,'description');
         $images       = data_get($args,'images');
+        $price        = data_get($args,'price');
         $expiresAt    = data_get($args,'expires_at');
         $expiresAt    = $expiresAt->getTimestamp();
         $address      = data_get($args,'address');
@@ -46,6 +47,7 @@ trait Meetable
 
         $json = [
             'expires_at'   => $expiresAt,
+            'price'        => $price,
             'address'      => $address,
             'users'        => [[
                 'id'         => $user->id,
