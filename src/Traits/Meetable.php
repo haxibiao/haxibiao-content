@@ -188,6 +188,7 @@ trait Meetable
         $expiresAt    = data_get($args,'expires_at');
         $address      = data_get($args,'address');
         $status       = data_get($args,'status');
+        $price        = data_get($args,'price');
 
         //检查修改约单时间不能迟于当前时间
         static::checkUpdateExpiresAtInfo($expiresAt);
@@ -206,6 +207,9 @@ trait Meetable
         $json = $article->json;
         if(!is_null($expiresAt)){
             data_set($json,'expires_at',$expiresAt->getTimestamp());
+        }
+        if(!is_null($price)){
+            data_set($json,'price',$price);
         }
         if(!is_null($address)){
             data_set($json,'address',$address);
