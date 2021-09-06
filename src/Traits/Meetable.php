@@ -111,7 +111,7 @@ trait Meetable
         $filter      = data_get($args,'filter'); //TODO
         $user_id     = data_get($args,'user_id');
 
-        $qb     = Article::whereIn('type',[Article::MEETUP,Article::LEAGUE_OF_MEETUP])->when(!blank($user_id),function ($qb)use($user_id){
+        $qb     = Article::whereType(Article::MEETUP)->when(!blank($user_id),function ($qb)use($user_id){
             return $qb->where('user_id',$user_id);
         })->when(!blank($filter),function($qb) use($filter){
             if($filter == 'latest'){
@@ -185,6 +185,7 @@ trait Meetable
         $images       = data_get($args,'images');
         $expiresAt    = data_get($args,'expires_at');
         $address      = data_get($args,'address');
+        $status       = data_get($args,'status');
 
         //检查修改约单时间不能迟于当前时间
         static::checkUpdateExpiresAtInfo($expiresAt);
@@ -206,6 +207,15 @@ trait Meetable
         }
         if(!is_null($address)){
             data_set($json,'address',$address);
+        }
+        if(!is_null($status)){
+            if($status == 1){
+                $article->status = static::STATUS_ONLINE;
+                $article->submit = static::SUBMITTED_SUBMIT;
+            } else {
+                $article->status = static::STATUS_REVIEW;
+                $article->submit = static::REVIEW_SUBMIT;
+            }
         }
         $article->json = $json;
         $article->saveQuietly();
