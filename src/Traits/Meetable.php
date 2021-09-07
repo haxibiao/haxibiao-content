@@ -191,7 +191,9 @@ trait Meetable
         $price        = data_get($args,'price');
 
         //检查修改约单时间不能迟于当前时间
-        static::checkUpdateExpiresAtInfo($expiresAt);
+        if($expiresAt){
+            static::checkUpdateExpiresAtInfo($expiresAt);
+        }
 
         $article = Article::findOrFail($meetupId);
 
