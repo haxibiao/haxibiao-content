@@ -189,6 +189,7 @@ trait Meetable
         $address      = data_get($args,'address');
         $status       = data_get($args,'status');
         $price        = data_get($args,'price');
+        $canJoinLeague = data_get($args,'can_join_league');
 
         //检查修改约单时间不能迟于当前时间
         if($expiresAt){
@@ -212,6 +213,9 @@ trait Meetable
         }
         if(!is_null($price)){
             data_set($json,'price',$price);
+        }
+        if(!is_null($canJoinLeague)){
+            data_set($json,'can_join_league',$canJoinLeague);
         }
         if(!is_null($address)){
             data_set($json,'address',$address);
