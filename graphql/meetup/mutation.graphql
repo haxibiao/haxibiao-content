@@ -10,9 +10,10 @@ extend type Mutation @guard{
         报名截止时间
         """
         expires_at: DateTime
-
+        price:Float
         address: String
     ): Article @field(resolver: "App\\Article@resolveCreateMeetup")
+
 
     """
     更新约单信息
@@ -27,6 +28,12 @@ extend type Mutation @guard{
         """
         expires_at: DateTime
         address: String
+        status:Int
+        price:Float
+        """
+        是否允许其它用户加入联盟订单
+        """
+        can_join_league: Boolean
     ): Article @field(resolver: "App\\Article@resolveUpdateMeetup")
 
     """
@@ -43,4 +50,39 @@ extend type Mutation @guard{
     加入群聊
     """
     joinGroupChatByMeetupId(meetup_id:Int):Chat @field(resolver:"App\\Article@resolveJoinGroupChatByMeetupId")
+
+    """
+    创建联盟约单
+    """
+    createLeagueOfMeetup(
+        meetup_id:Int
+        title: String
+        description: String
+        images: [String!]
+        address: String
+        status:Int
+        price:Float
+        """
+        是否允许其它用户加入联盟订单
+        """
+        can_join_league: Boolean
+    ): Article @field(resolver: "App\\Article@resolveCreateLeagueOfMeetup")
+
+    """
+    加入联盟约单
+    """
+    joinLeagueOfMeetup(
+        meetup_id:Int
+        league_id:Int
+        price:Float
+    ): Article @field(resolver: "App\\Article@resolveJoinLeagueOfMeetup")
+
+    """
+    审核联盟订单申请
+    """
+    agreeToApply(
+        status:Int
+        data_id:Int
+        notification_id:String
+    ): Article @field(resolver: "App\\Article@resolveAgreeToApply")
 }
