@@ -83,7 +83,9 @@ trait Meetable
 
         //检查加入约单时间，不能超过该约单的截止时间
         $expiresAt = data_get($article,'json.expires_at');
-        throw_if(time() > $expiresAt, GQLException::class , '加入约单时间不能迟于截止时间!!');
+        if($article->type == \App\Article::MEETUP){
+            throw_if(time() > $expiresAt, GQLException::class , '加入约单时间不能迟于截止时间!!');
+        }
         $users = data_get($article,'json.users',array());
         $uids  = data_get($users,'*.id',[]);
 
