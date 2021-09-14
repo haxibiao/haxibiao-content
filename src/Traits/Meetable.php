@@ -355,10 +355,12 @@ trait Meetable
         $meetups = data_get($this,'json.meetups',[]);
         foreach ($meetups as $meetup){
             if(data_get($meetup,'user_id') == $user->id){
-                if(data_get($meetup,'status') != 1){
+                if(data_get($meetup,'status') == 0){
                     return "审核中";
                 }
-                return null;
+                if(data_get($meetup,'status') == 1){
+                    return null;
+                }
             }
         }
         return '加入联盟';
@@ -397,6 +399,8 @@ trait Meetable
         $league = static::findOrFail(data_get($applyInfo,'league_id'));
 
         throw_if(is_null($league),new \Exception('该申请已失效！'));
+
+
 
         $meetups = data_get($league,'json.meetups');
         $newMeetups = [];
