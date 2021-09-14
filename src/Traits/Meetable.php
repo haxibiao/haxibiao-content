@@ -390,7 +390,7 @@ trait Meetable
         $dataId = data_get($args,'data_id'); // 这个是偏移量
         $status = data_get($args,'status',1);
 
-        $index  = $dataId-1; //联盟订单申请列表的偏移量
+        $index  = $dataId; //联盟订单申请列表的偏移量
         $user = getUser();
         $applyInfo = data_get($user,"json.meetups.$index");
         $meetupId = data_get($applyInfo,'meetup_id');;
