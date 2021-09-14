@@ -505,11 +505,11 @@ trait Meetable
         $user       = $league->user;
         // 跳过已经申请的联盟订单
         $applyMeetupLists = data_get($user,'json.meetups',[]);
-//        foreach ($applyMeetupLists as $applyMeetup){
-//            if( $applyMeetup['league_id'] == $leagueId && $applyMeetup['meetup_id'] == $meetupId ){
-//                throw new \Exception('抱歉，您已申请过加入该联盟！');
-//            }
-//        }
+        foreach ($applyMeetupLists as $applyMeetup){
+            if( $applyMeetup['league_id'] == $leagueId && $applyMeetup['meetup_id'] == $meetupId ){
+                throw new \Exception('抱歉，您已申请过加入该联盟！');
+            }
+        }
         $user->forceFill([
             'json->meetups'=> array_merge($applyMeetupLists,[[
                 'meetup_id' => $meetup->id,
