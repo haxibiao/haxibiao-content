@@ -138,8 +138,22 @@ trait Meetable
     }
 
     public function resolveMeetup($root, $args, $context, $info){
-        $id      = data_get($args,'id');
-        return   Article::findOrFail($id);
+        $id         = data_get($args,'id');
+        $article    = Article::findOrFail($id);
+        $league_id  = data_get($args,'league_id');
+
+        //格式化折扣后的价格
+        if($league_id){
+            $league  = Article::find($league_id);
+            $meetups = data_get($league,'json.meetups',[]);
+            foreach ($meetups as $meetup){
+                if(data_get($meetup,'id') == $id){
+                    data_set($article,'price',data_get($meetup,'price'));
+                }
+            }
+        }
+
+        return   $article;
     }
 
     // 删除Meetup
