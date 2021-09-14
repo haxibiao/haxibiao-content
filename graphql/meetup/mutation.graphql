@@ -78,6 +78,14 @@ extend type Mutation @guard{
     ): Article @field(resolver: "App\\Article@resolveJoinLeagueOfMeetup")
 
     """
+    离开联盟约单
+    """
+    leaveLeagueOfMeetup(
+        meetup_id:Int
+        league_id:Int
+    ): Article @field(resolver: "App\\Article@resolveLeaveLeagueOfMeetup")
+
+    """
     审核联盟订单申请
     """
     agreeToApply(

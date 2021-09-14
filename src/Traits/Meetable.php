@@ -10,6 +10,7 @@ use Haxibiao\Breeze\Exceptions\GQLException;
 use Haxibiao\Breeze\Notifications\BreezeNotification;
 use Haxibiao\Content\Article;
 use Illuminate\Support\Facades\DB;
+use function Doctrine\Common\Cache\Psr6\get;
 
 /**
  * Trait Meetable
@@ -339,6 +340,7 @@ trait Meetable
             return null;
         }
         $user = getUser(false);
+
         if(blank($user)){
             return '加入联盟';
         }
@@ -356,6 +358,7 @@ trait Meetable
                 if(data_get($meetup,'status') != 1){
                     return "审核中";
                 }
+                return null;
             }
         }
         return '加入联盟';
@@ -555,5 +558,21 @@ trait Meetable
             $article->images()->sync($imageIds);
         }
         return $article;
+    }
+
+    public function resolveLeaveLeagueOfMeetup($root, $args, $context, $resolveInfo){
+        $user = getUser();
+        $leagueId = data_get($args,'league_id');
+        $meetupId = data_get($args,'meetup_id');
+        $league   = static::findOrFail($leagueId);
+        $meetups  = data_get($league,'json.meetups',[]);
+
+        $meetups = array_filter($meetups,function ($meetup)use($meetupId){
+            return data_get($meetup,'id') != $meetupId;
+        });
+        $league->forceFill([
+            'json->meetups'=> $meetups
+        ])->save();
+        return $league;
     }
 }
