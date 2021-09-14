@@ -572,25 +572,20 @@ trait Meetable
         return $article;
     }
 
+    // 退出联盟
     public function resolveLeaveLeagueOfMeetup($root, $args, $context, $resolveInfo){
         $user = getUser();
         $leagueId = data_get($args,'league_id');
-        $meetupId = data_get($args,'meetup_id');
-
-        if($leagueId == $meetupId){
-            throw new \Exception('数据错误～');
-        }
 
         $league   = static::findOrFail($leagueId);
         $meetups  = data_get($league,'json.meetups',[]);
         $newMeetups = [];
         foreach ($meetups as $meetup){
-            if(data_get($meetup,'id') != $meetupId){
+            if(data_get($meetup,'user_id') != $user->id){
                 $newMeetups[] = $meetup;
-            } else {
-                if($league->user_id == data_get($meetup,'user_id')){
-                    throw new \Exception('您是联盟发起者，该订单不可移除～');
-                }
+            }
+            if($league->user_id == data_get($meetup,'user_id')){
+                throw new \Exception('您是联盟发起者，该订单不可移除～');
             }
         }
         $league->forceFill([
