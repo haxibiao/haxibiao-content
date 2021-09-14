@@ -7,10 +7,9 @@ use App\Image;
 use App\OAuth;
 use App\User;
 use Haxibiao\Breeze\Exceptions\GQLException;
-use Haxibiao\Breeze\Notifications\BreezeNotification;
+use Haxibiao\Breeze\Notifications\MeetupApproved;
 use Haxibiao\Content\Article;
 use Illuminate\Support\Facades\DB;
-use function Doctrine\Common\Cache\Psr6\get;
 
 /**
  * Trait Meetable
@@ -506,11 +505,11 @@ trait Meetable
         $user       = $league->user;
         // 跳过已经申请的联盟订单
         $applyMeetupLists = data_get($user,'json.meetups',[]);
-        foreach ($applyMeetupLists as $applyMeetup){
-            if( $applyMeetup['league_id'] == $leagueId && $applyMeetup['meetup_id'] == $meetupId ){
-                throw new \Exception('抱歉，您已申请过加入该联盟！');
-            }
-        }
+//        foreach ($applyMeetupLists as $applyMeetup){
+//            if( $applyMeetup['league_id'] == $leagueId && $applyMeetup['meetup_id'] == $meetupId ){
+//                throw new \Exception('抱歉，您已申请过加入该联盟！');
+//            }
+//        }
         $user->forceFill([
             'json->meetups'=> array_merge($applyMeetupLists,[[
                 'meetup_id' => $meetup->id,
@@ -518,9 +517,8 @@ trait Meetable
                 'status'    => 0,
             ]])
         ])->saveQuietly();
-        $count      = count($applyMeetupLists);
         if($user){
-            $user->notify(new BreezeNotification($auth, $count, 'meetups', '申请加入《'.data_get($league,'title').'》联盟', $meetup->cover, $meetup->title, '加入联盟订单'));
+            $user->notify(new MeetupApproved($auth,$meetup,$league));
         }
         $league->forceFill([
             'json->meetups'=> array_merge($meetups,[[
