@@ -400,8 +400,7 @@ trait Meetable
 
         throw_if(is_null($league),new \Exception('该申请已失效！'));
 
-
-
+        // 更新联盟订单的状态
         $meetups = data_get($league,'json.meetups');
         $newMeetups = [];
         foreach ($meetups as $meetup){
@@ -413,6 +412,15 @@ trait Meetable
         $league->forceFill([
             'json->meetups'=> $newMeetups
         ])->save();
+
+        //更新联盟订单的申请状态
+        $newApplyMeetups = data_get($user,'json.meetups');
+        data_set($newApplyMeetups,"$index.status",$status);
+        $user = $league->user;
+        $user->forceFill([
+            'json->meetups'=> $newApplyMeetups
+        ])->save();
+
         // 移除通知
         $notificationId = data_get($args,'notification_id',1);
         if($notificationId){
@@ -575,7 +583,6 @@ trait Meetable
 
         $league   = static::findOrFail($leagueId);
         $meetups  = data_get($league,'json.meetups',[]);
-
         $newMeetups = [];
         foreach ($meetups as $meetup){
             if(data_get($meetup,'id') != $meetupId){
@@ -586,10 +593,21 @@ trait Meetable
                 }
             }
         }
-
         $league->forceFill([
             'json->meetups'=> $newMeetups
         ])->save();
+
         return $league;
     }
+
+    // 用户待审核的订单数
+    public function resolveApplyLeagueOfMeetupCount($root, $args, $context, $resolveInfo){
+        $user = getUser();
+        $meetups = data_get($user,'json.meetups',[]);
+        $meetups = array_filter($meetups,function ($meetup){
+            return data_get($meetup,'status') == 0;
+        });
+        return count($meetups);
+    }
+
 }
