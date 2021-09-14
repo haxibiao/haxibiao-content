@@ -564,14 +564,27 @@ trait Meetable
         $user = getUser();
         $leagueId = data_get($args,'league_id');
         $meetupId = data_get($args,'meetup_id');
+
+        if($leagueId == $meetupId){
+            throw new \Exception('数据错误～');
+        }
+
         $league   = static::findOrFail($leagueId);
         $meetups  = data_get($league,'json.meetups',[]);
 
-        $meetups = array_filter($meetups,function ($meetup)use($meetupId){
-            return data_get($meetup,'id') != $meetupId;
-        });
+        $newMeetups = [];
+        foreach ($meetups as $meetup){
+            if(data_get($meetup,'id') != $meetupId){
+                $newMeetups[] = $meetup;
+            } else {
+                if($league->user_id == data_get($meetup,'user_id')){
+                    throw new \Exception('您是联盟发起者，该订单不可移除～');
+                }
+            }
+        }
+
         $league->forceFill([
-            'json->meetups'=> $meetups
+            'json->meetups'=> $newMeetups
         ])->save();
         return $league;
     }
