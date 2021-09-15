@@ -81,7 +81,6 @@ extend type Mutation @guard{
     离开联盟约单
     """
     leaveLeagueOfMeetup(
-        meetup_id:Int
         league_id:Int
     ): Article @field(resolver: "App\\Article@resolveLeaveLeagueOfMeetup")
 
