@@ -14,6 +14,7 @@ type Article {
     favorited_id: Int
     cover: String
     submit: Int
+    status: Int
     hits: Int!
     count_words: Int
     count_likes: Int
@@ -49,6 +50,10 @@ type Article {
 
     json:JsonType
     """
+    举办时间(废弃，请使用expires_at)
+    """
+    time:String
+    """
     报名截止时间（开始时间）
     """
     expires_at: DateTime
@@ -72,6 +77,19 @@ type Article {
     报名是否结束
     """
     registration_has_closed: Boolean
+    """
+    展示价格
+    """
+    price:Float
+    """
+    原价
+    """
+    original_price:Float
+    status_of_join_league:String
+    """
+    联盟约单
+    """
+    meetups(first: Int = 6, page: Int = 1): ArticlePaginator @field(resolver: "App\\Article@resolveLinkLeagueOfMeetup")
 }
 
 extend type Query @guard {
@@ -86,22 +104,17 @@ extend type Query @guard {
 extend type Query {
     """
     获取推荐视频(废弃)
-    废弃(该接口已废弃，请使用recommendPosts)
+    该接口已废弃，请使用recommendPosts
     """
     recommendVideos(count: Int = 5, page: Int = 1): ArticlePaginator
         @field(resolver: "App\\Post@patchResolveRecommendPosts")
 
     """
     获取推荐视频(废弃)
-    废弃(该接口已废弃，请使用recommendPosts)
+    该接口已废弃，请使用recommendPosts
     """
     RecommendVideos(count: Int = 5, page: Int = 1): ArticlePaginator
         @field(resolver: "App\\Post@patchResolveRecommendPosts")
-    """
-    搜索文章/博客
-    """
-    searchArticles(keywords: String!, order: ResultsOrder): [Article!]
-        @paginate(defaultCount: 10, builder: "App\\Article@resolveSearchArticles")
 
     """
     文章详情
@@ -115,12 +128,15 @@ extend type Query {
 
     """
     分享动态(废弃)
-    废弃(该接口已废弃，请使用shareNewPost)
+    该接口已废弃，请使用shareNewPost
     """
     sharePost(id: Int!): String
         @field(resolver: "App\\Article@getShareLink")
 
-    articles(user_id: Int, category_id: Int): [Article!]
+    articles(
+        user_id: Int
+        category_id: Int
+    ): [Article!]
         @paginate(defaultCount: 10, builder: "App\\Article@resolveArticle")
 }
 

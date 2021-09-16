@@ -1,11 +1,13 @@
 type EditorChoice {
-  id: Int
+  id: Int @cacheKey
   title: String
   summary: String
   editor: User @belongsTo
-  movies: [Movie] @paginate(defaultCount: 9, builder: "App\\EditorChoice@resolveMovies")
-  activities: [Activity] @paginate(defaultCount: 6, builder: "App\\EditorChoice@resolveActivities")
-  collections: [Collection] @paginate(defaultCount: 6, builder: "App\\EditorChoice@resolveCollections")
+  movies: [Movie] @cache(maxAge: 3600) @paginate(defaultCount: 9, builder: "App\\EditorChoice@resolveMovies")
+  activities: [Activity] @cache(maxAge: 3600) @morphMany
+  collections: [Collection]
+    @cache(maxAge: 3600)
+    @paginate(defaultCount: 6, builder: "App\\EditorChoice@resolveCollections")
 }
 
 extend type Query {

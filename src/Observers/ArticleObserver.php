@@ -74,9 +74,23 @@ class ArticleObserver
         ArticleRepo::saveRelatedImagesFromBody($article);
     }
 
-    public function deleted(Article $article)
+    public function deleted( $model)
     {
-        //TODO：文章彻底删除
+        $type = data_get($model,'type');
+        if(in_array($type,[\App\Article::MEETUP,Article::LEAGUE_OF_MEETUP])){
+
+            // 清理关联的订单关系
+            $articles = Article::whereJsonContains('json->meetups', [['id' => $model->id]])->get();
+            foreach($articles as $article){
+                $meetups = data_get($article,'json.meetups',[]);
+                $newMeetups  = array_filter($meetups,function ($value)use($model){
+                    return $model->id != @$value['id'];
+                });
+                $article->forceFill([
+                    'json->meetups'=> $newMeetups
+                ])->saveQuietly();
+            }
+        }
     }
 
     public function restored(Article $article)

@@ -13,8 +13,25 @@ extend type Query {
     """
     约单详情
     """
-    meetup(id:Int):Article @field(resolver:"App\\Article@resolveMeetup")
+    meetup(id:Int,league_id:Int):Article @field(resolver:"App\\Article@resolveMeetup")
+
+    """
+    与我关联的联盟订单
+    """
+    joinedLeagueOfMeetup(filter:LeagueOfMeetupFilter=INITIATOR,first: Int = 10, page: Int = 1): ArticlePaginator @guard @field(resolver: "App\\Article@resolveJoinedLeagueOfMeetup")
+
+    """
+    联盟约单列表
+    """
+    leagueOfMeetups(first: Int = 10, page: Int = 1,filter:String="ALL"): ArticlePaginator
+        @field(resolver: "App\\Article@resolveLeagueOfMeetup")
+
+    """
+    用户待申请数
+    """
+    leagueOfMeetupApprovalAmount:Int @field(resolver:"App\\Article@resolveApplyLeagueOfMeetupCount")
 }
+
 enum MeetupFilter {
     """
     热门
@@ -33,4 +50,15 @@ enum MeetupFilter {
 enum MeetupStatus {
     REGISTERING
     REGISTERED
+}
+
+enum LeagueOfMeetupFilter{
+    """
+    我加入的
+    """
+    PARTICIPATOR
+    """
+    我发起的
+    """
+    INITIATOR
 }

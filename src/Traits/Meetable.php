@@ -3,12 +3,13 @@ namespace Haxibiao\Content\Traits;
 
 
 use App\Chat;
-use App\Exceptions\GraphQLExceptions;
 use App\Image;
 use App\OAuth;
 use App\User;
 use Haxibiao\Breeze\Exceptions\GQLException;
+use Haxibiao\Breeze\Notifications\MeetupApproved;
 use Haxibiao\Content\Article;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Trait Meetable
@@ -23,11 +24,13 @@ trait Meetable
     // 创建Meetup
     public function resolveCreateMeetup($root, $args, $context, $resolveInfo)
     {
+        // 判断类型
         $user = getUser();
 
         $title        = data_get($args,'title');
         $description  = data_get($args,'description');
         $images       = data_get($args,'images');
+        $price        = data_get($args,'price');
         $expiresAt    = data_get($args,'expires_at');
         $expiresAt    = $expiresAt->getTimestamp();
         $address      = data_get($args,'address');
@@ -45,6 +48,7 @@ trait Meetable
 
         $json = [
             'expires_at'   => $expiresAt,
+            'price'        => $price,
             'address'      => $address,
             'users'        => [[
                 'id'         => $user->id,
@@ -79,7 +83,9 @@ trait Meetable
 
         //检查加入约单时间，不能超过该约单的截止时间
         $expiresAt = data_get($article,'json.expires_at');
-        throw_if(time() > $expiresAt, GQLException::class , '加入约单时间不能迟于截止时间!!');
+        if($article->type == \App\Article::MEETUP){
+            throw_if(time() > $expiresAt, GQLException::class , '加入约单时间不能迟于截止时间!!');
+        }
         $users = data_get($article,'json.users',array());
         $uids  = data_get($users,'*.id',[]);
 
@@ -131,8 +137,22 @@ trait Meetable
     }
 
     public function resolveMeetup($root, $args, $context, $info){
-        $id      = data_get($args,'id');
-        return   Article::findOrFail($id);
+        $id         = data_get($args,'id');
+        $article    = Article::findOrFail($id);
+        $league_id  = data_get($args,'league_id');
+
+        //格式化折扣后的价格
+        if($league_id){
+            $league  = Article::find($league_id);
+            $meetups = data_get($league,'json.meetups',[]);
+            foreach ($meetups as $meetup){
+                if(data_get($meetup,'id') == $id){
+                    data_set($article,'price',data_get($meetup,'price'));
+                }
+            }
+        }
+
+        return   $article;
     }
 
     // 删除Meetup
@@ -184,9 +204,14 @@ trait Meetable
         $images       = data_get($args,'images');
         $expiresAt    = data_get($args,'expires_at');
         $address      = data_get($args,'address');
+        $status       = data_get($args,'status');
+        $price        = data_get($args,'price');
+        $canJoinLeague = data_get($args,'can_join_league');
 
         //检查修改约单时间不能迟于当前时间
-        static::checkUpdateExpiresAtInfo($expiresAt);
+        if($expiresAt){
+            static::checkUpdateExpiresAtInfo($expiresAt);
+        }
 
         $article = Article::findOrFail($meetupId);
 
@@ -203,8 +228,23 @@ trait Meetable
         if(!is_null($expiresAt)){
             data_set($json,'expires_at',$expiresAt->getTimestamp());
         }
+        if(!is_null($price)){
+            data_set($json,'price',$price);
+        }
+        if(!is_null($canJoinLeague)){
+            data_set($json,'can_join_league',$canJoinLeague);
+        }
         if(!is_null($address)){
             data_set($json,'address',$address);
+        }
+        if(!is_null($status)){
+            if($status == 1){
+                $article->status = static::STATUS_ONLINE;
+                $article->submit = static::SUBMITTED_SUBMIT;
+            } else {
+                $article->status = static::STATUS_REVIEW;
+                $article->submit = static::REVIEW_SUBMIT;
+            }
         }
         $article->json = $json;
         $article->saveQuietly();
@@ -226,7 +266,7 @@ trait Meetable
         $perPage     = data_get($args,'first');
         $currentPage = data_get($args,'page');
         $status      = data_get($args,'status');
-        $qb    = Article::whereJsonContains('json->users', [['id' => $user->id]])->whereType(Article::MEETUP);
+        $qb    = Article::whereJsonContains('json->users', [['id' => $user->id]])->whereIn('type',[Article::MEETUP,Article::LEAGUE_OF_MEETUP]);
         if(!blank($status)){
             if($status == 'REGISTERING'){
                 $qb = $qb->where("json->expires_at",'>', now()->getTimestamp());
@@ -306,5 +346,275 @@ trait Meetable
         throw_if($expiresAt->getTimestamp() < time(), GQLException::class , '约单时间不能迟于当前时间!!');
     }
 
+    /// 联盟约单
+    public function getStatusOfJoinLeagueAttribute()
+    {
+        if(!data_get($this,'json.can_join_league',false)){
+            return null;
+        }
+        $user = getUser(false);
+
+        if(blank($user)){
+            return '加入联盟';
+        }
+        // 不是高权限用户
+        if(!$user->isHighRole()){
+            return null;
+        }
+        // 自己
+        if($user->id == $this->user_id){
+            return null;
+        }
+        $meetups = data_get($this,'json.meetups',[]);
+        foreach ($meetups as $meetup){
+            if(data_get($meetup,'user_id') == $user->id){
+                if(data_get($meetup,'status') == 0){
+                    return "审核中";
+                }
+                if(data_get($meetup,'status') == 1){
+                    return null;
+                }
+            }
+        }
+        return '加入联盟';
+    }
+
+    public function getOriginalPriceAttribute(){
+        return data_get($this,'json.price');
+    }
+
+    public function resolveLeagueOfMeetup($root, $args, $context, $info){
+        $perPage     = data_get($args,'first');
+        $currentPage = data_get($args,'page');
+        $filter      = data_get($args,'filter');
+
+        $qb     = static::whereType(\App\Article::LEAGUE_OF_MEETUP)->when(!blank($filter),function($qb) use($filter){
+            if($filter != 'ALL'){
+                return $qb->whereStatus(1);
+            }
+        });
+        $total  = $qb->count();
+        $meetups = $qb->skip(($currentPage * $perPage) - $perPage)
+            ->take($perPage)
+            ->get();
+        return new \Illuminate\Pagination\LengthAwarePaginator($meetups, $total, $perPage, $currentPage);
+    }
+
+    // 同意加入订单
+    public function resolveAgreeToApply($root, $args, $context, $info){
+        $dataId = data_get($args,'data_id'); // 这个是偏移量
+        $status = data_get($args,'status',1);
+
+        $index  = $dataId; //联盟订单申请列表的偏移量
+        $user = getUser();
+        $applyInfo = data_get($user,"json.meetups.$index");
+        $meetupId = data_get($applyInfo,'meetup_id');;
+        $league = static::findOrFail(data_get($applyInfo,'league_id'));
+
+        throw_if(is_null($league),new \Exception('该申请已失效！'));
+
+        // 更新联盟订单的状态
+        $meetups = data_get($league,'json.meetups');
+        $newMeetups = [];
+        foreach ($meetups as $meetup){
+            if(data_get($meetup,'id') == $meetupId){
+                data_set($meetup,'status',$status);
+            }
+            $newMeetups[] = $meetup;
+        }
+        $league->forceFill([
+            'json->meetups'=> $newMeetups
+        ])->save();
+
+        //更新联盟订单的申请状态
+        $newApplyMeetups = data_get($user,'json.meetups');
+        data_set($newApplyMeetups,"$index.status",$status);
+        $user = $league->user;
+        $user->forceFill([
+            'json->meetups'=> $newApplyMeetups
+        ])->save();
+
+        // 移除通知
+        $notificationId = data_get($args,'notification_id',1);
+        if($notificationId){
+            DB::table('notifications')->where('id',$notificationId)->delete();
+        }
+        return $league;
+    }
+
+    // 联盟约单列表（发起，加入）
+    public function resolveLinkLeagueOfMeetup($root, $args, $context, $info){
+        $auth  = getUser();
+        $meetups     = data_get($root,'json.meetups',[]);
+        $perPage     = data_get($args,'first');
+        $currentPage = data_get($args,'page');
+        $meetupIds = [];
+        foreach ($meetups as $meetup){
+            $status = data_get($meetup,'status');
+            if($status == 1){
+                $meetupIds[] = data_get($meetup,'id');
+            }
+        }
+        $qb = static::whereIn('id',$meetupIds);
+        $total  = $qb->count();
+        $models = $qb->skip(($currentPage * $perPage) - $perPage)
+            ->take($perPage)
+            ->get();
+
+        foreach ($models as $model){
+            foreach ($meetups as $meetup){
+                if(data_get($meetup,'id') == $model->id){
+                    data_set($model,'price',data_get($meetup,'price'));
+                }
+            }
+        }
+        return new \Illuminate\Pagination\LengthAwarePaginator($models, $total, $perPage, $currentPage);
+    }
+
+    // 我的联盟约单列表
+    public function resolveJoinedLeagueOfMeetup($root, $args, $context, $info){
+        $auth  = getUser();
+        $filter = data_get($args,'filter');
+        $perPage     = data_get($args,'first');
+        $currentPage = data_get($args,'page');
+
+        $qb = static::where('type',static::LEAGUE_OF_MEETUP)->when($filter == 'INITIATOR',function($qb)use($auth){
+            return $qb->where('user_id',$auth->id);
+        })->when($filter == 'PARTICIPATOR',function($qb)use($auth){
+            return $qb->whereJsonContains('json->meetups', [['user_id' => $auth->id]])
+                ->whereType(Article::LEAGUE_OF_MEETUP);
+        });
+
+        $total  = $qb->count();
+        $meetups = $qb->skip(($currentPage * $perPage) - $perPage)
+            ->take($perPage)
+            ->get();
+        return new \Illuminate\Pagination\LengthAwarePaginator($meetups, $total, $perPage, $currentPage);
+    }
+
+    // 加入联盟约单
+    public function resolveJoinLeagueOfMeetup($root, $args, $context, $info)
+    {
+        $auth = getUser();
+        $meetupId   = data_get($args,'meetup_id');
+        $meetup     = Article::findOrFail($meetupId);
+        $price      = data_get($args,'price');
+        $leagueId   = data_get($args,'league_id');
+        $league     = static::findorFail($leagueId);
+        $meetups    = data_get($league,'json.meetups',array());
+        $user       = $league->user;
+        // 跳过已经申请的联盟订单
+        $applyMeetupLists = data_get($user,'json.meetups',[]);
+        foreach ($applyMeetupLists as $applyMeetup){
+            if( $applyMeetup['league_id'] == $leagueId && $applyMeetup['meetup_id'] == $meetupId ){
+                throw new \Exception('抱歉，您已申请过加入该联盟！');
+            }
+        }
+        $user->forceFill([
+            'json->meetups'=> array_merge($applyMeetupLists,[[
+                'meetup_id' => $meetup->id,
+                'league_id' => $league->id,
+                'status'    => 0,
+            ]])
+        ])->saveQuietly();
+        if($user){
+            $user->notify(new MeetupApproved($auth,$meetup,$league));
+        }
+        $league->forceFill([
+            'json->meetups'=> array_merge($meetups,[[
+                'id'         => $meetupId,
+                'user_id'    => $meetup->user_id,
+                'price'      => $price,
+                'status'     => 0,
+                'created_at' => time(),
+            ]])
+        ])->save();
+        return $meetup;
+    }
+
+    // 创建联盟约单
+    public function resolveCreateLeagueOfMeetup($root, $args, $context, $resolveInfo){
+        $user = getUser();
+
+        $meetupId     = data_get($args,'meetup_id');
+        $meetup       = static::findOrFail($meetupId);
+        $title        = data_get($args,'title');
+        $description  = data_get($args,'description');
+        $canJoinLeague= data_get($args,'can_join_league',true);
+        $images       = data_get($args,'images');
+        $address      = data_get($args,'address');
+        $status       = data_get($args,'status',0);// 默认是下架状态
+        $article = new static();
+        $article->title     = $title;
+        $article->user_id   = $user->id;
+        $article->description = $description;
+        $json = [
+            'address'      => $address,
+            'can_join_league'      => $canJoinLeague,
+            'users'        => [[
+                'id'         => $user->id,
+                'created_at' => time(),
+            ]],
+            "meetups"      => [
+                [
+                    'id'        => $meetup->id,
+                    'user_id'   => $meetup->user_id,
+                    'price'     => data_get($args,'price',data_get($meetup,'json.price')),
+                    'status'    => 1,
+                    'created_at' => time(),
+                ]
+            ]
+        ];
+        $article->json   = $json;
+        $article->type   = static::LEAGUE_OF_MEETUP;
+        if($status == 1){
+            $article->status = static::STATUS_ONLINE;
+            $article->submit = static::SUBMITTED_SUBMIT;
+        }
+        $article->save();
+
+        if ($images) {
+            $imageIds = [];
+            foreach ($images as $image) {
+                $model      = Image::saveImage($image);
+                $imageIds[] = $model->id;
+            }
+            $article->images()->sync($imageIds);
+        }
+        return $article;
+    }
+
+    // 退出联盟
+    public function resolveLeaveLeagueOfMeetup($root, $args, $context, $resolveInfo){
+        $user = getUser();
+        $leagueId = data_get($args,'league_id');
+
+        $league   = static::findOrFail($leagueId);
+        $meetups  = data_get($league,'json.meetups',[]);
+        $newMeetups = [];
+        foreach ($meetups as $meetup){
+            if(data_get($meetup,'user_id') != $user->id){
+                $newMeetups[] = $meetup;
+            }
+            if($league->user_id == data_get($meetup,'user_id')){
+                throw new \Exception('您是联盟发起者，该订单不可移除～');
+            }
+        }
+        $league->forceFill([
+            'json->meetups'=> $newMeetups
+        ])->save();
+
+        return $league;
+    }
+
+    // 用户待审核的订单数
+    public function resolveApplyLeagueOfMeetupCount($root, $args, $context, $resolveInfo){
+        $user = getUser();
+        $meetups = data_get($user,'json.meetups',[]);
+        $meetups = array_filter($meetups,function ($meetup){
+            return data_get($meetup,'status') == 0;
+        });
+        return count($meetups);
+    }
 
 }

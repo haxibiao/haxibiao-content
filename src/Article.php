@@ -42,7 +42,8 @@ class Article extends Model implements Collectionable
 
     //文章类型
     const ARTICLE = 'article'; //文章
-    const MEETUP  = 'meetup'; //约单
+    const MEETUP  = 'meetup';  //约单
+    const LEAGUE_OF_MEETUP ='league';//联盟约单
 
     //提交状态
     const REFUSED_SUBMIT   = -1; //已拒绝
