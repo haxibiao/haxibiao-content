@@ -46,7 +46,37 @@ trait LocationRepo
         } else {
             return [];
         }
+    }
 
+    //根据用户位置获取附近商铺
+    public static function getNearbyStoreIds($user)
+    {
+        if ($user && $user->location) {
+            $longitude = $user->location->longitude;
+            $latitude  = $user->location->latitude;
+            if ($longitude && $latitude) {
+                return Location::select(DB::raw('*,ACOS(SIN(' . $latitude . ' *' . Location::PI . ' / 180) * SIN(latitude * ' . Location::PI . ' / 180) +
+            COS( ' . $latitude . ' * ' . Location::PI . ' / 180) *
+            COS(latitude * ' . Location::PI . ' / 180) *
+            COS(' . $longitude . ' * ' . Location::PI . ' / 180 - longitude * ' . Location::PI . ' / 180))* ' . Location::EARTH_RADIUS . '
+            as distance '))
+                    ->where('located_type', 'stores')
+                //50公里内都算附近
+                    ->having(DB::raw('distance'), '<', '50000')
+                    ->orderBy(DB::raw('distance'))
+                    ->take(10)
+                    ->get()
+                    ->pluck('located_id')
+                    ->toArray();
+            }
+        }
+        //没有数据默认返回
+        return Location::query()
+            ->where('located_type', 'stores')
+            ->take(10)
+            ->get()
+            ->pluck('located_id')
+            ->toArray();
     }
 
     /**
