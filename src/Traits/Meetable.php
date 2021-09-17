@@ -544,11 +544,17 @@ trait Meetable
         $images       = data_get($args,'images');
         $address      = data_get($args,'address');
         $status       = data_get($args,'status',0);// 默认是下架状态
+        $expiresAt    = data_get($args,'expires_at');
+        $expiresAt    = $expiresAt->getTimestamp();
+        //检查创建约单时间不能迟于当前时间
+        static::checkExpiresAtInfo($expiresAt);
+
         $article = new static();
         $article->title     = $title;
         $article->user_id   = $user->id;
         $article->description = $description;
         $json = [
+            'expires_at'   => $expiresAt,
             'address'      => $address,
             'can_join_league'      => $canJoinLeague,
             'users'        => [[

@@ -61,6 +61,10 @@ extend type Mutation @guard{
         images: [String!]
         address: String
         status:Int
+        """
+        报名截止时间
+        """
+        expires_at: DateTime
         price:Float
         """
         是否允许其它用户加入联盟订单

@@ -105,7 +105,7 @@ class ArticleObserver
 
     public function saved($article)
     {
-        if (data_get($article, 'type') == Article::MEETUP) {
+        if (in_array(data_get($article, 'type'),[Article::MEETUP,Article::LEAGUE_OF_MEETUP])) {
             event(new MeetupWasUpdated($article));
         }
     }
