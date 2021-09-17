@@ -596,14 +596,14 @@ trait Meetable
         $leagueId = data_get($args,'league_id');
 
         $league   = static::findOrFail($leagueId);
+        if($league->user_id == $user->id){
+            throw new \Exception('您是联盟发起者，不可移除自己的订单～');
+        }
         $meetups  = data_get($league,'json.meetups',[]);
         $newMeetups = [];
         foreach ($meetups as $meetup){
             if(data_get($meetup,'user_id') != $user->id){
                 $newMeetups[] = $meetup;
-            }
-            if($league->user_id == data_get($meetup,'user_id')){
-                throw new \Exception('您是联盟发起者，该订单不可移除～');
             }
         }
         $league->forceFill([
