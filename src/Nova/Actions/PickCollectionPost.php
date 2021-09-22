@@ -63,7 +63,7 @@ class PickCollectionPost extends Action
             ->pluck('name', 'id')
             ->toArray();
         return [
-            SelectAutoComplete::make(_("加入合集"), 'collection')->options(
+            SelectAutoComplete::make("加入合集", 'collection')->options(
                 $data
             ),
         ];
