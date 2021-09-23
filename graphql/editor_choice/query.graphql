@@ -4,7 +4,7 @@ type EditorChoice {
   summary: String
   editor: User @belongsTo
   movies: [Movie] @cache(maxAge: 3600) @paginate(defaultCount: 9, builder: "App\\EditorChoice@resolveMovies")
-  activities: [Activity] @cache(maxAge: 3600) @morphMany
+  activities: [Activity] @orderBy(column: "sort", direction: DESC) @morphMany
   collections: [Collection]
     @cache(maxAge: 3600)
     @paginate(defaultCount: 6, builder: "App\\EditorChoice@resolveCollections")
