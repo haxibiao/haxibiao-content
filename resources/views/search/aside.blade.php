@@ -4,15 +4,17 @@
 		  <li>
 		    <a href="/search{{ request('q') ? '?q='.request('q') : '' }}"><div class="icon-wrp"><i class="iconfont icon-icon_article"></i></div> <span>文章</span></a>
 		  </li>
-		  <li>
-		    <a href="/search/movies{{ request('q') ? '?q='.request('q') : '' }}"><div class="icon-wrp"><i class="iconfont icon-shipin1"></i></div> <span>电影</span></a>
-		  </li>
+			@if(config('media.movie.enable',false))
+				<li>
+					<a href="/search/movies{{ request('q') ? '?q='.request('q') : '' }}"><div class="icon-wrp"><i class="iconfont icon-shipin1"></i></div> <span>电影</span></a>
+				</li>
+			@endif
 		  <li>
 		    <a href="/search/video{{ request('q') ? '?q='.request('q') : '' }}"><div class="icon-wrp"><i class="iconfont icon-shipin"></i></div> <span>视频</span></a>
 		  </li>
 		  <li>
 		    <a href="/search/users{{ request('q') ? '?q='.request('q') : '' }}"><div class="icon-wrp"><i class="iconfont icon-yonghu01"></i></div> <span>用户</span></a>
-		  </li> 
+		  </li>
 		  <li>
 		    <a href="/search/categories{{ request('q') ? '?q='.request('q') : '' }}"><div class="icon-wrp"><i class="iconfont icon-zhuanti1"></i></div> <span>专题</span></a>
 		  </li>

@@ -54,35 +54,37 @@
 							</div>
 						</div>
 					</div>
-					<div class="relevant">
-						<div class="plate-title">
-							<span>相关电影</span>
-							<a href="/search/movies{{ request('q') ? '?q='.request('q') : '' }}" class="all right">查看全部<i class="iconfont icon-youbian"></i></a>
-						</div>
-						<div class="container-fluid list">
-							<div class="">
-								@foreach($data['movies'] as $movie)
-								<div class="note-list">
-									<div class="note-info">
-										<a href="/movie/{{ $movie->id }}" class="avatar-category">
-											<img src="{{ $movie->cover }}" alt="">
-										</a>
-										<div class="title">
-											<a href="/movie/{{ $movie->id }}" class="name">{{ $movie->name }}</a>
+					@if(config('media.movie.enable',false))
+						<div class="relevant">
+							<div class="plate-title">
+								<span>相关电影</span>
+								<a href="/search/movies{{ request('q') ? '?q='.request('q') : '' }}" class="all right">查看全部<i class="iconfont icon-youbian"></i></a>
+							</div>
+							<div class="container-fluid list">
+								<div class="">
+									@foreach($data['movies'] as $movie)
+										<div class="note-list">
+											<div class="note-info">
+												<a href="/movie/{{ $movie->id }}" class="avatar-category">
+													<img src="{{ $movie->cover }}" alt="">
+												</a>
+												<div class="title">
+													<a href="/movie/{{ $movie->id }}" class="name">{{ $movie->name }}</a>
+												</div>
+												<div class="info">
+													主演:@if($movie->actors)
+														{{$movie->actors}}
+													@else
+														未知
+													@endif
+												</div>
+											</div>
 										</div>
-										<div class="info">
-											主演:@if($movie->actors)
-													{{$movie->actors}}
-												@else
-													未知
-												@endif
-                            			</div>
-									</div>
+									@endforeach
 								</div>
-								@endforeach
 							</div>
 						</div>
-					</div>
+					@endif
 				</div>
 				<div class="search-content">
 					<div class="plate-title">

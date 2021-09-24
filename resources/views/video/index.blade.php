@@ -10,10 +10,10 @@
 <div class="container">
     {{-- 抖音合集 --}}
     @include('video.parts.top_collections')
-
-    {{-- 最新电影 --}}
-    @include('video.parts.latest_movies')
-
+    @if(config('media.movie.enable',false))
+        {{-- 最新电影 --}}
+        @include('video.parts.latest_movies')
+    @endif
 {{--    <div class="vd-head">--}}
 {{--      <h3 class="vd-title">--}}
 {{--        <span class="title-icon">--}}
