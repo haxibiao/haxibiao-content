@@ -26,7 +26,7 @@
     <div class="vd-head">
           <h3 class="vd-title">
             <span class="title-icon">
-              <i class="iconfont icon-huo"></i>电影图解
+              <i class="iconfont icon-huo"></i>热门文章
             </span>
           </h3>
     </div>
