@@ -26,6 +26,7 @@
 </div>
 
 @push('modals')
-    <!-- Modal -->
-    <modal-contribute category-id='{{ $category->id }}'></modal-contribute>
+    @if(Auth::check())
+    	<modal-contribute category-id='{{ $category->id }}'></modal-contribute>
+	@endif
 @endpush
