@@ -30,7 +30,7 @@
 	   						@each('post.parts.post_item', $data['posts'], 'post')
 					   </ul>
 					   <ul role="tabpanel" class="fade tab-pane" id="article">
-			 					@each('parts.article_item', $data['articles'], 'article')
+			 				@each('parts.article_item', $data['articles'], 'article')
 					   </ul>
 					   <ul role="tabpanel" class="fade tab-pane" id="catalog">
 					   		{{-- @each('parts.article_item', $data['old'], 'article') --}}

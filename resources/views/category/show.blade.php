@@ -33,11 +33,8 @@
                               <blank-content></blank-content>
                            @else
                                 @each('parts.article_item', $data['works'], 'article')
-                               @if(!Auth::check())
-                                <div>{!! $data['works']->fragment('include')->links() !!}</div>
-                               @else
+                                {{-- PWA优化，直接VUE体验刷文章 --}}
                                 <article-list api="/category/{{ $category->id }}?works=1" start-page="2" not-empty="{{count($data['works'])>0}}"/>
-                               @endif
                            @endif
                        </ul>
                        <ul role="tabpanel" class="fade tab-pane " id="comment">
@@ -45,11 +42,8 @@
                               <blank-content></blank-content>
                            @else
                             @each('parts.article_item', $data['commented'], 'article')
-                             @if(!Auth::check())
-                             <div>{!! $data['commented']->links() !!}</div>
-                             @else
-                             <article-list api="/category/{{ $category->id }}?commented=1" start-page="2" not-empty="{{count($data['commented'])>0}}"/>
-                            @endif
+                             {{-- PWA优化，直接VUE体验刷文章 --}}
+                             <article-list api="/category/{{ $category->id }}?commented=1" start-page="2" not-empty="{{count($data['commented'])>0}}"/>                            
                            @endif
                        </ul>
                        <ul role="tabpanel" class="fade tab-pane" id="hot">
@@ -57,11 +51,8 @@
                               <blank-content></blank-content>
                            @else
                              @each('parts.article_item', $data['hot'], 'article')
-                             @if(!Auth::check())
-                                <div>{!! $data['hot']->fragment('hot')->links() !!}</div>
-                             @else
-                                <article-list api="/category/{{ $category->id }}?hot=1" start-page="2" not-empty="{{count($data['hot'])>0}}"/>
-                             @endif
+                             {{-- PWA优化，直接VUE体验刷文章 --}}
+                             <article-list api="/category/{{ $category->id }}?hot=1" start-page="2" not-empty="{{count($data['hot'])>0}}"/>                             
                            @endif
                        </ul>
                      </div>
