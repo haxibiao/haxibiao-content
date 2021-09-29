@@ -223,4 +223,9 @@ trait ArticleAttrs
         }
         return $this->resoureTypeCN() . '<a href=' . $this->url . '>《' . $title . '》</a>';
     }
+
+    public function getCanjoinLeagueAttribute(){
+        $can_join_league = data_get($this,'json.can_join_league',false);
+        return $can_join_league;
+    }
 }

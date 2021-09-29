@@ -31,7 +31,7 @@ extend type Mutation @guard{
         status:Int
         price:Float
         """
-        是否允许其它用户加入联盟订单
+        上架后是否允许其它用户加入联盟订单
         """
         can_join_league: Boolean
     ): Article @field(resolver: "App\\Article@resolveUpdateMeetup")
@@ -67,7 +67,7 @@ extend type Mutation @guard{
         expires_at: DateTime
         price:Float
         """
-        是否允许其它用户加入联盟订单
+        上架后是否允许其它用户加入联盟订单
         """
         can_join_league: Boolean
     ): Article @field(resolver: "App\\Article@resolveCreateLeagueOfMeetup")
