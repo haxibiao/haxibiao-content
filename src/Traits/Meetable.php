@@ -349,9 +349,6 @@ trait Meetable
     /// 联盟约单
     public function getStatusOfJoinLeagueAttribute()
     {
-        if(!data_get($this,'json.can_join_league',false)){
-            return null;
-        }
         $user = getUser(false);
 
         if(blank($user)){
@@ -372,7 +369,9 @@ trait Meetable
                     return "审核中";
                 }
                 if(data_get($meetup,'status') == 1){
-                    return null;
+                    if(!data_get($this,'json.can_join_league',false)){
+                        return null;
+                    }
                 }
             }
         }
