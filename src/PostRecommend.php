@@ -60,20 +60,18 @@ class PostRecommend extends Model
     }
 
     /**
-     * 随机重置某个review_day
-     *
+     * 随机重置某个review_day（刷光时）
      * @return int
      */
     public function resetReviewDayByRandom()
     {
-        $reviewDays = $this->reviewDays;
+        $reviewDays = $this->reviewDays; //用户的已刷过的日子
         $daysCnt    = count($reviewDays);
         if ($daysCnt > 0) {
             $randomResetReviewDay = $reviewDays[mt_rand(0, $daysCnt - 1)];
             $this->delReviewDay($randomResetReviewDay, true);
         }
-
-        return $randomResetReviewDay;
+        return $randomResetReviewDay ?? Post::min('review_day'); //遇到异常，就默认重置最久远的日子吧
     }
 
     /**
