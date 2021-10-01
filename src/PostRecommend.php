@@ -19,14 +19,17 @@ class PostRecommend extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * 获取用户已推荐过的排重的日子
+     * @return array
+     */
     public function getReviewDaysAttribute()
     {
         $reviewDays = [];
-        foreach ($this->day_review_ids as $userDayReviewId) {
+        foreach ($this->day_review_ids ?? [] as $userDayReviewId) {
             $reviewDay    = substr($userDayReviewId, 0, 8);
             $reviewDays[] = $reviewDay;
         }
-
         return array_unique($reviewDays);
     }
 
