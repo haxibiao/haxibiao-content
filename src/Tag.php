@@ -110,7 +110,7 @@ class Tag extends Model
     }
     public function categories()
     {
-        return $this->morphedByMany('App\Category', 'taggable')->orderByDesc('rank');
+        return $this->morphedByMany('App\Category', 'taggable')->published()->orderByDesc('rank');
     }
 
     public function tag()
