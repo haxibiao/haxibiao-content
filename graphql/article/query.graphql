@@ -115,6 +115,11 @@ extend type Query {
     """
     RecommendVideos(count: Int = 5, page: Int = 1): ArticlePaginator
         @field(resolver: "App\\Post@patchResolveRecommendPosts")
+    """
+    搜索文章/博客
+    """
+    searchArticles(keywords: String!, order: ResultsOrder): [Article!]
+        @paginate(defaultCount: 10, builder: "App\\Article@resolveSearchArticles")
 
     """
     文章详情
