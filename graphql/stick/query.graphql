@@ -14,7 +14,6 @@ extend type Query {
   stick(id: Int! @eq): Stick @find
 
   sticks(place: String, app_name: String): [Stick!]
-    @cache(maxAge: 3600)
     @paginate(defaultCount: 10, builder: "App\\Stick@resolveSticks")
 
   stickPlaces: [stickPlaces] @field(resolver: "App\\Stick@resolveStickPlaces")

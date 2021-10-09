@@ -3,7 +3,7 @@ type EditorChoice {
   title: String
   summary: String
   editor: User @belongsTo
-  movies: [Movie] @cache(maxAge: 3600) @paginate(defaultCount: 9, builder: "App\\EditorChoice@resolveMovies")
+  movies: [Movie] @paginate(defaultCount: 9, builder: "App\\EditorChoice@resolveMovies")
   activities: [Activity] @orderBy(column: "sort", direction: DESC) @morphMany
   collections: [Collection]
     @cache(maxAge: 3600)
