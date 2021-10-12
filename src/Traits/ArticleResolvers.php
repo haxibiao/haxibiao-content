@@ -58,16 +58,18 @@ trait ArticleResolvers
 
     public function createContent($root, array $args, $context)
     {
-        if (in_array(config('app.name'), ['dongmeiwei', 'yinxiangshipin', 'caohan'])) {
-            $islegal = SensitiveFacade::islegal(Arr::get($args, 'body'));
-            if ($islegal) {
-                throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
-            }
-        } else {
-            if (BadWordUtils::check(Arr::get($args, 'body'))) {
-                throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
-            }
-        }
+        // if (in_array(config('app.name'), ['dongmeiwei', 'yinxiangshipin', 'caohan'])) {
+            // $islegal = SensitiveFacade::islegal(Arr::get($args, 'body'));
+            // if ($islegal) {
+            //     throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+            // }
+        // } else {
+        //     if (BadWordUtils::check(Arr::get($args, 'body'))) {
+        //         throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+        //     }
+        // }
+        throw_if(SensitiveFacade::islegal(Arr::get($args, 'body')),GQLException::class,'发布的内容中含有包含非法内容,请删除后再试!');
+
         //参数格式化
         $inputs = [
             'body'         => Arr::get($args, 'body'),
@@ -294,16 +296,17 @@ trait ArticleResolvers
         $description = str_replace(['#在抖音，记录美好生活#', '@抖音小助手', '#抖音小助手', '抖音', 'dou', 'Dou', 'DOU', '抖音助手'], '', $description);
         $description = trim($description);
 
-        if (in_array(config('app.name'), ['dongmeiwei'])) {
-            $islegal = SensitiveFacade::islegal(Arr::get($description, 'body'));
-            if ($islegal) {
-                throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
-            }
-        } else {
-            if (BadWordUtils::check(Arr::get($description, 'body'))) {
-                throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
-            }
-        }
+        // if (in_array(config('app.name'), ['dongmeiwei'])) {
+        //     $islegal = SensitiveFacade::islegal(Arr::get($description, 'body'));
+        //     if ($islegal) {
+        //         throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+        //     }
+        // } else {
+        //     if (BadWordUtils::check(Arr::get($description, 'body'))) {
+        //         throw new GQLException('发布的内容中含有包含非法内容,请删除后再试!');
+        //     }
+        // }
+        throw_if(SensitiveFacade::islegal(Arr::get($description, 'body')),GQLException::class,'发布的内容中含有包含非法内容,请删除后再试!');
 
         return $description;
     }
