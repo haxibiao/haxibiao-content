@@ -7,7 +7,6 @@ use App\Image;
 use App\Visit;
 use GraphQL\Type\Definition\ResolveInfo;
 use Haxibiao\Breeze\Exceptions\GQLException;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
@@ -206,7 +205,7 @@ trait CollectionResolvers
         return $qb;
     }
     /**
-     * 随机推荐的一组集合
+     * 随机推荐的一组合集
      */
     public function resolveRandomCollections($rootValue, $args, $context, $resolveInfo)
     {
@@ -214,26 +213,23 @@ trait CollectionResolvers
         $perPage     = data_get($args, 'count');
 
         //过滤掉推荐列表中的集合
-        $qb = Collection::where(function ($query) {
-            $query->whereNull('sort_rank')
-                ->orWhere('sort_rank', 0);});
-        // $qb = Collection::whereNull('sort_rank')->orWhere('sort_rank', 0);
+        //FIXME: 不推荐的合集，sort_rank字段留null
+        $qb = Collection::whereNull('sort_rank');
 
         //登录用户
-        if (currentUser()) {
-            $user = getUser(false);
-            //过滤掉自己 和 不喜欢用户的作品
-            if (class_exists("App\Dislike")) {
-                $notLikIds   = $user->dislikes()->ByType('users')->get()->pluck('dislikeable_id')->toArray();
-                $notLikIds[] = $user->id;
-                $qb          = $qb->whereNotIn('user_id', $notLikIds);
-            }
+        if ($user = currentUser()) {
+            //过滤掉自己 和 不喜欢用户的作品 - 暂时考虑性能不开启...
+            // if (class_exists("App\Dislike")) {
+            //     $notLikIds   = $user->dislikes()->ByType('users')->get()->pluck('dislikeable_id')->toArray();
+            //     $notLikIds[] = $user->id;
+            //     $qb          = $qb->whereNotIn('user_id', $notLikIds);
+            // }
         }
         //动态数量大于三的
         $qb = $qb->where('count_posts', '>=', 3);
-        //过滤掉合集封面为默认封面的
-        $qb = $qb->whereNotNull('logo')
-            ->where('logo', '!=', config('haxibiao-content.collection_default_logo'));
+        //过滤掉合集封面为空封面的
+        //FIXME: 注意性能 以后默认数据不写入db，没有封面就null
+        $qb = $qb->whereNotNull('logo');
 
         //按照合集创建时间排序
         $qb = $qb->latest();
@@ -244,7 +240,7 @@ trait CollectionResolvers
         $array = $qb
             ->skip(($currentPage * $perPage) - $perPage)
             ->take($perPage)
-            ->orderBy('created_at', 'desc')
+            ->latest('id') //id必定有聚集索引，性能优化
             ->get();
 
         $collections = new \Illuminate\Pagination\LengthAwarePaginator(
@@ -284,9 +280,9 @@ trait CollectionResolvers
 
         $result = [];
 
-        if(!$topCollection){
+        if (!$topCollection) {
             $topCover = null;
-        }else{
+        } else {
             $topCover = $topCollection->logo;
         }
 
