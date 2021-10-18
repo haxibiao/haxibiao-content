@@ -4,8 +4,47 @@ use App\Article;
 use App\Category;
 use App\Movie;
 use Haxibiao\Content\Post;
+use Haxibiao\Media\SearchLog;
+use Haxibiao\Sns\Query;
+use Haxibiao\Sns\Querylog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+
+function save_searched_keyword($keyword, $total = 0)
+{
+    //保存全局搜索热词
+    $query_item = Query::firstOrNew([
+        'query' => $keyword,
+    ]);
+    $query_item->results = $total;
+    $query_item->hits++;
+    $query_item->save();
+
+    //保存个人搜索记录
+    if ($user_id = getUserId()) {
+        $query_log = Querylog::firstOrNew([
+            'user_id' => $user_id,
+            'query'   => $keyword,
+        ]);
+        $query_log->save();
+    }
+
+    //兼容做长视频的时候，做的搜索记录功能
+    if ($user = currentUser()) {
+        $log = SearchLog::firstOrNew([
+            'keyword' => $keyword,
+            'user_id' => $user->id,
+        ]);
+    } else {
+        $log = SearchLog::firstOrNew([
+            'keyword' => $keyword,
+        ]);
+    }
+    if (isset($log->id)) {
+        $log->increment('count');
+    }
+    $log->save();
+}
 
 if (!function_exists('content_path')) {
     function content_path($path)
