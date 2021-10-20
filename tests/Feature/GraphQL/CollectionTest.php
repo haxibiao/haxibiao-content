@@ -38,7 +38,7 @@ class CollectionTest extends GraphQLTestCase
      * @group testCollectionPostsQuery
      */
     public function testCollectionPostsQuery(){
-        $query     = file_get_contents(__DIR__ . '/Collection/collectionPostsQuery.gql');
+        $query     = file_get_contents(__DIR__ . '/CollectionGraphql/collectionPostsQuery.gql');
         $variables = [
             'collection_id' => $this->collection->id,
         ];
@@ -51,7 +51,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testCollectionsQuery()
     {
-        $query     = file_get_contents(__DIR__ . '/Collection/collectionsQuery.gql');
+        $query     = file_get_contents(__DIR__ . '/CollectionGraphql/collectionsQuery.gql');
         $variables = [
             'user_id' => $this->user->id,
         ];
@@ -66,7 +66,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testCollectionQuery()
     {
-        $query      = file_get_contents(__DIR__ . '/Collection/collectionQuery.gql');
+        $query      = file_get_contents(__DIR__ . '/CollectionGraphql/collectionQuery.gql');
         $collection = $this->collection;
         $variables  = [
             'collection_id' => $collection->id,
@@ -81,7 +81,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testMoveInCollectionsMutation()
     {
-        $query      = file_get_contents(__DIR__ . '/Collection/moveInCollectionsMutation.gql');
+        $query      = file_get_contents(__DIR__ . '/CollectionGraphql/moveInCollectionsMutation.gql');
         $collection = $this->collection;
         $post       = $this->post;
         $variables  = [
@@ -99,7 +99,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testMoveOutCollectionsMutation()
     {
-        $queryIn     = file_get_contents(__DIR__ . '/Collection/moveInCollectionsMutation.gql');
+        $queryIn     = file_get_contents(__DIR__ . '/CollectionGraphql/moveInCollectionsMutation.gql');
         $userHeaders = $this->getRandomUserHeaders($this->user);
         $collection  = $this->collection;
         //往合集中添加视频
@@ -110,7 +110,7 @@ class CollectionTest extends GraphQLTestCase
         ];
         $this->startGraphQL($queryIn, $variablesIn, $userHeaders);
         //将视频从合集中移除
-        $queryOut     = file_get_contents(__DIR__ . '/Collection/moveOutCollectionsMutation.gql');
+        $queryOut     = file_get_contents(__DIR__ . '/CollectionGraphql/moveOutCollectionsMutation.gql');
         $post         = $collection->posts()->first();
         $variablesOut = [
             "collection_id"   => $collection->id,
@@ -126,7 +126,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testRandomCollectionsMutation()
     {
-        $query       = file_get_contents(__DIR__ . '/Collection/randomCollectionsQuery.gql');
+        $query       = file_get_contents(__DIR__ . '/CollectionGraphql/randomCollectionsQuery.gql');
         $userHeaders = $this->getRandomUserHeaders($this->user);
         $variables   = [];
         // 登陆
@@ -142,7 +142,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testSearchCollectionsQuery()
     {
-        $query       = file_get_contents(__DIR__ . '/Collection/searchCollectionsQuery.gql');
+        $query       = file_get_contents(__DIR__ . '/CollectionGraphql/searchCollectionsQuery.gql');
         $userHeaders = $this->getRandomUserHeaders($this->user);
         $collection  = $this->collection;
         $variables   = [
@@ -158,7 +158,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testDeleteCollectionMutation()
     {
-        $query       = file_get_contents(__DIR__ . '/Collection/DeleteCollectionMutation.gql');
+        $query       = file_get_contents(__DIR__ . '/CollectionGraphql/DeleteCollectionMutation.gql');
         $userHeaders = $this->getRandomUserHeaders($this->user);
         $collection  = $this->collection;
         $variables   = [
@@ -174,7 +174,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testEditCollectionMutation()
     {
-        $query      = file_get_contents(__DIR__ . '/Collection/editCollectionMutation.gql');
+        $query      = file_get_contents(__DIR__ . '/CollectionGraphql/editCollectionMutation.gql');
         $collection = $this->collection;
         $variables  = [
             "collection_id" => $collection->id,
@@ -191,7 +191,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testCreateCollectionMutation()
     {
-        $query       = file_get_contents(__DIR__ . '/Collection/createCollectionMutation.gql');
+        $query       = file_get_contents(__DIR__ . '/CollectionGraphql/createCollectionMutation.gql');
         $userHeaders = $this->getRandomUserHeaders($this->user);
         $post        = $this->post;
         //创建时添加合集
@@ -214,7 +214,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testShareCollectionQuery()
     {
-        $query       = file_get_contents(__DIR__ . '/Collection/shareCollectionQuery.gql');
+        $query       = file_get_contents(__DIR__ . '/CollectionGraphql/shareCollectionQuery.gql');
         $collection  = $this->collection;
         $userHeaders = $this->getRandomUserHeaders($this->user);
         $variables   = [
@@ -229,7 +229,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testTypeCollectionsQuery()
     {
-        $query = file_get_contents(__DIR__ . '/Collection/typeCollectionsQuery.gql');
+        $query = file_get_contents(__DIR__ . '/CollectionGraphql/typeCollectionsQuery.gql');
 
         // POST @enum(value: "psots")
         $variables = [
@@ -260,7 +260,7 @@ class CollectionTest extends GraphQLTestCase
      */
     public function testRecommendCollectionsQuery(){
 
-        $query       = file_get_contents(__DIR__ . '/Collection/recommendCollectionsQuery.gql');
+        $query       = file_get_contents(__DIR__ . '/CollectionGraphql/recommendCollectionsQuery.gql');
         $userHeaders = $this->getRandomUserHeaders($this->user);
         $variables   = [];
         // 登陆

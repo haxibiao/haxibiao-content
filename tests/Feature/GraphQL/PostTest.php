@@ -50,7 +50,7 @@ class PostTest extends GraphQLTestCase
      */
     public function testPostsQuery()
     {
-        $query     = file_get_contents(__DIR__ . '/Post/postsQuery.graphql');
+        $query     = file_get_contents(__DIR__ . '/PostGraphql/postsQuery.graphql');
         $variables = [
             "user_id" => $this->user->id,
         ];
@@ -64,7 +64,7 @@ class PostTest extends GraphQLTestCase
      */
     public function testPostWithMoviesQuery()
     {
-        $query     = file_get_contents(__DIR__ . '/Post/postWithMoviesQuery.graphql');
+        $query     = file_get_contents(__DIR__ . '/PostGraphql/postWithMoviesQuery.graphql');
         // 未登陆
         $variables = [];
         $this->startGraphQL($query, $variables,[]);
@@ -82,7 +82,7 @@ class PostTest extends GraphQLTestCase
      */
     public function testUserPostsQuery()
     {
-        $query     = file_get_contents(__DIR__ . '/Post/userPostsQuery.graphql');
+        $query     = file_get_contents(__DIR__ . '/PostGraphql/userPostsQuery.graphql');
         $variables = [
             "user_id" => $this->user->id,
         ];
@@ -96,7 +96,7 @@ class PostTest extends GraphQLTestCase
      */
     public function testUserVisitsQuery()
     {
-        $query     = file_get_contents(__DIR__ . '/Post/userVisitsQuery.graphql');
+        $query     = file_get_contents(__DIR__ . '/PostGraphql/userVisitsQuery.graphql');
         $variables = [
             "user_id" => $this->user->id,
         ];
@@ -111,7 +111,7 @@ class PostTest extends GraphQLTestCase
     public function testVisitShareablebyUuid()
     {   
         $headers = $this->getRandomUserHeaders($this->user);
-        $query     = file_get_contents(__DIR__ . '/Post/VisitShareablebyUuid.graphql');
+        $query     = file_get_contents(__DIR__ . '/PostGraphql/VisitShareablebyUuid.graphql');
         $variables = [
             "id" => $this->share->uuid,
         ];
@@ -125,7 +125,7 @@ class PostTest extends GraphQLTestCase
      */
     public function testRecommendPostsQuery()
     {
-        $query     = file_get_contents(__DIR__ . '/Post/recommendPostsQuery.graphql');
+        $query     = file_get_contents(__DIR__ . '/PostGraphql/recommendPostsQuery.graphql');
         $variables = [];
         $this->startGraphQL($query, $variables);
     }
@@ -137,7 +137,7 @@ class PostTest extends GraphQLTestCase
      */
     public function testPostQuery()
     {
-        $query = file_get_contents(__DIR__ . '/Post/postQuery.graphql');
+        $query = file_get_contents(__DIR__ . '/PostGraphql/postQuery.graphql');
         $variables = [
             'id' => $this->post->id,
         ];
@@ -151,7 +151,7 @@ class PostTest extends GraphQLTestCase
     public function testPublicPostsQuery()
     {
         $user      = $this->user;
-        $query     = file_get_contents(__DIR__ . '/Post/publicPostsQuery.graphql');
+        $query     = file_get_contents(__DIR__ . '/PostGraphql/publicPostsQuery.graphql');
         $headers   = [];
         $variables = [
             'user_id' => $user->id,
@@ -165,7 +165,7 @@ class PostTest extends GraphQLTestCase
      */
     public function testPostByVidQuery()
     {
-        $query     = file_get_contents(__DIR__ . '/Post/postByVidQuery.graphql');
+        $query     = file_get_contents(__DIR__ . '/PostGraphql/postByVidQuery.graphql');
         $headers   = $this->getRandomUserHeaders($this->user);
         $variables = [
             'id' => $this->video->vid ?? 'v0200f060000bs4pa76ob758ea45jsrg',
@@ -180,7 +180,7 @@ class PostTest extends GraphQLTestCase
     public function testShareNewPostQuery()
     {
         $post      = $this->post;
-        $query     = file_get_contents(__DIR__ . '/Post/shareNewPostQuery.graphql');
+        $query     = file_get_contents(__DIR__ . '/PostGraphql/shareNewPostQuery.graphql');
         $headers   = [];
         $variables = [
             'id' => $this->post->id,
@@ -196,7 +196,7 @@ class PostTest extends GraphQLTestCase
     public function testCreatePostContentMutation()
     {
         $token = $this->user->api_token;
-        $query   = file_get_contents(__DIR__ . '/Post/createPostContentMutation.graphql');
+        $query   = file_get_contents(__DIR__ . '/PostGraphql/createPostContentMutation.graphql');
         $headers = [
             'Authorization' => 'Bearer ' . $token,
             'Accept'        => 'application/json',
@@ -231,7 +231,7 @@ class PostTest extends GraphQLTestCase
      */
     public function testDeletePostMutation()
     {
-        $query = file_get_contents(__DIR__ . '/Post/deletePostMutation.graphql');
+        $query = file_get_contents(__DIR__ . '/PostGraphql/deletePostMutation.graphql');
         $headers = $this->getRandomUserHeaders($this->user);
         $variables = [
             'id' => $this->post->id,
@@ -248,7 +248,7 @@ class PostTest extends GraphQLTestCase
     {
         $token   = $this->user->api_token;
         $post    = $this->post;
-        $query   = file_get_contents(__DIR__ . '/Post/updatePostMutation.graphql');
+        $query   = file_get_contents(__DIR__ . '/PostGraphql/updatePostMutation.graphql');
         $headers = [
             'Authorization' => 'Bearer ' . $token,
             'Accept'        => 'application/json',
@@ -269,7 +269,7 @@ class PostTest extends GraphQLTestCase
      */
     public function testFastRecommendPostsQuery()
     {
-        $query = file_get_contents(__DIR__ .'/Post/fastRecommendPostsQuery.graphql');
+        $query = file_get_contents(__DIR__ .'/PostGraphql/fastRecommendPostsQuery.graphql');
         $headers = $this->getRandomUserHeaders($this->user);
         $this->startGraphQL($query,[],$headers);
 
