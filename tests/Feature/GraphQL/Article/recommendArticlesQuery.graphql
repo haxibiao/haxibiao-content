@@ -1,4 +1,4 @@
-# 19年工厂APP的动态广场
+# 推荐文章
 query recommendArticlesQuery($page: Int) {
     recommendArticles(page: $page) {
         paginatorInfo {

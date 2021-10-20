@@ -1,32 +1,38 @@
+#import "./collectionFragment.graphql"
+
 # 个人合集
-query collectionsQuery($user_id: Int!, $count: Int, $page: Int) {
-    collections(user_id: $user_id, count: $count, page: $page) {
+query collectionsQuery($user_id: Int!, $page: Int) {
+    collections(user_id: $user_id, page: $page) {
         paginatorInfo {
             currentPage
             hasMorePages
         }
         data {
-            id
-            logo
-            name
-            description
-            count_articles
-            count_follows
-            count_posts
-            count_views
-            updated_to_episode
-            followed
-            user {
-                id
-                name
-                avatar
-            }
-            movies {
-                id
-                name
-                introduction
-                cover
-            }
+            ...collectionFragment
         }
+    }
+}
+
+fragment collectionFragment on Collection {
+    id
+    logo
+    name
+    description
+    count_articles
+    count_follows
+    count_posts
+    count_views
+    updated_to_episode
+    followed
+    user {
+        id
+        name
+        avatar
+    }
+    movie {
+        id
+        name
+        introduction
+        cover
     }
 }

@@ -1,0 +1,4 @@
+# 待审批“加盟通知”的数量
+query pendingApprovalAmountQuery {
+    leagueOfMeetupApprovalAmount
+}

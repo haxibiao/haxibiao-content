@@ -1,0 +1,53 @@
+#import "./articleFragment.graphql"
+
+# 推荐文章
+query articlesQuery($user_id: Int, $category_id: Int, $page: Int) {
+    articles(user_id: $user_id, category_id: $category_id, page: $page) {
+        paginatorInfo {
+            currentPage
+            hasMorePages
+        }
+        data {
+            ...articleFragment
+        }
+    }
+}
+
+fragment articleFragment on Article {
+    id
+    type
+    body
+    title
+    description
+    created_at
+    cover
+    hits
+    count_likes
+    count_comments
+    count_tips
+    liked
+    user {
+        avatar
+        name
+        id
+    }
+    category {
+        id
+        name
+        logo
+    }
+    images {
+        id
+        url
+        width
+        height
+    }
+    video {
+        id
+        url
+        duration
+        width
+        height
+        cover
+    }
+}

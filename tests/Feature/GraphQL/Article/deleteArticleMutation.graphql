@@ -1,5 +1,5 @@
 # 删除
-mutation deleteArticle($id: Int!) {
+mutation deleteArticleMutation($id: Int!) {
     deleteArticle(id: $id) {
         id
     }

@@ -19,15 +19,28 @@ class PostTest extends GraphQLTestCase
     protected $user;
     protected $post;
     protected $video;
+    protected $sharer;
+    protected $share;
 
     public function setUp(): void
     {
         parent::setUp();
         $this->user  = User::factory()->create();
         $this->video = Video::factory()->create();
+
         $this->post  = Post::factory([
             'video_id' => $this->video->id,
         ])->create();
+
+        $this->sharer  = User::factory()->create();
+        $this->share = Share::factory()->create([
+            'user_id'       => $this->sharer->id,
+            'active'        => true,
+            'shareable_type'=> $this->post->getMorphClass(),
+            'shareable_id'  => $this->post->id,
+            'expired_at'    => Carbon::now()->addDay(),
+            'uuid'          => Uuid::uuid4()->getHex(),
+        ]);
     }
 
     /**
@@ -52,33 +65,15 @@ class PostTest extends GraphQLTestCase
     public function testPostWithMoviesQuery()
     {
         $query     = file_get_contents(__DIR__ . '/Post/postWithMoviesQuery.graphql');
-
         // 未登陆
         $variables = [];
         $this->startGraphQL($query, $variables,[]);
-
+        
         // 登陆
         $headers = $this->getRandomUserHeaders($this->user);
         $this->startGraphQL($query, $variables,$headers);
     }
 
-    /**
-     * 推荐视频
-     * @group post
-     * @group testPublicVideosQuery
-     */
-    public function testPublicVideosQuery()
-    {
-        $query     = file_get_contents(__DIR__ . '/Post/publicVideosQuery.graphql');
-
-        // 未登陆
-        $variables = [];
-        $this->startGraphQL($query, $variables,[]);
-
-        // 登陆
-        $headers = $this->getRandomUserHeaders($this->user);
-        $this->startGraphQL($query, $variables,$headers);
-    }
 
     /**
      * 用户发布视频动态
@@ -96,7 +91,6 @@ class PostTest extends GraphQLTestCase
 
     /**
      * 浏览记录
-     *
      * @group post
      * @group testUserVisitsQuery
      */
@@ -111,35 +105,21 @@ class PostTest extends GraphQLTestCase
 
     /**
      * 浏览记录
-     *
      * @group post
      * @group testVisitShareablebyUuid
      */
     public function testVisitShareablebyUuid()
-    {
-        $sharer  = User::factory()->create();
+    {   
         $headers = $this->getRandomUserHeaders($this->user);
-        $post   = Post::factory()->create();
-
-        $share = Share::factory()->create([
-            'user_id'       => $sharer->id,
-            'active'        => true,
-            'shareable_type'=> $post->getMorphClass(),
-            'shareable_id'  => $post->id,
-            'expired_at'    => Carbon::now()->addDay(),
-            'uuid'          => Uuid::uuid4()->getHex(),
-        ]);
-
         $query     = file_get_contents(__DIR__ . '/Post/VisitShareablebyUuid.graphql');
         $variables = [
-            "uuid" => $share->uuid,
+            "id" => $this->share->uuid,
         ];
         $this->startGraphQL($query, $variables,$headers);
     }
 
     /**
      * 推荐视频列表
-     *
      * @group post
      * @group testRecommendPostsQuery
      */
@@ -152,18 +132,15 @@ class PostTest extends GraphQLTestCase
 
     /**
      * 视频详情
-     *
      * @group post
      * @group testPostQuery
      */
     public function testPostQuery()
     {
         $query = file_get_contents(__DIR__ . '/Post/postQuery.graphql');
-
         $variables = [
             'id' => $this->post->id,
         ];
-
         $this->startGraphQL($query, $variables);
     }
 
@@ -189,9 +166,9 @@ class PostTest extends GraphQLTestCase
     public function testPostByVidQuery()
     {
         $query     = file_get_contents(__DIR__ . '/Post/postByVidQuery.graphql');
-        $headers   = [];
+        $headers   = $this->getRandomUserHeaders($this->user);
         $variables = [
-            'vid' => $this->video->vid ?: 'v0200f060000bs4pa76ob758ea45jsrg',
+            'id' => $this->video->vid ?? 'v0200f060000bs4pa76ob758ea45jsrg',
         ];
         $this->startGraphQL($query, $variables, $headers);
     }
@@ -212,28 +189,7 @@ class PostTest extends GraphQLTestCase
     }
 
     /**
-     * ========================================================================
-     * ============================Mutation=======================++===========
-     * ========================================================================
-     *  */
-
-    /**
-     * @group  post
-     * @group  createSeekMovieMutation
-     */
-    public function testCreateSeekMovieMutation()
-    {
-        $query   = file_get_contents(__DIR__ . '/Post/createSeekMovieMutation.graphql');
-        $headers = $this->getRandomUserHeaders($this->user);
-        $variables = [
-            'name'          => '独孤九剑',
-            'description'   => '求高清资源',
-            // 注释的原因：GQL后台测试正常，跑UT就报错
-            //'images' => [$this->getBase64ImageString()]
-        ];
-        $this->startGraphQL($query, $variables, $headers);
-    }
-    /**
+     * 发布动态
      * @group  post
      * @group  testCreatePostContentMutation
      */
@@ -269,22 +225,19 @@ class PostTest extends GraphQLTestCase
     }
 
     /**
-     * 抖音解析接口
-     * @group  post
-     * @group  testResolveDouyinVideo
+     * 删除动态
+     * @group post
+     * @group testDeletePostMutation
      */
-    public function testResolveDouyinVideo()
+    public function testDeletePostMutation()
     {
-        $user = $this->user;
-        //确保后面UT不重复
-        $headers      = $this->getRandomUserHeaders($user);
-        $query     = file_get_contents(__DIR__ . '/Post/resolveDouyinVideoMutation.graphql');
+        $query = file_get_contents(__DIR__ . '/Post/deletePostMutation.graphql');
+        $headers = $this->getRandomUserHeaders($this->user);
         $variables = [
-            'share_link' => "#在抖音，记录美好生活#美元如何全球褥羊毛？经济危机下，2万亿救市的深层动力，你怎么看？#经济 #教育#云上大课堂 #抖音小助手 https://v.douyin.com/vruTta/ 复制此链接，打开【抖音短视频】，直接观看视频！",
+            'id' => $this->post->id,
         ];
-
-        $this->startGraphQL($query, $variables, $headers);
-    }
+        $this->startGraphQL($query,$variables,$headers);
+    } 
 
     /**
      * 编辑动态
@@ -308,6 +261,22 @@ class PostTest extends GraphQLTestCase
         ];
         $this->startGraphQL($query, $variables, $headers);
     }
+
+    /**
+     * 推荐视频(快速版)
+     * @group post
+     * @group testFastRecommendPostsQuery
+     */
+    public function testFastRecommendPostsQuery()
+    {
+        $query = file_get_contents(__DIR__ .'/Post/fastRecommendPostsQuery.graphql');
+        $headers = $this->getRandomUserHeaders($this->user);
+        $this->startGraphQL($query,[],$headers);
+
+        $headers = $this->getRandomUserHeaders($this->user);
+        $this->startGraphQL($query,[],[]);
+    }
+
 
     protected function tearDown(): void
     {

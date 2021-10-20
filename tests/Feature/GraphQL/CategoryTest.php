@@ -6,6 +6,7 @@ use App\Category;
 use App\User;
 use Haxibiao\Breeze\GraphQLTestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use ReflectionFunctionAbstract;
 use Tests\CreatesApplication;
 
 class CategoryTest extends GraphQLTestCase
@@ -57,6 +58,41 @@ class CategoryTest extends GraphQLTestCase
             'filter' => "other",
         ];
         $this->startGraphQL($query, $variables);
+    }
+
+    /**
+     * 推荐文章的专题分类
+     * @group category
+     * @group testArticleCategoriesQuery
+     */
+    public function testArticleCategoriesQuery()
+    {
+        $query = file_get_contents(__DIR__ . '/Category/articleCategoriesQuery.graphql');
+        $headers = $this->getRandomUserHeaders($this->user);
+        $variables = [
+            'page' => 1,
+        ];
+        $this->startGraphQL($query,$variables,$headers);
+    }
+
+    /**
+     * 按组分类的专题列表
+     * @group category
+     * @group testFilteredCategoriesQuery
+     */
+    public function testFilteredCategoriesQuery()
+    {
+        $query = file_get_contents(__DIR__ . '/Category/filteredCategoriesQuery.graphql');
+        $headers = $this->getRandomUserHeaders($this->user);
+        $variables = [
+            'filter' => 'hot'
+        ];
+        $this->startGraphQL($query,$variables,$headers);
+
+        $variables = [
+            'filter' => 'other'
+        ];
+        $this->startGraphQL($query,$variables,$headers);
     }
 
     protected function tearDown(): void

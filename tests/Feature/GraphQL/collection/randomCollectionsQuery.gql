@@ -1,33 +1,38 @@
-# 随机的集合列表
+#import "./collectionFragment.graphql"
+
 # 随机推荐合集
-query randomCollectionsQuery($page: Int, $count: Int) {
-    randomCollections(page: $page, count: $count) {
+query randomCollectionsQuery($page: Int) {
+    randomCollections(page: $page) {
         paginatorInfo {
             hasMorePages
             currentPage
         }
         data {
-            id
-            logo
-            name
-            description
-            count_articles
-            count_follows
-            count_posts
-            count_views
-            updated_to_episode
-            followed
-            user {
-                id
-                name
-                avatar
-            }
-            movies {
-                id
-                name
-                introduction
-                cover
-            }
+            ...collectionFragment
         }
+    }
+}
+
+fragment collectionFragment on Collection {
+    id
+    logo
+    name
+    description
+    count_articles
+    count_follows
+    count_posts
+    count_views
+    updated_to_episode
+    followed
+    user {
+        id
+        name
+        avatar
+    }
+    movie {
+        id
+        name
+        introduction
+        cover
     }
 }

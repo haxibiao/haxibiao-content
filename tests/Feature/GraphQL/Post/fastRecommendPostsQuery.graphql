@@ -1,0 +1,114 @@
+# 推荐视频(快速版)
+query fastRecommendPostsQuery {
+  fastRecommendPosts {
+    id
+    media_type
+    description
+    status
+    liked
+    count_visits
+    count_likes
+    count_comments
+    review_id
+    review_day
+    is_ad
+    created_at
+    current_episode
+    user {
+      id
+      age
+      name
+      avatar
+      introduction
+      gender
+      followed_status
+      count_articles
+      count_followings
+      count_followers
+    }
+    tag_names
+    video {
+      id
+      url
+      cover
+      dynamic_cover
+      duration
+      width
+      height
+      isHd
+      json
+    }
+    images {
+      url
+      width
+      height
+      id
+    }
+    audio {
+      id
+      url
+      name
+    }
+    movie {
+      id
+      name
+      introduction
+      cover
+    }
+    store {
+      id
+      name
+      description
+      logo
+      work_time
+      phone_number
+      wechat_number
+      location {
+        id
+        address
+        description
+      }
+    }
+    meetup {
+      id
+      title
+      description
+      expires_at
+      address
+      images {
+        id
+        url
+      }
+      user {
+        id
+        name
+        avatar
+        phone
+        wallet {
+          id
+          platforms {
+            wechat
+          }
+        }
+      }
+    }
+    collection {
+      id
+      logo
+      name
+      description
+      updated_to_episode
+      user {
+        id
+        name
+        avatar
+      }
+      movie {
+        id
+        name
+        introduction
+        cover
+      }
+    }
+  }
+}

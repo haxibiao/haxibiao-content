@@ -1,11 +1,7 @@
-#影视动态刷
+#推荐-影视短视频动态(快速版)
 query postWithMoviesQuery {
     postWithMovies {
         id
-        spider {
-            id
-        }
-        content
         description
         status
         liked
@@ -21,23 +17,8 @@ query postWithMoviesQuery {
             id
             name
             avatar
-            followed_status
-            gender
-            age
-            introduction
         }
-        tags {
-            data {
-                id
-                name
-            }
-        }
-        images {
-            id
-            url
-            width
-            height
-        }
+        tag_names
         video {
             id
             url
@@ -46,14 +27,39 @@ query postWithMoviesQuery {
             duration
             width
             height
+            isHd
+            json
         }
-        movies {
+        movie {
             id
             name
             introduction
             cover
         }
-        collections{
+        meetup {
+            id
+            title
+            description
+            expires_at
+            address
+            images {
+                id
+                url
+            }
+            user {
+                id
+                name
+                avatar
+                phone
+                wallet {
+                    id
+                    platforms {
+                        wechat
+                    }
+                }
+            }
+        }
+        collection {
             id
             logo
             name
@@ -63,13 +69,12 @@ query postWithMoviesQuery {
             count_posts
             count_views
             updated_to_episode
-            followed
             user {
                 id
                 name
                 avatar
             }
-            movies {
+            movie {
                 id
                 name
                 introduction

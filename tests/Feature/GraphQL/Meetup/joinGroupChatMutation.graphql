@@ -1,0 +1,40 @@
+#import '../sns/chat/chatFragment.graphql'
+
+# 加入约单群聊
+mutation joinGroupChatMutation($meetup_id: Int) {
+    joinGroupChatByMeetupId(meetup_id: $meetup_id) {
+        ...chatFragment
+    }
+}
+
+
+fragment chatFragment on Chat {
+    id
+    subject
+    icon
+    unreads
+    time_ago
+    updated_at
+    lastMessage {
+        id
+        message
+    }
+    user {
+        id
+        name
+        avatar
+    }
+    users {
+        id
+        name
+        avatar
+    }
+    withUser {
+        id
+        name
+        avatar
+        gender
+        age
+    }
+    type
+}

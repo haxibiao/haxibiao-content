@@ -1,79 +1,107 @@
-query postByVid($vid: String!) {
-    postByVid(vid: $vid) {
-        id
-        spider {
-            id
+#import "./postFragment.graphql"
+#import "../../content/collection/collectionFragment.graphql"
+
+query postByVidQuery($id: String!) {
+    postByVid(vid: $id) {
+        ...postFragment
+        collections {
+            ...collectionFragment
         }
-        content
-        description
-        status
-        liked
-        count_visits
-        count_likes
-        count_comments
-        review_id
-        review_day
-        is_ad
-        created_at
-        current_episode
+    }
+}
+
+fragment postFragment on Post {
+    id
+    spider {
+        id
+    }
+    description
+    cover
+    status
+    media_type
+    liked
+    count_visits
+    count_likes
+    count_comments
+    review_id
+    review_day
+    is_ad
+    created_at
+    current_episode
+    user {
+        id
+        name
+        avatar
+        followed_status
+        gender
+        age
+        introduction
+    }
+    tag_names
+    categories {
+        id
+        name
+        logo
+    }
+    images {
+        id
+        url
+        width
+        height
+    }
+    video {
+        id
+        url
+        cover
+        dynamic_cover
+        duration
+        width
+        height
+        isHd
+        json
+    }
+    movie {
+        id
+        name
+        introduction
+        cover
+    }
+    audio {
+        id
         user {
             id
             name
             avatar
-            followed_status
-            gender
-            age
-            introduction
         }
-        tags {
-            data {
-                id
-                name
-            }
-        }
-        images {
-            id
-            url
-            width
-            height
-        }
-        video {
-            id
-            url
-            cover
-            dynamic_cover
-            duration
-            width
-            height
-        }
-        movies {
-            id
-            name
-            introduction
-            cover
-        }
-        collections{
-            id
-            logo
-            name
-            description
-            count_articles
-            count_follows
-            count_posts
-            count_views
-            updated_to_episode
-            followed
-            user {
-                id
-                name
-                avatar
-            }
-            movies {
-                id
-                name
-                introduction
-                cover
-            }
-        }
+        name
+        url
+        duration
+        duration_ms
+        play_time
     }
 }
+
+fragment collectionFragment on Collection {
+    id
+    logo
+    name
+    description
+    count_articles
+    count_follows
+    count_posts
+    count_views
+    updated_to_episode
+    followed
+    user {
+        id
+        name
+        avatar
+    }
+    movie {
+        id
+        name
+        introduction
+        cover
+    }
+}
+

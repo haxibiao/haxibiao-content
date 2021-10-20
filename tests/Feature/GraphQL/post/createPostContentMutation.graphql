@@ -1,3 +1,7 @@
+#import "./postFragment.graphql"
+#import "../../content/collection/collectionFragment.graphql"
+#import "../../meetup/meetupFragment.graphql"
+
 # 发布动态
 # body: 文字描述
 # images: 图片base64
@@ -8,97 +12,178 @@
 # $share_link: 复制的视频分享链接
 # type: 内容的类型
 mutation createPostContent(
-    $body: String!
-    $images: [String!]
-    $video_id: Int
-    $qcvod_fileid: String
-    $tag_names: [String]
-    $share_link: String
-    $collection_ids: [Int!]
+  $body: String!
+  $images: [String!]
+  $video_id: Int
+  $store_id: Int
+  $qcvod_fileid: String
+  $tag_names: [String]
+  $share_link: String
+  $collection_ids: [Int!]
+  $audio_id: Int
+  $meetup_id: Int
 ) {
-    createPostContent(
-        body: $body
-        images: $images
-        video_id: $video_id
-        qcvod_fileid: $qcvod_fileid
-        tag_names: $tag_names
-        share_link: $share_link
-        collection_ids: $collection_ids
-    ) {
+  createPostContent(
+    body: $body
+    images: $images
+    video_id: $video_id
+    store_id: $store_id
+    qcvod_fileid: $qcvod_fileid
+    tag_names: $tag_names
+    share_link: $share_link
+    collection_ids: $collection_ids
+    audio_id: $audio_id
+    meetup_id: $meetup_id
+  ) {
+    ...postFragment
+    meetup {
+      ...meetupFragment
+    }
+    collections {
+      ...collectionFragment
+    }
+  }
+}
+
+fragment postFragment on Post {
+    id
+    spider {
         id
-        spider {
-            id
-        }
-        content
-        description
-        status
-        liked
-        count_visits
-        count_likes
-        count_comments
-        review_id
-        review_day
-        is_ad
-        created_at
-        current_episode
+    }
+    description
+    cover
+    status
+    media_type
+    liked
+    count_visits
+    count_likes
+    count_comments
+    review_id
+    review_day
+    is_ad
+    created_at
+    current_episode
+    user {
+        id
+        name
+        avatar
+        followed_status
+        gender
+        age
+        introduction
+    }
+    tag_names
+    categories {
+        id
+        name
+        logo
+    }
+    images {
+        id
+        url
+        width
+        height
+    }
+    video {
+        id
+        url
+        cover
+        dynamic_cover
+        duration
+        width
+        height
+        isHd
+        json
+    }
+    movie {
+        id
+        name
+        introduction
+        cover
+    }
+    audio {
+        id
         user {
             id
             name
             avatar
-            followed_status
-            gender
-            age
-            introduction
         }
-        tags {
-            data {
-                id
-                name
-            }
+        name
+        url
+        duration
+        duration_ms
+        play_time
+    }
+}
+
+
+fragment meetupFragment on Article {
+    id
+    title
+    description
+    expires_at
+    address
+    images {
+        id
+        url
+    }
+    type
+    price
+    original_price
+    status
+    status_of_join_league
+    count_comments
+    joined
+    registration_has_closed
+    count_participants
+    participants {
+        paginatorInfo {
+            currentPage
+            hasMorePages
         }
-        images {
-            id
-            url
-            width
-            height
-        }
-        video {
-            id
-            url
-            cover
-            dynamic_cover
-            duration
-            width
-            height
-        }
-        movies {
+        data {
             id
             name
-            introduction
-            cover
+            avatar
         }
-        collections {
+    }
+    user {
+        id
+        name
+        avatar
+        age
+        gender_msg
+        phone
+        wallet {
             id
-            logo
-            name
-            description
-            count_articles
-            count_follows
-            count_posts
-            count_views
-            updated_to_episode
-            followed
-            user {
-                id
-                name
-                avatar
-            }
-            movies {
-                id
-                name
-                introduction
-                cover
+            platforms {
+                wechat
             }
         }
     }
 }
+
+fragment collectionFragment on Collection {
+    id
+    logo
+    name
+    description
+    count_articles
+    count_follows
+    count_posts
+    count_views
+    updated_to_episode
+    followed
+    user {
+        id
+        name
+        avatar
+    }
+    movie {
+        id
+        name
+        introduction
+        cover
+    }
+}
+

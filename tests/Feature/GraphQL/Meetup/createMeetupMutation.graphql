@@ -1,0 +1,68 @@
+#import './meetupFragment.graphql'
+
+# 创建约单
+mutation createMeetupMutation(
+    $title: String
+    $description: String
+    $images: [String!]
+    $expires_at: DateTime
+    $address: String
+    $price: Float
+) {
+    createMeetup(
+        title: $title
+        description: $description
+        images: $images
+        expires_at: $expires_at
+        address: $address
+        price: $price
+    ) {
+        ...meetupFragment
+    }
+}
+
+fragment meetupFragment on Article {
+    id
+    title
+    description
+    expires_at
+    address
+    images {
+        id
+        url
+    }
+    type
+    price
+    original_price
+    status
+    status_of_join_league
+    count_comments
+    joined
+    registration_has_closed
+    count_participants
+    participants {
+        paginatorInfo {
+            currentPage
+            hasMorePages
+        }
+        data {
+            id
+            name
+            avatar
+        }
+    }
+    user {
+        id
+        name
+        avatar
+        age
+        gender_msg
+        phone
+        wallet {
+            id
+            platforms {
+                wechat
+            }
+        }
+    }
+}

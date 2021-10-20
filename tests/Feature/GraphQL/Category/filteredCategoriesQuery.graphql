@@ -1,0 +1,12 @@
+# 按组分类的专题列表
+# (ivan:目前懂美味专题分类用)
+query filteredCategoriesQuery($filter: CategoryFilter) {
+    filteredCategories(filter: $filter) {
+        data {
+            id
+            logo
+            name
+            count_articles
+        }
+    }
+}

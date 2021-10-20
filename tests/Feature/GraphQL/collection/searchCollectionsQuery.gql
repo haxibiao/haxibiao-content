@@ -1,6 +1,6 @@
 # 搜索合集
-query searchCollectionsQuery($query: String!, $page: Int, $count: Int) {
-    searchCollections(query: $query, page: $page, count: $count) {
+query searchCollectionsQuery($query: String!, $page: Int) {
+    searchCollections(query: $query, page: $page) {
         paginatorInfo {
             currentPage
             hasMorePages

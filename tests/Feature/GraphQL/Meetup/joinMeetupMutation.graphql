@@ -1,0 +1,7 @@
+# 报名/加入约单
+mutation joinMeetupMutation($id: Int!) {
+    joinMeetup(id: $id) {
+        id
+        joined
+    }
+}

@@ -1,10 +1,28 @@
-query CategoriesQuery($filter: CategoryFilter, $count: Int, $page: Int) {
-  categories(filter: $filter, count: $count, page: $page) {
-    data {
-      id
-      logo
-      name
-      count_articles
+#答题：首页搜索题目默认列表
+query categoriesQuery($page: Int, $first: Int, $keyword: String) {
+    categories(page: $page, first: $first, key_word: $keyword) {
+        paginatorInfo {
+            currentPage
+            hasMorePages
+        }
+        data {
+            id
+            name
+            description
+            icon
+            count
+            parent_id
+            status
+            is_official
+            user_id
+            created_at
+            children {
+                id
+                name
+                icon
+            }
+            answers_count
+            questions_count
+        }
     }
-  }
 }

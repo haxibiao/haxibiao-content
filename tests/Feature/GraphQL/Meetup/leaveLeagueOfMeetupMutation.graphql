@@ -1,0 +1,7 @@
+# 退出联盟
+mutation leaveLeagueOfMeetupMutation($league_id: Int) {
+    leaveLeagueOfMeetup(league_id: $league_id) {
+        id
+        title
+    }
+}

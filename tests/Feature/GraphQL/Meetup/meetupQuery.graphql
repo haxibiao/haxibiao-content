@@ -1,0 +1,79 @@
+#import './meetupFragment.graphql'
+
+# 约单详情
+query meetupQuery($id: Int, $league_id: Int, $page: Int) {
+    meetup(id: $id, league_id: $league_id) {
+        ...meetupFragment
+        meetups(page: $page) {
+            paginatorInfo {
+                currentPage
+                hasMorePages
+            }
+            data {
+                id
+                title
+                description
+                expires_at
+                address
+                images {
+                    id
+                    url
+                }
+                type
+                price
+                original_price
+                status
+                status_of_join_league
+                joined
+                registration_has_closed
+            }
+        }
+    }
+}
+
+fragment meetupFragment on Article {
+    id
+    title
+    description
+    expires_at
+    address
+    images {
+        id
+        url
+    }
+    type
+    price
+    original_price
+    status
+    status_of_join_league
+    count_comments
+    joined
+    registration_has_closed
+    count_participants
+    participants {
+        paginatorInfo {
+            currentPage
+            hasMorePages
+        }
+        data {
+            id
+            name
+            avatar
+        }
+    }
+    user {
+        id
+        name
+        avatar
+        age
+        gender_msg
+        phone
+        wallet {
+            id
+            platforms {
+                wechat
+            }
+        }
+    }
+}
+

@@ -1,0 +1,13 @@
+# 推荐文章的专题分类
+query articleCategoriesQuery($page: Int) {
+	articleCategories(page: $page) {
+		paginatorInfo {
+			hasMorePages
+			currentPage
+		}
+		data {
+			id
+			name
+		}
+	}
+}

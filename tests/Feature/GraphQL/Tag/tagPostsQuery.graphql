@@ -1,12 +1,14 @@
+#import "../../content/post/postFragment.graphql"
+
 # 标签下的内容
-query tagPostsQuery($tag_id: Int!, $page: Int, $count: Int, $order: PostOrderEnum, $visibility: TagVisibilityEnum) {
+query tagPostsQuery($tag_id: Int!, $page: Int, $order: PostOrderEnum, $visibility: TagVisibilityEnum) {
     tag(id: $tag_id) {
         id
         name
         count_posts
         count_plays
         count_views
-        posts(visibility: $visibility, page: $page, count: $count, order: $order) {
+        posts(visibility: $visibility, page: $page, order: $order) {
             paginatorInfo {
                 total
                 currentPage
@@ -14,59 +16,80 @@ query tagPostsQuery($tag_id: Int!, $page: Int, $count: Int, $order: PostOrderEnu
                 hasMorePages
             }
             data {
-                id
-                spider {
-                    id
-                }
-                content
-                description
-                status
-                liked
-                count_visits
-                count_likes
-                count_comments
-                review_id
-                review_day
-                is_ad
-                created_at
-                current_episode
-                user {
-                    id
-                    name
-                    avatar
-                    followed_status
-                    gender
-                    age
-                    introduction
-                }
-                tags {
-                    data {
-                        id
-                        name
-                    }
-                }
-                images {
-                    id
-                    url
-                    width
-                    height
-                }
-                video {
-                    id
-                    url
-                    cover
-                    dynamic_cover
-                    duration
-                    width
-                    height
-                }
-                movies {
-                    id
-                    name
-                    introduction
-                    cover
-                }
+                ...postFragment
             }
         }
     }
 }
+
+fragment postFragment on Post {
+    id
+    spider {
+        id
+    }
+    description
+    cover
+    status
+    media_type
+    liked
+    count_visits
+    count_likes
+    count_comments
+    review_id
+    review_day
+    is_ad
+    created_at
+    current_episode
+    user {
+        id
+        name
+        avatar
+        followed_status
+        gender
+        age
+        introduction
+    }
+    tag_names
+    categories {
+        id
+        name
+        logo
+    }
+    images {
+        id
+        url
+        width
+        height
+    }
+    video {
+        id
+        url
+        cover
+        dynamic_cover
+        duration
+        width
+        height
+        isHd
+        json
+    }
+    movie {
+        id
+        name
+        introduction
+        cover
+    }
+    audio {
+        id
+        user {
+            id
+            name
+            avatar
+        }
+        name
+        url
+        duration
+        duration_ms
+        play_time
+    }
+}
+
