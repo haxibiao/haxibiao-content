@@ -27,17 +27,17 @@ class CategoryController extends Controller
     专题管理列表
      */
     function list(Request $request) {
-        $qb               = Category::where('status', '>=', Category::STATUS_DRAFT)->orderBy('id', 'desc');
+        $qb = Category::where('status', '>=', Category::STATUS_DRAFT)->orderBy('id', 'desc');
         $data['keywords'] = '';
         if ($request->get('q')) {
-            $keywords         = $request->get('q');
+            $keywords = $request->get('q');
             $data['keywords'] = $keywords;
 
             //以下这段很糟糕的写法是因为 order by name asc 无法满足需求
             //如果使用sortBy() 来回调排序的话 无法使用paginate()
             //由于是编辑需求 故简单处理 后期优化
             //精准匹配
-            $accurateCategory         = Category::where('status', '>=', Category::STATUS_DRAFT)->where('name', $keywords)->orderBy('id', 'desc')->paginate(5);
+            $accurateCategory = Category::where('status', '>=', Category::STATUS_DRAFT)->where('name', $keywords)->orderBy('id', 'desc')->paginate(5);
             $data['accurateCategory'] = $accurateCategory;
             //模糊匹配
             $qb = Category::orderBy('name', 'asc')->where('status', '>=', Category::STATUS_DRAFT)
@@ -59,7 +59,7 @@ class CategoryController extends Controller
                 $qb = $qb->where('count', '>=', 0);
                 break;
         }
-        $categories         = $qb->paginate(12);
+        $categories = $qb->paginate(12);
         $data['categories'] = $categories;
         return view('category.list')->withData($data);
     }
@@ -69,7 +69,7 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $qb   = Category::where('status', '>=', Category::STATUS_DRAFT)->orderByDesc('count');
+        $qb = Category::where('status', '>=', Category::STATUS_DRAFT)->orderByDesc('count');
         $type = 'article';
         if ($request->get('type')) {
             $type = $request->get('type');
@@ -166,7 +166,7 @@ class CategoryController extends Controller
         $category->save();
         //子分类
         if (request()->filled('categories')) {
-            $categories   = json_decode($request->categories, true);
+            $categories = json_decode($request->categories, true);
             $category_ids = array_column($categories, 'id');
             Category::whereIn('id', $category_ids)
                 ->update(['parent_id' => $category->id]);
@@ -213,12 +213,11 @@ class CategoryController extends Controller
 
     public function showCate($request, Category $category)
     {
-        $qb = $category->publishedWorks()
+        $qb = $category->publishedArticles()
             ->with('user')->with('category');
-
         //最新评论
-        $qb                = $qb->orderBy('commented', 'desc');
-        $articles          = smartPager($qb, 10);
+        $qb = $qb->orderBy('commented', 'desc');
+        $articles = smartPager($qb, 10);
         $data['commented'] = $articles;
         if (ajaxOrDebug() && $request->get('commented')) {
             foreach ($articles as $article) {
@@ -229,8 +228,8 @@ class CategoryController extends Controller
         }
 
         //作品
-        $qb            = $qb->orderBy('pivot_created_at', 'desc');
-        $articles      = smartPager($qb, 10);
+        $qb = $qb->orderBy('pivot_created_at', 'desc');
+        $articles = smartPager($qb, 10);
         $data['works'] = $articles;
 
         if (ajaxOrDebug() && $request->get('works')) {
@@ -242,8 +241,8 @@ class CategoryController extends Controller
         }
 
         //热门文章
-        $qb          = $qb->orderBy('hits', 'desc');
-        $articles    = smartPager($qb, 10);
+        $qb = $qb->orderBy('hits', 'desc');
+        $articles = smartPager($qb, 10);
         $data['hot'] = $articles;
 
         if (ajaxOrDebug() && $request->get('hot')) {
@@ -297,7 +296,7 @@ class CategoryController extends Controller
         if ($request->get('type')) {
             $type = $request->get('type');
         }
-        $user     = Auth::user();
+        $user = Auth::user();
         $category = Category::with('user')->find($id);
         if (!canEdit($category)) {
             abort(403);
@@ -339,7 +338,7 @@ class CategoryController extends Controller
             ->pluck('id')
             ->toArray();
         if (request()->filled('categories')) {
-            $categories          = json_decode($request->categories, true);
+            $categories = json_decode($request->categories, true);
             $recent_category_ids = array_column($categories, 'id');
         } else {
             $recent_category_ids = [];

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
  * Category
  */
 Route::get('/category/list', 'CategoryController@list');
+Route::get('/category/{id}', 'CategoryController@show');
 Route::middleware(config('content.category.middleware', []))->resource('/category', 'CategoryController');
 
 // 动态
