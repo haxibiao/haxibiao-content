@@ -89,12 +89,14 @@ class ContentServiceProvider extends ServiceProvider
                 ClearCache::class,
                 SelectCollection::class,
 
-                Console\Cms\SitemapGenerate::class,
                 Console\Cms\ArchiveTraffic::class,
                 Console\Cms\SeoWorker::class,
                 Console\Cms\CmsUpdate::class,
             ]);
         }
+        $this->commands([
+            Console\Cms\SitemapGenerate::class,
+        ]);
 
         $this->app->singleton(Cache::class, function () {
             $instance = new Cache($this->app->make('files'));
