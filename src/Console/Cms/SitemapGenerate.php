@@ -70,7 +70,7 @@ class SitemapGenerate extends Command
         $qb = DB::table('movies')->select(['id'])
             ->orderBy('id', 'desc');
         //先只提交前1000个
-        $qb = $qb->where('id', '<=', 1000);
+        // $qb = $qb->where('id', '<=', 1000);
         $qb->chunk(10000, function ($movies) use (&$mi, &$siteMapIndexUrls, $domain) {
             $fileName     = 'movie_' . $mi . '.xml';
             $gzFileName   = $fileName . '.gz';
@@ -85,7 +85,6 @@ class SitemapGenerate extends Command
                         ->setPriority(0.8)
                 );
             }
-
             $sitemapGenerator->writeToDisk('public', $relativePath);
             $path = \Storage::disk('public')->path($relativePath);
             if (file_exists($path . '.gz')) {
