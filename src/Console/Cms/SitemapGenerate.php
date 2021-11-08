@@ -66,9 +66,13 @@ class SitemapGenerate extends Command
     {
         $siteMapIndexUrls = [];
         $mi               = 0;
-
-        $qb = DB::table('movies')->select(['id'])
-            ->orderBy('id', 'desc');
+        if (config('media.enable_mediachain')) {
+            $qb = Movie::query()->select(['id'])
+                ->orderBy('id', 'desc');
+        } else {
+            $qb = DB::table('movies')->select(['id'])
+                ->orderBy('id', 'desc');
+        }
         //先只提交前1000个
         // $qb = $qb->where('id', '<=', 1000);
         $qb->chunk(10000, function ($movies) use (&$mi, &$siteMapIndexUrls, $domain) {
@@ -243,8 +247,14 @@ class SitemapGenerate extends Command
         $siteMapIndexUrls = [];
         $mi               = 0;
 
-        $qb = DB::table('movies')->select(['id'])
-            ->orderBy('id', 'desc');
+        if (config('media.enable_mediachain')) {
+            $qb = Movie::query()->select(['id'])
+                ->orderBy('id', 'desc');
+        } else {
+            $qb = DB::table('movies')->select(['id'])
+                ->orderBy('id', 'desc');
+        }
+
         //先只提交前1000个
         $qb = $qb->where('status', Movie::DISABLED);
         $qb->chunk(10000, function ($movies) use (&$mi, &$siteMapIndexUrls, $domain) {
