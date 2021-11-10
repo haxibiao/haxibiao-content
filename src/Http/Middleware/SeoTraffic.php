@@ -24,7 +24,7 @@ class SeoTraffic
         // 爬虫来源引擎
         $engine = $this->getEngineFromRequest();
         if($engine){
-            Dimension::track($engine, 1, '爬虫的数量');
+            Dimension::track($engine, 1, '爬虫的次数');
         }
 
         // 搜索来路引擎
