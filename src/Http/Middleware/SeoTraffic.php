@@ -3,7 +3,7 @@
 namespace Haxibiao\Content\Http\Middleware;
 
 use Closure;
-use Haxibiao\Content\Traffic;
+use Haxibiao\Breeze\Dimension;
 use Jenssegers\Agent\Facades\Agent;
 
 class SeoTraffic
@@ -17,63 +17,67 @@ class SeoTraffic
      */
     public function handle($request, Closure $next)
     {
-        $traffic = [];
-        //蜘蛛抓取
-        if (Agent::isRobot()) {
-            $bot = strtolower(Agent::robot());
-            if (str_contains($bot, 'baidu') ||
-                str_contains($bot, 'google') ||
-                str_contains($bot, 'qihoo') ||
-                str_contains($bot, '360') ||
-                str_contains($bot, 'sogou') ||
-                str_contains($bot, 'shenma') ||
-                str_contains($bot, 'toutiao') ||
-                str_contains($bot, 'byte')
-            ) {
-                $traffic['bot'] = $bot;
-            }
+        if(!Agent::isRobot()){
+            return $next($request);
         }
 
-        //搜索来路
-        $referer = $request->get('referer') ?? $request->header('referer');
-        $referer = str_limit($referer, 250, '');
-        if ($referer) {
-            if (str_contains($referer, 'baidu.com')) {
-                $engine = 'baidu';
-            }
-            if (str_contains($referer, 'google.com')) {
-                $engine = 'google';
-            }
-            if (str_contains($referer, '360.cn')) {
-                $engine = '360';
-            }
-            if (str_contains($referer, 'sogou')) {
-                $engine = 'sogou';
-            }
-            if (str_contains($referer, 'shenma')) {
-                $engine = 'shenma';
-            }
-            if (str_contains($referer, 'toutiao')) {
-                $engine = 'toutiao';
-            }
-            if (str_contains($referer, 'byte')) {
-                $engine = 'byte';
-            }
-            if (isset($engine)) {
-                $traffic['engine']  = $engine;
-                $traffic['referer'] = $referer;
-            }
+        // 爬虫来源引擎
+        $engine = $this->getEngineFromRequest();
+        if($engine){
+            Dimension::track($engine, 1, '爬虫的数量');
         }
 
-        //如果seo有效流量
-        if (!empty($traffic)) {
-            $traffic['url']    = $request->url();
-            $traffic['domain'] = get_domain();
-
-            //记录流量
-            Traffic::create($traffic);
+        // 搜索来路引擎
+        $referer = $this->getRefererEngineByRequest($request);
+        if($referer){
+            Dimension::track($referer, 1, '搜索来路');
         }
 
         return $next($request);
+    }
+
+    private function getEngineFromRequest(){
+        $bot = strtolower(Agent::robot());
+        return $this->getEngineByLowerStr($bot);
+    }
+
+    private function getRefererEngineByRequest($request){
+        $referer = $request->get('referer') ?? $request->header('referer');
+        $referer = str_limit($referer, 250, '');
+        $referer = strtolower($referer);
+        return $this->getEngineByLowerStr($referer);
+    }
+
+    private function getEngineByLowerStr($str=null){
+        if(blank($str)){
+            return null;
+        }
+        if (str_contains($str, 'baidu.com')) {
+            $engine = 'baidu';
+        }
+        if (str_contains($str, 'google.com')) {
+            $engine = 'google';
+        }
+        if (str_contains($str, '360.cn')) {
+            $engine = '360';
+        }
+        if (str_contains($str, 'sogou')) {
+            $engine = 'sogou';
+        }
+        if (str_contains($str, 'shenma')) {
+            $engine = 'shenma';
+        }
+        if (str_contains($str, 'toutiao')) {
+            $engine = 'toutiao';
+        }
+        if (str_contains($str, 'byte')) {
+            $engine = 'byte';
+        }
+        if (str_contains($str, 'bing')) {
+            $engine = 'bing';
+        }
+        if (isset($engine)) {
+            return $engine;
+        }
     }
 }
