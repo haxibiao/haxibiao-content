@@ -52,13 +52,13 @@ class SeoTraffic
         if(blank($str)){
             return null;
         }
-        if (str_contains($str, 'baidu.com')) {
+        if (str_contains($str, 'baidu')) {
             $engine = 'baidu';
         }
-        if (str_contains($str, 'google.com')) {
+        if (str_contains($str, 'google')) {
             $engine = 'google';
         }
-        if (str_contains($str, '360.cn')) {
+        if (str_contains($str, '360')) {
             $engine = '360';
         }
         if (str_contains($str, 'sogou')) {
