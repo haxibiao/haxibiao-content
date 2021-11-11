@@ -20,7 +20,7 @@ return [
     ],
 
     //默认不开启cms的seo流量分析
-    'enable_traffic'  => env('ENABLE_TRAFFIC', false),
+    'enable_traffic'  => env('ENABLE_TRAFFIC', true),
 
     //是否多域名站群(sites表配置)+单数据库
     'multi_domains'   => env('MULTI_DOMAINS', false),
