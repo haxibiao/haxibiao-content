@@ -152,7 +152,7 @@ class ImportCollections extends Command
                         //更新post的user_id,video_id,spider_id
                         $intoPost->video_id   = $intoVideo->id;
                         $intoPost->user_id    = $intoUser->id;
-                        $intoPost->spider_id  = $intoSpider->id;
+                        $intoPost->spider_id  = $intoSpider->id ?? 0;
                         $intoPost->created_at = now();
                         $intoPost->updated_at = now();;
                         $intoPost->save();
