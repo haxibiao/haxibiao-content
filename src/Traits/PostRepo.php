@@ -15,6 +15,7 @@ use App\User;
 use App\Visit;
 use Haxibiao\Breeze\Exceptions\GQLException;
 use Haxibiao\Content\Constracts\Collectionable;
+use Haxibiao\Content\Traits\FastRecommendStrategy;
 use Haxibiao\Helpers\Facades\SensitiveFacade;
 use Haxibiao\Media\Events\PostPublishSuccess;
 use Haxibiao\Media\Video;
@@ -132,7 +133,7 @@ trait PostRepo
             }
 
             return $post;
-        } catch (\Exception $ex) {
+        } catch (\Exception$ex) {
             Log::error($ex->getMessage());
             if ($ex->getCode() == 0) {
                 throw new GQLException('程序小哥正在加紧修复中!');

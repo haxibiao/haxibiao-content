@@ -6,7 +6,6 @@ use App\Post;
 use App\PostRecommend;
 use App\User;
 use App\UserBlock;
-use Haxibiao\Content\Traits\FastRecommendStrategy;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
