@@ -106,11 +106,16 @@ class Tag extends Model
 
     public function tags(): MorphToMany
     {
-        return $this->morphedByMany('App\Tag', 'taggable');
+        return $this->morphedByMany('App\Tag', 'taggable')->published();
     }
     public function categories()
     {
         return $this->morphedByMany('App\Category', 'taggable')->published()->orderByDesc('rank');
+    }
+
+    public function scopePublished($query)
+    {
+        return $query->where('status', Category::PUBLISH);
     }
 
     public function tag()
