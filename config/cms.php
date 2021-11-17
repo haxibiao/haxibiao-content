@@ -7,7 +7,7 @@ return [
     'sites'           => [
         // 'domain.com' => [
         //     'app_name' => 'xxyy',
-		//     'db_name' => 'xxyy',
+        //     'db_name' => 'xxyy',
         //     'app_name_cn'=>'xx影院'
         // ]
     ],
@@ -16,13 +16,19 @@ return [
     'apps'            => [
         // 'app1.domain.com' => [
         //     'app_name'    => 'xxyyapp',
-		//     'db_name'    => 'xxyyapp',
+        //     'db_name'    => 'xxyyapp',
         //     'app_name_cn' => 'xx影院app',
         // ],
     ],
 
     //默认不开启cms的seo流量分析
-    'enable_traffic'  => env('ENABLE_TRAFFIC', true),
+    'enable_traffic'  => env('ENABLE_TRAFFIC', false),
+
+    //针对腾讯流量的防拦截处理
+    'tencent_traffic' => [
+        'income_domain' => env('APP_DOMAIN'),
+        'redirect_urls' => [],
+    ],
 
     //是否多域名站群(sites表配置)+单数据库
     'multi_domains'   => env('MULTI_DOMAINS', false),
@@ -41,6 +47,7 @@ return [
             'police_code_number' => '********',
         ],
     ],
+
     //站群友情链接
     'friend_links'    => [
         // [
