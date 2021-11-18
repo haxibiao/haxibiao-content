@@ -86,6 +86,19 @@ if (!function_exists('update_baidu_pushed_at')) {
     }
 }
 
+/**
+ * cms站群模式时的seo友好的https+根域名的URL
+ */
+function seo_url($path)
+{
+    if (config('cms.enable_sites')) {
+        $path = parse_url($path, PHP_URL_PATH);
+        $path = ltrim($path, "\/");
+        return "https://" . get_domain() . "/" . $path;
+    }
+    return url($path);
+}
+
 /*****************************
  * *****cms站群模式TKD和站长验证*********
  * ***************************
@@ -94,7 +107,7 @@ if (!function_exists('cms_seo_title')) {
     function cms_seo_title()
     {
         //站群模式
-        if (config('cms.multi_domains')) {
+        if (config('cms.enable_sites')) {
             if ($site = cms_get_site()) {
                 if ($site->title) {
                     return $site->title;
@@ -109,7 +122,7 @@ if (!function_exists('cms_seo_keywords')) {
     function cms_seo_keywords()
     {
         //站群模式
-        if (config('cms.multi_domains')) {
+        if (config('cms.enable_sites')) {
             if ($site = cms_get_site()) {
                 if ($site->keywords) {
                     return $site->keywords;
@@ -124,7 +137,7 @@ if (!function_exists('cms_seo_description')) {
     function cms_seo_description()
     {
         //站群模式
-        if (config('cms.multi_domains')) {
+        if (config('cms.enable_sites')) {
             if ($site = cms_get_site()) {
                 if ($site->description) {
                     return $site->description;
@@ -139,7 +152,7 @@ if (!function_exists('cms_seo_meta')) {
     function cms_seo_meta()
     {
         //站群模式
-        if (config('cms.multi_domains')) {
+        if (config('cms.enable_sites')) {
             if ($site = cms_get_site()) {
                 if ($site->verify_meta) {
                     return $site->verify_meta;
@@ -156,14 +169,12 @@ if (!function_exists('cms_seo_meta')) {
 if (!function_exists('cms_icp_info')) {
     function cms_icp_info()
     {
-        $isMultiDomainsMode    = config('cms.multi_domains');
         $site                  = cms_get_site();
         $icpInfoOfMultiDomains = data_get(
             config('cms.icp'),
             data_get($site, 'company')
         );
-
-        if ($isMultiDomainsMode) {
+        if (config('cms.enable_sites')) {
             if (!$icpInfoOfMultiDomains) {
                 return;
             }
@@ -202,7 +213,7 @@ if (!function_exists('cms_seo_js')) {
     function cms_seo_js()
     {
         //站群模式
-        if (config('cms.multi_domains')) {
+        if (config('cms.enable_sites')) {
             if ($site = cms_get_site()) {
                 return $site->footer_js;
             }
@@ -229,7 +240,7 @@ if (!function_exists('cms_seo_theme')) {
     function cms_seo_theme()
     {
         //站群模式
-        if (config('cms.multi_domains')) {
+        if (config('cms.enable_sites')) {
             if ($site = cms_get_site()) {
                 return $site->theme;
             }
@@ -245,7 +256,7 @@ if (!function_exists('cms_seo_theme')) {
 function cmsTopMovies($top = 4)
 {
     //站群模式
-    if (config('cms.multi_domains')) {
+    if (config('cms.enable_sites')) {
         if ($site = cms_get_site()) {
             if ($site->stickyMovies()->byStickableName("网站-首页-电影")->count()) {
                 return $site->stickyMovies()
@@ -265,7 +276,7 @@ if (!function_exists('cmsTopVideos')) {
     function cmsTopVideos($top = 4)
     {
         //站群模式
-        if (config('cms.multi_domains')) {
+        if (config('cms.enable_sites')) {
             if ($site = cms_get_site()) {
                 if ($site->stickyPosts()->byStickableName('首页-视频')->count()) {
                     return $site->stickyPosts()
@@ -287,7 +298,7 @@ if (!function_exists('cmsTopCategories')) {
     function cmsTopCategories($top = 7)
     {
         //站群模式
-        if (config('cms.multi_domains')) {
+        if (config('cms.enable_sites')) {
             if ($site = cms_get_site()) {
                 if ($site->stickyCategories()->byStickableName('首页-专题')->count()) {
                     return $site->stickyCategories()
@@ -309,7 +320,7 @@ if (!function_exists('cmsTopArticles')) {
     function cmsTopArticles()
     {
         //站群模式
-        if (config('cms.multi_domains')) {
+        if (config('cms.enable_sites')) {
             $site = cms_get_site();
             if ($site && $site->stickyArticles()->byStickableName('首页-文章列表')->count()) {
                 $qb = $site->stickyArticles()

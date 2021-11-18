@@ -122,7 +122,7 @@ class ContentServiceProvider extends ServiceProvider
         }
 
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
-            if (config('cms.multi_domains', false)) {
+            if (config('cms.enable_sites')) {
                 // 每天定时归档seo流量
                 $schedule->command('archive:traffic')->dailyAt('1:00');
             }

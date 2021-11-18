@@ -30,8 +30,8 @@ return [
         'redirect_urls' => [],
     ],
 
-    //是否多域名站群(sites表配置)+单数据库
-    'multi_domains'   => env('MULTI_DOMAINS', false),
+    //是否站群(原multi_domains)
+    'enable_sites'    => env('ENABLE_SITES', env('MULTI_DOMAINS', false)),
 
     //可选主题
     'themes'          => [
