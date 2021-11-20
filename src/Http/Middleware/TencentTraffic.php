@@ -17,14 +17,11 @@ class TencentTraffic
     {
         //如果是腾讯的流量
         if (isWechat() || isQQ()) {
-            //配置了防拦截候选地址
+            //如果配置了防拦截候选地址
             $redirect_urls = config('cms.tencent_traffic.redirect_urls');
             if (!empty($redirect_urls)) {
-                //不用自己的主域名，入口域名 随机跳转一个防拦截的h5(pwa)地址
-                if (in_array(get_sub_domain(), [
-                    config('cms.tencent_traffic.income_domain'),
-                ])) {
-                    $url = array_random($redirect_urls);
+                //应该保护任何入口域名被腾讯污染!!!
+                if ($url = array_random($redirect_urls)) {
                     return redirect()->to($url);
                 }
             }
