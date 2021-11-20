@@ -26,7 +26,8 @@ return [
 
     //针对腾讯流量的防拦截处理
     'tencent_traffic'    => [
-        'income_domain' => env('APP_DOMAIN'),
+        'income_domain' => null, //配置了就覆盖二维码入口域名
+        'income_domains' => [],
         'redirect_urls' => [],
     ],
 
