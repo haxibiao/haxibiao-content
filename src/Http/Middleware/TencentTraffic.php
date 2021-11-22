@@ -25,7 +25,12 @@ class TencentTraffic
                 }
                 if (!empty($redirect_urls)) {
                     //支持站群多入口域名防护被腾讯污染!!!
-                    $income_domains   = config('cms.tencent_traffic.income_domains');
+                    $income_domains = array_keys(config('cms.tencent_traffic.income_domains'));
+                    //支持不同入口域名区分跳转地址
+                    $sub_urls = config('cms.tencent_traffic.income_domains')[get_sub_domain()] ?? [];
+                    if (!empty($sub_urls)) {
+                        $redirect_urls = $sub_urls;
+                    }
                     $income_domains[] = config('cms.tencent_traffic.income_domain');
                     if (in_array(get_sub_domain(), $income_domains)) {
                         if ($url = array_random($redirect_urls)) {
