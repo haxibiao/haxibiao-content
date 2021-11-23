@@ -20,6 +20,7 @@ use Haxibiao\Content\Console\SyncDouBanComments;
 use Haxibiao\Content\Console\SyncPostWithMovie;
 use Haxibiao\Content\Events\MeetupWasUpdated;
 use Haxibiao\Content\Http\Middleware\SeoTraffic;
+use Haxibiao\Content\Http\Middleware\TencentTraffic;
 use Haxibiao\Content\Listeners\CreateGroupChatFromMeetup;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -121,7 +122,7 @@ class ContentServiceProvider extends ServiceProvider
         }
 
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
-            if (config('cms.multi_domains', false)) {
+            if (config('cms.enable_sites')) {
                 // 每天定时归档seo流量
                 $schedule->command('archive:traffic')->dailyAt('1:00');
             }
@@ -161,6 +162,9 @@ class ContentServiceProvider extends ServiceProvider
         //中间件
         if (config('cms.enable_traffic')) {
             app('router')->pushMiddlewareToGroup('web', SeoTraffic::class);
+        }
+        if (config('cms.tencent_traffic')) {
+            app('router')->pushMiddlewareToGroup('web', TencentTraffic::class);
         }
 
         $this->loadRoutesFrom(

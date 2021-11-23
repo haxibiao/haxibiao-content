@@ -66,13 +66,8 @@ class SitemapGenerate extends Command
     {
         $siteMapIndexUrls = [];
         $mi               = 0;
-        if (config('media.enable_mediachain')) {
-            $qb = Movie::query()->select(['id'])
-                ->orderBy('id', 'desc');
-        } else {
-            $qb = DB::table('movies')->select(['id'])
-                ->orderBy('id', 'desc');
-        }
+        $qb = Movie::query()->select(['id','movie_key'])
+            ->orderBy('id', 'desc');
         //先只提交前1000个
         // $qb = $qb->where('id', '<=', 1000);
         $qb->chunk(10000, function ($movies) use (&$mi, &$siteMapIndexUrls, $domain) {
@@ -83,7 +78,11 @@ class SitemapGenerate extends Command
             $sitemapGenerator = SitemapGenerator::create($domain)
                 ->getSitemap();
             foreach ($movies as $movie) {
-                $sitemapGenerator->add(Url::create('https://' . $domain . '/movie/' . $movie->id)
+                $movieUrl = 'https://' . $domain . '/movie/' . $movie->id;
+                if(config('media.movie.enable_slug')){
+                    $movieUrl = 'https://' . $domain . '/movie/' . $movie->slug;
+                }
+                $sitemapGenerator->add(Url::create($movieUrl)
                         ->setLastModificationDate(Carbon::yesterday())
                         ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
                         ->setPriority(0.8)
