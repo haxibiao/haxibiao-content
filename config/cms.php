@@ -26,7 +26,7 @@ return [
 
     //二维码流量的防拦截处理
     'qrcode_traffic'     => [
-        'scan_domain' => null, //强制二维码入口域名
+        'scan_domain' => null, //强制单独二维码入口域名权重最高
         'redirect_urls' => [], //防护跳转地址
 
         'scan_domains' => [ //支持站群多个域名扫码流量合并到一个二维码
