@@ -37,12 +37,12 @@ class QrcodeTraffic
             // 跳转地址的提取
             $redirect_urls = config('cms.qrcode_traffic.redirect_urls', []);
             // 1.支持当前域名cms配置覆盖的跳转地址
-            $sub_urls = $scan_domains[get_sub_domain()] ?? [];
+            $sub_urls = $scan_domains[get_sub_domain()]['redirect_urls'] ?? [];
             if (!empty($sub_urls)) {
                 $redirect_urls = $sub_urls;
             }
             // 2.尊重当前域名缓存的跳转地址
-            if ($cached_urls = cache()->get(get_sub_domain() . '_redirect_urls')) {
+            if ($cached_urls = cache()->get(get_domain_key() . '_redirect_urls')) {
                 $redirect_urls = $cached_urls;
             }
 
