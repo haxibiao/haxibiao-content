@@ -15,8 +15,14 @@ class TencentTraffic
      */
     public function handle($request, Closure $next)
     {
-        //腾讯的流量跳转(后端必须自建ssl在服务器并加速)
+        //腾讯的流量跳转的前提
         $can_redirect = $request->secure() && (isWechat() || isQQ());
+        //referer是四级以上域名是已跳转过的
+        $referer      = $request->header('referer');
+        $referer_host = parse_url($referer, PHP_URL_HOST);
+        if (count(explode(".", $referer_host)) >= 4) {
+            $can_redirect = false;
+        }
         if ($can_redirect) {
             $redirect_urls = config('cms.tencent_traffic.redirect_urls');
             //尊重当前域名缓存的跳转地址
