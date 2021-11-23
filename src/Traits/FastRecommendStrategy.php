@@ -33,7 +33,7 @@ trait FastRecommendStrategy
         //0.准备 刷的内容范围加载
         if (is_null($query)) {
             //默认推荐刷 = 纯未分类的动态，不带影视,不带题目，需要的resolver自己传入query
-            $query = Post::join('videos', 'posts.video_id', 'videos.id')->whereNull('videos.movie_id')->whereNull('question_id');
+            $query = Post::join('videos', 'posts.video_id', 'videos.id')->whereNotNull('videos.path')->whereNull('videos.movie_id')->whereNull('question_id');
         }
         $qb = (clone $query)->with(['video', 'user', 'audio'])->publish();
 
