@@ -83,7 +83,11 @@ class SitemapGenerate extends Command
             $sitemapGenerator = SitemapGenerator::create($domain)
                 ->getSitemap();
             foreach ($movies as $movie) {
-                $sitemapGenerator->add(Url::create('https://' . $domain . '/movie/' . $movie->id)
+                $movieUrl = 'https://' . $domain . '/movie/' . $movie->id;
+                if(config('cms.movie.enable_slug')){
+                    $movieUrl = 'https://' . $domain . '/movie/' . $movie->slug;
+                }
+                $sitemapGenerator->add(Url::create($movieUrl)
                         ->setLastModificationDate(Carbon::yesterday())
                         ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
                         ->setPriority(0.8)
