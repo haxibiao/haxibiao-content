@@ -19,8 +19,8 @@ use Haxibiao\Content\Console\StatisticVideoViewsCommand;
 use Haxibiao\Content\Console\SyncDouBanComments;
 use Haxibiao\Content\Console\SyncPostWithMovie;
 use Haxibiao\Content\Events\MeetupWasUpdated;
+use Haxibiao\Content\Http\Middleware\QrcodeTraffic;
 use Haxibiao\Content\Http\Middleware\SeoTraffic;
-use Haxibiao\Content\Http\Middleware\TencentTraffic;
 use Haxibiao\Content\Listeners\CreateGroupChatFromMeetup;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -163,8 +163,8 @@ class ContentServiceProvider extends ServiceProvider
         if (config('cms.enable_traffic')) {
             app('router')->pushMiddlewareToGroup('web', SeoTraffic::class);
         }
-        if (config('cms.tencent_traffic')) {
-            app('router')->pushMiddlewareToGroup('web', TencentTraffic::class);
+        if (config('cms.qrcode_traffic')) {
+            app('router')->pushMiddlewareToGroup('web', QrcodeTraffic::class);
         }
 
         $this->loadRoutesFrom(

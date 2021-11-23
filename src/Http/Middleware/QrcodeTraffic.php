@@ -4,7 +4,7 @@ namespace Haxibiao\Content\Http\Middleware;
 
 use Closure;
 
-class TencentTraffic
+class QrcodeTraffic
 {
     /**
      * Handle an incoming request.
@@ -24,22 +24,20 @@ class TencentTraffic
             $can_redirect = false;
         }
         if ($can_redirect) {
-            $redirect_urls = config('cms.tencent_traffic.redirect_urls');
+            $redirect_urls = config('cms.qrcode_traffic.redirect_urls');
             //尊重当前域名缓存的跳转地址
             if ($cached_urls = cache()->get(get_sub_domain() . '_redirect_urls')) {
                 $redirect_urls = $cached_urls;
             }
             //支持站群多入口域名防护被腾讯污染!!!
-            $income_domains = array_keys(config('cms.tencent_traffic.income_domains'));
+            $scan_domains = array_keys(config('cms.qrcode_traffic.scan_domains', []));
             //支持不同入口域名覆盖自己的跳转地址
-            $sub_urls = $income_domains[get_sub_domain()] ?? [];
+            $sub_urls = $scan_domains[get_sub_domain()] ?? [];
             if (!empty($sub_urls)) {
                 $redirect_urls = $sub_urls;
             }
-            //带上单个入口域名配置的
-            $income_domains[] = config('cms.tencent_traffic.income_domain');
             if (!empty($redirect_urls)) {
-                if (in_array(get_sub_domain(), $income_domains)) {
+                if (in_array(get_sub_domain(), $scan_domains)) {
                     if ($url = array_random($redirect_urls)) {
                         return redirect()->to($url);
                     }

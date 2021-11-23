@@ -24,13 +24,17 @@ return [
     //默认不开启cms的seo流量分析
     'enable_traffic'     => env('ENABLE_TRAFFIC', false),
 
-    //针对腾讯流量的防拦截处理
-    'tencent_traffic'    => [
-        'income_domain' => null, //配置了就覆盖二维码入口域名
-        'income_domains' => [
-            'xxx.com' => [], //支持多个入口域名覆盖跳转redirect_urls配置
+    //二维码流量的防拦截处理
+    'qrcode_traffic'     => [
+        'scan_domain' => null, //强制二维码入口域名
+        'redirect_urls' => [], //防护跳转地址
+
+        'scan_domains' => [ //支持站群多个域名扫码流量合并到一个二维码
+            'scan_domain1.com' => [
+                'seo_domains'   => [],
+                'redirect_urls' => [], //入口域名覆盖单独的跳转地址
+            ],
         ],
-        'redirect_urls' => [],
     ],
 
     'enable_pwa_domains' => [],
