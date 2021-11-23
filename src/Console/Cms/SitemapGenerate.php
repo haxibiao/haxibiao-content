@@ -84,7 +84,7 @@ class SitemapGenerate extends Command
                 ->getSitemap();
             foreach ($movies as $movie) {
                 $movieUrl = 'https://' . $domain . '/movie/' . $movie->id;
-                if(config('cms.movie.enable_slug')){
+                if(config('media.movie.enable_slug')){
                     $movieUrl = 'https://' . $domain . '/movie/' . $movie->slug;
                 }
                 $sitemapGenerator->add(Url::create($movieUrl)
