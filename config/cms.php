@@ -38,9 +38,14 @@ return [
     //是否站群(原multi_domains)
     'enable_sites'       => env('ENABLE_SITES', env('MULTI_DOMAINS', false)),
 
-    //可选主题
+    //SEO主题配置
     'themes'             => [
         'zaixianmeiju' => '在线美剧',
+    ],
+
+    //PWA主题配置(app群需要删除app层cssjs避免404不进入laravel)
+    'pwa_themes'         => [
+        'sub1.domain.com' => 'theme1',
     ],
 
     //实名备案信息,配置到项目里，方便备案网站nova输入时选择模板
