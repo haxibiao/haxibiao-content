@@ -5,6 +5,7 @@ namespace Haxibiao\Content\Console\Cms;
 use App\Category;
 use App\Movie;
 use App\Site;
+use Hashids\Hashids;
 use Haxibiao\Content\Article;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
@@ -80,7 +81,9 @@ class SitemapGenerate extends Command
             foreach ($movies as $movie) {
                 $movieUrl = 'https://' . $domain . '/movie/' . $movie->id;
                 if(config('media.movie.enable_slug')){
-                    $movieUrl = 'https://' . $domain . '/movie/' . $movie->slug;
+                    $hashids = new Hashids($domain);
+                    $slug =  $hashids->encode($movie->movie_key);
+                    $movieUrl = 'https://' . $domain . '/movie/' . $slug;
                 }
                 $sitemapGenerator->add(Url::create($movieUrl)
                         ->setLastModificationDate(Carbon::yesterday())
