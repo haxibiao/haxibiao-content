@@ -19,13 +19,12 @@ class QrcodeTraffic
         // 1.SSL
         // 2.腾讯系浏览器 - 可增加
         $can_redirect = $request->secure() && (isWechat() || isQQ());
-        // 3.referer不是四级以上域名
-        $referer      = $request->header('referer');
-        $referer_host = parse_url($referer, PHP_URL_HOST);
-        if (count(explode(".", $referer_host)) >= 4) {
+        // 3.referer为空(扫码识别直接打开的地址)
+        $referer = $request->header('referer');
+        if (!blank($referer)) {
             $can_redirect = false;
         }
-        // 4.不是首页或者影片详情页不跳转
+        // 4.首页或者影片详情页
         if (!($request->path() === '/' || str_contains($request->path(), 'movie/'))) {
             $can_redirect = false;
         }
