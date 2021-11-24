@@ -15,16 +15,15 @@ class QrcodeTraffic
      */
     public function handle($request, Closure $next)
     {
-        // 腾讯的流量跳转的前提
-        // 1.SSL
-        // 2.腾讯系浏览器 - 可增加
-        $can_redirect = $request->secure() && (isWechat() || isQQ());
-        // 3.referer为空(扫码识别直接打开的地址)
+        // 二维码流量跳转的前提
+        // - 腾讯系浏览器 - 可增加
+        $can_redirect = isWechat() || isQQ();
+        // - referer为空(扫码识别直接打开的地址)
         $referer = $request->header('referer');
         if (!blank($referer)) {
             $can_redirect = false;
         }
-        // 4.首页或者影片详情页
+        // - 首页或者影片详情页
         if (!($request->path() === '/' || str_contains($request->path(), 'movie/'))) {
             $can_redirect = false;
         }
