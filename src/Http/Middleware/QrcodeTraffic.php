@@ -45,7 +45,7 @@ class QrcodeTraffic
                 $redirect_urls = $sub_urls;
             }
             // 2.尊重当前域名缓存的跳转地址
-            if ($cached_urls = cache()->get(get_domain_key() . '_redirect_urls')) {
+            if ($cached_urls = cache()->get(get_app_name() . '_redirect_urls')) {
                 $redirect_urls = $cached_urls;
             }
 
