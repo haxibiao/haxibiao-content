@@ -8,7 +8,6 @@ use App\User;
 use App\UserBlock;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 /**
@@ -367,11 +366,15 @@ trait FastRecommendStrategy
             ->whereNotNull('video_id') //只考虑有视频的
             ->groupBy('review_day')
             ->latest('review_day');
+        // FIXME::每日新增视频很少的时候取不到数据
         // 23:59:59秒时刻就过期
-        $ttl                 = today()->addDay()->diffInSeconds(now()) - 1;
-        $historyMaxReviewIds = Cache::remember('history:reviewids', $ttl, function () use ($baseQuery) {
-            return clone $baseQuery->where('review_day', '<', date('Ymd'))->get();
-        });
+        // $ttl = today()->addDay()->diffInSeconds(now()) - 1;
+        // $historyMaxReviewIds = Cache::remember('history:reviewids', $ttl, function () use ($baseQuery) {
+        //     return clone $baseQuery->where('review_day', '<', date('Ymd'))->get();
+        // });
+
+        $historyMaxReviewIds = clone $baseQuery->where('review_day', '<', date('Ymd'))->get();
+
         $todaymaxRviewIds = clone $baseQuery->where('review_day', date('Ymd'))->get();
         $maxRviewIds      = $historyMaxReviewIds->concat($todaymaxRviewIds);
         return $maxRviewIds;
