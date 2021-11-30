@@ -49,17 +49,17 @@ class QrcodeTraffic
                 $redirect_urls = $cached_urls;
             }
 
-            // 3.最后随机提取一个可用的
-            $redirect_url = array_random($redirect_urls);
-
             // 最后跳转
-            if ($domain_match && $redirect_url) {
-                //兼容影片邀请二维码
-                if (str_contains($request->path(), 'movie/')) {
-                    $movie_path   = str_replace("/movie/", "movie/", $request->path());
-                    $redirect_url = $redirect_url . "?" . $movie_path; //cosweb的iframe处理了内嵌pwa的路由
+            if (count($redirect_urls)) {
+                if ($domain_match) {
+                    $redirect_url = array_random($redirect_urls);
+                    //兼容影片详情URL的分享二维码
+                    if (str_contains($request->path(), 'movie/')) {
+                        $movie_path   = str_replace("/movie/", "movie/", $request->path());
+                        $redirect_url = $redirect_url . "?" . $movie_path; //cosweb的iframe处理了内嵌pwa的路由
+                    }
+                    return redirect()->to($redirect_url);
                 }
-                return redirect()->to($redirect_url);
             }
         }
         return $next($request);
