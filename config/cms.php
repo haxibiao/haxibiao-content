@@ -7,7 +7,6 @@ return [
     'sites'              => [
         // 'domain.com' => [
         //     'app_name' => 'xxyy',
-        //     'db_name' => 'xxyy',
         //     'app_name_cn'=>'xx影院'
         // ]
     ],
@@ -16,8 +15,8 @@ return [
     'apps'               => [
         // 'app1.domain.com' => [
         //     'app_name'    => 'xxyyapp',
-        //     'db_name'    => 'xxyyapp',
         //     'app_name_cn' => 'xx影院app',
+        //     'app_slogan'  => '想看的这里都有',
         // ],
     ],
 
