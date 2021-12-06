@@ -1,6 +1,6 @@
 type Article {
-    id: Int!
-    type: String!
+    id: Int
+    type: String
     title: String @rename(attribute: "subject")
     subject: String
     description: String @rename(attribute: "subjectDescription")
