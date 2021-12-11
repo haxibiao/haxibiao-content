@@ -84,7 +84,7 @@ function update_baidu_pushed_at($model, $site)
  */
 function seo_url($path)
 {
-    if (config('cms.enable_sites')) {
+    if (is_sites()) {
         $path = parse_url($path, PHP_URL_PATH);
         $path = ltrim($path, "\/");
         return "https://" . get_domain() . "/" . $path;
@@ -100,7 +100,7 @@ function app_slogan()
 function cms_seo_title()
 {
     //站群模式
-    if (config('cms.enable_sites')) {
+    if (is_sites()) {
         if ($site = cms_get_site()) {
             if ($site->title) {
                 return $site->title;
@@ -113,7 +113,7 @@ function cms_seo_title()
 function cms_seo_keywords()
 {
     //站群模式
-    if (config('cms.enable_sites')) {
+    if (is_sites()) {
         if ($site = cms_get_site()) {
             if ($site->keywords) {
                 return $site->keywords;
@@ -126,7 +126,7 @@ function cms_seo_keywords()
 function cms_seo_description()
 {
     //站群模式
-    if (config('cms.enable_sites')) {
+    if (is_sites()) {
         if ($site = cms_get_site()) {
             if ($site->description) {
                 return $site->description;
@@ -139,7 +139,7 @@ function cms_seo_description()
 function cms_seo_meta()
 {
     //站群模式
-    if (config('cms.enable_sites')) {
+    if (is_sites()) {
         if ($site = cms_get_site()) {
             if ($site->verify_meta) {
                 return $site->verify_meta;
@@ -159,7 +159,7 @@ function cms_icp_info()
         config('cms.icp'),
         data_get($site, 'company')
     );
-    if (config('cms.enable_sites')) {
+    if (is_sites()) {
         if (!$icpInfoOfMultiDomains) {
             return;
         }
@@ -196,7 +196,7 @@ function cms_icp_info()
 function cms_seo_js()
 {
     //站群模式
-    if (config('cms.enable_sites')) {
+    if (is_sites()) {
         if ($site = cms_get_site()) {
             return $site->footer_js;
         }
@@ -219,7 +219,7 @@ function cms_get_site()
 function cms_seo_theme()
 {
     //站群模式
-    if (config('cms.enable_sites')) {
+    if (is_sites()) {
         if ($site = cms_get_site()) {
             return $site->theme;
         }
@@ -234,7 +234,7 @@ function cms_seo_theme()
 function cmsTopMovies($top = 4)
 {
     //站群模式
-    if (config('cms.enable_sites')) {
+    if (is_sites()) {
         if ($site = cms_get_site()) {
             if ($site->stickyMovies()->byStickableName("网站-首页-电影")->count()) {
                 return $site->stickyMovies()
@@ -253,7 +253,7 @@ function cmsTopMovies($top = 4)
 function cmsTopVideos($top = 4)
 {
     //站群模式
-    if (config('cms.enable_sites')) {
+    if (is_sites()) {
         if ($site = cms_get_site()) {
             if ($site->stickyPosts()->byStickableName('首页-视频')->count()) {
                 return $site->stickyPosts()
@@ -272,7 +272,7 @@ function cmsTopVideos($top = 4)
 function cmsTopCategories($top = 7)
 {
     //站群模式
-    if (config('cms.enable_sites')) {
+    if (is_sites()) {
         if ($site = cms_get_site()) {
             if ($site->stickyCategories()->byStickableName('首页-专题')->count()) {
                 return $site->stickyCategories()
@@ -291,7 +291,7 @@ function cmsTopCategories($top = 7)
 function cmsTopArticles()
 {
     //站群模式
-    if (config('cms.enable_sites')) {
+    if (is_sites()) {
         $site = cms_get_site();
         if ($site && $site->stickyArticles()->byStickableName('首页-文章列表')->count()) {
             $qb = $site->stickyArticles()

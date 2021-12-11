@@ -2,8 +2,8 @@
 
 namespace Haxibiao\Content\Traits;
 
-use App\Comment;
 use App\Category;
+use App\Comment;
 use Illuminate\Support\Facades\Schema;
 
 trait ArticleAttrs
@@ -11,12 +11,11 @@ trait ArticleAttrs
 
     public function getCountCommentsAttribute()
     {
-        if(!currentUser()){
+        if (!currentUser()) {
             return 0;
         }
-        if (Schema::hasColumn('comments', 'status'))
-        {
-            return $this->comments()->where('status','!=',Comment::DELETED_STATUS)->count();
+        if (Schema::hasColumn('comments', 'status')) {
+            return $this->comments()->where('status', '!=', Comment::DELETED_STATUS)->count();
         }
         return $this->comments()->count();
     }
@@ -27,7 +26,7 @@ trait ArticleAttrs
         $local_body = data_get($this->attributes, 'body');
         if (blank($local_body)) {
             // 开启哈希云
-            if (config('content.enable_haxiyun')) {
+            if (config('content.enable.haxiyun')) {
                 // media database 获取body
                 $cloud_body = optional(\DB::connection('media')->table('articles')
                         ->where([
@@ -224,8 +223,9 @@ trait ArticleAttrs
         return $this->resoureTypeCN() . '<a href=' . $this->url . '>《' . $title . '》</a>';
     }
 
-    public function getCanjoinLeagueAttribute(){
-        $can_join_league = data_get($this,'json.can_join_league',false);
+    public function getCanjoinLeagueAttribute()
+    {
+        $can_join_league = data_get($this, 'json.can_join_league', false);
         return $can_join_league;
     }
 }

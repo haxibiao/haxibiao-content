@@ -10,6 +10,14 @@ use Haxibiao\Sns\Querylog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * 是否显示内容热度
+ */
+function show_hits()
+{
+    return config('content.show_video_plays');
+}
+
 function save_searched_keyword($keyword, $total = 0)
 {
     //保存全局搜索热词

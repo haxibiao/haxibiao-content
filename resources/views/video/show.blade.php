@@ -1,9 +1,9 @@
 @php
 $post = $video->post;
-if(!$post){
+if (!$post) {
     $post = $video->article;
     $collection = null;
-}else{
+} else {
     $collection = $post->collection;
 }
 
@@ -14,18 +14,18 @@ if(!$post){
 @extends('layouts.video')
 
 @section('title')
-    {{ $video->title ?? $post->description}} -
+    {{ $video->title ?? $post->description }} -
 @stop
 
 @push('seo_og_result')
     @if ($video->post)
         <meta property="og:type" content="video" />
         <meta property="og:url" content="https://{{ get_domain() }}/video/{{ $video->id }}" />
-        <meta property="og:title" content="{{$post->description }}" />
-        <meta property="og:description" content="{{$post->description }}" />
+        <meta property="og:title" content="{{ $post->description }}" />
+        <meta property="og:description" content="{{ $post->description }}" />
         <meta property="og:image" content="{{ $video->cover }}" />
-        <meta name="weibo: article:create_at" content="{{$post->created_at }}" />
-        <meta name="weibo: article:update_at" content="{{$post->updated_at }}" />
+        <meta name="weibo: article:create_at" content="{{ $post->created_at }}" />
+        <meta name="weibo: article:update_at" content="{{ $post->updated_at }}" />
     @endif
 @endpush
 
@@ -39,23 +39,23 @@ if(!$post){
             <div class="player-basic clearfix">
                 <div class="playerArea col-sm-8">
                     <div class="h5-player">
-                        {{--  <div class="embed-responsive embed-responsive-16by9">
+                        {{-- <div class="embed-responsive embed-responsive-16by9">
                             <video controls="" poster="{{ $video->cover }}" preload="auto" autoplay="true">
                                 <source src="{{ $video->url }}" type="{{ $video->isHls ? 'application/x-mpegURL' : 'video/mp4' }}">
                                 </source>
                             </video>
-                        </div>  --}}
+                        </div> --}}
                         <dplayer style="height: 500px;" source="{{ $video->url }}" />
                     </div>
                     <div class="video-body">
-                        @if($collection)
-                        <a href="/collection/{{ $collection->id }}" class="category-name"
-                            title="{{ $collection->id }}:{{ $collection->name }}">
-                            <span class="name">  {{ '#'.$collection->name }} </span>
-                        </a>
+                        @if ($collection)
+                            <a href="/collection/{{ $collection->id }}" class="category-name"
+                                title="{{ $collection->id }}:{{ $collection->name }}">
+                                <span class="name"> {{ '#' . $collection->name }} </span>
+                            </a>
                         @endif
                         <span class="content">
-                            {{$post->description }}
+                            {{ $post->description }}
                         </span>
                     </div>
                     <div class="h5-option">
@@ -91,16 +91,17 @@ if(!$post){
                 </div>
             </div>
             <div class="video-title">
-                @if($collection)
-                <a href="/collection/{{ $collection->id }}" class="category-name"
-                    title="{{ $collection->id }}:{{ $collection->name }}">
-                    <span class="name">  {{ '#'.$collection->name }} </span>
-                </a>
+                @if ($collection)
+                    <a href="/collection/{{ $collection->id }}" class="category-name"
+                        title="{{ $collection->id }}:{{ $collection->name }}">
+                        <span class="name"> {{ '#' . $collection->name }} </span>
+                    </a>
                 @endif
                 配文：{{ $post->description }}
                 <div class="video-info">
                     @if (!empty($post->category))
-                        <a href="/category/{{ $post->category->id }}" class="category-name">专题: {{ $post->category->name }}</a>
+                        <a href="/category/{{ $post->category->id }}" class="category-name">专题:
+                            {{ $post->category->name }}</a>
                     @endif
                 </div>
             </div>
@@ -117,11 +118,11 @@ if(!$post){
                     </div> --}}
                 </div>
                 <authors-video user-id="{{ $video->user_id }}" video-id="{{ $video->id }}"></authors-video>
-                @if($collection)
-                <div class="video-categories" style="margin-top:20px">
-                    <h4>来自合集：</h4>
-                    @include('video.parts.collection_item',['collection' => $post->collection])
-                </div>
+                @if ($collection)
+                    <div class="video-categories" style="margin-top:20px">
+                        <h4>来自合集：</h4>
+                        @include('video.parts.collection_item',['collection' => $post->collection])
+                    </div>
                 @endif
             </div>
             {{-- <div class="video-info">
@@ -130,7 +131,7 @@ if(!$post){
                 @endif
                 <i class="iconfont icon-shijian"></i>
                 <span>发布于：{{ $video->createdAt() }}</span>
-                @if(config('content.show_video_plays'))
+                @if (show_hits())
                 <i class="iconfont icon-shipin1"></i>
                 <span class="hits">{{ $post->hits??0 }}次播放</span>
                 @endif
@@ -142,15 +143,15 @@ if(!$post){
                 <div class="row">
                     <div class="col-md-8">
                         {{-- 评论中心 --}}
-                        <comments comment-replies={{ $post->count_replies??0 }} type="posts"
-                            id="{{ $post->id }}" author-id="{{ $video->user_id }}"></comments>
+                        <comments comment-replies={{ $post->count_replies ?? 0 }} type="posts" id="{{ $post->id }}"
+                            author-id="{{ $video->user_id }}"></comments>
                     </div>
                     <div class="col-md-4">
                         <div class="guess-like">
                         </div>
 
                         {{-- 来自影片 --}}
-                        @if($post->movie)
+                        @if ($post->movie)
                             @include('video.parts.movie_item', ['movie'=>$post->movie])
                         @endif
                         {{-- 同合集视频 --}}
@@ -184,12 +185,11 @@ if(!$post){
                 limit: 200
             }
             $('#editComment').atwho(at_config); // 初始化
-
         </script>
     @endif
 @endpush
 
 @push('modals')
     {{-- 分享到微信 --}}
-{{--    <modal-share-wx url="{{ url()->full() }}" aid="{{ $post->video_id }}"></modal-share-wx>--}}
+    {{-- <modal-share-wx url="{{ url()->full() }}" aid="{{ $post->video_id }}"></modal-share-wx> --}}
 @endpush

@@ -38,7 +38,7 @@ class ArticleClear extends Command
      */
     public function handle()
     {
-        if (!config('content.enable_haxiyun')) {
+        if (!config('content.enable.haxiyun')) {
             dd("please enable haxiyun on .env");
         }
         $qb = \DB::connection('media')->table('articles')->where('source', config('app.domain'))->whereNotNull('source_id');

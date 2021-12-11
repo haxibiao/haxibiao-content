@@ -3,8 +3,16 @@
  * cms配置(含seo)
  */
 return [
+
+    'enable'          => [
+        //流量分析(seo,爬虫)
+        'traffic' => env('ENABLE_TRAFFIC', false),
+        //是否站群(原multi_domains)
+        'sites'   => env('ENABLE_SITES', env('MULTI_DOMAINS', false)),
+    ],
+
     //SEO域名分库模式(顶级域名)
-    'sites'              => [
+    'sites'           => [
         // 'domain.com' => [
         //     'app_name' => 'xxyy',
         //     'app_name_cn'=>'xx影院'
@@ -12,7 +20,7 @@ return [
     ],
 
     //apps分库模式(二级域名)
-    'apps'               => [
+    'apps'            => [
         // 'app1.domain.com' => [
         //     'app_name'    => 'xxyyapp',
         //     'app_name_cn' => 'xx影院app',
@@ -20,11 +28,8 @@ return [
         // ],
     ],
 
-    //默认不开启cms的seo流量分析
-    'enable_traffic'     => env('ENABLE_TRAFFIC', false),
-
     //二维码流量的防拦截处理
-    'qrcode_traffic'     => [
+    'qrcode_traffic'  => [
         'scan_domain' => null, //强制单独二维码入口域名权重最高
         'redirect_urls' => [], //防护跳转地址
 
@@ -36,23 +41,18 @@ return [
         ],
     ],
 
-    'enable_pwa_domains' => [],
-
-    //是否站群(原multi_domains)
-    'enable_sites'       => env('ENABLE_SITES', env('MULTI_DOMAINS', false)),
-
     //SEO主题配置
-    'themes'             => [
+    'themes'          => [
         'zaixianmeiju' => '在线美剧',
     ],
 
     //PWA主题配置(app群需要删除app层cssjs避免404不进入laravel)
-    'pwa_themes'         => [
+    'pwa_themes'      => [
         'sub1.domain.com' => 'theme1',
     ],
 
     //实名备案信息,配置到项目里，方便备案网站nova输入时选择模板
-    'icp'                => [
+    'icp'             => [
         '公司名' => [
             'copyright'          => 'Copyright ©2018-2021 公司名 All Rights Reserved',
             'record_code'        => '粤ICP备******号',
@@ -62,7 +62,7 @@ return [
     ],
 
     //站群友情链接
-    'friend_links'       => [
+    'friend_links'    => [
         // [
         //     'url'  => 'https://example2.com/',
         //     'name' => 'XX视频',
@@ -70,18 +70,18 @@ return [
     ],
 
     //matomo ids
-    'matomo_ids'         => [
+    'matomo_ids'      => [
         'domain1.com' => 'siteid1',
     ],
 
     //站群腾讯统计ids
-    'tencent_app_ids'    => [
+    'tencent_app_ids' => [
         'domain.com' => 'xxx',
     ],
 
     //百度统计ids
-    'baidu_tj_ids'       => [],
+    'baidu_tj_ids'    => [],
 
     //google统计
-    'google_tj_ids'      => [],
+    'google_tj_ids'   => [],
 ];

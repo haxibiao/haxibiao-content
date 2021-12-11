@@ -3,7 +3,7 @@
 {{-- 文章时代的视频详情页，关联文章为主 --}}
 
 @section('title')
-    {{ $video->title ?? '视频'.$video->id}}
+    {{ $video->title ?? '视频' . $video->id }}
 @stop
 
 @push('seo_og_result')
@@ -12,8 +12,8 @@
     <meta property="og:title" content="{{ $video->title }}" />
     <meta property="og:description" content="{{ $video->title }}" />
     <meta property="og:image" content="{{ $video->cover }}" />
-    <meta name="weibo: article:create_at" content="{{$video->created_at }}" />
-    <meta name="weibo: article:update_at" content="{{$video->updated_at }}" />
+    <meta name="weibo: article:create_at" content="{{ $video->created_at }}" />
+    <meta name="weibo: article:update_at" content="{{ $video->updated_at }}" />
 @endpush
 
 @section('content')
@@ -77,9 +77,9 @@
                 {{-- 专题 合集？ --}}
                 <i class="iconfont icon-shijian"></i>
                 <span>发布于：{{ $video->createdAt() }}</span>
-                @if(config('content.show_video_plays'))
+                @if (show_hits())
                     <i class="iconfont icon-shipin1"></i>
-                    <span class="hits">{{ $video->hits ?? rand(1000,50000) }}次播放</span>
+                    <span class="hits">{{ $video->hits ?? rand(1000, 50000) }}次播放</span>
                 @endif
             </div>
         </div>
@@ -102,7 +102,7 @@
         <div class="module-share-h3">分享到....</div>
         <div>@include('video.parts.share', ['subject' => $video->title, 'url'=>url('/video/'.$video->id)])</div>
         <close-share></close-share>
-    </div>--}}
+    </div> --}}
     <div id="pageLayout">
 
     </div>
@@ -110,5 +110,5 @@
 
 @push('modals')
     {{-- 分享到微信 --}}
-{{--    <modal-share-wx url="{{ url()->full() }}" aid="{{ $video->id }}"></modal-share-wx>--}}
+    {{-- <modal-share-wx url="{{ url()->full() }}" aid="{{ $video->id }}"></modal-share-wx> --}}
 @endpush

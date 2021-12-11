@@ -122,7 +122,7 @@ class ContentServiceProvider extends ServiceProvider
         }
 
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
-            if (config('cms.enable_sites')) {
+            if (is_sites()) {
                 // 每天定时归档seo流量
                 $schedule->command('archive:traffic')->dailyAt('1:00');
             }
@@ -143,8 +143,8 @@ class ContentServiceProvider extends ServiceProvider
         //安装/console模式时需要
         if ($this->app->runningInConsole()) {
 
-            // FIXME:临时添加了一个开关，兼容不migration的项目复用content能力。
-            if (config('content.migration_autoload')) {
+            //是否升级数据库
+            if (config('breeze.enable.migration')) {
                 $this->loadMigrationsFrom($this->app->make('path.haxibiao-content.migrations'));
             }
 
@@ -160,7 +160,7 @@ class ContentServiceProvider extends ServiceProvider
         }
 
         //中间件
-        if (config('cms.enable_traffic')) {
+        if (config('cms.enable.traffic')) {
             app('router')->pushMiddlewareToGroup('web', SeoTraffic::class);
         }
         if (config('cms.qrcode_traffic')) {
