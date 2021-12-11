@@ -134,8 +134,8 @@ class ContentServiceProvider extends ServiceProvider
             $schedule->command('sitemap:generate')->dailyAt('3:00');
 
             // 更新每日播放量
-            $enabled = config('media.enabled_statistics_video_views', false);
-            if ($enabled) {
+            $enable_vod = config('media.enable.vod', false);
+            if ($enable_vod) {
                 $schedule->command('haxibiao:statistic:video_viewers')->dailyAt('2:30');;
             }
         });

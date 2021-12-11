@@ -67,7 +67,7 @@ class SitemapGenerate extends Command
     {
         $siteMapIndexUrls = [];
         $mi               = 0;
-        $qb = Movie::query()->select(['id','movie_key'])
+        $qb               = Movie::query()->select(['id', 'movie_key'])
             ->orderBy('id', 'desc');
         //先只提交前1000个
         // $qb = $qb->where('id', '<=', 1000);
@@ -80,9 +80,9 @@ class SitemapGenerate extends Command
                 ->getSitemap();
             foreach ($movies as $movie) {
                 $movieUrl = 'https://' . $domain . '/movie/' . $movie->id;
-                if(config('media.movie.enable_slug')){
-                    $hashids = new Hashids($domain);
-                    $slug =  $hashids->encode($movie->movie_key);
+                if (config('media.enable.slug')) {
+                    $hashids  = new Hashids($domain);
+                    $slug     = $hashids->encode($movie->movie_key);
                     $movieUrl = 'https://' . $domain . '/movie/' . $slug;
                 }
                 $sitemapGenerator->add(Url::create($movieUrl)
