@@ -249,7 +249,7 @@ class SitemapGenerate extends Command
         $siteMapIndexUrls = [];
         $mi               = 0;
 
-        if (config('media.enable_mediachain')) {
+        if (is_enable_mediachain()) {
             $qb = Movie::query()->select(['id'])
                 ->orderBy('id', 'desc');
         } else {
