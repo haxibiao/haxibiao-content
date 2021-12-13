@@ -84,4 +84,7 @@ return [
 
     //google统计
     'google_tj_ids'   => [],
+
+    // App下载页面
+    'app_download_page_url' => env('CMS_APP_DOWNLOAD_PAGE_URL','/app'),
 ];
