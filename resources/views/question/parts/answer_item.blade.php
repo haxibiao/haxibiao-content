@@ -44,8 +44,7 @@
             title="{{ $question->title }}"></answer-tool>
     @endif
 </div>
-@push('scripts')
-
+@push('js')
     <script>
         $(function() {
             $('.answer-item').each(function(index, el) {
@@ -57,6 +56,5 @@
                 $(this).parent('.answer-text').removeClass('fold');
             })
         });
-
     </script>
 @endpush

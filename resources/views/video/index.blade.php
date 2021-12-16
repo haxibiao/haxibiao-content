@@ -36,7 +36,7 @@
     </div>
 @stop
 
-@push('scripts')
+@push('js')
     <script>
         $(".cateory-logo").on('error', function() {
             $(this).attr("src", "/images/default_logo.png");

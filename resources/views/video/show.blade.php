@@ -173,8 +173,7 @@ if (!$post) {
     </div>
 @stop
 
-@push('scripts')
-
+@push('js')
     @if (Auth::check())
         <script type="text/javascript">
             var at_config = {

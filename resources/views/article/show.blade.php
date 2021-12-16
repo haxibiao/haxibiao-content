@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title') {{ $article->subject }} -  @endsection
+@section('title') {{ $article->subject }} - @endsection
 @section('keywords') {{ $article->keywords }} @endsection
 @section('description') {{ $article->summary }} @endsection
 
@@ -24,16 +24,16 @@
                 @include('article.parts.author')
                 {{-- 内容 --}}
                 <div class="show-content">
-					{{-- <p class="lead">
+                    {{-- <p class="lead">
 						{{ $article->summary }}
 					</p> --}}
                     <p>@include('article.parts.body')</p>
 
                     {{-- 视频播放 --}}
-                    @if($video = $article->video)
-                     <div class="h5-player">
-                        <dplayer style="height: 500px;" source="{{ $video->url }}" />
-                    </div>
+                    @if ($video = $article->video)
+                        <div class="h5-player">
+                            <dplayer style="height: 500px;" source="{{ $video->url }}" />
+                        </div>
                     @endif
 
                     {{-- 动态的图片 --}}
@@ -78,7 +78,7 @@
 
 
                 {{-- 来自影片 --}}
-                @if($article->movie)
+                @if ($article->movie)
                     @include('video.parts.movie_item', ['movie'=>$article->movie])
                 @endif
 
@@ -164,7 +164,7 @@
     <modal-report></modal-report>
 @endpush
 
-@push('scripts')
+@push('js')
     @if (Auth::check())
         <script type="text/javascript">
             var at_config = {
@@ -175,7 +175,6 @@
                 limit: 200
             }
             $('#editComment').atwho(at_config); // 初始化
-
         </script>
     @endif
 @endpush
