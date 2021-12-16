@@ -15,6 +15,7 @@ extend type Query {
 
   sticks(place: String, app_name: String): [Stick!]
     @paginate(defaultCount: 10, builder: "App\\Stick@resolveSticks")
+    @cache(maxAge: 3600)
 
   stickPlaces: [stickPlaces] @field(resolver: "App\\Stick@resolveStickPlaces")
 
@@ -26,8 +27,13 @@ extend type Query {
   """
   精选内容查询
   """
-  stickyRepo(place: PLACE_ENUM!, type: StickType!, app: APP_ENUM, site_id: Int, count: Int = 4): [Stick]
-    @field(resolver: "App\\Stick@resolveStickyList")
+  stickyRepo(
+    place: PLACE_ENUM!
+    type: StickType!
+    app: APP_ENUM
+    site_id: Int
+    count: Int = 4
+  ): [Stick] @field(resolver: "App\\Stick@resolveStickyList")
 }
 
 enum APP_ENUM {
