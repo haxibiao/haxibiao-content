@@ -14,7 +14,7 @@
             <div class="main sm-left">
                 <div class="question-tags">
                     @foreach ($question->categories as $category)
-                        <a href="/question?cid={{ $category->id }}"   class="tags tag"><span
+                        <a href="/issue?cid={{ $category->id }}"   class="tags tag"><span
                                 class="name">{{ $category->name }}</span></a>
                     @endforeach
                 </div>

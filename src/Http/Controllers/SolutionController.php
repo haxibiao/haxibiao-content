@@ -73,6 +73,6 @@ class SolutionController extends Controller
         }
         $issue->save();
 
-        return redirect()->to('/question/' . $resolution->issue_id);
+        return redirect()->to('/issue/' . $resolution->issue_id);
     }
 }
