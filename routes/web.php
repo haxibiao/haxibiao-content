@@ -5,9 +5,16 @@ declare (strict_types = 1);
 use Illuminate\Contracts\Routing\Registrar as RouteRegisterContract;
 use Illuminate\Support\Facades\Route;
 
-/**
- * Category
- */
+//搜索
+Route::get('/searchQuery', 'SearchController@searchQuery');
+Route::get('/search', 'SearchController@search');
+Route::get('/search/users', 'SearchController@searchUsers');
+Route::get('/search/movies', 'SearchController@searchMovies');
+Route::get('/search/video', 'SearchController@searchVideos');
+Route::get('/search/categories', 'SearchController@searchCategories');
+Route::get('/search/collections', 'SearchController@searchCollections');
+
+//管理专题
 Route::get('/category/list', 'CategoryController@list');
 Route::middleware(config('content.category.middleware', []))->resource('/category', 'CategoryController');
 

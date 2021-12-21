@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title') 搜索 - @endsection
+@section('title') 搜索 {{ get_kw() }} @endsection
 
 @section('content')
     <div id="search-content" class="articles">
@@ -46,13 +46,13 @@
                                     <div class="col-sm-4 col-xs-12">
                                         <div class="note-info note-sm">
                                             <div class="avatar-category">
-                                                <img src="{{ $category->logoUrl }}" alt="">
+                                                <img src="{{ $category->logo }}" alt="">
                                             </div>
                                             <div class="title">
                                                 <a href="/category/{{ $category->id }}"
                                                     class="name">{{ $category->name }}</a>
                                             </div>
-                                            <div class="info">收录了{{ $category->publishedWorks()->count() }}篇作品
+                                            <div class="info">收录了{{ $category->count_articles }}篇作品
                                                 · {{ $category->count_follows }}人关注</div>
                                         </div>
                                     </div>

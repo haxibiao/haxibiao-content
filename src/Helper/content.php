@@ -18,8 +18,22 @@ function show_hits()
     return config('content.show_video_plays');
 }
 
-function save_searched_keyword($keyword, $total = 0)
+/**
+ * 提取搜索关键词
+ */
+function get_kw()
 {
+    return request('q') ?? request('keword') ?? request('kw');
+}
+
+/**
+ * 保存搜索记录
+ */
+function save_kw($keyword, $total = 0)
+{
+    if (blank($keyword)) {
+        return;
+    }
     //保存全局搜索热词
     $query_item = Query::firstOrNew([
         'query' => $keyword,
@@ -37,7 +51,7 @@ function save_searched_keyword($keyword, $total = 0)
         $query_log->save();
     }
 
-    //兼容做长视频的时候，做的搜索记录功能
+    //兼容长视频的搜索记录
     if ($user = currentUser()) {
         $log = SearchLog::firstOrNew([
             'keyword' => $keyword,
@@ -54,11 +68,9 @@ function save_searched_keyword($keyword, $total = 0)
     $log->save();
 }
 
-if (!function_exists('content_path')) {
-    function content_path($path)
-    {
-        return __DIR__ . "/../../" . $path;
-    }
+function content_path($path)
+{
+    return __DIR__ . "/../../" . $path;
 }
 
 /**
