@@ -19,7 +19,13 @@ class SearchController extends Controller
         $page_size = 10;
         $page      = request('page') ? request('page') : 1;
         $query     = get_kw();
-        $articles  = Article::search($query)
+
+        //FIXME: 最新内容靠前，需要依赖meilisearch更新到v0.24并配置成功 $index->updateSortableAttributes()
+        // $articles = Article::search($query, function (Indexes $index, string $query, array $options) {
+        //     return $index->search($query, array_merge($options, ['sort' => ['id:desc']]));
+        // })
+
+        $articles = Article::search($query)
             ->orderBy('id', 'desc')
             ->paginate(10);
         $total = $articles->total();
@@ -52,15 +58,15 @@ class SearchController extends Controller
             }
         }
 
-        //用户，专题
-        $data['users'] = User::where('name', 'like', "%$query")
+        //用户 专题 电影搜索(前3即可)
+        $data['users'] = $page > 1 ? [] : User::where('name', 'like', "%$query")
             ->where('status', '>=', 0)
-            ->paginate($page_size);
-        $data['categories'] = Category::where('name', 'like', "%$query%")
+            ->take(3)->get();
+        $data['categories'] = $page > 1 ? [] : Category::where('name', 'like', "%$query%")
             ->where('status', '>=', 0)
             ->orderBy('id', 'asc')
-            ->paginate($page_size);
-        $data['movies'] = \App\Movie::searchQuery($query)->paginate($page_size);
+            ->take(3)->get();
+        $data['movies'] = $page > 1 ? [] : \App\Movie::searchQuery($query)->paginate(3);
 
         $data['articles'] = $articles;
         $data['query']    = $query;

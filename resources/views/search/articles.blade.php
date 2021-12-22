@@ -8,90 +8,96 @@
             @include('search.aside')
             <div class="main">
                 <div class="top">
-                    <div class="relevant">
-                        <div class="plate-title">
-                            <span>相关用户</span>
-                            <a href="/search/users{{ request('q') ? '?q=' . request('q') : '' }}"
-                                class="all right">查看全部<i class="iconfont icon-youbian"></i></a>
-                        </div>
-                        <div class="container-fluid list">
-                            <div class="row">
-                                @foreach ($data['users'] as $user)
-                                    <div class="col-sm-4 col-xs-12">
-                                        <div class="user-info user-sm">
-                                            <div class="avatar">
-                                                <img src="{{ $user->avatar }}" alt="">
-                                            </div>
-                                            <div class="title">
-                                                <a href="/user/{{ $user->id }}"
-                                                    class="name">{{ $user->name }}</a>
-                                            </div>
-                                            <div class="info">写了{{ $user->count_words }}字 ·
-                                                {{ $user->count_likes }}喜欢</div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                    <div class="relevant">
-                        <div class="plate-title">
-                            <span>相关专题</span>
-                            <a href="/search/categories{{ request('q') ? '?q=' . request('q') : '' }}"
-                                class="all right">查看全部<i class="iconfont icon-youbian"></i></a>
-                        </div>
-                        <div class="container-fluid list">
-                            <div class="row">
-                                @foreach ($data['categories'] as $category)
-                                    <div class="col-sm-4 col-xs-12">
-                                        <div class="note-info note-sm">
-                                            <div class="avatar-category">
-                                                <img src="{{ $category->logo }}" alt="">
-                                            </div>
-                                            <div class="title">
-                                                <a href="/category/{{ $category->id }}"
-                                                    class="name">{{ $category->name }}</a>
-                                            </div>
-                                            <div class="info">收录了{{ $category->count_articles }}篇作品
-                                                · {{ $category->count_follows }}人关注</div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                    @if (config('media.enable.movie', false))
+                    @if (!blank($data['users']))
                         <div class="relevant">
                             <div class="plate-title">
-                                <span>相关电影</span>
-                                <a href="/search/movies{{ request('q') ? '?q=' . request('q') : '' }}"
+                                <span>相关用户</span>
+                                <a href="/search/users{{ request('q') ? '?q=' . request('q') : '' }}"
                                     class="all right">查看全部<i class="iconfont icon-youbian"></i></a>
                             </div>
                             <div class="container-fluid list">
-                                <div class="">
-                                    @foreach ($data['movies'] as $movie)
-                                        <div class="note-list">
-                                            <div class="note-info">
-                                                <a href="/movie/{{ $movie->id }}" class="avatar-category">
-                                                    <img src="{{ $movie->cover }}" alt="">
-                                                </a>
+                                <div class="row">
+                                    @foreach ($data['users'] as $user)
+                                        <div class="col-sm-4 col-xs-12">
+                                            <div class="user-info user-sm">
+                                                <div class="avatar">
+                                                    <img src="{{ $user->avatar }}" alt="">
+                                                </div>
                                                 <div class="title">
-                                                    <a href="/movie/{{ $movie->id }}"
-                                                        class="name">{{ $movie->name }}</a>
+                                                    <a href="/user/{{ $user->id }}"
+                                                        class="name">{{ $user->name }}</a>
                                                 </div>
-                                                <div class="info">
-                                                    主演:@if ($movie->actors)
-                                                        {{ $movie->actors }}
-                                                    @else
-                                                        未知
-                                                    @endif
-                                                </div>
+                                                <div class="info">写了{{ $user->count_words }}字 ·
+                                                    {{ $user->count_likes }}喜欢</div>
                                             </div>
                                         </div>
                                     @endforeach
                                 </div>
                             </div>
                         </div>
+                    @endif
+                    @if (!blank($data['categories']))
+                        <div class="relevant">
+                            <div class="plate-title">
+                                <span>相关专题</span>
+                                <a href="/search/categories{{ request('q') ? '?q=' . request('q') : '' }}"
+                                    class="all right">查看全部<i class="iconfont icon-youbian"></i></a>
+                            </div>
+                            <div class="container-fluid list">
+                                <div class="row">
+                                    @foreach ($data['categories'] as $category)
+                                        <div class="col-sm-4 col-xs-12">
+                                            <div class="note-info note-sm">
+                                                <div class="avatar-category">
+                                                    <img src="{{ $category->logo }}" alt="">
+                                                </div>
+                                                <div class="title">
+                                                    <a href="/category/{{ $category->id }}"
+                                                        class="name">{{ $category->name }}</a>
+                                                </div>
+                                                <div class="info">收录了{{ $category->count_articles }}篇作品
+                                                    · {{ $category->count_follows }}人关注</div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                    @if (config('media.enable.movie', false))
+                        @if (!blank($data['movies']))
+                            <div class="relevant">
+                                <div class="plate-title">
+                                    <span>相关电影</span>
+                                    <a href="/search/movies{{ request('q') ? '?q=' . request('q') : '' }}"
+                                        class="all right">查看全部<i class="iconfont icon-youbian"></i></a>
+                                </div>
+                                <div class="container-fluid list">
+                                    <div class="">
+                                        @foreach ($data['movies'] as $movie)
+                                            <div class="note-list">
+                                                <div class="note-info">
+                                                    <a href="/movie/{{ $movie->id }}" class="avatar-category">
+                                                        <img src="{{ $movie->cover }}" alt="">
+                                                    </a>
+                                                    <div class="title">
+                                                        <a href="/movie/{{ $movie->id }}"
+                                                            class="name">{{ $movie->name }}</a>
+                                                    </div>
+                                                    <div class="info">
+                                                        主演:@if ($movie->actors)
+                                                            {{ $movie->actors }}
+                                                        @else
+                                                            未知
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     @endif
                 </div>
                 <div class="search-content">
@@ -157,7 +163,7 @@
                         <blank-content></blank-content>
                     @endif
 
-                    {!! $data['articles']->appends(['q' => $data['query']])->render() !!}
+                    {!! $data['articles']->links() !!}
                 </div>
             </div>
         </section>

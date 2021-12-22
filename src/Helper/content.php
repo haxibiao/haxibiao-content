@@ -23,7 +23,7 @@ function show_hits()
  */
 function get_kw()
 {
-    return request('q') ?? request('keword') ?? request('kw');
+    return request('q') ?? request('keyword') ?? request('kw') ?? request('query');
 }
 
 /**
