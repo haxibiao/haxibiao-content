@@ -11,6 +11,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection as LCollection;
+use MeiliSearch\Endpoints\Indexes;
 
 class SearchController extends Controller
 {
@@ -20,13 +21,16 @@ class SearchController extends Controller
         $page      = request('page') ? request('page') : 1;
         $query     = get_kw();
 
-        //FIXME: 最新内容靠前，需要依赖meilisearch更新到v0.24并配置成功 $index->updateSortableAttributes()
-        // $articles = Article::search($query, function (Indexes $index, string $query, array $options) {
-        //     return $index->search($query, array_merge($options, ['sort' => ['id:desc']]));
-        // })
+        $qbSearch = Article::search($query);
 
-        $articles = Article::search($query)
-            ->orderBy('id', 'desc')
+        //FIXME: 最新内容靠前，需要meilisearch更新到v0.24+并配置成功 $index->updateSortableAttributes()
+        if (config('scout.meilisearch.sortable')) {
+            $qbSearch = Article::search($query, function (Indexes $index, string $query, array $options) {
+                return $index->search($query, array_merge($options, ['sort' => ['id:desc']]));
+            });
+        }
+
+        $articles = $qbSearch->orderBy('id', 'desc')
             ->paginate(10);
         $total = $articles->total();
 
