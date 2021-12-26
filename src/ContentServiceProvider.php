@@ -180,8 +180,8 @@ class ContentServiceProvider extends ServiceProvider
             if ($site = $modelStr::whereDomain(get_domain())->first()) {
                 return $site;
             }
-            //默认返回第一个站点
-            return $modelStr::first();
+            //默认返回null尊重env
+            return null;
         });
 
         //注册监听器
